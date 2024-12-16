@@ -1,7 +1,7 @@
 const Login = () => {
-  return (
-    <div>Login</div>
-  )
-}
+  return <div className="grid min-h-screen place-items-center">
+    
+  </div>;
+};
 
-export default Login
+export default Login;
