@@ -1,3 +1,5 @@
+import { Schema, model } from "mongoose";
+
 const RoleSchema = new Schema({
   role_type: { type: String, required: true },
   permissions: [
@@ -8,4 +10,6 @@ const RoleSchema = new Schema({
   ],
 });
 
-export { UserSchema, RoleSchema };
+const RoleModel = model("role", RoleSchema);
+
+export default RoleSchema;

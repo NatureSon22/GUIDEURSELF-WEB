@@ -5,8 +5,11 @@ async function connectDB() {
   try {
     config();
 
+    console.log("connecting")
     await mongoose.connect(
-      process.env.MONGODB_URI,
+      process.env.MONGODB_URI,{
+        dbName: "GUIDEURSELF"
+      }
     );
 
     console.log("Database connected successfully");
