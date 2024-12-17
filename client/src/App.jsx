@@ -2,7 +2,8 @@ import { Outlet } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
 
-const App = () => {
+const App = () => {  
+
   return (
     <div className="flex min-h-screen">
       <SideBar />

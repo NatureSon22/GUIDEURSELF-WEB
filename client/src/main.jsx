@@ -11,12 +11,18 @@ import VirtualTour from "./pages/virtual_tour/VirtualTour.jsx";
 import KeyOfficials from "./pages/key_officials/KeyOfficials.jsx";
 import Campus from "./pages/Campus/Campus.jsx";
 import Accounts from "./pages/accounts/Accounts.jsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AuthLayer from "./layer/AuthLayer";
 
 const router = createBrowserRouter([
   {
     path: "/",
     errorElement: <PageNotFound />,
-    element: <App />,
+    element: (
+      <AuthLayer>
+        <App />
+      </AuthLayer>
+    ),
     children: [
       {
         path: "/dashboard",
@@ -54,8 +60,12 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </StrictMode>,
 );

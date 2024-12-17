@@ -7,10 +7,8 @@ config();
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password);
 
     const user = await UserModel.findOne({ email });
-    console.log(user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -83,4 +81,14 @@ const logout = async (req, res) => {
   }
 };
 
-export { login, register, logout };
+const validateToken = (req, res) => {
+  try {
+    res.status(200).json({
+      message: "Token is valid",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { login, register, logout, validateToken };

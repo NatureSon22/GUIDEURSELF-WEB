@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import logo from "../../assets/guideURSelfLOGO 1.png";
+import { login } from "../../api/auth";
 import {
   Form,
   FormControl,
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 
 const formSchema = z.object({
   email: z
@@ -36,32 +38,24 @@ const Login = () => {
       rememberMe: false,
     },
   });
-
-  const onSubmit = async (data) => {
-    try {
-      console.log("Form data:", data);
-      // Call API for login
-    } catch (error) {
-      console.error("Login failed:", error);
-      // Show error to user
-    }
-  };
+  const { mutate: handleLogin } = useMutation({
+    mutationFn: (data) => login(data),
+    onSuccess: (data) => {
+      console.log(data);
+    },
+  });
 
   return (
     <div className="grid min-h-screen place-items-center px-4">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(handleLogin)}
           noValidate
           className="w-full max-w-md space-y-5"
         >
           {/* Logo */}
           <div className="mb-4 flex justify-center">
-            <img
-              src={logo}
-              alt="GuideURSelf Logo"
-              className="w-auto"
-            />
+            <img src={logo} alt="GuideURSelf Logo" className="w-auto" />
           </div>
 
           <p className="text-center text-gray-600">
