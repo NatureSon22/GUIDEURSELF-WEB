@@ -14,8 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import useAuthStore from "../../context/useAuthStore";
 
 const formSchema = z.object({
   email: z
@@ -30,6 +31,8 @@ const formSchema = z.object({
 });
 
 const Login = () => {
+  const navigate = useNavigate();
+  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,8 +43,9 @@ const Login = () => {
   });
   const { mutate: handleLogin } = useMutation({
     mutationFn: (data) => login(data),
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: () => {
+      navigate("/dashboard");
+      setIsAuthenticated(true);
     },
   });
 

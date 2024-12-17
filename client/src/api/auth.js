@@ -31,4 +31,17 @@ const isAuthenticated = async () => {
   return response.json();
 };
 
-export { login, isAuthenticated };
+const logout = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(response.message);
+  }
+
+  return response.json();
+};
+
+export { login, isAuthenticated, logout };

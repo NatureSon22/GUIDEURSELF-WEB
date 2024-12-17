@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 const useAuthStore = create((set) => ({
   isAuthenticated: null,
+  authInfo: null,
   setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
   reset: () => set({ isAuthenticated: null }),
 }));
