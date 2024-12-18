@@ -1,16 +1,19 @@
 import { Outlet } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
+import PageLayout from "./pages/PageLayout";
 
-const App = () => {  
-
+const App = () => {
   return (
     <div className="flex min-h-screen">
       <SideBar />
 
-      <div className="flex-1">
+      <div className="flex flex-1 flex-col">
         <NavBar />
-        <Outlet />
+
+        <PageLayout>
+          <Outlet />
+        </PageLayout>
       </div>
     </div>
   );
