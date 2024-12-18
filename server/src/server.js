@@ -5,6 +5,7 @@ import connectDB from "../config/db.js";
 import authRouter from "../router/authRouter.js";
 import userRouter from "../router/userRouter.js";
 import cookieParser from "cookie-parser";
+import campusRouter from "../router/campusRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -18,6 +19,7 @@ app.use(
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/campus", campusRouter);
 
 (async () => {
   config();
