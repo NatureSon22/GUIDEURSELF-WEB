@@ -15,7 +15,27 @@ const getAllCampuses = async () => {
     label: campus.campus_name,
   }));
 
-  return allCampuses;
+  return allCampuses || [];
 };
 
-export { getAllCampuses };
+const getAllRoleTypes = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(response.message);
+  }
+
+  const { roleTypes } = await response.json();
+
+  const allRoleTypes = roleTypes.map((roleType) => ({
+    value: roleType._id,
+    label: roleType.role_type,
+  }));
+
+  return allRoleTypes || [];
+};
+
+export { getAllCampuses, getAllRoleTypes };

@@ -25,11 +25,15 @@ const UserSchema = new Schema({
   campus_id: { type: Schema.Types.ObjectId, required: false },
   password: { type: String, required: false },
   date_created: { type: Date, default: Date.now },
-  user_photo_url: { type: String, default: "" },
+  user_photo_url: {
+    type: String,
+    default:
+      "https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png",
+  },
   status: {
     type: String,
     enum: ["active", "inactive", "pending"],
-    default: "active",
+    default: "pending",
   },
 });
 

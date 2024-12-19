@@ -22,7 +22,6 @@ const Accounts = () => {
   const [globalFilter, setGlobalFilter] = useState("");
 
   const handleAddAccountClick = () => {
-    console.log("click");
     navigate("/accounts/add-account");
   };
 

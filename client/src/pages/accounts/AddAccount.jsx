@@ -13,15 +13,17 @@ import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { getAllCampuses } from "@/api/component-info";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
+import { addAccount } from "@/api/accounts";
 
 const formSchema = z
   .object({
-    // userType: z.string().nonempty({ message: "User type is required" }),
+    userType: z.string().nonempty({ message: "User type is required" }),
     campus: z.string().nonempty({ message: "Campus is required" }),
-    firstName: z.string().nonempty({ message: "First name is required" }),
+    user_number: z.string().nonempty({ message: "User number is required" }),
     username: z.string().nonempty({ message: "Username is required" }),
+    firstName: z.string().nonempty({ message: "First name is required" }),
     middleName: z.string().optional(),
     lastName: z.string().nonempty({ message: "Last name is required" }),
     email: z
@@ -44,6 +46,7 @@ const AddAccount = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      user_number: "",
       userType: "",
       campus: "",
       firstName: "",
@@ -55,13 +58,31 @@ const AddAccount = () => {
       confirmPassword: "",
     },
   });
-  const { data: allCampuses, isLoading } = useQuery({
+  const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
     queryFn: () => getAllCampuses(),
   });
+  const { data: allRoleTypes } = useQuery({
+    queryKey: ["allRoleTypes"],
+    queryFn: () => getAllRoleTypes(),
+  });
+  const { mutate: handleAddAccount } = useMutation({
+    mutationFn: (data) => addAccount(data),
+  });
 
   const onSubmit = (data) => {
-    console.log(data);
+    const formData = new FormData();
+    formData.append("role_id", data.userType);
+    formData.append("campus_id", data.campus);
+    formData.append("user_number", data.user_number);
+    formData.append("username", data.username);
+    formData.append("firstname", data.firstName);
+    formData.append("middlename", data.middleName);
+    formData.append("lastname", data.lastName);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+
+    handleAddAccount(formData);
   };
 
   return (
@@ -69,7 +90,7 @@ const AddAccount = () => {
       <Form {...form}>
         <form
           noValidate
-          className="grid gap-5"
+          className="grid gap-7"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <Header
@@ -77,21 +98,25 @@ const AddAccount = () => {
             subtitle="Manually create a new account by entering the required information below, or use the Import File option for bulk account creation"
           ></Header>
 
-          <div className="space-y-4">
-            <div className="flex items-center gap-10">
-              {/* <FormField
+          <div className="space-y-5">
+            <div className="flex gap-10">
+              <FormField
                 control={form.control}
                 name="userType"
                 render={({ field }) => (
                   <FormItem className="flex flex-col gap-1">
                     <FormLabel htmlFor="userType">User Type</FormLabel>
                     <FormControl>
-                      <ComboBox placeholder="select user type" />
+                      <ComboBox
+                        options={allRoleTypes}
+                        placeholder="select user type"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              /> */}
+              />
 
               <FormField
                 control={form.control}
@@ -113,6 +138,24 @@ const AddAccount = () => {
             </div>
 
             <div className="flex gap-10">
+              <FormField
+                control={form.control}
+                name="user_number"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col gap-1">
+                    <FormLabel htmlFor="user_number">User Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="user_number"
+                        placeholder="Enter user number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="username"
@@ -186,7 +229,7 @@ const AddAccount = () => {
               />
             </div>
 
-            <div className="flex items-center gap-10">
+            <div className="flex gap-10">
               <FormField
                 control={form.control}
                 name="email"
