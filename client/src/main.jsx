@@ -13,6 +13,8 @@ import Campus from "./pages/Campus/Campus.jsx";
 import Accounts from "./pages/accounts/Accounts.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthLayer from "./layer/AuthLayer";
+import AddAccount from "./pages/accounts/AddAccount";
+import Container from "./components/Container";
 
 const router = createBrowserRouter([
   {
@@ -46,7 +48,17 @@ const router = createBrowserRouter([
       },
       {
         path: "/accounts",
-        element: <Accounts />,
+        element: <Container />,
+        children: [
+          {
+            path: "",
+            element: <Accounts />,
+          },
+          {
+            path: "/accounts/add-account",
+            element: <AddAccount />,
+          },
+        ],
       },
     ],
   },

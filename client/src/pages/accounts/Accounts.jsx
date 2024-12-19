@@ -9,8 +9,10 @@ import DataTable from "@/components/DataTable";
 import ComboBox from "@/components/ComboBox";
 import data from "../../data/accounts";
 import columns from "../../components/columns/Accounts";
+import { useNavigate } from "react-router-dom";
 
 const Accounts = () => {
+  const navigate = useNavigate();
   const userTypes = useMemo(() => userType, []);
   const campuses = useMemo(() => campus, []);
   const statuses = useMemo(() => status, []);
@@ -18,6 +20,11 @@ const Accounts = () => {
     username: "",
   });
   const [globalFilter, setGlobalFilter] = useState("");
+
+  const handleAddAccountClick = () => {
+    console.log("click");
+    navigate("/accounts/add-account");
+  };
 
   return (
     <div className="grid gap-5">
@@ -37,7 +44,11 @@ const Accounts = () => {
         />
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="text-secondary-100-75">
+          <Button
+            variant="outline"
+            className="text-secondary-100-75"
+            onClick={handleAddAccountClick}
+          >
             <RiAddLargeFill /> Add Account
           </Button>
           <Button variant="outline" className="text-secondary-100-75">
