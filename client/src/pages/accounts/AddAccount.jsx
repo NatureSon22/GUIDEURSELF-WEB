@@ -13,9 +13,11 @@ import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import { addAccount } from "@/api/accounts";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z
   .object({
@@ -58,16 +60,23 @@ const AddAccount = () => {
       confirmPassword: "",
     },
   });
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
     queryFn: () => getAllCampuses(),
+    refetchOnMount: true,
   });
   const { data: allRoleTypes } = useQuery({
     queryKey: ["allRoleTypes"],
     queryFn: () => getAllRoleTypes(),
+    refetchOnMount: true,
   });
   const { mutate: handleAddAccount } = useMutation({
     mutationFn: (data) => addAccount(data),
+    onSuccess: () => {
+      navigate("/accounts");
+    },
   });
 
   const onSubmit = (data) => {
@@ -83,6 +92,14 @@ const AddAccount = () => {
     formData.append("password", data.password);
 
     handleAddAccount(formData);
+  };
+
+  const handleCancel = () => {
+    toast({
+      title: "Uh oh! Something went wrong.",
+      description: "There was a problem with your request.",
+    });
+    navigate("/accounts");
   };
 
   return (
@@ -285,7 +302,12 @@ const AddAccount = () => {
           </div>
 
           <div className="ml-auto mt-5 space-x-5">
-            <Button variant="ghost" className="text-base-200">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-base-200"
+              onClick={handleCancel}
+            >
               Cancel
             </Button>
             <Button type="submit" className="bg-base-200">

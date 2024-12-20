@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import PropTypes from "prop-types";
 import { fuzzyFilter } from "@/utils/fuzzysort";
+import { useNavigate } from "react-router-dom";
 
 const DataTable = ({
   data,
@@ -25,9 +26,9 @@ const DataTable = ({
   setGlobalFilter,
   pageSize = 5,
 }) => {
+  const navigate = useNavigate();
   const memoizedData = useMemo(() => data, [data]);
   const memoizedColumns = useMemo(() => columns, [columns]);
-
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize,
@@ -45,7 +46,7 @@ const DataTable = ({
     },
     initialState: {
       columnVisibility: {
-        full_name: false, 
+        full_name: false,
       },
     },
     onGlobalFilterChange: setGlobalFilter,
@@ -53,7 +54,7 @@ const DataTable = ({
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(), 
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (

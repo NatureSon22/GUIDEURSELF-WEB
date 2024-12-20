@@ -15,6 +15,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthLayer from "./layer/AuthLayer";
 import AddAccount from "./pages/accounts/AddAccount";
 import Container from "./components/Container";
+import EditAccount from "./pages/accounts/EditAccount";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
           {
             path: "/accounts/add-account",
             element: <AddAccount />,
+          },
+          {
+            path: "/accounts/edit-account/:accountId",
+            element: <EditAccount />,
           },
         ],
       },

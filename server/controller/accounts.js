@@ -1,9 +1,57 @@
 import UserModel from "../models/user.js";
 const getAllAccounts = async (req, res, next) => {
   try {
-    const users = await UserModel.find();
+    const users = await UserModel.aggregate([
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role_id",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      {
+        $unwind: { path: "$role", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $addFields: {
+          role_type: "$role.role_type",
+        },
+      },
+      {
+        $lookup: {
+          from: "campus",
+          localField: "campus_id",
+          foreignField: "_id",
+          as: "campus",
+        },
+      },
+      {
+        $unwind: { path: "$campus", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $addFields: {
+          campus_name: "$campus.campus_name",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          user_number: 1,
+          username: 1,
+          email: 1,
+          firstname: 1,
+          middlename: 1,
+          lastname: 1,
+          role_type: 1, 
+          campus_name: 1, 
+          date_created: 1,
+          status: 1,
+        },
+      },
+    ]);
 
-    res.status(200).json(users);
+    res.status(200).json({ users });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

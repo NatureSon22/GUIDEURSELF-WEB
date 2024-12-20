@@ -1,10 +1,11 @@
+import formatDate from "@/utils/formatDate";
 import { Button } from "../ui/button";
 import { BiEdit } from "react-icons/bi";
 import { FaCheckCircle } from "react-icons/fa";
 
 const columns = [
   {
-    accessorKey: "user_id",
+    accessorKey: "user_number",
     header: "User ID",
     filterFn: "equalsString",
   },
@@ -45,6 +46,7 @@ const columns = [
   {
     accessorKey: "date_created",
     header: "Date Created",
+    cell: ({ row }) => formatDate(row.original.date_created),
     filterFn: "equalsString",
   },
   {
@@ -59,13 +61,12 @@ const columns = [
       return `${firstname || ""} ${middlename || ""} ${lastname || ""}`.trim();
     },
     id: "full_name", // Must use `id` since it's a computed column
-    header: "Full Name", 
+    header: "Full Name",
     filterFn: (row, columnId, filterValue) => {
       const fullName = row.getValue(columnId);
       return fullName.toLowerCase().includes(filterValue.toLowerCase());
     },
-    enableHiding: true
-    
+    enableHiding: true,
   },
   {
     header: "Action",

@@ -7,9 +7,10 @@ import { RiAddLargeFill } from "react-icons/ri";
 import { MdUpload } from "react-icons/md";
 import DataTable from "@/components/DataTable";
 import ComboBox from "@/components/ComboBox";
-import data from "../../data/accounts";
 import columns from "../../components/columns/Accounts";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getAllAccounts } from "@/api/accounts";
 
 const Accounts = () => {
   const navigate = useNavigate();
@@ -20,6 +21,10 @@ const Accounts = () => {
     username: "",
   });
   const [globalFilter, setGlobalFilter] = useState("");
+  const { data: allAccounts, isLoading } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: () => getAllAccounts(),
+  });
 
   const handleAddAccountClick = () => {
     navigate("/accounts/add-account");
@@ -66,13 +71,17 @@ const Accounts = () => {
         <></>
       </div>
 
-      <DataTable
-        data={data}
-        columns={columns}
-        filters={filters}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <DataTable
+          data={allAccounts}
+          columns={columns}
+          filters={filters}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+        />
+      )}
     </div>
   );
 };
