@@ -1,24 +1,34 @@
-import PropTypes from "prop-types";
-import { FormField } from "./ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "./ui/form";
+import { cloneElement } from "react";
 
-const RenderField = ({
+const RenderField = (
   form,
-  name,
-  label,
-  placeholder,
-  type = "text",
+  fieldName,
+  fieldTitle,
   children,
-}) => {
-  return <FormField control={form.control} name={name} ></FormField>;
-};
-
-RenderField.proptype = {
-  name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  placeholder: PropTypes.string,
-  type: PropTypes.string,
-  children: PropTypes.node,
-  form: PropTypes.object.isRequired,
+  additionalProps = {},
+) => {
+  return (
+    <FormField
+      control={form.control}
+      name={fieldName}
+      render={({ field }) => (
+        <FormItem className="flex flex-col gap-1">
+          <FormLabel htmlFor={fieldName}>{fieldTitle}</FormLabel>
+          <FormControl>
+            {cloneElement(children, { ...field, ...additionalProps })}
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
 };
 
 export default RenderField;

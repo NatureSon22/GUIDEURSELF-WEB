@@ -4,7 +4,7 @@ import { getAllRoleTypes, addRoleType } from "../controller/role.js";
 import multer from "multer";
 
 const roleTypesRouter = Router();
-//roleTypesRouter.use(verifyToken);
+roleTypesRouter.use(verifyToken);
 
 const upload = multer();
 

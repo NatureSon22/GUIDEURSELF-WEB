@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import UserModel from "../models/user.js";
 const getAllAccounts = async (req, res, next) => {
   try {
@@ -43,8 +44,8 @@ const getAllAccounts = async (req, res, next) => {
           firstname: 1,
           middlename: 1,
           lastname: 1,
-          role_type: 1, 
-          campus_name: 1, 
+          role_type: 1,
+          campus_name: 1,
           date_created: 1,
           status: 1,
         },
@@ -74,13 +75,13 @@ const addAccount = async (req, res) => {
     let userExists = await UserModel.findOne({ email });
 
     if (userExists) {
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(409).json({ message: "Email already exists" });
     }
 
     userExists = await UserModel.findOne({ user_number });
 
     if (userExists) {
-      return res.status(409).json({ message: "User number already exists" });
+      return res.status(409).json({ message: "User number already exists" }); // Fixed to JSON
     }
 
     const user = new UserModel({
@@ -104,4 +105,60 @@ const addAccount = async (req, res) => {
   }
 };
 
-export { getAllAccounts, addAccount };
+const getAccount = async (req, res) => {
+  try {
+    const { accountId } = req.params;
+
+    const user = await UserModel.findById(accountId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updateAccount = async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const {
+      role_id,
+      campus_id,
+      user_number,
+      username,
+      firstname,
+      middlename,
+      lastname,
+      email,
+      password,
+    } = req.body;
+
+    await UserModel.updateOne(
+      { _id: accountId },
+      {
+        $set: {
+          role_id,
+          campus_id,
+          user_number,
+          firstname,
+          middlename,
+          lastname,
+          username,
+          email,
+          password,
+        },
+      }
+    );
+
+    res.status(200).json({
+      message: "User updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { getAllAccounts, addAccount, getAccount, updateAccount };
