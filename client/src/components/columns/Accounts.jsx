@@ -3,7 +3,11 @@ import { Button } from "../ui/button";
 import { BiEdit } from "react-icons/bi";
 import { FaCheckCircle } from "react-icons/fa";
 
-const columns = [
+const handleEditClick = (row, navigate) => {
+  navigate(`/accounts/edit-account/${row.original._id}`);
+};
+
+const columns = (navigate) => [
   {
     accessorKey: "user_number",
     header: "User ID",
@@ -26,12 +30,10 @@ const columns = [
   {
     accessorKey: "middlename",
     header: "Middle Name",
-    filterFn: "equalsString",
   },
   {
     accessorKey: "lastname",
     header: "Last Name",
-    filterFn: "equalsString",
   },
   {
     accessorKey: "role_type",
@@ -52,7 +54,7 @@ const columns = [
   {
     accessorKey: "status",
     header: "Status",
-    filterFn: "equalsString",
+    filterFn: "equals",
   },
   // Hidden `full_name` field combining firstname, middlename, and lastname
   {
@@ -70,10 +72,13 @@ const columns = [
   },
   {
     header: "Action",
-    cell: () => {
+    cell: ({ row }) => {
       return (
         <div className="flex items-center justify-around">
-          <Button className="text-[0.75rem]">
+          <Button
+            className="text-[0.75rem]"
+            onClick={() => handleEditClick(row, navigate)}
+          >
             <BiEdit />
             Edit
           </Button>

@@ -18,7 +18,7 @@ const Accounts = () => {
   const campuses = useMemo(() => campus, []);
   const statuses = useMemo(() => status, []);
   const [filters, setFilters] = useState({
-    username: "",
+    role_type: "Student",
   });
   const [globalFilter, setGlobalFilter] = useState("");
   const { data: allAccounts, isLoading } = useQuery({
@@ -31,7 +31,7 @@ const Accounts = () => {
   };
 
   return (
-    <div className="grid gap-5">
+    <div className="flex h-full flex-col gap-5">
       <Header
         title={"Accounts"}
         subtitle={

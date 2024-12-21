@@ -17,7 +17,17 @@ import {
 } from "@/components/ui/command";
 
 const ComboBox = React.forwardRef(
-  ({ options = [], placeholder = "Select", onChange, value: propValue }, ref) => {
+  (
+    {
+      options = [],
+      placeholder = "Select",
+      label = "",
+      defaultvalue = "",
+      onChange,
+      value: propValue,
+    },
+    ref,
+  ) => {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
 
@@ -26,7 +36,7 @@ const ComboBox = React.forwardRef(
     const handleSelect = (currentValue) => {
       const newValue = currentValue === selectedValue ? "" : currentValue;
       setValue(newValue);
-      onChange?.(newValue); // Call onChange if provided
+      onChange?.(newValue);
       setOpen(false);
     };
 
@@ -39,7 +49,9 @@ const ComboBox = React.forwardRef(
             role="combobox"
             aria-expanded={open}
             className={`w-[200px] justify-between ${
-              selectedValue ? "text-base-300" : "text-secondary-100-75 uppercase"
+              selectedValue
+                ? "text-base-300"
+                : "uppercase text-secondary-100-75"
             }`}
           >
             {selectedValue
@@ -65,7 +77,7 @@ const ComboBox = React.forwardRef(
                         "ml-auto",
                         selectedValue === option.value
                           ? "opacity-100"
-                          : "opacity-0"
+                          : "opacity-0",
                       )}
                     />
                   </CommandItem>
@@ -76,12 +88,14 @@ const ComboBox = React.forwardRef(
         </PopoverContent>
       </Popover>
     );
-  }
+  },
 );
 
 ComboBox.propTypes = {
   options: PropTypes.array,
   placeholder: PropTypes.string,
+  label: PropTypes.string,
+  defaultvalue: PropTypes.string,
   onChange: PropTypes.func,
   value: PropTypes.string,
 };
