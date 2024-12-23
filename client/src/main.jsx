@@ -16,6 +16,7 @@ import AuthLayer from "./layer/AuthLayer";
 import AddAccount from "./pages/accounts/AddAccount";
 import Container from "./components/Container";
 import EditAccount from "./pages/accounts/EditAccount";
+import ImportAddAccount from "./pages/accounts/ImportAddAccount";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
           {
             path: "",
             element: <Accounts />,
+          },
+          {
+            path: "/accounts/import-add-account",
+            element: <ImportAddAccount />,
           },
           {
             path: "/accounts/add-account",

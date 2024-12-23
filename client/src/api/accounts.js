@@ -69,4 +69,21 @@ const updateAccount = async (accountId, data) => {
   return response.json();
 };
 
-export { addAccount, getAccount, getAllAccounts, updateAccount };
+const verifyAccount = async (accountId) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/verify-account/${accountId}`,
+    {
+      method: "PUT",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
+export { addAccount, getAccount, getAllAccounts, updateAccount, verifyAccount };

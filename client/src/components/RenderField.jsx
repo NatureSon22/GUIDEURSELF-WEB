@@ -20,7 +20,9 @@ const RenderField = (
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-col gap-1">
-          <FormLabel htmlFor={fieldName}>{fieldTitle}</FormLabel>
+          <FormLabel htmlFor={fieldName} className="text-[0.9rem]" >
+            {fieldTitle}
+          </FormLabel>
           <FormControl>
             {cloneElement(children, { ...field, ...additionalProps })}
           </FormControl>

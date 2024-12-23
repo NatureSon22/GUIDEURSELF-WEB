@@ -10,6 +10,7 @@ import ComboBox from "@/components/ComboBox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RenderField from "@/components/RenderField";
+import accountStatus from "@/utils/accountStatus";
 
 const AccountForm = ({
   formSchema,
@@ -45,6 +46,10 @@ const AccountForm = ({
     formData.append("email", data.email);
     formData.append("password", data.password);
 
+    if (type === "edit") {
+      formData.append("status", data.status);
+    }
+
     handleAccountAction(formData);
   };
 
@@ -74,6 +79,14 @@ const AccountForm = ({
 
           <div className="space-y-5">
             <div className="flex gap-10">
+              {type === "edit" &&
+                RenderField(
+                  form,
+                  "status",
+                  "Status",
+                  <ComboBox options={accountStatus} placeholder="" />,
+                )}
+
               {RenderField(
                 form,
                 "userType",

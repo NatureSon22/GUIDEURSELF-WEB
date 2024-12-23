@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/table";
 import PropTypes from "prop-types";
 import { fuzzyFilter } from "@/utils/fuzzysort";
-import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { GrNext } from "react-icons/gr";
 import { GrPrevious } from "react-icons/gr";
@@ -25,14 +24,15 @@ import { Input } from "./ui/input";
 const DataTable = ({
   data,
   columns,
-  filters,
-  globalFilter,
-  setGlobalFilter,
+  filters = [],
+  setFilters = () => {},
+  globalFilter = "",
+  setGlobalFilter = () => {},
   pageSize = 5,
+  columnActions = {},
 }) => {
-  const navigate = useNavigate();
   const memoizedData = useMemo(() => data, [data]);
-  const memoizedColumns = useMemo(() => columns(navigate), [columns]);
+  const memoizedColumns = useMemo(() => columns(columnActions), []);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize,
@@ -45,6 +45,7 @@ const DataTable = ({
       fuzzy: fuzzyFilter,
     },
     state: {
+      columnFilters: filters,
       globalFilter,
       pagination,
     },
@@ -53,6 +54,7 @@ const DataTable = ({
         full_name: false,
       },
     },
+    onColumnFiltersChange: setFilters,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "fuzzy",
     onPaginationChange: setPagination,
@@ -156,10 +158,12 @@ const DataTable = ({
 DataTable.propTypes = {
   data: PropTypes.array.isRequired,
   columns: PropTypes.func.isRequired,
-  filters: PropTypes.object.isRequired,
-  globalFilter: PropTypes.string.isRequired,
-  setGlobalFilter: PropTypes.func.isRequired,
+  filters: PropTypes.array,
+  setFilters: PropTypes.func,
+  globalFilter: PropTypes.string,
+  setGlobalFilter: PropTypes.func,
   pageSize: PropTypes.number,
+  columnActions: PropTypes.object,
 };
 
 export default DataTable;
