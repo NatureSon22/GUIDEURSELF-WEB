@@ -7,7 +7,11 @@ const handleEditClick = (row, navigate) => {
   navigate(`/accounts/edit-account/${row.original._id}`);
 };
 
-const columns = (navigate) => [
+const handleVerifyClick = async (accountId, verifyAccount) => {
+  await verifyAccount(accountId);
+};
+
+const columns = ({ navigate, handleVerifyAccount }) => [
   {
     accessorKey: "user_number",
     header: "User ID",
@@ -64,10 +68,12 @@ const columns = (navigate) => [
     },
     id: "full_name", // Must use `id` since it's a computed column
     header: "Full Name",
-    filterFn: (row, columnId, filterValue) => {
-      const fullName = row.getValue(columnId);
-      return fullName.toLowerCase().includes(filterValue.toLowerCase());
-    },
+    filterFn: "fuzzy",
+    sortFn: "fuzzySort",
+    // filterFn: (row, columnId, filterValue) => {
+    //   const fullName = row.getValue(columnId);
+    //   return fullName.toLowerCase().includes(filterValue.toLowerCase());
+    // },
     enableHiding: true,
   },
   {
@@ -82,9 +88,14 @@ const columns = (navigate) => [
             <BiEdit />
             Edit
           </Button>
-          <Button className="text-[0.75rem]">
+          <Button
+            className="text-[0.75rem]"
+            onClick={() =>
+              handleVerifyClick(row.original._id, handleVerifyAccount)
+            }
+          >
             <FaCheckCircle />
-            Verify
+            { row.original.status === "pending" ? "Verify" : "Resend" }
           </Button>
         </div>
       );

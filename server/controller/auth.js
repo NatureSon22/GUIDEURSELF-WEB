@@ -18,6 +18,10 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    if (user.status !== "active") {
+      return res.status(401).json({ message: "Account is not active. Please wait for verification" });
+    }
+
     const authToken = jwt.sign(
       {
         userId: user._id,

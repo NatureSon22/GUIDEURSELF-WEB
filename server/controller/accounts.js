@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
 import UserModel from "../models/user.js";
+import sendVerificationEmail from "../service/email.js";
+
 const getAllAccounts = async (req, res, next) => {
   try {
     const users = await UserModel.aggregate([
@@ -134,6 +135,7 @@ const updateAccount = async (req, res) => {
       lastname,
       email,
       password,
+      status,
     } = req.body;
 
     await UserModel.updateOne(
@@ -149,6 +151,7 @@ const updateAccount = async (req, res) => {
           username,
           email,
           password,
+          status,
         },
       }
     );
@@ -161,4 +164,29 @@ const updateAccount = async (req, res) => {
   }
 };
 
-export { getAllAccounts, addAccount, getAccount, updateAccount };
+const verifyAccount = async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const user = await UserModel.findById(accountId);
+    console.log(user.email);
+
+    await UserModel.updateOne(
+      { _id: accountId },
+      {
+        $set: {
+          status: "active",
+        },
+      }
+    );
+
+    await sendVerificationEmail(user.email, user.username, user.password);
+
+    res.status(200).json({
+      message: "User verified successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export { getAllAccounts, addAccount, getAccount, updateAccount, verifyAccount };
