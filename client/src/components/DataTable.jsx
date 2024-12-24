@@ -28,8 +28,9 @@ const DataTable = ({
   setFilters = () => {},
   globalFilter = "",
   setGlobalFilter = () => {},
-  pageSize = 5,
+  pageSize = 10,
   columnActions = {},
+  showFooter = true,
 }) => {
   const memoizedData = useMemo(() => data, [data]);
   const memoizedColumns = useMemo(() => columns(columnActions), []);
@@ -106,51 +107,53 @@ const DataTable = ({
         </TableBody>
       </Table>
 
-      <div className="mt-auto flex items-center justify-between pb-5 pt-7">
-        <p className="text-[0.9rem] font-semibold text-secondary-100-75">
-          {`Showing ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()} ${table.getPageCount() > 1 ? "pages" : "page"}`}
-        </p>
+      {showFooter && (
+        <div className="mt-auto flex items-center justify-between pb-5 pt-7">
+          <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+            {`Showing ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()} ${table.getPageCount() > 1 ? "pages" : "page"}`}
+          </p>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="font-semibold text-secondary-100-75"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <GrPrevious />
-            Previous
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="font-semibold text-secondary-100-75"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <GrPrevious />
+              Previous
+            </Button>
 
-          <Input
-            type="number"
-            min="1"
-            max={table.getPageCount()}
-            value={table.getState().pagination.pageIndex + 1}
-            onChange={(e) => {
-              const page = Number(e.target.value) - 1;
+            <Input
+              type="number"
+              min="1"
+              max={table.getPageCount()}
+              value={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = Number(e.target.value) - 1;
 
-              if (page > table.getPageCount() - 1) {
-                return;
-              }
+                if (page > table.getPageCount() - 1) {
+                  return;
+                }
 
-              console.log(e.target.value);
-              table.setPageIndex(page);
-            }}
-            className="w-16 rounded border p-1 text-center"
-          />
+                console.log(e.target.value);
+                table.setPageIndex(page);
+              }}
+              className="w-16 rounded border p-1 text-center"
+            />
 
-          <Button
-            variant="outline"
-            className="font-semibold text-secondary-100-75"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-            <GrNext />
-          </Button>
+            <Button
+              variant="outline"
+              className="font-semibold text-secondary-100-75"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+              <GrNext />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -164,6 +167,7 @@ DataTable.propTypes = {
   setGlobalFilter: PropTypes.func,
   pageSize: PropTypes.number,
   columnActions: PropTypes.object,
+  showFooter: PropTypes.bool,
 };
 
 export default DataTable;

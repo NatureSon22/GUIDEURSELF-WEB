@@ -17,6 +17,7 @@ import AddAccount from "./pages/accounts/AddAccount";
 import Container from "./components/Container";
 import EditAccount from "./pages/accounts/EditAccount";
 import ImportAddAccount from "./pages/accounts/ImportAddAccount";
+import UserManagement from "./pages/settings/user-management/UserManagement";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,16 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "/settings",
+        element: <Container />,
+        children: [
+          {
+            path: "/settings/user-management",
+            element: <UserManagement />,
+          },
+        ],
+      },
     ],
   },
   {
@@ -82,7 +93,13 @@ const router = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  // defaultOptions: {
+  //   queries: {
+  //     refetchOnWindowFocus: false,
+  //   },
+  // },
+});
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

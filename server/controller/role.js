@@ -12,6 +12,26 @@ const getAllRoleTypes = async (req, res) => {
 
 const addRoleType = async (req, res) => {
   try {
+    const { role_type } = req.body;
+
+    let roleExists = await RoleModel.findOne({
+      role_type: role_type.toLowerCase(),
+    });
+
+    if (roleExists) {
+      return res.status(400).json({ message: "Role type already exists" });
+    }
+
+    await RoleModel.create({ role_type });
+
+    res.status(200).json({ message: "Role type added successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updateRole = async (req, res) => {
+  try {
     const { role_type, permissions } = req.body;
 
     // Sample permissions format
@@ -21,7 +41,7 @@ const addRoleType = async (req, res) => {
     //     access: ["add-role", "edit-role"],
     //   },
     // ];
-    
+
     // const formData = new FormData();
     // formData.append("role_type", "Admin");
     // formData.append("permissions", JSON.stringify(permissions));

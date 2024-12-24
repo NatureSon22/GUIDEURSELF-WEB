@@ -6,7 +6,7 @@ import { Toaster } from "./components/ui/toaster";
 
 const App = () => {
   return (
-    <div className="flex min-h-screen ">
+    <div className="flex h-screen overflow-hidden">
       <SideBar />
 
       <div className="flex flex-1 flex-col">

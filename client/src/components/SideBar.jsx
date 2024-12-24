@@ -16,7 +16,7 @@ const SideBar = () => {
   });
 
   return (
-    <div className="flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
+    <div className="flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5 sticky top-0">
       <div className="grid place-items-center px-5">
         <img src={logo} alt={"GuideURSelf logo"} />
       </div>

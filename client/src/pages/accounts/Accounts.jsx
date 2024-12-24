@@ -1,6 +1,5 @@
 import Header from "@/components/Header";
-import { useMemo, useState } from "react";
-import { userType, campus, status } from "@/data/filter_types";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RiAddLargeFill } from "react-icons/ri";
@@ -18,8 +17,6 @@ import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 
 const Accounts = () => {
   const navigate = useNavigate();
-  const userTypes = useMemo(() => userType, []);
-  const statuses = useMemo(() => status, []);
   const [openDialog, setOpenDialog] = useState(false);
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");

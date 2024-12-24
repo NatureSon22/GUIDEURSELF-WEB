@@ -2,6 +2,7 @@ import formatDate from "@/utils/formatDate";
 import { Button } from "../ui/button";
 import { BiEdit } from "react-icons/bi";
 import { FaCheckCircle } from "react-icons/fa";
+import formatTitle from "@/utils/formatTitle";
 
 const handleEditClick = (row, navigate) => {
   navigate(`/accounts/edit-account/${row.original._id}`);
@@ -42,6 +43,7 @@ const columns = ({ navigate, handleVerifyAccount }) => [
   {
     accessorKey: "role_type",
     header: "Role Type",
+    cell: ({ row }) => formatTitle(row.original.role_type),
     filterFn: "equalsString",
   },
   {
@@ -58,7 +60,7 @@ const columns = ({ navigate, handleVerifyAccount }) => [
   {
     accessorKey: "status",
     header: "Status",
-    filterFn: "equals",
+    filterFn: "equalsString",
   },
   // Hidden `full_name` field combining firstname, middlename, and lastname
   {
@@ -95,7 +97,7 @@ const columns = ({ navigate, handleVerifyAccount }) => [
             }
           >
             <FaCheckCircle />
-            { row.original.status === "pending" ? "Verify" : "Resend" }
+            {row.original.status === "pending" ? "Verify" : "Resend"}
           </Button>
         </div>
       );
