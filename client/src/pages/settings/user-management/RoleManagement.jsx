@@ -1,28 +1,16 @@
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { RiAddLargeFill } from "react-icons/ri";
-import { useState } from "react";
 import CreateRole from "./CreateRole";
+import RoleTypeTable from "./TableRoleType";
 
 const RoleManagement = () => {
-  const [open, setOpen] = useState(false);
-
   return (
     <div>
       <div className="flex gap-4">
         <Input placeholder="Name of the user type" />
-        <Button
-          variant="outline"
-          className="text-secondary-100-75"
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
-          <RiAddLargeFill /> Create
-        </Button>
+        <CreateRole />
       </div>
 
-      <CreateRole openDialog={open} setOpenDialog={setOpen} />
+      <RoleTypeTable />
     </div>
   );
 };

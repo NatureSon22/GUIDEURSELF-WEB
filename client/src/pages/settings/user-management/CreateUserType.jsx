@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addRole } from "@/api/role";
 import { useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { RiAddLargeFill } from "react-icons/ri";
 
 const CreateUserType = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -23,7 +24,7 @@ const CreateUserType = () => {
     mutationFn: addRole,
     onSuccess: () => {
       setOpenDialog(false);
-      queryClient.invalidateQueries(["roles"]); 
+      queryClient.invalidateQueries(["roles"]);
       toast({
         title: "Success",
         description: "User type created successfully.",
@@ -57,8 +58,13 @@ const CreateUserType = () => {
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpenDialog(true)}>
-        Create User Type
+      <Button
+        variant="outline"
+        className="text-secondary-100-75"
+        onClick={() => setOpenDialog(true)}
+      >
+        <RiAddLargeFill />
+        Add User Type
       </Button>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>

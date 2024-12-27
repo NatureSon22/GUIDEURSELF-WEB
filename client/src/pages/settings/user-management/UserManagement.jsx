@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import UserTypemanagement from "./UserTypemanagement";
+import UserTypemanagement from "./UserTypeManagement";
 import RoleManagement from "./RoleManagement";
 const UserManagement = () => {
   //   {

@@ -7,7 +7,6 @@ const TableUserRole = () => {
   const { data: roles, isLoading } = useQuery({
     queryKey: ["roles"],
     queryFn: getAllRoles,
-    refetchOnWindowFocus: true,
   });
 
   return isLoading ? (
