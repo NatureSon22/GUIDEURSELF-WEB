@@ -26,7 +26,7 @@ const Accounts = () => {
     refetch,
   } = useQuery({
     queryKey: ["accounts"],
-    queryFn: () => getAllAccounts(),
+    queryFn: getAllAccounts,
     refetchOnWindowFocus: false,
   });
   const { mutateAsync: handleVerifyAccount, isPending } = useMutation({
@@ -94,7 +94,6 @@ const Accounts = () => {
         <ComboBox options={allRoles} placeholder="select user type" />
         <ComboBox options={allCampuses} placeholder="select campus" />
         <ComboBox options={accountStatus} placeholder="select status" />
-        <></>
       </div>
 
       {isLoading ? (

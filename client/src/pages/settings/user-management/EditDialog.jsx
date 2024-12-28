@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { getRoleById } from "@/api/role";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PERMISSIONS from "@/data/permissions";
-import Permissions from "./Permissions";
+import Permissions from "@/components/Permissions";
 import { updateRolePermissions } from "@/api/role";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -22,11 +22,7 @@ const EditDialog = ({ role_id, children }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const {
-    data: roleDetails,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: roleDetails, isError } = useQuery({
     queryKey: ["roleDetails", role_id],
     queryFn: () => getRoleById(role_id),
   });
@@ -59,43 +55,26 @@ const EditDialog = ({ role_id, children }) => {
   };
 
   const handleSetPermissions = (module, access, checked) => {
-    let temp = [...permissions];
-
-    if (checked) {
-      const moduleExists = permissions.find(
-        (permission) => permission.module === module,
-      );
-
-      if (!moduleExists) {
-        temp = [
-          ...temp,
-          {
-            module,
-            access: [access],
-          },
-        ];
+    setPermissions((prev) => {
+      if (checked) {
+        const moduleIndex = prev.findIndex((item) => item.module === module);
+        if (moduleIndex === -1) {
+          return [...prev, { module, access: [access] }];
+        } else {
+          const updatedPermissions = [...prev];
+          updatedPermissions[moduleIndex].access.push(access);
+          return updatedPermissions;
+        }
       } else {
-        temp = temp.map((item) =>
-          item.module === module
-            ? { ...item, access: [...item.access, access] }
-            : item,
-        );
+        return prev
+          .map((item) =>
+            item.module === module
+              ? { ...item, access: item.access.filter((acc) => acc !== access) }
+              : item,
+          )
+          .filter((item) => item.access.length > 0);
       }
-    } else {
-      temp = temp
-        .map((item) => {
-          if (item.module === module) {
-            const filteredAccess = item.access.filter((acc) => acc !== access);
-            return filteredAccess.length > 0
-              ? { ...item, access: filteredAccess }
-              : undefined;
-          }
-          return item;
-        })
-        .filter((item) => item !== undefined);
-    }
-
-    setPermissions(temp);
+    });
   };
 
   const handleSave = () => {
@@ -105,15 +84,6 @@ const EditDialog = ({ role_id, children }) => {
 
     updateRolePermission(formData);
   };
-
-  if (isLoading)
-    return (
-      <Button
-        variant="secondary"
-        className="bg-base-200/10 text-base-200"
-        disabled
-      ></Button>
-    );
 
   if (isError)
     return (

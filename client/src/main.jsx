@@ -18,6 +18,8 @@ import Container from "./components/Container";
 import EditAccount from "./pages/accounts/EditAccount";
 import ImportAddAccount from "./pages/accounts/ImportAddAccount";
 import UserManagement from "./pages/settings/user-management/UserManagement";
+import Roles from "./pages/roles/Roles";
+import EditAssignRole from "./pages/roles/EditAssignRole";
 
 const router = createBrowserRouter([
   {
@@ -68,6 +70,20 @@ const router = createBrowserRouter([
           {
             path: "/accounts/edit-account/:accountId",
             element: <EditAccount />,
+          },
+        ],
+      },
+      {
+        path: "/roles-permissions",
+        element: <Container />,
+        children: [
+          {
+            path: "",
+            element: <Roles />,
+          },
+          {
+            path: "/roles-permissions/edit-assign-role/:accountId",
+            element: <EditAssignRole />,
           },
         ],
       },

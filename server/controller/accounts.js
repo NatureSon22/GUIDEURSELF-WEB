@@ -46,6 +46,7 @@ const getAllAccounts = async (req, res, next) => {
           middlename: 1,
           lastname: 1,
           role_type: 1,
+          role_id: 1,
           campus_name: 1,
           date_created: 1,
           status: 1,

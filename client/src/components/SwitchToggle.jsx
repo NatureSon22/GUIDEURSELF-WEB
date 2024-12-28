@@ -2,7 +2,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import formatTitle from "@/utils/formatTitle";
 import PropTypes from "prop-types";
-import { useState } from "react";
 
 const SwitchToggle = ({
   access,
@@ -10,18 +9,13 @@ const SwitchToggle = ({
   handleSetPermissions,
   isChecked = false,
 }) => {
-  const [checked, setChecked] = useState(isChecked);
-
   return (
-    <div className="flex items-center space-x-2" key={access}>
+    <div className="flex items-center space-x-2">
       <Switch
         id={access}
         className="data-[state=checked]:bg-base-200"
-        checked={checked}
-        onCheckedChange={() => {
-          handleSetPermissions(module, access, !checked);
-          setChecked(!checked);
-        }}
+        checked={isChecked} // Controlled by parent
+        onCheckedChange={() => handleSetPermissions(module, access, !isChecked)}
       />
       <Label htmlFor={access} className="text-[0.8rem]">
         {formatTitle(access)}

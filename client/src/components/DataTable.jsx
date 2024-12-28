@@ -71,7 +71,7 @@ const DataTable = ({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="text-base-300">
+                <TableHead key={header.id} className={"text-base-300"}>
                   {header.isPlaceholder
                     ? null
                     : flexRender(

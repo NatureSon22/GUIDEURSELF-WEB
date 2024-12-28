@@ -8,15 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import PERMISSIONS from "@/data/permissions";
-import Permissions from "./Permissions";
+import Permissions from "@/components/Permissions";
 import { useState } from "react";
 import { RiAddLargeFill } from "react-icons/ri";
 import ComboBox from "@/components/ComboBox";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllRolesWithoutPermissions } from "@/api/role";
 import { updateRolePermissions } from "@/api/role";
 import { useToast } from "@/hooks/use-toast";
@@ -31,7 +27,7 @@ const CreateRole = () => {
   });
   const [permissions, setPermissions] = useState([]);
   const [roleId, setRoleId] = useState("");
-  const { mutateAsync: addRolePermission } = useMutation({
+  const { mutateAsync: addRolePermission, isLoading } = useMutation({
     mutationFn: updateRolePermissions,
     onSuccess: (data) => {
       setOpenDialog(false);
@@ -59,54 +55,34 @@ const CreateRole = () => {
   };
 
   const handleSetPermissions = (module, access, checked) => {
-    let temp = [...permissions];
-
-    if (checked) {
-      // Add access if `checked` is true
-      const moduleExists = permissions.find(
-        (permission) => permission.module === module,
+    setPermissions((prev) => {
+      const updatedPermissions = [...prev];
+      const moduleIndex = updatedPermissions.findIndex(
+        (item) => item.module === module
       );
 
-      if (!moduleExists) {
-        // Add a new module with the access
-        temp = [
-          ...temp,
-          {
-            module,
-            access: [access],
-          },
-        ];
-      } else {
-        // Add access to an existing module
-        temp = temp.map((item) => {
-          if (item.module === module) {
-            return {
-              ...item,
-              access: [...item.access, access],
-            };
+      if (checked) {
+        if (moduleIndex === -1) {
+          updatedPermissions.push({ module, access: [access] });
+        } else {
+          if (!updatedPermissions[moduleIndex].access.includes(access)) {
+            updatedPermissions[moduleIndex].access.push(access);
           }
-          return item;
-        });
-      }
-    } else {
-      // Remove access if `checked` is false
-      temp = temp.map((item) => {
-        if (item.module === module) {
-          const filteredAccess = item.access.filter((acc) => acc !== access);
-
-          if (filteredAccess.length === 0) {
-            return undefined;
-          }
-
-          return { ...item, access: filteredAccess };
         }
-        return item;
-      });
+      } else {
+        if (moduleIndex !== -1) {
+          updatedPermissions[moduleIndex].access = updatedPermissions[
+            moduleIndex
+          ].access.filter((acc) => acc !== access);
 
-      temp = temp.filter((item) => item !== undefined);
-    }
+          if (updatedPermissions[moduleIndex].access.length === 0) {
+            updatedPermissions.splice(moduleIndex, 1);
+          }
+        }
+      }
 
-    setPermissions(temp);
+      return updatedPermissions;
+    });
   };
 
   return (
@@ -114,14 +90,12 @@ const CreateRole = () => {
       <Button
         variant="outline"
         className="text-secondary-100-75"
-        onClick={() => {
-          setOpenDialog(true);
-        }}
+        onClick={() => setOpenDialog(true)}
       >
         <RiAddLargeFill /> Create
       </Button>
 
-      <Dialog open={openDialog}>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="grid gap-5 md:max-w-[850px] [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>Set Default Permissions</DialogTitle>
@@ -142,15 +116,13 @@ const CreateRole = () => {
             />
 
             <div className="container my-5 max-h-[400px] overflow-y-auto border">
-              {PERMISSIONS.map((module, i) => {
-                return (
-                  <Permissions
-                    key={i}
-                    module={module}
-                    handleSetPermissions={handleSetPermissions}
-                  />
-                );
-              })}
+              {PERMISSIONS.map((module, i) => (
+                <Permissions
+                  key={i}
+                  module={module}
+                  handleSetPermissions={handleSetPermissions}
+                />
+              ))}
             </div>
           </div>
 
@@ -166,9 +138,9 @@ const CreateRole = () => {
               type="submit"
               className="bg-base-200"
               onClick={handleSave}
-              disabled={!roleId}
+              disabled={isLoading || !roleId}
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>
