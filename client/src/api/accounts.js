@@ -51,6 +51,24 @@ const addAccount = async (data) => {
   return response.json();
 };
 
+const addBulkAccount = async (data) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/import-add-account`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: data,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
 const updateAccount = async (accountId, data) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/accounts/update-account/${accountId}`,
@@ -58,6 +76,28 @@ const updateAccount = async (accountId, data) => {
       method: "PUT",
       credentials: "include",
       body: data,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
+const updateAccountRoleType = async (accountId, roleId) => {
+  const response = await fetch(
+    `
+    ${import.meta.env.VITE_API_URL}/accounts/update-account-role-type/${accountId}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ roleId }),
     },
   );
 
@@ -86,4 +126,12 @@ const verifyAccount = async (accountId) => {
   return response.json();
 };
 
-export { addAccount, getAccount, getAllAccounts, updateAccount, verifyAccount };
+export {
+  addAccount,
+  addBulkAccount,
+  getAccount,
+  getAllAccounts,
+  updateAccount,
+  updateAccountRoleType,
+  verifyAccount,
+};

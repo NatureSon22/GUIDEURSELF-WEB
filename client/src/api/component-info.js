@@ -1,3 +1,5 @@
+import formatTitle from "@/utils/formatTitle";
+
 const getAllCampuses = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/campus`, {
     method: "GET",
@@ -30,10 +32,12 @@ const getAllRoleTypes = async () => {
 
   const { roleTypes } = await response.json();
 
-  const allRoleTypes = roleTypes.map((roleType) => ({
-    value: roleType._id,
-    label: roleType.role_type,
-  }));
+  const allRoleTypes = roleTypes
+    .filter((roleType) => roleType.permissions.length > 0)
+    .map((roleType) => ({
+      value: roleType._id,
+      label: formatTitle(roleType.role_type),
+    }));
 
   return allRoleTypes || [];
 };

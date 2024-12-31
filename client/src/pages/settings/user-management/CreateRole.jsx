@@ -58,7 +58,7 @@ const CreateRole = () => {
     setPermissions((prev) => {
       const updatedPermissions = [...prev];
       const moduleIndex = updatedPermissions.findIndex(
-        (item) => item.module === module
+        (item) => item.module === module,
       );
 
       if (checked) {
@@ -121,6 +121,7 @@ const CreateRole = () => {
                   key={i}
                   module={module}
                   handleSetPermissions={handleSetPermissions}
+                  customizePermission={true}
                 />
               ))}
             </div>

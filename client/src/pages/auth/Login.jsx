@@ -17,6 +17,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import useAuthStore from "../../context/useAuthStore";
+import { useState } from "react";
+import { IoEyeSharp } from "react-icons/io5";
+import { FaEyeSlash } from "react-icons/fa";
 
 const formSchema = z.object({
   email: z
@@ -32,6 +35,7 @@ const formSchema = z.object({
 
 const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setPassword] = useState(false);
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -57,7 +61,6 @@ const Login = () => {
           noValidate
           className="w-full max-w-md space-y-5"
         >
-          {/* Logo */}
           <div className="mb-4 flex justify-center">
             <img src={logo} alt="GuideURSelf Logo" className="w-auto" />
           </div>
@@ -66,7 +69,6 @@ const Login = () => {
             Welcome back, Admin! Ready to keep things running smoothly?
           </p>
 
-          {/* Email and Password Fields */}
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -75,7 +77,7 @@ const Login = () => {
                 <FormItem>
                   <FormLabel htmlFor="email">Email</FormLabel>
                   <FormControl>
-                    <Input id="email" {...field} />
+                    <Input id="email" className="py-5" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,7 +91,27 @@ const Login = () => {
                 <FormItem>
                   <FormLabel htmlFor="password">Password</FormLabel>
                   <FormControl>
-                    <Input id="password" type="password" {...field} />
+                    <div className="flex items-center gap-3">
+                      <Input
+                        id="password"
+                        className="py-5"
+                        autoComplete="on"
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                      />
+
+                      {!showPassword ? (
+                        <FaEyeSlash
+                          onClick={() => setPassword(!showPassword)}
+                          className="cursor-pointer text-[1.5rem] text-secondary-100/50"
+                        />
+                      ) : (
+                        <IoEyeSharp
+                          onClick={() => setPassword(!showPassword)}
+                          className="cursor-pointer text-[1.5rem] text-secondary-100/50"
+                        />
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -97,7 +119,6 @@ const Login = () => {
             />
           </div>
 
-          {/* Remember Me and Forgot Password */}
           <div className="flex items-center justify-between">
             <FormField
               control={form.control}
@@ -106,6 +127,7 @@ const Login = () => {
                 <FormItem className="flex items-center space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
+                      className="border-secondary-200"
                       id="rememberMe"
                       checked={field.value}
                       onCheckedChange={field.onChange}
@@ -120,15 +142,17 @@ const Login = () => {
 
             <Link
               to="/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm font-semibold text-base-200 hover:underline"
             >
               Forgot Password?
             </Link>
           </div>
 
-          {/* Submit Button */}
-          <Button type="submit" className="mt-5 w-full">
-            Submit
+          <Button
+            type="submit"
+            className="mt-5 w-full bg-base-200 py-6 text-[1rem] font-semibold"
+          >
+            Login
           </Button>
         </form>
       </Form>

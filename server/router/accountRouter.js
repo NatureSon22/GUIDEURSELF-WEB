@@ -4,7 +4,10 @@ import {
   getAllAccounts,
   getAccount,
   updateAccount,
+  updateAccountRoleType,
   verifyAccount,
+  bulkAddAccount,
+  deleteAccounts,
 } from "../controller/accounts.js";
 import multer from "multer";
 import verifyToken from "../middleware/verifyToken.js";
@@ -40,14 +43,19 @@ const upload = multer({
 });
 
 const accountRouter = Router();
-accountRouter.use(verifyToken);
+//accountRouter.use(verifyToken);
 
 accountRouter.get("/", getAllAccounts);
 accountRouter.get("/:accountId", getAccount);
-accountRouter.post("/import-add-account", upload.single("file"), addAccount);
+accountRouter.post("/import-add-account", upload.none(), bulkAddAccount);
 accountRouter.post("/add-account", upload.none(), addAccount);
 accountRouter.put("/update-account/:accountId", upload.none(), updateAccount);
+accountRouter.put(
+  "/update-account-role-type/:accountId",
+  updateAccountRoleType
+);
 accountRouter.put("/verify-account/:accountId", verifyAccount);
+accountRouter.delete("/delete-accounts", deleteAccounts);
 
 accountRouter.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {

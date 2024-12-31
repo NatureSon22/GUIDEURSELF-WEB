@@ -8,6 +8,7 @@ const SwitchToggle = ({
   module,
   handleSetPermissions,
   isChecked = false,
+  disable = false,
 }) => {
   return (
     <div className="flex items-center space-x-2">
@@ -16,6 +17,7 @@ const SwitchToggle = ({
         className="data-[state=checked]:bg-base-200"
         checked={isChecked} // Controlled by parent
         onCheckedChange={() => handleSetPermissions(module, access, !isChecked)}
+        disabled={disable}
       />
       <Label htmlFor={access} className="text-[0.8rem]">
         {formatTitle(access)}
@@ -29,6 +31,7 @@ SwitchToggle.propTypes = {
   module: PropTypes.string.isRequired,
   handleSetPermissions: PropTypes.func.isRequired,
   isChecked: PropTypes.bool,
+  disable: PropTypes.bool,
 };
 
 export default SwitchToggle;

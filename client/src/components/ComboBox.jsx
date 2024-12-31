@@ -18,14 +18,7 @@ import {
 
 const ComboBox = React.forwardRef(
   (
-    {
-      options = [],
-      placeholder = "Select",
-      label = "",
-      defaultvalue = "",
-      onChange,
-      value: propValue,
-    },
+    { options = [], placeholder = "Select", onChange, value: propValue },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -94,8 +87,6 @@ const ComboBox = React.forwardRef(
 ComboBox.propTypes = {
   options: PropTypes.array,
   placeholder: PropTypes.string,
-  label: PropTypes.string,
-  defaultvalue: PropTypes.string,
   onChange: PropTypes.func,
   value: PropTypes.string,
 };
