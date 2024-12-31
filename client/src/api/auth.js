@@ -9,7 +9,8 @@ const login = async ({ email, password }) => {
   });
 
   if (!response.ok) {
-    throw new Error(response.message);
+    const { message } = await response.json();
+    throw new Error(message);
   }
 
   return response.json();
@@ -25,7 +26,8 @@ const isAuthenticated = async () => {
   );
 
   if (!response.ok) {
-    throw new Error(response.message);
+    const { message } = await response.json();
+    throw new Error(message);
   }
 
   return response.json();
@@ -38,7 +40,8 @@ const logout = async () => {
   });
 
   if (!response.ok) {
-    throw new Error(response.message);
+    const { message } = await response.json();
+    throw new Error(message);
   }
 
   return response.json();

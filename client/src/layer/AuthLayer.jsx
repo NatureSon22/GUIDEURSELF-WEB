@@ -8,7 +8,9 @@ const AuthLayer = ({ children }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="grid min-h-screen place-items-center"> Loading... </div>
+    );
   }
 
   if (isAuthenticated === false) {

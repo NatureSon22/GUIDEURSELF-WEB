@@ -4,12 +4,15 @@ const RoleSchema = new Schema({
   role_type: { type: String, required: true },
   permissions: [
     {
-      module: { type: String, required: true },
-      access: { type: [String], required: true },
+      module: { type: String, default: "" },
+      access: { type: [String], default: [] },
     },
   ],
+  date_added: { type: Date, default: Date.now },
+  date_updated: { type: Date, default: Date.now },
+  date_assigned: { type: Date, default: Date.now },
 });
 
-const RoleModel = model("role", RoleSchema);
+const RoleModel = model("Role", RoleSchema);
 
-export default RoleSchema;
+export default RoleModel;

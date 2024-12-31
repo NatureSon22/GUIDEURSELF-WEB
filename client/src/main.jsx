@@ -2,7 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
@@ -15,8 +19,6 @@ import Campus from "./pages/Campus/Campus.jsx";
 import Accounts from "./pages/accounts/Accounts.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthLayer from "./layer/AuthLayer";
-import AddNewCampus from "./pages/campus/AddNewCampus";
-import DisplayCampus from "./pages/campus/DisplayCampus";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +30,10 @@ const router = createBrowserRouter([
       </AuthLayer>
     ),
     children: [
+      {
+        path: "/",
+        element: <Navigate to="/dashboard" />,
+      },
       {
         path: "/dashboard",
         element: <Dashboard />,
@@ -72,7 +78,49 @@ const router = createBrowserRouter([
       },
       {
         path: "/accounts",
-        element: <Accounts />,
+        element: <Container />,
+        children: [
+          {
+            path: "",
+            element: <Accounts />,
+          },
+          {
+            path: "/accounts/import-add-account",
+            element: <ImportAddAccount />,
+          },
+          {
+            path: "/accounts/add-account",
+            element: <AddAccount />,
+          },
+          {
+            path: "/accounts/edit-account/:accountId",
+            element: <EditAccount />,
+          },
+        ],
+      },
+      {
+        path: "/roles-permissions",
+        element: <Container />,
+        children: [
+          {
+            path: "",
+            element: <Roles />,
+          },
+          {
+            path: "/roles-permissions/edit-assign-role/:accountId",
+            element: <EditAssignRole />,
+          },
+        ],
+      },
+      {
+        path: "/settings",
+        element: <Container />,
+        children: [
+          {
+            path: "/settings/user-management",
+            element: <UserManagement />,
+          },
+        ],
       },
     ],
   },
@@ -86,7 +134,13 @@ const router = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

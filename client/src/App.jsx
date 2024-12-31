@@ -1,16 +1,20 @@
 import { Outlet } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
+import PageLayout from "./pages/PageLayout";
+import { Toaster } from "./components/ui/toaster";
 
-const App = () => {  
-
+const App = () => {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <SideBar />
 
-      <div className="flex-1">
+      <div className="flex flex-1 flex-col">
         <NavBar />
-        <Outlet />
+        <Toaster />
+        <PageLayout>
+          <Outlet />
+        </PageLayout>
       </div>
     </div>
   );
