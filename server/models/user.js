@@ -25,6 +25,8 @@ const UserSchema = new Schema({
   campus_id: { type: Schema.Types.ObjectId, required: true },
   password: { type: String, required: true },
   date_created: { type: Date, default: Date.now },
+  date_updated: { type: Date, default: Date.now },
+  date_assigned: { type: Date, default: Date.now },
   user_photo_url: {
     type: String,
     default:

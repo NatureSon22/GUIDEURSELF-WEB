@@ -2,7 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
@@ -31,6 +35,10 @@ const router = createBrowserRouter([
       </AuthLayer>
     ),
     children: [
+      {
+        path: "/",
+        element: <Navigate to="/dashboard" />,
+      },
       {
         path: "/dashboard",
         element: <Dashboard />,

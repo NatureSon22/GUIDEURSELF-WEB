@@ -5,7 +5,7 @@ import { BiEdit } from "react-icons/bi";
 
 const handleEditClick = (navigate, id, role_id) => {
   navigate(`/roles-permissions/edit-assign-role/${id}`, {
-    state: { userId: 123, userName: "JohnDoe", roleId: role_id },
+    state: { roleId: role_id },
   });
 };
 

@@ -4,19 +4,27 @@ import SideBarElements from "./SideBarElements";
 import SideBarTab from "./SideBarTab";
 import { Button } from "./ui/button";
 import { logout } from "@/api/auth";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { LuLogOut } from "react-icons/lu";
 
 const SideBar = () => {
+  const location = useLocation();
   const navigate = useNavigate();
+  const [chosen, setSchosen] = useState("");
   const { mutate: handleLogout } = useMutation({
     mutationFn: async () => {
       await logout();
-      navigate("/login", { replace: true,  });
+      navigate("/login", { replace: true });
     },
   });
 
+  useEffect(() => {
+    setSchosen(`/${location.pathname.split("/")[1]}`);
+  }, []);
+
   return (
-    <div className="flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5 sticky top-0">
+    <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
       <div className="grid place-items-center px-5">
         <img src={logo} alt={"GuideURSelf logo"} />
       </div>
@@ -30,7 +38,14 @@ const SideBar = () => {
               </p>
               <div>
                 {section.modules.map((module) => {
-                  return <SideBarTab key={module.title} {...module} />;
+                  return (
+                    <SideBarTab
+                      key={module.title}
+                      {...module}
+                      setSchosen={setSchosen}
+                      chosen={chosen}
+                    />
+                  );
                 })}
               </div>
             </div>
@@ -38,7 +53,11 @@ const SideBar = () => {
         })}
       </div>
 
-      <Button className="mx-5 mt-auto py-6" onClick={handleLogout}>
+      <Button
+        className="mx-5 mt-auto bg-accent-100/15 py-6 font-semibold text-accent-100 hover:bg-accent-100 hover:text-white"
+        onClick={handleLogout}
+      >
+        <LuLogOut />
         Logout
       </Button>
     </div>

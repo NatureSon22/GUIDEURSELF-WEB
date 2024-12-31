@@ -33,11 +33,15 @@ const DataTable = ({
   showFooter = true,
 }) => {
   const memoizedData = useMemo(() => data, [data]);
-  const memoizedColumns = useMemo(() => columns(columnActions), []);
+  const memoizedColumns = useMemo(
+    () => columns(columnActions),
+    [columnActions, columns],
+  );
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize,
   });
+  console.log("render");
 
   const table = useReactTable({
     data: memoizedData,
@@ -66,7 +70,7 @@ const DataTable = ({
 
   return (
     <div className="flex flex-1 flex-col">
-      <Table className="mt-3 border-b border-t border-secondary-200-60">
+      <Table className="mt-3 flex-1 overflow-x-auto border-b border-t border-secondary-200-60">
         <TableHeader className="border-collapse bg-secondary-400">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -107,8 +111,8 @@ const DataTable = ({
         </TableBody>
       </Table>
 
-      {showFooter && (
-        <div className="mt-auto flex items-center justify-between pb-5 pt-7">
+      {showFooter && table.getRowModel().rows.length > 0 && (
+        <div className="mb-0 mt-auto flex items-center justify-between pt-7">
           <p className="text-[0.9rem] font-semibold text-secondary-100-75">
             {`Showing ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()} ${table.getPageCount() > 1 ? "pages" : "page"}`}
           </p>
@@ -136,7 +140,6 @@ const DataTable = ({
                   return;
                 }
 
-                console.log(e.target.value);
                 table.setPageIndex(page);
               }}
               className="w-16 rounded border p-1 text-center"

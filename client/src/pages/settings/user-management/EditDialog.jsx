@@ -127,6 +127,7 @@ const EditDialog = ({ role_id, children }) => {
                   module={module}
                   roleaccess={rolePermissions?.access}
                   handleSetPermissions={handleSetPermissions}
+                  customizePermission={true}
                 />
               );
             })}

@@ -1,20 +1,39 @@
 import { Input } from "@/components/ui/input";
 import { useRef } from "react";
 import { MdCloudUpload } from "react-icons/md";
+import { useMutation } from "@tanstack/react-query";
+import readExcelFile from "@/utils/readExcelFile";
+import { useState } from "react";
+import columns from "@/components/columns/FileData";
+import DataTable from "@/components/DataTable";
+import PropTypes from "prop-types";
+import TableImport from "./TableImport";
 
-const ImportField = () => {
+const ImportField = ({ importedUsers, setImportedUsers }) => {
   const inputRef = useRef(null);
+  const [error, setError] = useState("");
+  const [data, setData] = useState([]);
+
+  const { mutateAsync: handleReadFile } = useMutation({
+    mutationFn: (file) => readExcelFile(file),
+    onSuccess: (data) => {
+      // setData(data);
+      setImportedUsers(data);
+      setError("");
+    },
+    onError: (error) => {
+      setError(error.message);
+      // setData([]);
+      setImportedUsers([]);
+    },
+  });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
 
-    reader.onload = () => {
-      const data = reader.result;
-      console.log(data);
-    };
-
-    reader.readAsText(file);
+    if (file) {
+      handleReadFile(file);
+    }
   };
 
   const handleFileUpload = () => {
@@ -32,6 +51,7 @@ const ImportField = () => {
       </div>
 
       <div className="space-y-3">
+        {error && <p className="text-[0.9rem] text-destructive">{error}</p>}
         <Input
           ref={inputRef}
           type="file"
@@ -53,8 +73,16 @@ const ImportField = () => {
           or missing information
         </p>
       </div>
+
+      {/* <DataTable data={data} columns={columns} /> */}
+      {/* <TableImport fileData={importedUsers} /> */}
     </div>
   );
+};
+
+ImportField.propTypes = {
+  importedUsers: PropTypes.array,
+  setImportedUsers: PropTypes.func,
 };
 
 export default ImportField;

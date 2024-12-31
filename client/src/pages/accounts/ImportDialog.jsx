@@ -6,7 +6,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { Description, DialogTitle } from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-const VerifyAccountDialog = ({ openDialog, setOpenDialog, isPending }) => {
+const ImportDialog = ({ openDialog, setOpenDialog, isPending }) => {
   return (
     <Dialog open={openDialog}>
       <DialogContent className="grid place-items-center sm:max-w-[425px] [&>button]:hidden">
@@ -26,8 +26,8 @@ const VerifyAccountDialog = ({ openDialog, setOpenDialog, isPending }) => {
             className={`text-[0.95rem] font-semibold text-base-300 ${isPending ? "mt-5" : "mt-3"}`}
           >
             {isPending
-              ? "Sending verification ..."
-              : "Verification has been successfully sent"}
+              ? "Importing accounts ..."
+              : "Accounts have been successfully imported"}
           </p>
 
           {isPending && (
@@ -45,10 +45,10 @@ const VerifyAccountDialog = ({ openDialog, setOpenDialog, isPending }) => {
   );
 };
 
-VerifyAccountDialog.propTypes = {
+ImportDialog.propTypes = {
   openDialog: PropTypes.bool.isRequired,
   setOpenDialog: PropTypes.func.isRequired,
   isPending: PropTypes.bool.isRequired,
 };
 
-export default VerifyAccountDialog;
+export default ImportDialog;

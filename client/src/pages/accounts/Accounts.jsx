@@ -8,18 +8,20 @@ import DataTable from "@/components/DataTable";
 import ComboBox from "@/components/ComboBox";
 import columns from "../../components/columns/Accounts";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { getAllAccounts, verifyAccount } from "@/api/accounts";
 import VerifyAccountDialog from "./VerifyAccountDialog";
-import { useMutation } from "@tanstack/react-query";
 import accountStatus from "@/utils/accountStatus";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
+import DateRangePicker from "@/components/DateRangePicker";
+import Loading from "@/components/Loading";
 
 const Accounts = () => {
   const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
+
   const {
     data: allAccounts,
     isLoading,
@@ -29,6 +31,7 @@ const Accounts = () => {
     queryFn: getAllAccounts,
     refetchOnWindowFocus: false,
   });
+
   const { mutateAsync: handleVerifyAccount, isPending } = useMutation({
     mutationFn: (data) => verifyAccount(data),
     onMutate: () => setOpenDialog(true),
@@ -40,20 +43,23 @@ const Accounts = () => {
     },
     onError: () => setOpenDialog(false),
   });
+
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
     queryFn: getAllCampuses,
     refetchOnWindowFocus: false,
   });
+
   const { data: allRoles } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: () => getAllRoleTypes(),
+    queryFn: getAllRoleTypes,
     refetchOnWindowFocus: false,
   });
 
-  const handleAddAccountClick = () => {
-    navigate("/accounts/add-account");
+  const handleNavigate = (path) => {
+    navigate(path);
   };
+
   const columnActions = { navigate, handleVerifyAccount };
 
   return (
@@ -77,11 +83,15 @@ const Accounts = () => {
           <Button
             variant="outline"
             className="text-secondary-100-75"
-            onClick={handleAddAccountClick}
+            onClick={() => handleNavigate("/accounts/add-account")}
           >
             <RiAddLargeFill /> Add Account
           </Button>
-          <Button variant="outline" className="text-secondary-100-75">
+          <Button
+            variant="outline"
+            className="text-secondary-100-75"
+            onClick={() => handleNavigate("/accounts/import-add-account")}
+          >
             <MdUpload />
             Import File
           </Button>
@@ -90,14 +100,14 @@ const Accounts = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <ComboBox />
+        <DateRangePicker />
         <ComboBox options={allRoles} placeholder="select user type" />
         <ComboBox options={allCampuses} placeholder="select campus" />
         <ComboBox options={accountStatus} placeholder="select status" />
       </div>
 
       {isLoading ? (
-        <div>Loading...</div>
+        <Loading />
       ) : (
         <DataTable
           data={allAccounts}

@@ -9,6 +9,8 @@ import { getAllAccounts } from "@/api/accounts";
 import DataTable from "@/components/DataTable";
 import columns from "@/components/columns/RolesPermissions";
 import { useNavigate } from "react-router-dom";
+import Loading from "@/components/Loading";
+import DateRangePicker from "@/components/DateRangePicker";
 
 const Roles = () => {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -49,13 +51,13 @@ const Roles = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <ComboBox options={[]} placeholder="select date" />
+        <DateRangePicker />
         <ComboBox options={[]} placeholder="select role" />
         <ComboBox options={[]} placeholder="select status" />
       </div>
 
       {isLoading ? (
-        <div>Loading...</div>
+        <Loading />
       ) : (
         <DataTable
           data={accountRoles}

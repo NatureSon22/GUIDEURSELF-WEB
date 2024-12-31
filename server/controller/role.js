@@ -57,6 +57,7 @@ const updateRolePermissions = async (req, res) => {
         $set: {
           permissions: parsedPermissions,
           date_updated: new Date(),
+          date_assigned: new Date(),
         },
       }
     );

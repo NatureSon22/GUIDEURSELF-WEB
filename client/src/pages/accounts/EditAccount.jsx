@@ -4,6 +4,7 @@ import { getAccount, updateAccount } from "../../api/accounts";
 import { z } from "zod";
 import AccountForm from "./AccountForm";
 import { useToast } from "@/hooks/use-toast";
+import Loading from "@/components/Loading";
 
 const formSchema = z
   .object({
@@ -58,7 +59,7 @@ const EditAccount = () => {
     },
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error fetching account data</div>;
 
   const defaultvalues = {

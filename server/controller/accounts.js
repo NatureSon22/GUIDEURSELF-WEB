@@ -1,5 +1,6 @@
 import UserModel from "../models/user.js";
 import sendVerificationEmail from "../service/email.js";
+import generatePassword from "password-generator";
 
 const getAllAccounts = async (req, res, next) => {
   try {
@@ -49,6 +50,7 @@ const getAllAccounts = async (req, res, next) => {
           role_id: 1,
           campus_name: 1,
           date_created: 1,
+          date_assigned: 1,
           status: 1,
         },
       },
@@ -77,13 +79,13 @@ const addAccount = async (req, res) => {
     let userExists = await UserModel.findOne({ email });
 
     if (userExists) {
-      return res.status(409).json({ message: "Email already exists" });
-    }
+      return res.status(409).json({ message: "This email address is already registered." });
+    }    
 
     userExists = await UserModel.findOne({ user_number });
 
     if (userExists) {
-      return res.status(409).json({ message: "User number already exists" }); // Fixed to JSON
+      return res.status(409).json({ message: "This user number is already registered." }); // Fixed to JSON
     }
 
     const user = new UserModel({
@@ -104,6 +106,40 @@ const addAccount = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+const bulkAddAccount = async (req, res) => {
+  try {
+    const { role_id, campus_id, users } = req.body;
+    const parsedUsers = JSON.parse(users);
+
+    const bulkUsers = parsedUsers.map((user) => ({
+      role_id: role_id,
+      campus_id: campus_id,
+      user_number: user.user_number,
+      username: user.firstname + " " + user.lastname,
+      firstname: user.firstname,
+      middlename: user.middlename,
+      lastname: user.lastname,
+      email: user.email,
+      password: generatePassword(12, false),
+    }));
+
+    const result = await UserModel.insertMany(bulkUsers, { ordered: false });
+
+    // Send emails for successfully inserted users
+    await Promise.all(
+      result.map(async (user) => {
+        await sendVerificationEmail(user.email, user.password);
+      })
+    );
+
+    res
+      .status(200)
+      .json({ message: `${result.length} users created successfully` });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -153,12 +189,38 @@ const updateAccount = async (req, res) => {
           email,
           password,
           status,
+          date_updated: Date.now(),
+          date_assigned: Date.now(),
         },
       }
     );
 
     res.status(200).json({
       message: "User updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updateAccountRoleType = async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const { roleId } = req.body;
+
+    const result = await UserModel.updateOne(
+      { _id: accountId },
+      {
+        $set: {
+          role_id: roleId,
+          date_updated: Date.now(),
+          date_assigned: Date.now(),
+        },
+      }
+    );
+
+    res.status(200).json({
+      message: "User role type updated successfully",
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -190,4 +252,28 @@ const verifyAccount = async (req, res) => {
   }
 };
 
-export { getAllAccounts, addAccount, getAccount, updateAccount, verifyAccount };
+const deleteAccounts = async (req, res) => {
+  try {
+    const { accountIds } = req.body;
+    const accountIdsArray = accountIds.split(",");
+
+    await UserModel.deleteMany({ _id: { $in: accountIdsArray } });
+
+    res.status(200).json({
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export {
+  getAllAccounts,
+  addAccount,
+  getAccount,
+  updateAccount,
+  updateAccountRoleType,
+  verifyAccount,
+  bulkAddAccount,
+  deleteAccounts,
+};

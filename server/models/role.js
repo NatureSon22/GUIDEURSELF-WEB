@@ -10,6 +10,7 @@ const RoleSchema = new Schema({
   ],
   date_added: { type: Date, default: Date.now },
   date_updated: { type: Date, default: Date.now },
+  date_assigned: { type: Date, default: Date.now },
 });
 
 const RoleModel = model("Role", RoleSchema);

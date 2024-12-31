@@ -9,6 +9,8 @@ const Permissions = ({
   roleaccess = [],
   handleSetPermissions,
   style = "",
+  disableToggle = false,
+  customizePermission = false,
 }) => {
   const [checkAll, setCheckAll] = useState(false);
 
@@ -27,13 +29,19 @@ const Permissions = ({
       <div className="flex items-center justify-between">
         <Label>{module.module}</Label>
 
-        <div className="flex items-center gap-3">
-          <Checkbox
-            className="border-base-300"
-            checked={checkAll}
-            onClick={toggleCheckAll}
-          />
-          <Label>Check All</Label>
+        <div className="flex items-center gap-2">
+          {customizePermission ? (
+            <>
+              <Checkbox
+                className="border-secondary-200"
+                checked={checkAll}
+                onClick={toggleCheckAll}
+              />
+              <Label>Check All</Label>
+            </>
+          ) : (
+            <div className="py-2"></div>
+          )}
         </div>
       </div>
 
@@ -50,6 +58,7 @@ const Permissions = ({
               handleSetPermissions={handleSetPermissions}
               isChecked={checkAll || isChecked}
               checkAll={checkAll}
+              disable={disableToggle}
             />
           );
         })}
@@ -63,6 +72,8 @@ Permissions.propTypes = {
   roleaccess: PropTypes.array,
   handleSetPermissions: PropTypes.func.isRequired,
   style: PropTypes.string,
+  disableToggle: PropTypes.bool,
+  customizePermission: PropTypes.bool,
 };
 
 export default Permissions;
