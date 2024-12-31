@@ -1,6 +1,8 @@
+import {Outlet} from "react-router-dom"
+
 const Campus = () => {
   return (
-    <div>Campus</div>
+    <Outlet></Outlet>
   )
 }
 

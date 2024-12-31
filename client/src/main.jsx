@@ -9,10 +9,14 @@ import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import Documents from "./pages/documents/Documents.jsx";
 import VirtualTour from "./pages/virtual_tour/VirtualTour.jsx";
 import KeyOfficials from "./pages/key_officials/KeyOfficials.jsx";
+import EditKeyOfficials from "./pages/key_officials/EditKeyOfficials.jsx";
+import DisplayingKeyOfficials from "./pages/key_officials/DisplayKeyOfficials";
 import Campus from "./pages/Campus/Campus.jsx";
 import Accounts from "./pages/accounts/Accounts.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthLayer from "./layer/AuthLayer";
+import AddNewCampus from "./pages/campus/AddNewCampus";
+import DisplayCampus from "./pages/campus/DisplayCampus";
 
 const router = createBrowserRouter([
   {
@@ -39,10 +43,32 @@ const router = createBrowserRouter([
       {
         path: "/key-officials",
         element: <KeyOfficials />,
+          children:
+          [
+              {
+                path: "",
+                element: <DisplayingKeyOfficials />,
+              },
+              {
+                path: "edit",
+                element: <EditKeyOfficials />,
+              }
+          ]
       },
       {
         path: "/campus",
         element: <Campus />,
+        children:
+          [
+              {
+                path: "",
+                element: <DisplayCampus />,
+              },
+              {
+                path: "add",
+                element: <AddNewCampus />,
+              }
+          ]
       },
       {
         path: "/accounts",
@@ -67,5 +93,5 @@ createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </StrictMode>,
+  </StrictMode>
 );

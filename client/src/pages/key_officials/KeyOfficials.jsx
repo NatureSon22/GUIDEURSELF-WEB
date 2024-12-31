@@ -1,6 +1,9 @@
+import {Outlet} from "react-router-dom"
+
+
 const KeyOfficials = () => {
   return (
-    <div>KeyOfficials</div>
+    <Outlet></Outlet>
   )
 }
 
