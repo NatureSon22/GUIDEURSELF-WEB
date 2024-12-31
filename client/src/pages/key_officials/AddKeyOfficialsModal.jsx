@@ -7,7 +7,8 @@ const Modal = ({ closeModal, addOfficial }) => {
     const [position, setPosition] = useState("");
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
-
+    const [loadingVisible, setLoadingVisible] = useState(false); // For loading modal
+    const [loadingMessage, setLoadingMessage] = useState(""); // Loading message text
     // Fetch positions from the database
     useEffect(() => {
         const fetchPositions = async () => {
@@ -68,20 +69,41 @@ const Modal = ({ closeModal, addOfficial }) => {
             // Call the addOfficial callback to update the parent component
             const newOfficial = {
                 name: savedOfficial.data.name,
+                _id: savedOfficial.data._id,
                 key_official_photo_url: savedOfficial.data.key_official_photo_url,
                 position_name: positions.find((pos) => pos._id === position)?.administartive_position_name,
             };
 
             addOfficial(newOfficial);
 
-            closeModal();
+            setLoadingMessage("Adding New Campus...");
+            setLoadingVisible(true);
+
+            setTimeout(() => {
+                setLoadingMessage("Campus has been successfully added!");
+                setTimeout(() => {
+                setLoadingVisible(false); 
+                }, 1500);
+            }, 3000);
+
+            setTimeout(() => {
+            closeModal(true); 
+            }, 3000); 
+
         } catch (error) {
             console.error("Error saving data:", error);
         }
     };
 
     return (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50">
+        <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
+            {loadingVisible && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-500">
+                <div className="bg-white p-6 rounded-md shadow-md text-center">
+                    <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
+                </div>
+                </div>
+            )}
             <div className="bg-white p-6 rounded-md w-1/3">
 
                 <form onSubmit={(e) => e.preventDefault()}>
@@ -127,7 +149,7 @@ const Modal = ({ closeModal, addOfficial }) => {
 
                     {/* Image Preview */}
                     <div className="mt-4">
-                        <div className="w-full h-[200px] border border-dashed border-gray-300 rounded-md flex justify-center items-center mt-2">
+                        <div className="w-[200px] h-[200px] border border-dashed border-gray-300 rounded-md flex justify-center items-center mt-2">
                             {imagePreview ? (
                                 <img
                                     src={imagePreview}

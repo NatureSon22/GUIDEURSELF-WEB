@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
 import administrativePositionRoutes from '../router/administartivePositionRoutes.js';
 import keyOfficialRoutes from "../router/keyOfficialRoutes.js";
+import campusRouter from "../router/campusRouter.js";
 import campusProgramTypeRouter from "../router/campusProgramTypeRouter.js";
 
 
@@ -33,6 +34,7 @@ app.use("/api/users", userRouter);
 app.use('/api', administrativePositionRoutes);
 app.use("/api", keyOfficialRoutes);
 app.use("/api", campusProgramTypeRouter);
+app.use("/api", campusRouter);
 
 (async () => {
   config();

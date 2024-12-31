@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import addImage from "../../assets/add.png";
+import CloseIcon from "../../assets/CloseIcon.png";
 
 const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
   const [programTypes, setProgramTypes] = useState([]);
@@ -44,23 +45,27 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Selected Type:", selectedType);  // Debugging line
-  
+    
     const newProgram = {
-      type: selectedType,
-      programName,
+      program_name: programName,
       majors,
     };
   
-    onAddProgram(newProgram);  // Pass program data back to parent
-    setSelectedType("");  // Reset state
+    const formattedProgram = {
+      program_type_id: selectedType,
+      programs: [newProgram],
+    };
+  
+    onAddProgram(formattedProgram);  // Send structured data back to parent
+    setSelectedType("");  
     setProgramName("");
     setMajors([]);
-    onClose();  // Close modal
+    onClose();  
   };
+  
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc] z-50">
       <div className="bg-white p-6 rounded-md w-1/3">
         <div className="flex flex-col gap-4">
           <div>
@@ -110,18 +115,21 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
               onChange={(e) => setNewMajor(e.target.value)}
             />
             <p className="mb-2 mt-2">Major in:</p>
+            
+            <div className="flex flex-col gap-2">
             {majors.map((major, index) => (
-              <div key={index} className="flex justify-between items-center border-b py-2">
+              <div key={index} className="flex justify-between items-center py-1 px-1 border rounded-md">
                 <span>{major}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveMajor(index)}
                   className="text-red-500 hover:underline"
                 >
-                  Remove
+                  <img src={CloseIcon} className="w-[20px] h-[20px]" alt="" />
                 </button>
               </div>
             ))}
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
