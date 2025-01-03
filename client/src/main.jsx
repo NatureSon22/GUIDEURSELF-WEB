@@ -19,6 +19,18 @@ import Campus from "./pages/Campus/Campus.jsx";
 import Accounts from "./pages/accounts/Accounts.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthLayer from "./layer/AuthLayer";
+import DisplayCampus from "./pages/Campus/DisplayCampus";
+import AddNewCampus from "./pages/Campus/AddNewCampus";
+import Container from "./components/Container";
+import Roles from "./pages/roles/Roles";
+import EditAssignRole from "./pages/roles/Roles";
+import UserManagement from "./pages/settings/user-management/UserManagement";
+import ImportAddAccount from "./pages/accounts/ImportAddAccount";
+import AddAccount from "./pages/accounts/AddAccount";
+import EditAccount from "./pages/accounts/EditAccount";
+import Settings from "./pages/settings/Settings";
+import GeneralSettings from "./pages/settings/general-settings/GeneralSettings";
+import AccountManagement from "./pages/settings/account-management/AccountManagement";
 
 const router = createBrowserRouter([
   {
@@ -49,32 +61,30 @@ const router = createBrowserRouter([
       {
         path: "/key-officials",
         element: <KeyOfficials />,
-          children:
-          [
-              {
-                path: "",
-                element: <DisplayingKeyOfficials />,
-              },
-              {
-                path: "edit",
-                element: <EditKeyOfficials />,
-              }
-          ]
+        children: [
+          {
+            path: "",
+            element: <DisplayingKeyOfficials />,
+          },
+          {
+            path: "edit",
+            element: <EditKeyOfficials />,
+          },
+        ],
       },
       {
         path: "/campus",
         element: <Campus />,
-        children:
-          [
-              {
-                path: "",
-                element: <DisplayCampus />,
-              },
-              {
-                path: "add",
-                element: <AddNewCampus />,
-              }
-          ]
+        children: [
+          {
+            path: "",
+            element: <DisplayCampus />,
+          },
+          {
+            path: "add",
+            element: <AddNewCampus />,
+          },
+        ],
       },
       {
         path: "/accounts",
@@ -117,8 +127,22 @@ const router = createBrowserRouter([
         element: <Container />,
         children: [
           {
-            path: "/settings/user-management",
-            element: <UserManagement />,
+            path: "",
+            element: <Settings />,
+            children: [
+              {
+                path: "/settings/general-settings",
+                element: <GeneralSettings />,
+              },
+              {
+                path: "/settings/account-management",
+                element: <AccountManagement />
+              },
+              {
+                path: "/settings/user-management",
+                element: <UserManagement />,
+              },
+            ],
           },
         ],
       },
@@ -147,5 +171,5 @@ createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode>,
 );

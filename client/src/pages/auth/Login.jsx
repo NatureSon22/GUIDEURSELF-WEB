@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import logo from "../../assets/guideURSelfLOGO 1.png";
+import logo from "../../assets/home-logo.png";
 import { login } from "../../api/auth";
 import {
   Form,
@@ -37,6 +37,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setPassword] = useState(false);
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const [error, setError] = useState(null);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,111 +52,144 @@ const Login = () => {
       navigate("/dashboard");
       setIsAuthenticated(true);
     },
+    onError: (error) => setError(error.message),
   });
 
   return (
-    <div className="grid min-h-screen place-items-center px-4">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleLogin)}
-          noValidate
-          className="w-full max-w-md space-y-5"
-        >
-          <div className="mb-4 flex justify-center">
-            <img src={logo} alt="GuideURSelf Logo" className="w-auto" />
-          </div>
-
-          <p className="text-center text-gray-600">
-            Welcome back, Admin! Ready to keep things running smoothly?
-          </p>
-
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="email">Email</FormLabel>
-                  <FormControl>
-                    <Input id="email" className="py-5" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="password">Password</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center gap-3">
-                      <Input
-                        id="password"
-                        className="py-5"
-                        autoComplete="on"
-                        type={showPassword ? "text" : "password"}
-                        {...field}
-                      />
-
-                      {!showPassword ? (
-                        <FaEyeSlash
-                          onClick={() => setPassword(!showPassword)}
-                          className="cursor-pointer text-[1.5rem] text-secondary-100/50"
-                        />
-                      ) : (
-                        <IoEyeSharp
-                          onClick={() => setPassword(!showPassword)}
-                          className="cursor-pointer text-[1.5rem] text-secondary-100/50"
-                        />
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <FormField
-              control={form.control}
-              name="rememberMe"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      className="border-secondary-200"
-                      id="rememberMe"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel htmlFor="rememberMe" className="font-normal">
-                    Remember me
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
-
-            <Link
-              to="/forgot-password"
-              className="text-sm font-semibold text-base-200 hover:underline"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-
-          <Button
-            type="submit"
-            className="mt-5 w-full bg-base-200 py-6 text-[1rem] font-semibold"
+    <div className="grid min-h-screen grid-rows-[1fr_auto]">
+      <div className="flex items-center justify-center">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleLogin)}
+            noValidate
+            className="box-shadow w-full max-w-md space-y-5 rounded-lg p-6 pt-14"
           >
-            Login
-          </Button>
-        </form>
-      </Form>
+            <div className="mb-8 flex justify-center">
+              <img src={logo} alt="GuideURSelf Logo" className="w-[250px]" />
+            </div>
+
+            {error ? (
+              <p className="rounded-md bg-accent-100/5 py-5 text-center text-[0.85rem] text-accent-100">
+                {error}
+              </p>
+            ) : (
+              <p className="text-center text-[0.9rem] text-gray-600">
+                Welcome back! Ready to keep things running smoothly?
+              </p>
+            )}
+
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel
+                      htmlFor="email"
+                      className="text-secondary-100/50"
+                    >
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input id="email" className="py-5" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel
+                      htmlFor="password"
+                      className="text-secondary-100/50"
+                    >
+                      Password
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-3">
+                        <Input
+                          id="password"
+                          className="py-5"
+                          autoComplete="on"
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                        />
+                        {!showPassword ? (
+                          <FaEyeSlash
+                            onClick={() => setPassword(!showPassword)}
+                            className="cursor-pointer text-[1.5rem] text-secondary-100/50"
+                          />
+                        ) : (
+                          <IoEyeSharp
+                            onClick={() => setPassword(!showPassword)}
+                            className="cursor-pointer text-[1.5rem] text-secondary-100/50"
+                          />
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        className="border-secondary-200"
+                        id="rememberMe"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel
+                      htmlFor="rememberMe"
+                      className="text-[0.85rem] font-normal"
+                    >
+                      Remember me for 30 days
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <Link
+                to="/forgot-password"
+                className="text-sm font-semibold text-base-200 hover:underline"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            <Button
+              type="submit"
+              className="mt-5 w-full bg-base-200 py-6 text-[1rem] font-semibold"
+            >
+              Login
+            </Button>
+          </form>
+        </Form>
+      </div>
+
+      <div className="item shadow-top-only flex w-full justify-center gap-10 py-4 text-center text-[0.85rem]">
+        <Link to="/" className="hover:text-base-200">
+          &copy; 2024 GuideURSelf. All rights reserved
+        </Link>
+        <Link to="/" className="hover:text-base-200">
+          Terms of Service
+        </Link>
+        <Link to="/" className="hover:text-base-200">
+          Privacy Policy
+        </Link>
+      </div>
     </div>
   );
 };

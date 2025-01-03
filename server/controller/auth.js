@@ -6,12 +6,14 @@ config();
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
 
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ message: "No account found with the provided email." });
     }
 
     if (user.password !== password) {
@@ -19,17 +21,20 @@ const login = async (req, res) => {
     }
 
     if (user.status !== "active") {
-      return res.status(401).json({ message: "Account is not active. Please wait for verification" });
+      return res.status(401).json({
+        message: "Account is not active. Please wait for verification",
+      });
     }
 
     const authToken = jwt.sign(
       {
         userId: user._id,
-        role: user.role_type,
+        role: user.role_id,
+        campus: user.campus_id,
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: rememberMe ? "30d" : "1d",
       }
     );
 
@@ -37,7 +42,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({

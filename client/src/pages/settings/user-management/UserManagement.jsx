@@ -14,7 +14,7 @@ const UserManagement = () => {
   //   }
 
   return (
-    <div className="grid gap-5">
+    <div className="space-y-5">
       <Header
         title="User Management"
         subtitle="Organize user roles, types, and permissions within the system"

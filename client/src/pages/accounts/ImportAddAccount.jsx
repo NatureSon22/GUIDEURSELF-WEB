@@ -98,10 +98,7 @@ const ImportAddAccount = () => {
           </div>
 
           <div>
-            <ImportField
-              importedUsers={importedUsers}
-              setImportedUsers={setImportedUsers}
-            />
+            <ImportField setImportedUsers={setImportedUsers} />
           </div>
 
           <div className="ml-auto space-x-5">

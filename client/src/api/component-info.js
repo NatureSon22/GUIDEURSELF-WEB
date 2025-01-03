@@ -1,7 +1,7 @@
 import formatTitle from "@/utils/formatTitle";
 
 const getAllCampuses = async () => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/campus`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
     method: "GET",
     credentials: "include",
   });
@@ -10,7 +10,7 @@ const getAllCampuses = async () => {
     throw new Error(response.message);
   }
 
-  const { campuses } = await response.json();
+  const campuses = await response.json();
 
   const allCampuses = campuses.map((campus) => ({
     value: campus._id,

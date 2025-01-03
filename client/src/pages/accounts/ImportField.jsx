@@ -7,23 +7,24 @@ import { useState } from "react";
 import columns from "@/components/columns/FileData";
 import DataTable from "@/components/DataTable";
 import PropTypes from "prop-types";
-import TableImport from "./TableImport";
 
-const ImportField = ({ importedUsers, setImportedUsers }) => {
+const ImportField = ({ setImportedUsers }) => {
   const inputRef = useRef(null);
   const [error, setError] = useState("");
   const [data, setData] = useState([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [filters, setFilters] = useState([]);
 
   const { mutateAsync: handleReadFile } = useMutation({
     mutationFn: (file) => readExcelFile(file),
     onSuccess: (data) => {
-      // setData(data);
+      setData(data);
       setImportedUsers(data);
       setError("");
     },
     onError: (error) => {
       setError(error.message);
-      // setData([]);
+      setData([]);
       setImportedUsers([]);
     },
   });
@@ -41,7 +42,7 @@ const ImportField = ({ importedUsers, setImportedUsers }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-y-auto">
       <div className="space-y-[2px]">
         <p className="font-secondary-100 font-medium">File Upload</p>
         <p className="text-[0.88rem]">
@@ -74,14 +75,21 @@ const ImportField = ({ importedUsers, setImportedUsers }) => {
         </p>
       </div>
 
-      {/* <DataTable data={data} columns={columns} /> */}
-      {/* <TableImport fileData={importedUsers} /> */}
+      <DataTable
+        data={data}
+        columns={columns}
+        pageSize={20}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+        filters={filters}
+        setFilters={setFilters}
+        showFooter={data.length > 0 ? true : false}
+      />
     </div>
   );
 };
 
 ImportField.propTypes = {
-  importedUsers: PropTypes.array,
   setImportedUsers: PropTypes.func,
 };
 

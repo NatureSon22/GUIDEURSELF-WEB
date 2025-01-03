@@ -63,7 +63,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontSize: {},
+      boxShadow: {
+        "top-only": "0 -3px 6px rgba(0, 0, 0, 0.1)",
+      },
     },
   },
-//   plugins: [require("tailwindcss-animate")],
+  //   plugins: [require("tailwindcss-animate")],
 };

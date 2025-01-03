@@ -24,7 +24,7 @@ const SideBarTab = ({ title, icon, path, setSchosen, chosen }) => {
         {icon}
       </div>
       <p
-        className={`text-[0.94rem] transition-colors duration-100 ease-in-out ${isActive ? "text-base-200" : "text-base-300"}`}
+        className={`text-[0.94rem] transition-colors duration-100 ease-in-out ${isActive ? "font-medium text-base-200" : "text-base-300"}`}
       >
         {title}
       </p>

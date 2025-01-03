@@ -109,31 +109,31 @@ const AccountForm = ({
                 form,
                 "user_number",
                 "User Number",
-                <Input placeholder="Enter user number" />,
+                <Input placeholder="Enter user number" className="bg-white" />,
               )}
               {RenderField(
                 form,
                 "username",
                 "Username",
-                <Input placeholder="Enter username" />,
+                <Input placeholder="Enter username" className="bg-white" />,
               )}
               {RenderField(
                 form,
                 "firstName",
                 "First Name",
-                <Input placeholder="Enter first name" />,
+                <Input placeholder="Enter first name" className="bg-white" />,
               )}
               {RenderField(
                 form,
                 "middleName",
                 "Middle Name",
-                <Input placeholder="Enter middle name" />,
+                <Input placeholder="Enter middle name" className="bg-white" />,
               )}
               {RenderField(
                 form,
                 "lastName",
                 "Last Name",
-                <Input placeholder="Enter last name" />,
+                <Input placeholder="Enter last name" className="bg-white" />,
               )}
             </div>
 
@@ -142,19 +142,27 @@ const AccountForm = ({
                 form,
                 "email",
                 "Email",
-                <Input placeholder="Enter email" />,
+                <Input placeholder="Enter email" className="bg-white" />,
               )}
               {RenderField(
                 form,
                 "password",
                 "Password",
-                <Input type="password" placeholder="Enter password" />,
+                <Input
+                  type="password"
+                  placeholder="Enter password"
+                  className="bg-white"
+                />,
               )}
               {RenderField(
                 form,
                 "confirmPassword",
                 "Confirm Password",
-                <Input type="password" placeholder="Confirm password" />,
+                <Input
+                  type="password"
+                  placeholder="Confirm password"
+                  className="bg-white"
+                />,
               )}
             </div>
           </div>
