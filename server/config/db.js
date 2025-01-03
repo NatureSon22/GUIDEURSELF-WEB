@@ -4,12 +4,10 @@ import { config } from "dotenv";
 async function connectDB() {
   try {
     config();
-    
-    await mongoose.connect(
-      process.env.MONGODB_URI,{
-        dbName: "GUIDEURSELF"
-      }
-    );
+
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: "GUIDEURSELF",
+    });
 
     console.log("Database connected successfully");
   } catch (error) {

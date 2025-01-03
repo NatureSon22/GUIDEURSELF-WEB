@@ -8,10 +8,12 @@ import {
   verifyAccount,
   bulkAddAccount,
   deleteAccounts,
+  getLoggedInAccount,
 } from "../controller/accounts.js";
 import multer from "multer";
 import verifyToken from "../middleware/verifyToken.js";
 
+// Configure multer
 const storage = multer.diskStorage({
   destination: "./uploads",
   filename: (req, file, cb) => {
@@ -20,16 +22,11 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 1024 * 1024 * 5, // 5MB
   },
   fileFilter: (req, file, cb) => {
-    if (file.size > 1024 * 1024 * 5) {
-      cb(new Error("File size must be less than 5MB"), false);
-      return;
-    }
-
     const allowedTypes = [
       "application/vnd.ms-excel",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -43,27 +40,28 @@ const upload = multer({
 });
 
 const accountRouter = Router();
-//accountRouter.use(verifyToken);
 
+// Apply middleware
+accountRouter.use(verifyToken);
+
+// Define routes
+accountRouter.get("/logged-in-account", getLoggedInAccount); // Place before conflicting routes
 accountRouter.get("/", getAllAccounts);
 accountRouter.get("/:accountId", getAccount);
 accountRouter.post("/import-add-account", upload.none(), bulkAddAccount);
 accountRouter.post("/add-account", upload.none(), addAccount);
 accountRouter.put("/update-account/:accountId", upload.none(), updateAccount);
-accountRouter.put(
-  "/update-account-role-type/:accountId",
-  updateAccountRoleType
-);
+accountRouter.put("/update-account-role-type/:accountId", updateAccountRoleType);
 accountRouter.put("/verify-account/:accountId", verifyAccount);
 accountRouter.delete("/delete-accounts", deleteAccounts);
 
+// Multer error handling
 accountRouter.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({ error: err.message });
   } else if (err) {
-    return res.status(500).json({ error: "Server Error" });
+    return res.status(500).json({ error: err.message || "Server Error" });
   }
-  next();
 });
 
 export default accountRouter;

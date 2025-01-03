@@ -1,11 +1,11 @@
-const login = async ({ email, password }) => {
+const login = async ({ email, password, rememberMe }) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, rememberMe }),
   });
 
   if (!response.ok) {
@@ -33,6 +33,25 @@ const isAuthenticated = async () => {
   return response.json();
 };
 
+const loggedInUser = async () => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/logged-in-account`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { user } = await response.json();
+
+  return user || {};
+};
+
 const logout = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
     method: "POST",
@@ -47,4 +66,4 @@ const logout = async () => {
   return response.json();
 };
 
-export { login, isAuthenticated, logout };
+export { login, isAuthenticated, logout, loggedInUser };

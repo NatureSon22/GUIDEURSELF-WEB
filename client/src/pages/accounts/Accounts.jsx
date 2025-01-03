@@ -32,6 +32,16 @@ const Accounts = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: allCampuses } = useQuery({
+    queryKey: ["allCampuses"],
+    queryFn: getAllCampuses,
+  });
+
+  const { data: allRoles } = useQuery({
+    queryKey: ["allRoles"],
+    queryFn: getAllRoleTypes,
+  });
+
   const { mutateAsync: handleVerifyAccount, isPending } = useMutation({
     mutationFn: (data) => verifyAccount(data),
     onMutate: () => setOpenDialog(true),
@@ -42,18 +52,6 @@ const Accounts = () => {
       }, 1000);
     },
     onError: () => setOpenDialog(false),
-  });
-
-  const { data: allCampuses } = useQuery({
-    queryKey: ["allCampuses"],
-    queryFn: getAllCampuses,
-    refetchOnWindowFocus: false,
-  });
-
-  const { data: allRoles } = useQuery({
-    queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
-    refetchOnWindowFocus: false,
   });
 
   const handleNavigate = (path) => {

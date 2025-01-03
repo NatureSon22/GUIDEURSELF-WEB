@@ -37,11 +37,18 @@ const DataTable = ({
     () => columns(columnActions),
     [columnActions, columns],
   );
+
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize,
   });
-  console.log("render");
+
+  const handlePageChange = (e) => {
+    const page = Number(e.target.value) - 1;
+    if (page >= 0 && page < table.getPageCount()) {
+      table.setPageIndex(page);
+    }
+  };
 
   const table = useReactTable({
     data: memoizedData,
@@ -75,7 +82,7 @@ const DataTable = ({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className={"text-base-300"}>
+                <TableHead key={header.id} className="text-base-300">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -114,7 +121,9 @@ const DataTable = ({
       {showFooter && table.getRowModel().rows.length > 0 && (
         <div className="mb-0 mt-auto flex items-center justify-between pt-7">
           <p className="text-[0.9rem] font-semibold text-secondary-100-75">
-            {`Showing ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()} ${table.getPageCount() > 1 ? "pages" : "page"}`}
+            {`Showing ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()} ${
+              table.getPageCount() > 1 ? "pages" : "page"
+            }`}
           </p>
 
           <div className="flex items-center gap-2">
@@ -133,15 +142,7 @@ const DataTable = ({
               min="1"
               max={table.getPageCount()}
               value={table.getState().pagination.pageIndex + 1}
-              onChange={(e) => {
-                const page = Number(e.target.value) - 1;
-
-                if (page > table.getPageCount() - 1) {
-                  return;
-                }
-
-                table.setPageIndex(page);
-              }}
+              onChange={handlePageChange}
               className="w-16 rounded border p-1 text-center"
             />
 

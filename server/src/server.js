@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import mongoose from 'mongoose';  
 import { config } from "dotenv";
 import "../config/cloudinary.js";
 import connectDB from "../config/db.js";
@@ -24,12 +23,12 @@ app.use(
 );
 
 app.use("/api/auth", authRouter);
-app.use("/api/user", accountRouter);
+app.use("/api/role-types", roleTypesRouter);
+app.use("/api/accounts", accountRouter);
 app.use("/api", campusRouter);
 app.use('/api', administrativePositionRoutes);
 app.use("/api", keyOfficialRoutes);
 app.use("/api", campusProgramTypeRouter);
-app.use("/api", roleTypesRouter);
 
 (async () => {
   config();
