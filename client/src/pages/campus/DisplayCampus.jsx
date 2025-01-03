@@ -50,7 +50,7 @@ const DisplayCampus = () => {
   return (
     <div className="w-full flex w-[100%]">
       {/* Left Container */}
-      <div className="w-[75%] p-6 flex flex-col justify-between">
+      <div className="w-[75%] pl-6 flex flex-col justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Manage Campus</h2>
           <p className="text-gray-600 mt-2">

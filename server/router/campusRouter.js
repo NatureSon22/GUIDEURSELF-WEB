@@ -251,14 +251,3 @@ router.delete("/campuses/:id", async (req, res) => {
 });
 
 export default router;
-import { Router } from "express";
-import { getAllCampuses } from "../controller/campus.js";
-import verifyToken from "../middleware/verifyToken.js";
-
-const campusRouter = Router();
-campusRouter.use(verifyToken);
-
-campusRouter.get("/", getAllCampuses);
-
-export default campusRouter;
->>>>>>> d5063654c642b837bde0b0474e18dfffc6f50fb2
