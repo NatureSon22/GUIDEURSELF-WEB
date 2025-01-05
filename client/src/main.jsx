@@ -27,20 +27,13 @@ import Roles from "./pages/roles/Roles.jsx";
 import EditAssignRole from "./pages/roles/EditAssignRole.jsx";
 import UserManagement from "./pages/settings/user-management/UserManagement.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AuthLayer from "./layer/AuthLayer";import DisplayCampus from "./pages/Campus/DisplayCampus";
-import AddNewCampus from "./pages/Campus/AddNewCampus";
-import Container from "./components/Container";
-import Roles from "./pages/roles/Roles";
-import EditAssignRole from "./pages/roles/Roles";
-import UserManagement from "./pages/settings/user-management/UserManagement";
-import ImportAddAccount from "./pages/accounts/ImportAddAccount";
-import AddAccount from "./pages/accounts/AddAccount";
-import EditAccount from "./pages/accounts/EditAccount";
+import AuthLayer from "./layer/AuthLayer";
 import Settings from "./pages/settings/Settings";
 import GeneralSettings from "./pages/settings/general-settings/GeneralSettings";
 import AccountManagement from "./pages/settings/account-management/AccountManagement";
 import EditCampus from "./pages/campus/EditCampus";
 import EditDisplayCampus from "./pages/campus/EditDisplayCampus";
+import ReportsTemplate from "./pages/settings/reports-template/ReportsTemplate";
 
 const router = createBrowserRouter([
   {
@@ -85,25 +78,24 @@ const router = createBrowserRouter([
       {
         path: "/campus",
         element: <Campus />,
-        children:
-          [
-              {
-                path: "",
-                element: <DisplayCampus />,
-              },
-              {
-                path: "add",
-                element: <AddNewCampus />,
-              },
-              {
-                path: "edit",
-                element: <EditDisplayCampus />,
-              },
-              {
-                path: "edit-campus/:id",
-                element: <EditCampus />,
-              }
-          ]
+        children: [
+          {
+            path: "",
+            element: <DisplayCampus />,
+          },
+          {
+            path: "add",
+            element: <AddNewCampus />,
+          },
+          {
+            path: "edit",
+            element: <EditDisplayCampus />,
+          },
+          {
+            path: "edit-campus/:id",
+            element: <EditCampus />,
+          },
+        ],
       },
       {
         path: "/accounts",
@@ -155,11 +147,15 @@ const router = createBrowserRouter([
               },
               {
                 path: "/settings/account-management",
-                element: <AccountManagement />
+                element: <AccountManagement />,
               },
               {
                 path: "/settings/user-management",
                 element: <UserManagement />,
+              },
+              {
+                path: "/settings/reports-template",
+                element: <ReportsTemplate />,
               },
             ],
           },

@@ -4,7 +4,6 @@ import multer from "multer";
 import cloudinary from "cloudinary";
 import { Readable } from "stream";
 import verifyToken from "../middleware/verifyToken.js";
-import e from "express";
 
 const router = express.Router();
 router.use(verifyToken);

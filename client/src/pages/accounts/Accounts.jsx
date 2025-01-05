@@ -61,7 +61,7 @@ const Accounts = () => {
   const columnActions = { navigate, handleVerifyAccount };
 
   return (
-    <div className="flex h-full flex-col gap-5">
+    <div className={`flex flex-1 flex-col gap-5 ${isLoading ? "h-full" : ""} `}>
       <Header
         title={"Accounts"}
         subtitle={

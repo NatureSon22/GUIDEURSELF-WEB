@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { BsPersonFillAdd } from "react-icons/bs";
 import ComboBox from "@/components/ComboBox";
 import { useQuery } from "@tanstack/react-query";
@@ -19,13 +19,11 @@ const Roles = () => {
     queryFn: getAllAccounts,
   });
   const navigate = useNavigate();
-  const data = useMemo(() => accountRoles, [accountRoles]);
-  const tableColumns = useMemo(() => columns, []);
 
   const handleAssignRoleClick = () => {};
 
   return (
-    <div className="flex h-full flex-col gap-5">
+    <div className={`flex flex-1 flex-col gap-5 ${isLoading ? "h-full" : ""} `}>
       <Header
         title="Assign Role"
         subtitle="Manage roles and permissions by selecting staff members and defining their access levels"

@@ -50,13 +50,12 @@ const AddAccount = () => {
     mutationFn: addAccount,
     onSuccess: (data) => {
       toast({
-        title: "Account added successfully",
+        title: "Success",
         description: data.message,
       });
       navigate("/accounts");
     },
     onError: (error) => {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Error",

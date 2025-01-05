@@ -3,6 +3,7 @@ import { getAllRolesWithPermissions } from "@/api/role";
 import columns from "@/components/columns/RoleType";
 import DataTable from "@/components/DataTable";
 import { useState } from "react";
+import Loading from "@/components/Loading";
 
 const RoleTypeTable = () => {
   const { data: roles, isLoading } = useQuery({
@@ -13,7 +14,9 @@ const RoleTypeTable = () => {
   const [filters, setFilters] = useState([]);
 
   return isLoading ? (
-    <div>Loading...</div>
+    <div className="py-12">
+      <Loading></Loading>
+    </div>
   ) : (
     <DataTable
       data={roles}

@@ -48,6 +48,7 @@ const AccountForm = ({
 
     if (type === "edit") {
       formData.append("status", data.status);
+      formData.append("accountId", defaultValues._id);
     }
 
     handleAccountAction(formData);
