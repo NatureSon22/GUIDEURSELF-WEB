@@ -1,11 +1,11 @@
 import Header from "@/components/Header";
-import SystemLogoField from "./SystemLogoField";
-import AboutField from "./AboutField";
+import PoliciesField from "./PoliciesField";
 import { useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
 import React, { useState, useEffect } from "react";
+import TermsConditionsField from "./TermsConditionField";
 
-const GeneralSettings = () => {
+const PrivacyPolicySetting = () => {
   const [general, setGeneral] = useState(null);
 
 
@@ -38,24 +38,30 @@ const GeneralSettings = () => {
   }
 
   return (
-    <div className="h-[1000px] pr-4 space-y-5 flex flex-col scroll">
+    <div className="h-[2500px] pr-4 space-y-5 flex flex-col scroll">
       <Header
-        title="University Management"
-        subtitle="Set up university details, branding, and administrative roles."
+        title="Privacy and Legal"
+        subtitle="Update legal policies to ensure compliance and manage data policies"
       />
-      <SystemLogoField
+      <TermsConditionsField
         isLoading={userLoading}
-        generallogo={general.general_logo_url}
+        systemconditions={general.terms_conditions}
         {...data}
-      />
-      <AboutField
-        isLoading={userLoading}
-        systemabout={general.general_about}
-        {...data}
-        onAboutUpdate={(newAbout) =>
+          onConditionsUpdate={(newConditions) =>
           setGeneral((prev) => ({
             ...prev,
-            general_about: newAbout,
+            terms_conditions: newConditions,
+          }))
+        }
+      />
+      <PoliciesField
+        isLoading={userLoading}
+        systempolicies={general.privacy_policies}
+        {...data}
+          onPoliciesUpdate={(newPolicies) =>
+          setGeneral((prev) => ({
+            ...prev,
+            privacy_policies: newPolicies,
           }))
         }
       />
@@ -63,4 +69,4 @@ const GeneralSettings = () => {
   );
 };
 
-export default GeneralSettings;
+export default PrivacyPolicySetting;

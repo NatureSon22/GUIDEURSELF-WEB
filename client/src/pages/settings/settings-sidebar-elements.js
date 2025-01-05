@@ -21,7 +21,7 @@ const sidebarElements = [
   },
   {
     title: "Privacy & Legal",
-    path: "/privacy-legal",
+    path: "/privacy-policy",
   },
   {
     title: "Archives",

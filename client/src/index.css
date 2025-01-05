@@ -62,6 +62,25 @@
   }
 }
 
+/* Custom Scrollbar */
+.scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #888; /* Thumb color */
+  border-radius: 5px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Thumb hover color */
+}
+
+
 @layer base {
   * {
     @apply border-border;

@@ -16,21 +16,12 @@ import KeyOfficials from "./pages/key_officials/KeyOfficials.jsx";
 import EditKeyOfficials from "./pages/key_officials/EditKeyOfficials.jsx";
 import DisplayingKeyOfficials from "./pages/key_officials/DisplayKeyOfficials";
 import Campus from "./pages/campus/Campus";
-import DisplayCampus from "./pages/campus/DisplayCampus";
-import AddNewCampus from "./pages/campus/AddNewCampus";
-import Container from "./components/Container.jsx";
 import Accounts from "./pages/accounts/Accounts.jsx";
-import AddAccount from "./pages/accounts/AddAccount.jsx";
-import ImportAddAccount from "./pages/accounts/ImportAddAccount.jsx";
-import EditAccount from "./pages/accounts/EditAccount.jsx";
 import Roles from "./pages/roles/Roles.jsx";
-import EditAssignRole from "./pages/roles/EditAssignRole.jsx";
-import UserManagement from "./pages/settings/user-management/UserManagement.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthLayer from "./layer/AuthLayer";import DisplayCampus from "./pages/Campus/DisplayCampus";
 import AddNewCampus from "./pages/Campus/AddNewCampus";
 import Container from "./components/Container";
-import Roles from "./pages/roles/Roles";
 import EditAssignRole from "./pages/roles/Roles";
 import UserManagement from "./pages/settings/user-management/UserManagement";
 import ImportAddAccount from "./pages/accounts/ImportAddAccount";
@@ -41,6 +32,8 @@ import GeneralSettings from "./pages/settings/general-settings/GeneralSettings";
 import AccountManagement from "./pages/settings/account-management/AccountManagement";
 import EditCampus from "./pages/campus/EditCampus";
 import EditDisplayCampus from "./pages/campus/EditDisplayCampus";
+import UniversityManagement from "./pages/settings/university-management/UniversityManagement";
+import PrivacyPolicySetting from "./pages/settings/privacy-policy/PrivacyPolicySetting";
 
 const router = createBrowserRouter([
   {
@@ -158,8 +151,17 @@ const router = createBrowserRouter([
                 element: <AccountManagement />
               },
               {
+                path: "/settings/university-management",
+                element: <UniversityManagement />
+              },
+              {
                 path: "/settings/user-management",
                 element: <UserManagement />,
+              },
+              
+              {
+                path: "/settings/privacy-policy",
+                element: <PrivacyPolicySetting />,
               },
             ],
           },
