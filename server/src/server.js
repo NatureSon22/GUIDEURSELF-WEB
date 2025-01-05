@@ -13,6 +13,7 @@ import campusProgramTypeRouter from "../router/campusProgramTypeRouter.js";
 import roleTypesRouter from "../router/roleTypesRouter.js";
 import universityManagementRouter from "../router/universityManagementRouter.js";
 import generalSettingsRouter from "../router/generalSettingRouter.js";
+import templateRouter from "../router/templateRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -27,8 +28,9 @@ app.use(
 app.use("/api/auth", authRouter);
 app.use("/api/role-types", roleTypesRouter);
 app.use("/api/accounts", accountRouter);
+app.use("/api/templates", templateRouter);
 app.use("/api", campusRouter);
-app.use('/api', administrativePositionRoutes);
+app.use("/api", administrativePositionRoutes);
 app.use("/api", keyOfficialRoutes);
 app.use("/api", campusProgramTypeRouter);
 app.use("/api", universityManagementRouter);

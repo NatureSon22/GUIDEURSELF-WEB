@@ -46,16 +46,20 @@ const EditAccount = () => {
     refetchOnMount: true,
   });
   const { mutate: handleEditAccount } = useMutation({
-    mutationFn: (data) => updateAccount(accountId, data),
+    mutationFn: (data) => updateAccount(data),
     onSuccess: (data) => {
       navigate("/accounts");
       toast({
-        title: "Account updated successfully",
+        title: "Success",
         description: data.message,
       });
     },
     onError: (error) => {
-      alert(`Update failed: ${error.message}`);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -63,6 +67,7 @@ const EditAccount = () => {
   if (error) return <div>Error fetching account data</div>;
 
   const defaultvalues = {
+    _id: accountData?._id || "",
     userType: accountData?.role_id || "",
     campus: accountData?.campus_id || "",
     user_number: accountData?.user_number || "",

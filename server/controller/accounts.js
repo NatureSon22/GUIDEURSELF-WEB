@@ -1,6 +1,8 @@
+import cloudinary from "../config/cloudinary.js";
 import UserModel from "../models/user.js";
 import sendVerificationEmail from "../service/email.js";
 import generatePassword from "password-generator";
+import fs from "fs";
 
 const getAllAccounts = async (req, res, next) => {
   try {
@@ -118,30 +120,52 @@ const bulkAddAccount = async (req, res) => {
     const { role_id, campus_id, users } = req.body;
     const parsedUsers = JSON.parse(users);
 
-    const bulkUsers = parsedUsers.map((user) => ({
-      role_id: role_id,
-      campus_id: campus_id,
-      user_number: user.user_number,
-      username: user.firstname + " " + user.lastname,
-      firstname: user.firstname,
-      middlename: user.middlename,
-      lastname: user.lastname,
-      email: user.email,
-      password: generatePassword(12, false),
-    }));
+    console.log(parsedUsers);
 
-    const result = await UserModel.insertMany(bulkUsers, { ordered: false });
+    const bulkUsers = [];
+    const existingUsers = [];
 
-    // Send emails for successfully inserted users
-    await Promise.all(
-      result.map(async (user) => {
-        await sendVerificationEmail(user.email, user.password);
-      })
-    );
+    for (const user of parsedUsers) {
+      const userExists = await UserModel.findOne({
+        $or: [{ user_number: user.user_number }, { email: user.email }],
+      });
 
-    res
-      .status(200)
-      .json({ message: `${result.length} users created successfully` });
+      if (userExists) {
+        existingUsers.push(user);
+      } else {
+        bulkUsers.push({
+          role_id: role_id,
+          campus_id: campus_id,
+          user_number: user.user_number,
+          username: user.firstname + " " + user.lastname,
+          firstname: user.firstname,
+          middlename: user.middlename,
+          lastname: user.lastname,
+          email: user.email,
+          password: generatePassword(12, false),
+        });
+      }
+    }
+
+    if (bulkUsers.length > 0) {
+      const result = await UserModel.insertMany(bulkUsers, { ordered: false });
+
+      await Promise.all(
+        result.map(async (user) => {
+          await sendVerificationEmail(user.email, user.password);
+        })
+      );
+
+      return res.status(200).json({
+        message: `${result.length} users created successfully`,
+        existingUsers,
+      });
+    }
+
+    res.status(200).json({
+      message: "Already user exists are found. Please check existing users",
+      existingUsers,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -173,7 +197,7 @@ const getLoggedInAccount = async (req, res) => {
         .json({ message: "User ID is missing in the request" });
     }
 
-    const user = await UserModel.findById(accountId).select("-password"); // Exclude sensitive fields like password
+    const user = await UserModel.findById(accountId); // Exclude sensitive fields like password
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -187,38 +211,39 @@ const getLoggedInAccount = async (req, res) => {
 
 const updateAccount = async (req, res) => {
   try {
-    const { accountId } = req.params;
-    const {
-      role_id,
-      campus_id,
-      user_number,
-      username,
-      firstname,
-      middlename,
-      lastname,
-      email,
-      password,
-      status,
-    } = req.body;
+    const updatedData = {
+      ...req.body,
+      date_updated: new Date(),
+    };
+
+    if (req.body.role_id || req.body.campus_id) {
+      updatedData.date_assigned = new Date();
+    }
+
+    const allowedFields = [
+      "role_id",
+      "campus_id",
+      "user_number",
+      "firstname",
+      "middlename",
+      "lastname",
+      "username",
+      "email",
+      "password",
+      "status",
+      "date_assigned",
+    ];
+
+    const filteredData = Object.keys(updatedData)
+      .filter((key) => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = updatedData[key];
+        return obj;
+      }, {});
 
     await UserModel.updateOne(
-      { _id: accountId },
-      {
-        $set: {
-          role_id,
-          campus_id,
-          user_number,
-          firstname,
-          middlename,
-          lastname,
-          username,
-          email,
-          password,
-          status,
-          date_updated: Date.now(),
-          date_assigned: Date.now(),
-        },
-      }
+      { _id: updatedData.accountId },
+      { $set: filteredData }
     );
 
     res.status(200).json({
@@ -226,6 +251,44 @@ const updateAccount = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updatePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    let photoUrl;
+    try {
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: "profiles",
+        resource_type: "image",
+      });
+      photoUrl = result.secure_url;
+    } catch (error) {
+      return res.status(500).json({
+        message: "Failed to upload profile photo",
+        error: error.message,
+      });
+    }
+
+    const { accountId } = req.body;
+    if (!accountId) {
+      return res.status(400).json({ message: "Account ID is required" });
+    }
+
+    await UserModel.updateOne(
+      { _id: accountId },
+      { $set: { user_photo_url: photoUrl, date_updated: new Date() } }
+    );
+
+    fs.unlinkSync(req.file.path);
+
+    res.status(200).json({ message: "Photo updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -299,6 +362,7 @@ export {
   getAccount,
   updateAccount,
   updateAccountRoleType,
+  updatePhoto,
   verifyAccount,
   bulkAddAccount,
   deleteAccounts,

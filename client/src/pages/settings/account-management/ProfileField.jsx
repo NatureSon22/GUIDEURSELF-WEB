@@ -4,15 +4,40 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
-const ProfileField = ({ isLoading, user_photo_url }) => {
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { update } from "@/api/accounts";
+import { useToast } from "@/hooks/use-toast";
+const ProfileField = ({ isLoading, user_photo_url, _id }) => {
   const [edit, setEdit] = useState(false);
   const inputRef = useRef(null);
   const [img, setImg] = useState(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: handleUpdateProfile, isPending: isUpdating } =
+    useMutation({
+      mutationFn: update,
+      onSuccess: (data) => {
+        queryClient.invalidateQueries(["user"]);
+        toast({
+          title: "Success",
+          description: data.message,
+        });
+        setEdit(false);
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message,
+          type: "destructive",
+        });
+      },
+    });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
-      setImg(URL.createObjectURL(file)); // Preview the selected image
+      setImg(URL.createObjectURL(file));
     } else {
       alert("Please select a valid image file.");
     }
@@ -24,21 +49,28 @@ const ProfileField = ({ isLoading, user_photo_url }) => {
 
   const handleUpdate = () => {
     if (img) {
-      console.log("Uploading image...");
-      // Add API call or logic to upload the image
+      const formData = new FormData();
+      formData.append("profile_photo", inputRef.current.files[0]);
+      formData.append("accountId", _id);
+      handleUpdateProfile(formData);
     } else {
       alert("No image selected!");
     }
+  };
+
+  const handleCancel = () => {
+    setEdit(false);
+    setImg(null);
   };
 
   return (
     <Layout
       title={"Manage Profile"}
       subtitle={"Update profile photo"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
-        <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24"></Skeleton>
+        <Skeleton className="w-[240px] py-24"></Skeleton>
       ) : (
         <div className="space-y-4">
           {edit ? (
@@ -51,7 +83,7 @@ const ProfileField = ({ isLoading, user_photo_url }) => {
                 onChange={handleFileChange}
               />
               <div
-                className="grid size-[240px] cursor-pointer place-items-center rounded-md border"
+                className="grid size-[240px] cursor-pointer place-items-center rounded-md border overflow-hidden"
                 onClick={handleInputClick}
                 aria-label="Upload new profile photo"
               >
@@ -77,9 +109,14 @@ const ProfileField = ({ isLoading, user_photo_url }) => {
           )}
 
           {edit && (
-            <Button onClick={handleUpdate} className="mt-4">
-              Update
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Button onClick={handleUpdate} disabled={isUpdating}>
+                Update
+              </Button>
+              <Button variant="ghost" onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
           )}
         </div>
       )}
@@ -90,6 +127,7 @@ const ProfileField = ({ isLoading, user_photo_url }) => {
 ProfileField.propTypes = {
   isLoading: PropTypes.bool,
   user_photo_url: PropTypes.string,
+  _id: PropTypes.string,
 };
 
 export default ProfileField;

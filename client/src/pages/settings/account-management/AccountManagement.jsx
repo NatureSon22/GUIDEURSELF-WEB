@@ -4,6 +4,7 @@ import ProfileField from "./ProfileField";
 import SessionsField from "./SessionsField";
 import { useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
+import PasswordField from "./PasswordField";
 
 const AccountManagement = () => {
   const { data, isLoading } = useQuery({
@@ -20,9 +21,11 @@ const AccountManagement = () => {
 
       <ProfileField isLoading={isLoading} {...data} />
 
-      <InformationField />
+      <InformationField isLoading={isLoading} {...data} />
 
-      <SessionsField />
+      <PasswordField isLoading={isLoading} {...data} />
+
+      <SessionsField isLoading={isLoading} {...data} />
     </div>
   );
 };

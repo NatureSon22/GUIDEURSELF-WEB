@@ -10,14 +10,14 @@ const NavBar = () => {
   return (
     <div className="sticky top-0 flex border-b border-secondary-200-60 px-7 py-2">
       {isLoading ? (
-        <Skeleton className="ml-auto w-[140px] animate-pulse rounded-md bg-secondary-200/40 py-6"></Skeleton>
+        <Skeleton className="ml-auto w-[140px] py-6"></Skeleton>
       ) : (
-        <div className="ml-auto flex items-center gap-3 rounded-md border border-secondary-200/50 px-4 py-1">
+        <div className="ml-auto flex cursor-pointer items-center gap-3 rounded-md border border-secondary-200/40 px-4 py-1">
           <div className="size-10 rounded-full">
             <img
               src={data.user_photo_url}
               alt=""
-              className="w-full rounded-full object-cover"
+              className="h-full w-full rounded-full object-cover"
             />
           </div>
 

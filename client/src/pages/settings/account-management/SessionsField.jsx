@@ -5,7 +5,9 @@ const SessionsField = () => {
     <Layout
       title="Current Active Sessions"
       subtitle="View and manage all current login sessions"
-    />
+    >
+      <p>Sessions</p>
+    </Layout>
   );
 };
 

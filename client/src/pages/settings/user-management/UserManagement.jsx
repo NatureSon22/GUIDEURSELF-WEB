@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import UserTypemanagement from "./UserTypeManagement";
 import RoleManagement from "./RoleManagement";
+import Layout from "@/components/Layout";
 const UserManagement = () => {
   //   {
   //      "_id": {"$oid":"67659bcb685b0e8c2f8beeb0"},
@@ -20,28 +21,21 @@ const UserManagement = () => {
         subtitle="Organize user roles, types, and permissions within the system"
       ></Header>
 
-      <div className="space-y-4 rounded-lg border border-secondary-200-60 bg-white px-4 py-6">
-        <div className="space-y-1">
-          <p className="font-medium">User Type</p>
-          <p className="text-[0.9rem]">Define categories for system users</p>
-        </div>
-
-        <p className="font-medium">New User Type</p>
-
+      <Layout
+        title="User Type"
+        subtitle="Define categories for system users"
+        isEditable={false}
+      >
         <UserTypemanagement />
-      </div>
+      </Layout>
 
-      <div className="space-y-4 rounded-lg border border-secondary-200-60 bg-white px-4 py-6">
-        <div className="space-y-1">
-          <p className="font-medium">Role</p>
-          <p className="text-[0.9rem]">
-            Establish user roles with specific responsibilities
-          </p>
-        </div>
-
-        <p className="font-medium">Create Role</p>
+      <Layout
+        title="User Management"
+        subtitle="Manage user roles, permissions, and access"
+        isEditable={false}
+      >
         <RoleManagement />
-      </div>
+      </Layout>
     </div>
   );
 };

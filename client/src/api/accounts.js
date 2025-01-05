@@ -69,9 +69,27 @@ const addBulkAccount = async (data) => {
   return response.json();
 };
 
-const updateAccount = async (accountId, data) => {
+const updateAccount = async (data) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/accounts/update-account/${accountId}`,
+    `${import.meta.env.VITE_API_URL}/accounts/update-account`,
+    {
+      method: "PUT",
+      credentials: "include",
+      body: data,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
+const update = async (data) => {
+  const response = await fetch(
+    ` ${import.meta.env.VITE_API_URL}/accounts/update-profile`,
     {
       method: "PUT",
       credentials: "include",
@@ -132,6 +150,7 @@ export {
   getAccount,
   getAllAccounts,
   updateAccount,
+  update,
   updateAccountRoleType,
   verifyAccount,
 };

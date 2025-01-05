@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
 import SearchBox from "@/components/SearchBox";
@@ -20,43 +20,47 @@ const DisplayingKeyOfficials = () => {
   }, []);
 
   const filteredOfficials = officials.filter((official) =>
-    official.name.toLowerCase().includes(searchQuery.toLowerCase())
+    official.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
     <div className="w-full">
-      <div className="w-full p-6 flex justify-between items-center">
+      <div className="flex w-full items-center justify-between p-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Key Officials</h2>
-          <p className="text-gray-600 mt-2">
+          <p className="mt-2 text-gray-600">
             Manage university hierarchy, key officials, and their roles.
           </p>
         </div>
       </div>
-      <div className="w-full p-6 flex gap-4">
+      <div className="flex w-full gap-4 p-6">
         <SearchBox searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        
+
         <Link className="w-[7%]" to="/key-officials/edit">
-          <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
+          <button className="text-md focus-none flex h-10 w-[100%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none transition duration-300 hover:bg-gray-200">
             <img src={Pen} alt="Edit" />
             Edit
           </button>
         </Link>
       </div>
 
-      <div className="w-full flex flex-row items-center justify-center mt-8">
+      <div className="mt-8 flex w-full flex-row items-center justify-center">
         <img src={UrsLogo} alt="URS Logo" />
         <img src={UrsVector} alt="URS Vector" />
       </div>
 
-      <div className="w-full flex flex-col items-center justify-center mt-8">
-        <h2 className="text-xl font-semibold mt-2">University of Rizal System</h2>
-        <p className="text-gray-500 italic">Nurturing Tomorrow's Noblest</p>
+      <div className="mt-8 flex w-full flex-col items-center justify-center">
+        <h2 className="mt-2 text-xl font-semibold">
+          University of Rizal System
+        </h2>
+        <p className="italic text-gray-500">
+          Nurturing Tomorrow&apos;s Noblest
+        </p>
       </div>
 
-      <div className="p-6 mt-6">
+      <div className="mt-6 p-6">
         {filteredOfficials.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-7">
+          <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-5">
             {filteredOfficials.map((official, index) => (
               <OfficialCard key={index} official={official} />
             ))}

@@ -3,6 +3,7 @@ import { getAllRoles } from "@/api/role";
 import DataTable from "@/components/DataTable";
 import UserTypeColumns from "@/components/columns/UserType";
 import { useState } from "react";
+import Loading from "@/components/Loading";
 
 const TableUserRole = () => {
   const { data: roles, isLoading } = useQuery({
@@ -10,14 +11,15 @@ const TableUserRole = () => {
     queryFn: getAllRoles,
   });
   const [globalFilter, setGlobalFilter] = useState("");
-
   const [filters, setFilters] = useState([]);
 
   return isLoading ? (
-    <p>Loading...</p>
+    <div className="py-12">
+      <Loading></Loading>
+    </div>
   ) : (
     <DataTable
-      data={[]}
+      data={roles}
       columns={UserTypeColumns}
       filters={filters}
       setFilters={setFilters}
