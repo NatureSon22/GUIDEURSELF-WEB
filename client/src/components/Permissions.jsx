@@ -46,6 +46,7 @@ const Permissions = ({
       </div>
 
       <p className="text-[0.85rem]">{module.description}</p>
+
       <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-4">
         {module.access.map((access) => {
           const isChecked = roleaccess.includes(access);

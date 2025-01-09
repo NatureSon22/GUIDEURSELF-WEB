@@ -15,12 +15,14 @@ import accountStatus from "@/utils/accountStatus";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loading from "@/components/Loading";
+import { GrPowerReset } from "react-icons/gr";
 
 const Accounts = () => {
   const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [reset, setReset] = useState(false);
 
   const {
     data: allAccounts,
@@ -60,6 +62,12 @@ const Accounts = () => {
 
   const columnActions = { navigate, handleVerifyAccount };
 
+  const handleReset = () => {
+    setFilters([]);
+    setGlobalFilter("");
+    setReset(!reset);
+  };
+
   return (
     <div className={`flex flex-1 flex-col gap-5 ${isLoading ? "h-full" : ""} `}>
       <Header
@@ -85,6 +93,7 @@ const Accounts = () => {
           >
             <RiAddLargeFill /> Add Account
           </Button>
+
           <Button
             variant="outline"
             className="text-secondary-100-75"
@@ -99,9 +108,35 @@ const Accounts = () => {
       <div className="flex items-center gap-5">
         <p>Filters:</p>
         <DateRangePicker />
-        <ComboBox options={allRoles} placeholder="select user type" />
-        <ComboBox options={allCampuses} placeholder="select campus" />
-        <ComboBox options={accountStatus} placeholder="select status" />
+        <ComboBox
+          options={allRoles}
+          placeholder="select user type"
+          filter="role_type"
+          setFilters={setFilters}
+          reset={reset}
+        />
+        <ComboBox
+          options={allCampuses}
+          placeholder="select campus"
+          filter="campus_name"
+          setFilters={setFilters}
+          reset={reset}
+        />
+        <ComboBox
+          options={accountStatus}
+          placeholder="select status"
+          filter="status"
+          setFilters={setFilters}
+          reset={reset}
+        />
+
+        <Button
+          className="ml-auto text-secondary-100-75"
+          variant="outline"
+          onClick={handleReset}
+        >
+          <GrPowerReset /> Reset Filters
+        </Button>
       </div>
 
       {isLoading ? (

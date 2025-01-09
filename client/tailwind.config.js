@@ -16,6 +16,8 @@ export default {
         "secondary-400": "rgba(244, 245, 247, 1)",
         "accent-100": "rgba(239, 68, 68, 1)",
         "accent-200": "rgba(254, 226, 226, 1)",
+        "accent-300": "rgba(34, 197, 94, 1)",
+        "accent-400": "rgba(220, 252, 231, 1)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -66,7 +68,12 @@ export default {
       boxShadow: {
         "top-only": "0 -3px 6px rgba(0, 0, 0, 0.1)",
       },
+      animation: {
+        "fade-in": "fade-in 0.2s ease-in",
+        "fade-out": "fade-out 0.2s ease-out",
+        "zoom-in": "zoom-in 0.2s ease-in",
+        "zoom-out": "zoom-out 0.2s ease-out",
+      },
     },
   },
-  //   plugins: [require("tailwindcss-animate")],
 };

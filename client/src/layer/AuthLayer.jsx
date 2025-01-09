@@ -2,12 +2,15 @@ import useAuthStore from "@/context/useAuthStore";
 import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
+import useUser from "@/hooks/useUser";
 
 const AuthLayer = ({ children }) => {
-  const { isLoading } = useAuth();
+  const { isAuthenticatedLoading } = useAuth();
+  const { isUserLoading } = useUser();
+
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  if (isLoading) {
+  if (isAuthenticatedLoading || isUserLoading) {
     return (
       <div className="grid min-h-screen place-items-center"> Loading... </div>
     );

@@ -76,13 +76,20 @@ const DataTable = ({
   });
 
   return (
-    <div className="flex flex-1 flex-col">
-      <Table className="mt-3 flex-1 overflow-x-auto border-b border-t border-secondary-200-60">
+    <div className="flex h-full flex-1 flex-col">
+      <Table className="mt-3 flex-1 overflow-x-auto border-b border-t border-secondary-200-60 overflow-x-auto">
         <TableHeader className="border-collapse bg-secondary-400">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="text-base-300">
+                <TableHead
+                  key={header.id}
+                  className={`border text-base-300 ${
+                    ["Action", "status"].includes(header.column.id)
+                      ? "text-center"
+                      : ""
+                  }`}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(

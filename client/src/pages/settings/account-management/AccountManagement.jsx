@@ -7,10 +7,14 @@ import { loggedInUser } from "@/api/auth";
 import PasswordField from "./PasswordField";
 
 const AccountManagement = () => {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["user"],
     queryFn: loggedInUser,
   });
+
+  if (isError) {
+    return <p>An error has been found</p>;
+  }
 
   return (
     <div className="space-y-5">

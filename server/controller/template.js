@@ -1,5 +1,6 @@
 import cloudinary from "cloudinary";
 import ReportTemplate from "../models/reportTemplate.js";
+import fs from "fs";
 
 const postTemplate = async (req, res) => {
   try {
@@ -37,6 +38,8 @@ const postTemplate = async (req, res) => {
       message: "Server error",
       error: error.message,
     });
+  } finally {
+    fs.unlinkSync(req.file.path);
   }
 };
 

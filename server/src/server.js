@@ -6,7 +6,7 @@ import connectDB from "../config/db.js";
 import authRouter from "../router/authRouter.js";
 import accountRouter from "../router/accountRouter.js";
 import cookieParser from "cookie-parser";
-import administrativePositionRoutes from '../router/administartivePositionRouter.js';
+import administrativePositionRoutes from "../router/administartivePositionRouter.js";
 import keyOfficialRoutes from "../router/keyOfficialRouter.js";
 import campusRouter from "../router/campusRouter.js";
 import campusProgramTypeRouter from "../router/campusProgramTypeRouter.js";
@@ -14,6 +14,7 @@ import roleTypesRouter from "../router/roleTypesRouter.js";
 import universityManagementRouter from "../router/universityManagementRouter.js";
 import generalSettingsRouter from "../router/generalSettingRouter.js";
 import templateRouter from "../router/templateRouter.js";
+import statusRouter from "../router/statusRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -29,13 +30,13 @@ app.use("/api/auth", authRouter);
 app.use("/api/role-types", roleTypesRouter);
 app.use("/api/accounts", accountRouter);
 app.use("/api/templates", templateRouter);
+app.use("/api/status", statusRouter);
 app.use("/api", campusRouter);
 app.use("/api", administrativePositionRoutes);
 app.use("/api", keyOfficialRoutes);
 app.use("/api", campusProgramTypeRouter);
 app.use("/api", universityManagementRouter);
 app.use("/api", generalSettingsRouter);
-
 
 (async () => {
   config();

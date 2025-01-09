@@ -23,7 +23,7 @@ import AuthLayer from "./layer/AuthLayer";
 import DisplayCampus from "./pages/Campus/DisplayCampus";
 import AddNewCampus from "./pages/Campus/AddNewCampus";
 import Container from "./components/Container";
-import EditAssignRole from "./pages/roles/Roles";
+import EditAssignRole from "./pages/roles/EditAssignRole";
 import UserManagement from "./pages/settings/user-management/UserManagement";
 import ImportAddAccount from "./pages/accounts/ImportAddAccount";
 import AddAccount from "./pages/accounts/AddAccount";
@@ -36,6 +36,7 @@ import EditDisplayCampus from "./pages/campus/EditDisplayCampus";
 import ReportsTemplate from "./pages/settings/reports-template/ReportsTemplate";
 import UniversityManagement from "./pages/settings/university-management/UniversityManagement";
 import PrivacyPolicySetting from "./pages/settings/privacy-policy/PrivacyPolicySetting";
+import Reports from "./pages/reports/Reports";
 
 const router = createBrowserRouter([
   {
@@ -136,6 +137,16 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: "/reports",
+        element: <Container />,
+        children: [
+          {
+            path: "",
+            element: <Reports />,
+          },
+        ],
+      },
+      {
         path: "/settings",
         element: <Container />,
         children: [
@@ -153,7 +164,7 @@ const router = createBrowserRouter([
               },
               {
                 path: "/settings/university-management",
-                element: <UniversityManagement />
+                element: <UniversityManagement />,
               },
               {
                 path: "/settings/user-management",

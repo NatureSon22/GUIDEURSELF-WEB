@@ -3,10 +3,19 @@ import UserModel from "../models/user.js";
 import sendVerificationEmail from "../service/email.js";
 import generatePassword from "password-generator";
 import fs from "fs";
+import { Types } from "mongoose";
 
 const getAllAccounts = async (req, res, next) => {
   try {
     const users = await UserModel.aggregate([
+      {
+        $match: {
+          _id: {
+            $ne: new Types.ObjectId(req.userId),
+            campus_id: new Types.ObjectId(req.campusId),
+          }, // Exclude the specific ID
+        },
+      },
       {
         $lookup: {
           from: "roles",
@@ -57,6 +66,8 @@ const getAllAccounts = async (req, res, next) => {
         },
       },
     ]);
+
+    // remove the current user
 
     res.status(200).json({ users });
   } catch (error) {
@@ -175,13 +186,26 @@ const getAccount = async (req, res) => {
   try {
     const { accountId } = req.params;
 
-    const user = await UserModel.findById(accountId);
+    const user = await UserModel.aggregate([
+      { $match: { _id: new Types.ObjectId(accountId) } },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role_id",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      {
+        $unwind: { path: "$role", preserveNullAndEmptyArrays: true },
+      },
+    ]);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ user });
+    res.status(200).json({ user: user[0] });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -197,11 +221,115 @@ const getLoggedInAccount = async (req, res) => {
         .json({ message: "User ID is missing in the request" });
     }
 
-    const user = await UserModel.findById(accountId); // Exclude sensitive fields like password
+    const user = await UserModel.aggregate([
+      { $match: { _id: new Types.ObjectId(accountId) } },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role_id",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      {
+        $unwind: { path: "$role", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $addFields: {
+          role_type: "$role.role_type",
+          role_permissions: "$role.permissions",
+        },
+      },
+      {
+        $lookup: {
+          from: "campus",
+          localField: "campus_id",
+          foreignField: "_id",
+          as: "campus",
+        },
+      },
+      {
+        $unwind: { path: "$campus", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $addFields: {
+          campus_name: "$campus.campus_name",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          username: 1,
+          role_type: 1,
+          user_photo_url: 1,
+          role_permissions: 1,
+          custom_permissions: 1,
+          campus_name: 1,
+          user_number: 1,
+          email: 1,
+          firstname: 1,
+          middlename: 1,
+          lastname: 1,
+          password: 1,
+        },
+      },
+    ]);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    const {
+      custom_permissions: { granted, revoked },
+      role_permissions,
+    } = user[0];
+
+    const based_permissions = [...role_permissions];
+    const granted_permissions = granted ? [...granted] : [];
+    const revoked_permissions = revoked ? [...revoked] : [];
+
+    // Handle granted permissions
+    granted_permissions.forEach((permission) => {
+      const index = based_permissions.findIndex(
+        (p) => p.module === permission.module
+      );
+
+      if (index !== -1) {
+        // Merge access permissions
+        based_permissions[index].access = Array.from(
+          new Set([...based_permissions[index].access, ...permission.access])
+        );
+      } else {
+        // Add new module with permissions
+        based_permissions.push({
+          module: permission.module,
+          access: [...permission.access],
+        });
+      }
+    });
+
+    // Handle revoked permissions
+    revoked_permissions.forEach((permission) => {
+      const index = based_permissions.findIndex(
+        (p) => p.module === permission.module
+      );
+
+      if (index !== -1) {
+        // Remove revoked permissions
+        based_permissions[index].access = based_permissions[
+          index
+        ].access.filter((access) => !permission.access.includes(access));
+
+        // Remove the module if no access permissions are left
+        if (based_permissions[index].access.length === 0) {
+          based_permissions.splice(index, 1);
+        }
+      }
+    });
+
+    delete user[0].custom_permissions;
+    delete user[0].role_permissions;
+    user[0].permissions = based_permissions;
 
     res.status(200).json({ user });
   } catch (error) {

@@ -6,10 +6,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { IoMdAdd } from "react-icons/io";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {updateLogo} from "@/api/general-settings.js"
+import {updateLogo} from "@/api/general-settings.js";
+import { useToast } from "@/hooks/use-toast";
 
 const SystemLogoField = ({ isLoading, generallogo }) => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [edit, setEdit] = useState(false);
   const inputRef = useRef(null);
   const [editimg, setEditImg] = useState(null);
@@ -18,10 +20,21 @@ const SystemLogoField = ({ isLoading, generallogo }) => {
     mutationFn:updateLogo, 
     onSuccess: () => {
       queryClient.invalidateQueries(["generalsettings"],{exact:true})
+      toast({
+        title: "Success",
+        description: "System logo successfully updated",
+      });
       setEdit(false)
       setFile(null)
       setEditImg(null)
-    } 
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        type: "destructive",
+      });
+    },
   })
 
   const handleFileChange = (e) => {

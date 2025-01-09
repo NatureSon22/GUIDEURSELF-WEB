@@ -20,7 +20,7 @@ const columns = () => [
     header: "Action",
     cell: ({ row }) => {
       return (
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <EditDialog role_id={row.original._id}>
             <Button
               variant="secondary"

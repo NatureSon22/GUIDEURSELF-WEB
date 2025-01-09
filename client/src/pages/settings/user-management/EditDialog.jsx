@@ -85,7 +85,7 @@ const EditDialog = ({ role_id, children }) => {
     updateRolePermission(formData);
   };
 
-  if (isError)
+  if (isError) {
     return (
       <Button
         variant="secondary"
@@ -93,11 +93,12 @@ const EditDialog = ({ role_id, children }) => {
         disabled
       ></Button>
     );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="grid gap-4 md:max-w-[850px] [&>button]:hidden">
+      <DialogContent className="grid gap-4 md:max-w-[900px] [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>
             <p>Edit Permissions</p>

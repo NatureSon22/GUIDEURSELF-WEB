@@ -42,12 +42,14 @@ const columns = ({ navigate, handleVerifyAccount }) => [
   },
   {
     accessorKey: "role_type",
+    id: "role_type",
     header: "Role Type",
     cell: ({ row }) => formatTitle(row.original.role_type),
     filterFn: "equalsString",
   },
   {
     accessorKey: "campus_name",
+    id: "campus_name",
     header: "Campus",
     filterFn: "equalsString",
   },
@@ -59,8 +61,14 @@ const columns = ({ navigate, handleVerifyAccount }) => [
   },
   {
     accessorKey: "status",
+    id: "status",
     header: "Status",
     filterFn: "equalsString",
+    cell: ({ row }) => (
+      <div className="w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
+        <p>{formatTitle(row.original.status)}</p>
+      </div>
+    ),
   },
   // Hidden `full_name` field combining firstname, middlename, and lastname
   {
@@ -82,16 +90,18 @@ const columns = ({ navigate, handleVerifyAccount }) => [
     header: "Action",
     cell: ({ row }) => {
       return (
-        <div className="flex items-center justify-around">
+        <div className="flex items-center justify-around gap-2">
           <Button
-            className="text-[0.75rem]"
+            className={
+              "bg-base-200/10 text-[0.75rem] text-base-200 shadow-none hover:bg-base-200 hover:text-white"
+            }
             onClick={() => handleEditClick(row, navigate)}
           >
             <BiEdit />
             Edit
           </Button>
           <Button
-            className="text-[0.75rem]"
+            className={`bg-base-200/10 text-[0.75rem] text-base-200 shadow-none ${row.original.status === "pending" ? "px-5" : ""} hover:bg-base-200 hover:text-white`}
             onClick={() =>
               handleVerifyClick(row.original._id, handleVerifyAccount)
             }

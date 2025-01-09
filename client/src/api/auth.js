@@ -49,7 +49,7 @@ const loggedInUser = async () => {
 
   const { user } = await response.json();
 
-  return user || {};
+  return user ? user[0] : {};
 };
 
 const logout = async () => {

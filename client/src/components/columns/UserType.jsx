@@ -3,6 +3,7 @@ import formatDate from "@/utils/formatDate";
 const columns = () => [
   {
     accessorKey: "role_type",
+    size: 270,
     header: "List of User Type",
     filterFn: "equalsString",
   },
