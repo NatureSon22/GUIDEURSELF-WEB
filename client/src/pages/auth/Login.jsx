@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import useAuthStore from "../../context/useAuthStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa";
 
@@ -53,7 +53,7 @@ const Login = () => {
       setIsAuthenticated(true);
     },
     onError: (error) => setError(error.message),
-  });
+  });  
 
   return (
     <div className="grid min-h-screen grid-rows-[1fr_auto]">
@@ -65,7 +65,11 @@ const Login = () => {
             className="box-shadow w-full max-w-md space-y-5 rounded-lg p-6 pt-14"
           >
             <div className="mb-8 flex justify-center">
-              <img src={logo} alt="GuideURSelf Logo" className="w-[250px]" />
+            <img 
+              src={logo} 
+              alt="GuideURSelf Logo" 
+              className="w-[250px]" 
+            />
             </div>
 
             {error ? (

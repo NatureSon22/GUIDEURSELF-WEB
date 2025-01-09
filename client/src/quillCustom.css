@@ -1,0 +1,61 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&display=swap");
+
+.ql-size-10px {
+    font-size: 10px;
+  }
+  .ql-size-12px {
+    font-size: 12px;
+  }
+  .ql-size-16px {
+    font-size: 16px;
+  }
+  .ql-size-24px {
+    font-size: 24px;
+  }
+  .ql-size-30px {
+    font-size: 30px;
+  }
+
+  .ql-size-36px {
+    font-size: 36px;
+  }
+
+  .ql-editor .ql-size-small {
+    font-size: 16px; /* Set small size to 12px */
+    font-family: "Poppins", serif;
+  }
+  
+  .ql-editor .ql-size-large {
+    font-size: 18px; /* Set large size to 16px */
+    font-family: "Poppins", serif;
+  }
+  
+
+  .ql-h1 {
+    font-size: 20px; /* Heading 1 font size */
+  }
+
+  .ql-h2 {
+    font-size: 18px; /* Heading 2 font size */
+  }
+
+  .ql-h3 {
+    font-size: 16px; /* Heading 3 font size */
+  }
+
+
+  .ql-container {
+    border-radius: 8px !important;
+    border: 2px solid #bdbcbc !important; /* Adjust this value to control the border radius */
+  }
+  
+  .ql-toolbar {
+    border: none !important; /* Removes the border */
+    box-shadow: none !important; /* Removes any shadow */
+  }
+
+  .ql-editor {
+    font-size: 16px; /* Set the desired font size */
+    font-family: "Poppins", serif;
+  }
+  

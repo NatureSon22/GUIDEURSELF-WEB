@@ -17,15 +17,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useQuery } from "@tanstack/react-query";
+import { getUniversityData } from "@/api/component-info";
 
 const EditDisplayCampus = () => {
   const [campusToDelete, setCampusToDelete] = useState(null);
-  const [loadingVisible, setLoadingVisible] = useState(false); // For loading modal
-  const [loadingMessage, setLoadingMessage] = useState(""); // Loading message
+  const [loadingVisible, setLoadingVisible] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(""); 
   const [campuses, setCampuses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
   const navigate = useNavigate();
+  const {data:university, isLoading, isError} = useQuery ({
+    queryKey: ["universitysettings"],
+    queryFn: getUniversityData,
+  });
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -145,8 +150,8 @@ const EditDisplayCampus = () => {
           >
             <div className="px-2 w-[100%] h-[100px] flex justify-between rounded-md">
               <div className="w-[30%] flex items-center justify-center">
-                <img className="h-[45%]" src={UrsVector} alt="Vector" />
-                <img className="h-[45%]" src={UrsLogo} alt="Logo" />
+                <img className="h-[45%]" src={university?.university_vector_url} alt="Vector" />
+                <img className="h-[45%]" src={university?.university_logo_url} alt="Logo" />
               </div>
               <div className="w-[70%] flex flex-col justify-center">
                 <h2 className="font-bold text-lg">{campus.campus_name} Campus</h2>

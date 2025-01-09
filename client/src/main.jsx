@@ -23,7 +23,6 @@ import AuthLayer from "./layer/AuthLayer";
 import DisplayCampus from "./pages/Campus/DisplayCampus";
 import AddNewCampus from "./pages/Campus/AddNewCampus";
 import Container from "./components/Container";
-import Roles from "./pages/roles/Roles";
 import EditAssignRole from "./pages/roles/Roles";
 import UserManagement from "./pages/settings/user-management/UserManagement";
 import ImportAddAccount from "./pages/accounts/ImportAddAccount";

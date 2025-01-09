@@ -1,79 +1,136 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Editor } from "@tinymce/tinymce-react"; 
+import { useToast } from "@/hooks/use-toast";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import "@/quillConfig.js"; 
+import "@/quillCustom.css";
 
-const VisionField = ({ isLoading, universityvision, onVisionUpdate  }) => {
+const VisionField = (universityvision) => {
+  const modules = {
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ indent: "-1" }, { indent: "+1" }],
+        [{ align: [] }],
+        ["link", "image"],
+        ["clean"],
+        [{ size: ["small", "large", "huge"] }] // Add font size option
+      ],
+    };
   const [edit, setEdit] = useState(false);
-  const [vision, setVision] = useState(universityvision); // Store the updated vision value
+  const [vision, setVision] = useState(universityvision);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const handleInputChange = (e) => {
-    setVision(e.target.value); // Update the local state as the user types
-  };
-
-  const handleUpdate = async () => {
-    if (vision !== universityvision) {
+  useEffect(() => {
+    const fetchVision = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
-          method: "PUT",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            university_vision: vision,
-          }),
           credentials: "include",
         });
 
         if (response.ok) {
-            onVisionUpdate(vision);
-          setEdit(false); // Exit the edit mode
+          const data = await response.json();
+          setVision(data.university_vision);
         } else {
-          alert("Failed to update vision");
+          console.error("Failed to fetch university vision");
         }
       } catch (error) {
-        console.error("Error updating vision:", error);
-        alert("Error updating vision");
+        console.error("Error fetching university vision:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } else {
-      alert("No changes to update");
+    };
+
+    fetchVision();
+  }, []);
+
+  const handleClickUpdate = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/university/675cdd9756f690410f1473b8", 
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ university_vision: vision }),
+        }
+      );
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "University vision successfully updated",
+        });
+        setEdit(false);
+      } else {
+        console.error("Failed to update vision");
+      }
+    } catch (error) {
+      console.error("Error updating vision:", error);
     }
+  };
+
+  const handleCancel = () => {
+    setEdit(false);
+  };
+
+  const handleEditorChange = (content) => {
+    setVision(content); 
   };
 
   return (
     <Layout
       title={"University Vision"}
       subtitle={"The official vision of the university"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
-        <div>Loading...</div> // You can replace this with your actual loading skeleton component
+        <div>Loading...</div>
       ) : (
         <div className="space-y-4">
           {edit ? (
-            <div className="w-[100%] h-[300px] flex flex-col">
-              <textarea
-                value={vision} // Bind the input value to the state
-                onChange={handleInputChange} // Update the state on input change
-                className="p-2 h-full rounded-md border"
-                placeholder="Enter the university vision"
-                rows={4}
-              />
+            <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
+              <div className="bg-white p-6 rounded-md h-[700px] w-[60%] flex flex-col gap-3">
+                <div>
+                  <p className="font-bold">University Vision</p>
+                  <p>The official vision of the university.</p>
+                </div>
+                <ReactQuill
+                  value={vision}
+                  onChange={handleEditorChange}
+                  className="h-[74%] text-lg"
+                  modules={modules}
+                  style={{
+                    borderRadius: '8px', 
+                  }}
+                  placeholder="Enter the platform and information details"
+                />
+                <div className="w-full mt-[55px] items-center flex flex-row-reverse">
+                  <Button onClick={handleClickUpdate}>Update</Button>
+                  <Button variant="ghost" className="px-6" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="size-[240px] w-[100%] rounded-md">
-              <textarea
-              value={universityvision}
-              className="p-2 h-full w-full outline-none"
-              />
+            <div className="ql-editor p-2 h-full w-full rounded-md border">
+              <div
+                dangerouslySetInnerHTML={{ __html: vision }}
+                className="p-4 text-gray-700 text-justify leading-relaxed"
+              ></div>
             </div>
-          )}
-
-          {edit && (
-            <Button onClick={handleUpdate} className="mt-4">
-              Update
-            </Button>
           )}
         </div>
       )}
@@ -82,9 +139,7 @@ const VisionField = ({ isLoading, universityvision, onVisionUpdate  }) => {
 };
 
 VisionField.propTypes = {
-  isLoading: PropTypes.bool,
   universityvision: PropTypes.string,
-    onVisionUpdate: PropTypes.func.isRequired,
 };
 
 export default VisionField;

@@ -3,13 +3,17 @@ import { Link } from "react-router-dom";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
 import SearchBox from "@/components/SearchBox";
 import OfficialCard from "@/components/OfficialCard";
-import UrsVector from "@/assets/UrsVector.png";
-import UrsLogo from "@/assets/UrsLogo.png";
 import Pen from "@/assets/Pen.png";
+import { useQuery } from "@tanstack/react-query";
+import { getUniversityData } from "@/api/component-info";
 
 const DisplayingKeyOfficials = () => {
   const [officials, setOfficials] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const {data:university, isLoading, isError} = useQuery ({
+    queryKey: ["universitysettings"],
+    queryFn: getUniversityData,
+  });  
 
   useEffect(() => {
     const getOfficials = async () => {
@@ -45,8 +49,8 @@ const DisplayingKeyOfficials = () => {
       </div>
 
       <div className="mt-8 flex w-full flex-row items-center justify-center">
-        <img src={UrsLogo} alt="URS Logo" />
-        <img src={UrsVector} alt="URS Vector" />
+        <img src={university?.university_logo_url} alt="URS Logo" />
+        <img src={university?.university_vector_url} alt="URS Vector" />
       </div>
 
       <div className="mt-8 flex w-full flex-col items-center justify-center">
@@ -59,16 +63,14 @@ const DisplayingKeyOfficials = () => {
       </div>
 
       <div className="mt-6 p-6">
-        {filteredOfficials.length > 0 ? (
-          <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-5">
-            {filteredOfficials.map((official, index) => (
-              <OfficialCard key={index} official={official} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-600">No key officials found.</p>
-        )}
+        <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-5">
+          {filteredOfficials.map((official, index) => (
+            <OfficialCard key={index} official={official} />
+          ))}
+        </div>
       </div>
+
+
     </div>
   );
 };

@@ -6,7 +6,7 @@ const universityManagementSchema = new mongoose.Schema({
   university_history: String,
   university_vision: String,
   university_mission: String,
-  university_core_values: [String],
+  university_core_values: String,
   // Add other fields as necessary
 });
 

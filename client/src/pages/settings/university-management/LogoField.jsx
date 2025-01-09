@@ -5,13 +5,37 @@ import PropTypes from "prop-types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { IoMdAdd } from "react-icons/io";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {updateUniversityLogo} from "@/api/university-settings"
+import { useToast } from "@/hooks/use-toast";
 
 const LogoField = ({ isLoading, universitylogo }) => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [edit, setEdit] = useState(false);
   const inputRef = useRef(null);
   const [editimg, setEditImg] = useState(null);
-  const [img, setImg] = useState(universitylogo);  // Initialize with existing logo
   const [file, setFile] = useState(null);
+  const {mutateAsync:handleUpdateUniversityLogo, isPending: isUpdating} = useMutation({
+    mutationFn:updateUniversityLogo, 
+    onSuccess: () => {
+      queryClient.invalidateQueries(["universitysettings"])
+      toast({
+        title: "Success",
+        description: "University logo successfully updated",
+      });
+      setEdit(false)
+      setFile(null)
+      setEditImg(null)
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        type: "destructive",
+      });
+    },
+  })
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -29,42 +53,27 @@ const LogoField = ({ isLoading, universitylogo }) => {
 
   const handleUpdate = async () => {
     if (file) {
-      try {
-        const formData = new FormData();
-        formData.append("university_logo_url", file);
-
-        const response = await fetch(`http://localhost:3000/api/university/675cdd9756f690410f1473b8`, {
-          method: "PUT",
-          credentials: "include",
-          body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();  // Get the updated data from response
-          const newLogoUrl = data.updatedUniversity.university_logo_url;  // Extract new logo URL
-          setImg(newLogoUrl);  // Update the image immediately
-          setEditImg(null);
-          setEdit(false);  // Exit edit mode
-        } else {
-          alert("Failed to update logo");
-        }
-      } catch (error) {
-        console.error("Error uploading logo:", error);
-        alert("Error uploading logo");
-      }
+             
+         handleUpdateUniversityLogo(file)
+        
     } else {
       alert("No image selected!");
     }
+  };
+
+  const handleCancel = () => {
+    setEdit(false);
+    setEditImg(null);
   };
 
   return (
     <Layout
       title={"University Official Logo"}
       subtitle={"Update official logo of the university"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
-        <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />
+        <Skeleton className="w-[240px] py-24" />
       ) : (
         <div className="space-y-4">
           {edit ? (
@@ -85,7 +94,7 @@ const LogoField = ({ isLoading, universitylogo }) => {
                   <img
                     src={editimg}
                     alt="Selected file preview"
-                    className="h-full w-full rounded-md object-cover"
+                    className="rounded-md object-cover"
                   />
                 ) : (
                   <IoMdAdd className="text-[3rem] text-secondary-100/40" />
@@ -93,19 +102,24 @@ const LogoField = ({ isLoading, universitylogo }) => {
               </div>
             </div>
           ) : (
-            <div className="size-[240px] rounded-md">
+            <div className="grid size-[240px] cursor-pointer place-items-center rounded-md border">
               <img
-                src={img}  // Use updated image directly
+                src={universitylogo}  // Use updated image directly
                 alt="University Logo"
-                className="h-full w-full rounded-md object-cover"
+                className="rounded-md object-cover"
               />
             </div>
           )}
 
           {edit && (
-            <Button onClick={handleUpdate} className="mt-4">
+            <div className="flex items-center space-x-4">
+            <Button onClick={handleUpdate} className="mt-4" disabled={isUpdating}>
               Update
             </Button>
+            <Button variant="ghost" className="mt-4" onClick={handleCancel}>
+                Cancel
+            </Button>
+            </div>
           )}
         </div>
       )}

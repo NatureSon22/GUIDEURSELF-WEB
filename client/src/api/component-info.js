@@ -20,6 +20,61 @@ const getAllCampuses = async () => {
   return allCampuses || [];
 };
 
+const getGeneralData = async () => {
+  try {
+    const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7",
+    {
+    method:"get",
+    credentials:"include"
+    }
+    );
+    const data = await response.json();
+    return(data); 
+  } catch (error) {
+    throw new Error("Failed to load system logo!")
+  }
+};
+
+const getUniversityData = async () => { 
+  try {
+    const response = await fetch(
+      "http://localhost:3000/api/university/675cdd9756f690410f1473b8",
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch university data:", error);
+    throw error;
+  }
+};
+
+
+const getPositions = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:3000/api/administartiveposition",
+      {
+        credentials: "include",
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch position!");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
+  }
+};
+
 const getAllRoleTypes = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
     method: "GET",
@@ -42,4 +97,4 @@ const getAllRoleTypes = async () => {
   return allRoleTypes || [];
 };
 
-export { getAllCampuses, getAllRoleTypes };
+export { getAllCampuses, getAllRoleTypes, getGeneralData, getUniversityData, getPositions };

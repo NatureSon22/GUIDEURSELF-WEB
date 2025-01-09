@@ -2,40 +2,14 @@ import Header from "@/components/Header";
 import SystemLogoField from "./SystemLogoField";
 import AboutField from "./AboutField";
 import { useQuery } from "@tanstack/react-query";
-import { loggedInUser } from "@/api/auth";
 import React, { useState, useEffect } from "react";
+import { getGeneralData } from "@/api/component-info";
 
 const GeneralSettings = () => {
-  const [general, setGeneral] = useState(null);
-
-
-  useEffect(() => {
-    const fetchGeneralData = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7",
-        {
-        method:"get",
-        credentials:"include"
-        }
-        );
-        const data = await response.json();
-        setGeneral(data); 
-      } catch (error) {
-        console.error("Error fetching university data:", error);
-      }
-    };
-
-    fetchGeneralData();
-  }, []); 
-
-  const { data, isLoading: userLoading } = useQuery({
-    queryKey: ["user"],
-    queryFn: loggedInUser,
+  const {data:general, isLoading, isError} = useQuery ({
+    queryKey: ["generalsettings"],
+    queryFn: getGeneralData,
   });
-
-  if (!general) {
-    return <div>Loading university data...</div>;
-  }
 
   return (
     <div className="h-[1000px] pr-4 space-y-5 flex flex-col scroll">
@@ -44,20 +18,12 @@ const GeneralSettings = () => {
         subtitle="Set up university details, branding, and administrative roles."
       />
       <SystemLogoField
-        isLoading={userLoading}
-        generallogo={general.general_logo_url}
-        {...data}
+        isLoading={isLoading}
+        generallogo={general?.general_logo_url}
       />
       <AboutField
-        isLoading={userLoading}
-        systemabout={general.general_about}
-        {...data}
-        onAboutUpdate={(newAbout) =>
-          setGeneral((prev) => ({
-            ...prev,
-            general_about: newAbout,
-          }))
-        }
+        isLoading={isLoading}
+        systemabout={general?.general_about}
       />
     </div>
   );

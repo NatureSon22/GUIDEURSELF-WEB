@@ -11,6 +11,8 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import UrsVector from "../../assets/UrsVector.png";
 import UrsLogo from "../../assets/UrsLogo.png";
+import { useQuery } from "@tanstack/react-query";
+import { getUniversityData } from "@/api/component-info";
 
 // Fix for default marker icon not showing
 delete L.Icon.Default.prototype._getIconUrl;
@@ -23,7 +25,11 @@ L.Icon.Default.mergeOptions({
 const DisplayCampus = () => {
   const [position, setPosition] = useState([14.466440, 121.226080]);
   const [campuses, setCampuses] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const {data:university, isLoading, isError} = useQuery ({
+    queryKey: ["universitysettings"],
+    queryFn: getUniversityData,
+  });  
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -139,8 +145,8 @@ const DisplayCampus = () => {
       <div className="w-[40%] p-6 flex flex-col gap-4">
         <div className="border px-2 w-[100%] h-[100px] flex justify-between rounded-md">
           <div className="w-[30%] flex items-center justify-center">
-            <img className=" h-[45%]" src={UrsVector} alt="" />
-            <img className=" h-[45%]" src={UrsLogo} alt="" />
+            <img className=" h-[45%]" src={university?.university_vector_url} alt="" />
+            <img className=" h-[45%]" src={university?.university_logo_url} alt="" />
           </div>
           <div className="w-[70%] flex flex-col justify-center">
             <h2 className="font-bold text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>

@@ -39,14 +39,8 @@ universityManagementRouter.put("/university/:id", upload.fields([{ name: "univer
     university_history,
     university_vision,
     university_mission,
+    university_core_values,
   };
-
-  // Only update university_core_values if provided in the request
-  if (university_core_values !== undefined) {
-    updatedData.university_core_values = Array.isArray(university_core_values)
-      ? university_core_values
-      : [];
-  }
 
   try {
     // Check if a new logo image is uploaded

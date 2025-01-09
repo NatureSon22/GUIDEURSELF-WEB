@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import logo from "../assets/guideURSelfLOGO 1.png";
 import SideBarElements from "./SideBarElements";
 import SideBarTab from "./SideBarTab";
@@ -7,6 +7,8 @@ import { logout } from "@/api/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { LuLogOut } from "react-icons/lu";
+import { getGeneralData } from "@/api/component-info";
+import {Skeleton} from "@/components/ui/skeleton"
 
 const SideBar = () => {
   const location = useLocation();
@@ -15,8 +17,13 @@ const SideBar = () => {
   const { mutate: handleLogout } = useMutation({
     mutationFn: async () => {
       await logout();
-      navigate("/login", { replace: true });
+      navigate("/login", { replace: true });  
     },
+  });
+
+  const {data:general, isLoading, isError} = useQuery ({
+    queryKey: ["logo"],
+    queryFn: getGeneralData,
   });
 
   useEffect(() => {
@@ -24,12 +31,12 @@ const SideBar = () => {
   }, []);
 
   return (
-    <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
-      <div className="grid place-items-center px-5">
-        <img src={logo} alt={"GuideURSelf logo"} />
+    <div className="sticky top-0 flex w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
+      <div className="grid place-items-center px-5">  
+        {isLoading ? <Skeleton className="w-full py-10 mt-5 rounded-md"></Skeleton> : isError? <img src={logo}/> : <img className="object-cover " src={general.general_logo_url} alt={"GuideURSelf logo"} />}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2"> 
         {SideBarElements.map((section) => {
           return (
             <div key={section.sectionTitle}>

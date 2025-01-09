@@ -4,19 +4,43 @@ import PropTypes from "prop-types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { IoMdAdd } from "react-icons/io";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {updateVectorLogo} from "@/api/university-settings"
+import { useToast } from "@/hooks/use-toast";
 
 const VectorField = ({ isLoading, universityvector }) => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [edit, setEdit] = useState(false);
   const inputRef = useRef(null);
   const [editimg, setEditImg] = useState(null);
-  const [img, setImg] = useState(universityvector);
-  const [file, setFile] = useState(null); // Store the selected file
+  const [file, setFile] = useState(null);
+  const {mutateAsync:handleUpdateVectorLogo, isPending} = useMutation({
+    mutationFn:updateVectorLogo, 
+    onSuccess: () => {
+      queryClient.invalidateQueries(["universitysettings"])
+      toast({
+        title: "Success",
+        description: "University vector successfully updated",
+      });
+      setEdit(false)
+      setFile(null)
+      setEditImg(null)
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        type: "destructive",
+      });
+    },
+  })
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile && selectedFile.type.startsWith("image/")) {
-      setEditImg(URL.createObjectURL(selectedFile)); // This is just for preview
-      setFile(selectedFile); // Store the actual file
+      setEditImg(URL.createObjectURL(selectedFile));  // Show preview
+      setFile(selectedFile);
     } else {
       alert("Please select a valid image file.");
     }
@@ -28,39 +52,24 @@ const VectorField = ({ isLoading, universityvector }) => {
 
   const handleUpdate = async () => {
     if (file) {
-      try {
-        const formData = new FormData();
-        formData.append("university_vector_url", file); // Send the actual file
-
-        const response = await fetch(`http://localhost:3000/api/university/675cdd9756f690410f1473b8`, {
-          method: "PUT",
-          credentials: "include",
-          body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();  // Get the updated data from response
-          const newVectorUrl = data.updatedUniversity.university_vector_url;  // Extract new logo URL
-          setImg(newVectorUrl);  // Update the image immediately
-          setEditImg(null);
-          setEdit(false);  // Exit edit mode
-        } else {
-          alert("Failed to update vector image");
-        }
-      } catch (error) {
-        console.error("Error uploading vector image:", error);
-        alert("Error uploading vector image");
-      }
+             
+        handleUpdateVectorLogo(file)
+        
     } else {
       alert("No image selected!");
     }
+  };
+
+  const handleCancel = () => {
+    setEdit(false);
+    setEditImg(null);
   };
 
   return (
     <Layout
       title={"University Official Vector"}
       subtitle={"Update official vector of the university"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
         <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />
@@ -84,7 +93,7 @@ const VectorField = ({ isLoading, universityvector }) => {
                   <img
                     src={editimg}
                     alt="Selected file preview"
-                    className="h-full w-full rounded-md object-cover"
+                    className="rounded-md object-cover"
                   />
                 ) : (
                   <IoMdAdd className="text-[3rem] text-secondary-100/40" />
@@ -92,19 +101,24 @@ const VectorField = ({ isLoading, universityvector }) => {
               </div>
             </div>
           ) : (
-            <div className="size-[240px] rounded-md">
+            <div className="grid size-[240px] place-items-center rounded-md border">
               <img
-                src={img}
+                src={universityvector}
                 alt="University Vector"
-                className="h-full w-full rounded-md object-cover"
+                className="rounded-md object-cover"
               />
             </div>
           )}
 
           {edit && (
-            <Button onClick={handleUpdate} className="mt-4">
+            <div className="flex items-center space-x-4">
+            <Button onClick={handleUpdate} className="mt-4" disabled={isPending}>
               Update
             </Button>
+            <Button variant="ghost" className="mt-4" onClick={handleCancel}>
+                Cancel
+            </Button>
+            </div>
           )}
         </div>
       )}
