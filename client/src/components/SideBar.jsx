@@ -1,27 +1,17 @@
-import { useMutation } from "@tanstack/react-query";
 import logo from "../assets/guideURSelfLOGO 1.png";
 import SideBarElements from "./SideBarElements";
 import SideBarTab from "./SideBarTab";
-import { Button } from "./ui/button";
-import { logout } from "@/api/auth";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { LuLogOut } from "react-icons/lu";
+import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import ModulePermission from "@/layer/ModulePermission";
 
 const SideBar = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [chosen, setSchosen] = useState("");
-  const { mutate: handleLogout } = useMutation({
-    mutationFn: async () => {
-      await logout();
-      navigate("/login", { replace: true });
-    },
-  });
+  const { pathname } = useLocation();
+  const location = pathname.split("/")[1];
 
-  useEffect(() => {
-    setSchosen(`/${location.pathname.split("/")[1]}`);
-  }, []);
+  const [chosen, setSchosen] = useState(
+    location ? `/${location}` : "/dashboard",
+  );
 
   return (
     <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
@@ -39,12 +29,19 @@ const SideBar = () => {
               <div>
                 {section.modules.map((module) => {
                   return (
-                    <SideBarTab
+                    <ModulePermission
                       key={module.title}
-                      {...module}
-                      setSchosen={setSchosen}
-                      chosen={chosen}
-                    />
+                      required={{
+                        module: module.module,
+                        isPublic: module.isPublic,
+                      }}
+                    >
+                      <SideBarTab
+                        {...module}
+                        setSchosen={setSchosen}
+                        chosen={chosen}
+                      />
+                    </ModulePermission>
                   );
                 })}
               </div>
@@ -52,14 +49,6 @@ const SideBar = () => {
           );
         })}
       </div>
-
-      <Button
-        className="mx-5 mt-auto bg-accent-100/15 py-6 font-semibold text-accent-100 hover:bg-accent-100 hover:text-white"
-        onClick={handleLogout}
-      >
-        <LuLogOut />
-        Logout
-      </Button>
     </div>
   );
 };

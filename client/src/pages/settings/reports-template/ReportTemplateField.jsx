@@ -3,7 +3,7 @@ import { MdCloudUpload } from "react-icons/md";
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postTemplate } from "@/api/template";
 import { useToast } from "@/hooks/use-toast";
 import { FaFile } from "react-icons/fa";
@@ -14,10 +14,12 @@ const ReportTemplateField = () => {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
+  const client = useQueryClient();
 
   const { mutateAsync: handleUpload, isPending } = useMutation({
     mutationFn: postTemplate,
     onSuccess: (data) => {
+      client.invalidateQueries(["files"]);
       toast({
         title: "Success",
         description: data.message,
@@ -61,7 +63,6 @@ const ReportTemplateField = () => {
     setFile(null);
   };
 
-  // Drag event handlers
   const handleDragEnter = (e) => {
     e.preventDefault();
     setIsDragging(true);

@@ -11,7 +11,9 @@ import { getAllRoleTypes } from "@/api/component-info";
 import { updateAccountRoleType } from "@/api/accounts";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import Loading from "@/components/Loading";
+import { getAccount } from "@/api/accounts";
+import PermissionSkeleton from "./PermissionSkeleton";
+import { useCallback } from "react";
 
 const EditAssignRole = () => {
   const { accountId } = useParams();
@@ -36,10 +38,20 @@ const EditAssignRole = () => {
     data: roleDetails,
     isLoading: roleDetailsLoading,
     isError: roleDetailsError,
+    isFetched: roleDetailsFetched,
   } = useQuery({
     queryKey: ["roleDetails", roleType],
     queryFn: () => getRoleById(roleType),
     enabled: !!roleType,
+  });
+
+  const {
+    data: accountDetails,
+    isLoading: accountLoading,
+    isFetched: accountFetched,
+  } = useQuery({
+    queryKey: ["userDetails", accountId],
+    queryFn: () => getAccount(accountId),
   });
 
   const { mutateAsync: updateRolePermission, isLoading: isUpdating } =
@@ -65,115 +77,69 @@ const EditAssignRole = () => {
     }
   }, [roleDetails]);
 
+  useEffect(() => {
+    if (accountDetails !== undefined) {
+      const { custom_permissions } = accountDetails;
+      console.log("Custom Permissions:", custom_permissions);
+      console.log("Granted Permissions:", custom_permissions?.granted);
+      console.log("Revoked Permissions:", custom_permissions?.revoked);
+      // setGrantedPermissions(granted || []);
+      // setRevokePermissions(revoked || []);
+    }
+  }, [accountDetails]);
+
+  const initializePermissions = useCallback(() => {
+    if (!accountDetails || !groundPermissions) return;
+
+    console.log("Account Details:", accountDetails);
+
+    // const temp = [...groundPermissions];
+    // const {
+    //   roleDetails: { granted, revoked },
+    // } = accountDetails;
+    // const grantedTemp = [...granted];
+    // const revokedTemp = [...revoked];
+
+    // grantedTemp.forEach((granted) => {
+    //   const moduleIndex = temp.findIndex(
+    //     (ground) => ground.module === granted.module,
+    //   );
+
+    //   if (moduleIndex >= 0) {
+    //     temp[moduleIndex].access.push(granted.access);
+    //   } else {
+    //     temp.push({
+    //       module: granted.module,
+    //       access: granted.access,
+    //     });
+    //   }
+    // });
+
+    // revokedTemp.forEach((revoked) => {
+    //   const moduleIndex = temp.findIndex(
+    //     (ground) => ground.module === revoked.module,
+    //   );
+
+    //   temp[moduleIndex].access = temp[moduleIndex].access.filter(
+    //     (access) => !revoked.access.includes(access),
+    //   );
+
+    //   if (temp[moduleIndex].access.length === 0) {
+    //     temp.splice(moduleIndex, 1);
+    //   }
+    // });
+
+    // console.log("Permissions:", temp);
+    // //setPermissions(temp);
+  }, [groundPermissions, accountDetails]);
+
+  // useEffect(() => {
+  //   initializePermissions();
+  // }, [initializePermissions]);
+
   const handleReturnClick = () => navigate("/roles-permissions");
 
-  // console.log("granted");
-  // console.table(grantedPermissions);
-  // console.log("revoked");
-  // console.table(revokedPermissions);
-
-  const handleSetPermissions = (
-    module,
-    access,
-    checked,
-    setAsCheckAll = true,
-  ) => {
-    const isDefaultPermission = groundPermissions.some(
-      (item) => item.module === module && item.access.includes(access),
-    );
-
-    if (checked) {
-      // Handling granting permissions
-      setGrantedPermissions((prevGrantedPermissions) => {
-        const updatedGrantedPermissions = [...prevGrantedPermissions];
-        const moduleIndex = updatedGrantedPermissions.findIndex(
-          (item) => item.module === module,
-        );
-
-        if (moduleIndex >= 0) {
-          // Add access if not already present
-          if (!updatedGrantedPermissions[moduleIndex].access.includes(access)) {
-            updatedGrantedPermissions[moduleIndex].access.push(access);
-          }
-        } else {
-          // Add a new module with access
-          updatedGrantedPermissions.push({
-            module,
-            access: [access],
-          });
-        }
-
-        return updatedGrantedPermissions;
-      });
-
-      setRevokePermissions((prevRevokedPermissions) => {
-        const updatedRevokedPermissions = [...prevRevokedPermissions];
-        const moduleIndex = updatedRevokedPermissions.findIndex(
-          (item) => item.module === module,
-        );
-
-        if (moduleIndex >= 0) {
-          updatedRevokedPermissions[moduleIndex].access =
-            updatedRevokedPermissions[moduleIndex].access.filter(
-              (acc) => acc !== access,
-            );
-
-          // Remove the module if no access remains
-          if (updatedRevokedPermissions[moduleIndex].access.length === 0) {
-            updatedRevokedPermissions.splice(moduleIndex, 1);
-          }
-        }
-
-        return updatedRevokedPermissions;
-      });
-    } else {
-      // Handling revoking permissions
-      if (!isDefaultPermission) {
-        setRevokePermissions((prevRevokedPermissions) => {
-          const updatedRevokedPermissions = [...prevRevokedPermissions];
-          const moduleIndex = updatedRevokedPermissions.findIndex(
-            (item) => item.module === module,
-          );
-
-          if (moduleIndex >= 0) {
-            if (
-              !updatedRevokedPermissions[moduleIndex].access.includes(access)
-            ) {
-              updatedRevokedPermissions[moduleIndex].access.push(access);
-            }
-          } else {
-            updatedRevokedPermissions.push({
-              module,
-              access: [access],
-            });
-          }
-
-          return updatedRevokedPermissions;
-        });
-      }
-
-      setGrantedPermissions((prevGrantedPermissions) => {
-        const updatedGrantedPermissions = [...prevGrantedPermissions];
-        const moduleIndex = updatedGrantedPermissions.findIndex(
-          (item) => item.module === module,
-        );
-
-        if (moduleIndex >= 0) {
-          updatedGrantedPermissions[moduleIndex].access =
-            updatedGrantedPermissions[moduleIndex].access.filter(
-              (acc) => acc !== access,
-            );
-
-          // Remove the module if no access remains
-          if (updatedGrantedPermissions[moduleIndex].access.length === 0) {
-            updatedGrantedPermissions.splice(moduleIndex, 1);
-          }
-        }
-
-        return updatedGrantedPermissions;
-      });
-    }
-  };
+  const handleSetPermissions = (module, access, checked) => {};
 
   if (allRolesError || roleDetailsError) {
     return (
@@ -215,10 +181,14 @@ const EditAssignRole = () => {
         </div>
 
         {roleDetailsLoading ? (
-          <Loading />
+          <div className="mt-5 space-y-4">
+            <PermissionSkeleton />
+            <PermissionSkeleton />
+            <PermissionSkeleton />
+          </div>
         ) : (
           <div className="grid gap-4">
-            <div className="my-5 w-full overflow-y-auto border">
+            <div className="my-5 w-full overflow-y-auto rounded-sm border [&_>*+*]:border-t">
               {PERMISSIONS.map((module, i) => {
                 const rolePermissions = permissions.find(
                   (permission) =>

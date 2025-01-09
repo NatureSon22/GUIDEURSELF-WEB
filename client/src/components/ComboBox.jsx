@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,15 @@ import {
 
 const ComboBox = React.forwardRef(
   (
-    { options = [], placeholder = "Select", onChange, value: propValue },
+    {
+      options = [],
+      placeholder = "Select",
+      filter,
+      reset,
+      setFilters,
+      onChange,
+      value: propValue,
+    },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -26,18 +34,45 @@ const ComboBox = React.forwardRef(
 
     const selectedValue = propValue ?? value;
 
-    const handleSelect = (currentValue) => {
-      const newValue = currentValue === selectedValue ? "" : currentValue;
-      setValue(newValue);
-      onChange?.(newValue);
-      setOpen(false);
-    };
+    // the pattern becomes false -> true -> false -> true
+    // hence. the second time the pattern is true, the condition will not be met
+    useEffect(() => {
+      setValue("");
+    }, [reset]);
+
+    const handleFilter = useCallback(
+      (value) => {
+        if (!setFilters) return;
+        setFilters((prev) => {
+          const updatedFilters = [...prev];
+          const index = updatedFilters.findIndex((f) => f.id === filter);
+          if (index !== -1) {
+            updatedFilters[index].value = value;
+          } else {
+            updatedFilters.push({ id: filter, value });
+          }
+          return updatedFilters;
+        });
+      },
+      [filter, setFilters],
+    );
+
+    const handleSelect = useCallback(
+      (currentValue, label) => {
+        const newValue = currentValue === selectedValue ? "" : currentValue;
+        setValue(newValue);
+        onChange?.(newValue);
+        handleFilter(label);
+        setOpen(false);
+      },
+      [selectedValue, onChange, handleFilter],
+    );
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            ref={ref} // Pass the ref here
+            ref={ref}
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -62,7 +97,7 @@ const ComboBox = React.forwardRef(
                   <CommandItem
                     key={option.value}
                     value={option.value}
-                    onSelect={() => handleSelect(option.value)}
+                    onSelect={() => handleSelect(option.value, option.label)}
                   >
                     {option.label}
                     <Check
@@ -87,6 +122,9 @@ const ComboBox = React.forwardRef(
 ComboBox.propTypes = {
   options: PropTypes.array,
   placeholder: PropTypes.string,
+  filter: PropTypes.string,
+  reset: PropTypes.bool,
+  setFilters: PropTypes.func,
   onChange: PropTypes.func,
   value: PropTypes.string,
 };

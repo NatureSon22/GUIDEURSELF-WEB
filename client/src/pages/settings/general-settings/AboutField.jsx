@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 const AboutField = ({ isLoading, systemabout, onAboutUpdate }) => {
@@ -15,19 +14,22 @@ const AboutField = ({ isLoading, systemabout, onAboutUpdate }) => {
   const handleUpdate = async () => {
     if (about !== systemabout) {
       try {
-        const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          "http://localhost:3000/api/general/675cdd2056f690410f1473b7",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              general_about: about,
+            }),
+            credentials: "include",
           },
-          body: JSON.stringify({
-            general_about: about,
-          }),
-          credentials: "include",
-        });
+        );
 
         if (response.ok) {
-            onAboutUpdate(about);
+          onAboutUpdate(about);
           setEdit(false); // Exit the edit mode
         } else {
           alert("Failed to update mission");
@@ -45,27 +47,28 @@ const AboutField = ({ isLoading, systemabout, onAboutUpdate }) => {
     <Layout
       title={"About"}
       subtitle={"view platforms and information details"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
         <div>Loading...</div> // You can replace this with your actual loading skeleton component
       ) : (
         <div className="space-y-4">
           {edit ? (
-            <div className="w-[100%] h-[500px] flex flex-col">
+            <div className="flex h-[500px] w-[100%] flex-col">
               <textarea
                 value={about} // Bind the input value to the state
                 onChange={handleInputChange} // Update the state on input change
-                className="p-2 h-full rounded-md border"
+                className="h-full rounded-md border p-2"
                 placeholder="Enter the university mission"
                 rows={4}
               />
             </div>
           ) : (
-            <div className="p-2 h-[500px] flex flex-col">
+            <div className="flex h-[500px] flex-col p-2">
               <textarea
-              value={systemabout}
-              className="p-2 h-full outline-none resize-none"
+                value={systemabout}
+                readOnly
+                className="h-full resize-none p-2 outline-none"
               />
             </div>
           )}
@@ -80,7 +83,6 @@ const AboutField = ({ isLoading, systemabout, onAboutUpdate }) => {
     </Layout>
   );
 };
-
 
 AboutField.propTypes = {
   isLoading: PropTypes.bool,

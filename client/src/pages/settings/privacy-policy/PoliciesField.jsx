@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 const PoliciesField = ({ isLoading, systempolicies, onPoliciesUpdate }) => {
@@ -45,7 +44,7 @@ const PoliciesField = ({ isLoading, systempolicies, onPoliciesUpdate }) => {
     <Layout
       title={"Privacy Policy"}
       subtitle={"Adjust privacy settings to ensure compliance."}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
         <div>Loading...</div> // You can replace this with your actual loading skeleton component

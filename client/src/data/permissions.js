@@ -36,6 +36,7 @@ const PERMISSIONS = [
   },
   {
     module: "Manage Roles and Permissions",
+    
     description:
       "Check the permissions granted for managing roles and permissions on their assigned campus",
     access: ["add role", "edit role", "archive role"],
@@ -44,7 +45,14 @@ const PERMISSIONS = [
     module: "Manage System Setting",
     description:
       "Check the permissions granted for managing system settings on their assigned campus",
-    access: ["edit account profile", "edit overall system settings"],
+    access: [
+      "edit system settings",
+      "edit account profile",
+      "edit university management",
+      "edit reports template",
+      "edit privacy policy",
+      "edit archives",
+    ],
   },
 ];
 

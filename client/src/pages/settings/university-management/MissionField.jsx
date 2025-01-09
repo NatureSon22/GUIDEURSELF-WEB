@@ -15,19 +15,22 @@ const MissionField = ({ isLoading, universitymission, onMissionUpdate }) => {
   const handleUpdate = async () => {
     if (mission !== universitymission) {
       try {
-        const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          "http://localhost:3000/api/university/675cdd9756f690410f1473b8",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              university_mission: mission,
+            }),
+            credentials: "include",
           },
-          body: JSON.stringify({
-            university_mission: mission,
-          }),
-          credentials: "include",
-        });
+        );
 
         if (response.ok) {
-            onMissionUpdate(mission);
+          onMissionUpdate(mission);
           setEdit(false); // Exit the edit mode
         } else {
           alert("Failed to update mission");
@@ -45,27 +48,28 @@ const MissionField = ({ isLoading, universitymission, onMissionUpdate }) => {
     <Layout
       title={"University Mission"}
       subtitle={"The official mission of the university"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
         <div>Loading...</div> // You can replace this with your actual loading skeleton component
       ) : (
         <div className="space-y-4">
           {edit ? (
-            <div className="w-[100%] h-[400px] flex flex-col">
+            <div className="flex h-[400px] w-[100%] flex-col">
               <textarea
                 value={mission} // Bind the input value to the state
                 onChange={handleInputChange} // Update the state on input change
-                className="p-2 h-full rounded-md border"
+                className="h-full rounded-md border p-2"
                 placeholder="Enter the university mission"
                 rows={4}
               />
             </div>
           ) : (
-            <div className="w-[100%] h-[200px] flex flex-col">
+            <div className="flex h-[200px] w-[100%] flex-col">
               <textarea
-              value={universitymission}
-              className="p-2 h-full outline-none"
+                value={universitymission}
+                className="h-full p-2 outline-none"
+                readOnly
               />
             </div>
           )}
@@ -80,7 +84,6 @@ const MissionField = ({ isLoading, universitymission, onMissionUpdate }) => {
     </Layout>
   );
 };
-
 
 MissionField.propTypes = {
   isLoading: PropTypes.bool,

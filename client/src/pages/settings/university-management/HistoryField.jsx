@@ -15,16 +15,19 @@ const HistoryField = ({ isLoading, universityhistory, onHistoryUpdate }) => {
   const handleUpdate = async () => {
     if (history !== universityhistory) {
       try {
-        const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          "http://localhost:3000/api/university/675cdd9756f690410f1473b8",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              university_history: history,
+            }),
+            credentials: "include",
           },
-          body: JSON.stringify({
-            university_history: history,
-          }),
-          credentials: "include",
-        });
+        );
 
         if (response.ok) {
           onHistoryUpdate(history);
@@ -45,27 +48,28 @@ const HistoryField = ({ isLoading, universityhistory, onHistoryUpdate }) => {
     <Layout
       title={"History"}
       subtitle={"Overview of the History of the university"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
         <div>Loading...</div>
       ) : (
         <div className="space-y-4">
           {edit ? (
-            <div className="w-[100%] h-[500px] flex flex-col">
+            <div className="flex h-[500px] w-[100%] flex-col">
               <textarea
                 value={history} // Bind the input value to the state
                 onChange={handleInputChange} // Update the state on input change
-                className="p-2 w-full h-full rounded-md border"
+                className="h-full w-full rounded-md border p-2"
                 placeholder="Enter the university history"
                 rows={4}
               />
             </div>
           ) : (
-            <div className="w-[100%] h-[500px] rounded-md">
+            <div className="h-[500px] w-[100%] rounded-md">
               <textarea
-              value={universityhistory}
-              className="p-2 h-full w-full outline-none"
+                value={universityhistory}
+                className="h-full w-full p-2 outline-none"
+                readOnly
               />
             </div>
           )}

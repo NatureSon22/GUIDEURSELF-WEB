@@ -39,6 +39,7 @@ const columns = ({ navigate }) => [
   },
   {
     accessorKey: "role_type",
+    id: "role_type",
     header: "Role Type",
     cell: ({ row }) => formatTitle(row.original.role_type),
     filterFn: "equalsString",
@@ -50,14 +51,20 @@ const columns = ({ navigate }) => [
   },
   {
     accessorKey: "date_assigned",
-    header: "Date Created",
+    header: "Date Assigned",
     cell: ({ row }) => formatDate(row.original.date_assigned),
     filterFn: "equalsString",
   },
   {
     accessorKey: "status",
+    id: "status",
     header: "Status",
     filterFn: "equalsString",
+    cell: ({ row }) => (
+      <div className="mx-auto w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
+        <p>{formatTitle(row.original.status)}</p>
+      </div>
+    ),
   },
   {
     accessorFn: (row) => {
@@ -76,7 +83,9 @@ const columns = ({ navigate }) => [
       return (
         <div className="flex items-center justify-around">
           <Button
-            className="text-[0.75rem]"
+            className={
+              "bg-base-200/10 text-[0.75rem] text-base-200 shadow-none hover:bg-base-200 hover:text-white"
+            }
             onClick={() => {
               handleEditClick(navigate, row.original._id, row.original.role_id);
             }}

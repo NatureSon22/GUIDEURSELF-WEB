@@ -1,9 +1,7 @@
-import {Outlet} from "react-router-dom"
+import { Outlet } from "react-router-dom";
 
 const Campus = () => {
-  return (
-    <Outlet></Outlet>
-  )
-}
+  return <Outlet></Outlet>;
+};
 
-export default Campus
+export default Campus;

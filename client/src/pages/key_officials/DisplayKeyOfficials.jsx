@@ -6,6 +6,7 @@ import OfficialCard from "@/components/OfficialCard";
 import UrsVector from "@/assets/UrsVector.png";
 import UrsLogo from "@/assets/UrsLogo.png";
 import Pen from "@/assets/Pen.png";
+import Header from "@/components/Header";
 
 const DisplayingKeyOfficials = () => {
   const [officials, setOfficials] = useState([]);
@@ -26,12 +27,10 @@ const DisplayingKeyOfficials = () => {
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between p-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Key Officials</h2>
-          <p className="mt-2 text-gray-600">
-            Manage university hierarchy, key officials, and their roles.
-          </p>
-        </div>
+        <Header
+          title="Key Officials"
+          subtitle="Manage university hierarchy, key officials, and their roles."
+        />
       </div>
       <div className="flex w-full gap-4 p-6">
         <SearchBox searchQuery={searchQuery} setSearchQuery={setSearchQuery} />

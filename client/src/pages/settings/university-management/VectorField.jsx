@@ -32,18 +32,21 @@ const VectorField = ({ isLoading, universityvector }) => {
         const formData = new FormData();
         formData.append("university_vector_url", file); // Send the actual file
 
-        const response = await fetch(`http://localhost:3000/api/university/675cdd9756f690410f1473b8`, {
-          method: "PUT",
-          credentials: "include",
-          body: formData,
-        });
+        const response = await fetch(
+          `http://localhost:3000/api/university/675cdd9756f690410f1473b8`,
+          {
+            method: "PUT",
+            credentials: "include",
+            body: formData,
+          },
+        );
 
         if (response.ok) {
-          const data = await response.json();  // Get the updated data from response
-          const newVectorUrl = data.updatedUniversity.university_vector_url;  // Extract new logo URL
-          setImg(newVectorUrl);  // Update the image immediately
+          const data = await response.json(); // Get the updated data from response
+          const newVectorUrl = data.updatedUniversity.university_vector_url; // Extract new logo URL
+          setImg(newVectorUrl); // Update the image immediately
           setEditImg(null);
-          setEdit(false);  // Exit edit mode
+          setEdit(false); // Exit edit mode
         } else {
           alert("Failed to update vector image");
         }
@@ -60,7 +63,7 @@ const VectorField = ({ isLoading, universityvector }) => {
     <Layout
       title={"University Official Vector"}
       subtitle={"Update official vector of the university"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
         <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />

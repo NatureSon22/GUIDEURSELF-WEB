@@ -1,11 +1,7 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
-import { IoMdAdd } from "react-icons/io";
-
 
 const CoreValuesField = ({ isLoading, universityCoreValues }) => {
   const [edit, setEdit] = useState(false);
@@ -43,11 +39,11 @@ const CoreValuesField = ({ isLoading, universityCoreValues }) => {
             university_core_values: coreValues,
           }),
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
-        setEdit(false); 
+        setEdit(false);
       } else {
         alert("Failed to update core values");
       }
@@ -61,7 +57,7 @@ const CoreValuesField = ({ isLoading, universityCoreValues }) => {
     <Layout
       title={"University Core Values"}
       subtitle={"The core values of the university"}
-      setEdit={setEdit}
+      toggleEditMode={setEdit}
     >
       {isLoading ? (
         <div>Loading...</div> // Replace with actual Skeleton component
@@ -75,10 +71,13 @@ const CoreValuesField = ({ isLoading, universityCoreValues }) => {
                     type="text"
                     value={value}
                     onChange={(e) => handleValueChange(index, e.target.value)}
-                    className="p-2 border rounded-md w-full"
+                    className="w-full rounded-md border p-2"
                     placeholder="Enter core value"
                   />
-                  <Button onClick={() => handleRemoveValue(index)} variant="destructive">
+                  <Button
+                    onClick={() => handleRemoveValue(index)}
+                    variant="destructive"
+                  >
                     Remove
                   </Button>
                 </div>
@@ -88,9 +87,11 @@ const CoreValuesField = ({ isLoading, universityCoreValues }) => {
               </Button>
             </div>
           ) : (
-            <ul className="list-disc list-inside">
+            <ul className="list-inside list-disc">
               {coreValues.map((value, index) => (
-                <li className="list-none" key={index}>{value}</li>
+                <li className="list-none" key={index}>
+                  {value}
+                </li>
               ))}
             </ul>
           )}
@@ -106,10 +107,9 @@ const CoreValuesField = ({ isLoading, universityCoreValues }) => {
   );
 };
 
-
 CoreValuesField.propTypes = {
   isLoading: PropTypes.bool,
-  universityCoreValues: PropTypes.arrayOf(PropTypes.string)
+  universityCoreValues: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default CoreValuesField;

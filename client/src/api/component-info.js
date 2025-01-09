@@ -7,7 +7,8 @@ const getAllCampuses = async () => {
   });
 
   if (!response.ok) {
-    throw new Error(response.message);
+    const { message } = await response.json();
+    throw new Error(message);
   }
 
   const campuses = await response.json();
@@ -27,7 +28,8 @@ const getAllRoleTypes = async () => {
   });
 
   if (!response.ok) {
-    throw new Error(response.message);
+    const { message } = await response.json();
+    throw new Error(message);
   }
 
   const { roleTypes } = await response.json();
@@ -42,4 +44,25 @@ const getAllRoleTypes = async () => {
   return allRoleTypes || [];
 };
 
-export { getAllCampuses, getAllRoleTypes };
+const getAllStatus = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/status`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { status } = await response.json();
+
+  const allStatus = status.map((stat) => ({
+    value: stat._id,
+    label: formatTitle(stat.status_type),
+  }));
+
+  return allStatus || [];
+};
+
+export { getAllCampuses, getAllRoleTypes, getAllStatus };

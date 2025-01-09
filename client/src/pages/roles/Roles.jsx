@@ -11,16 +11,35 @@ import columns from "@/components/columns/RolesPermissions";
 import { useNavigate } from "react-router-dom";
 import Loading from "@/components/Loading";
 import DateRangePicker from "@/components/DateRangePicker";
+import { getAllRoleTypes, getAllStatus } from "@/api/component-info";
+import { GrPowerReset } from "react-icons/gr";
 
 const Roles = () => {
+  const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [reset, setReset] = useState(false);
   const { data: accountRoles, isLoading } = useQuery({
     queryKey: ["accountRoles"],
     queryFn: getAllAccounts,
   });
+  const { data: allStatus } = useQuery({
+    queryKey: ["allStatus"],
+    queryFn: getAllStatus,
+  });
+  const { data: allRoles } = useQuery({
+    queryKey: ["allRoles"],
+    queryFn: getAllRoleTypes,
+  });
+
   const navigate = useNavigate();
 
   const handleAssignRoleClick = () => {};
+
+  const handleReset = () => {
+    setFilters([]);
+    setGlobalFilter("");
+    setReset(!reset);
+  };
 
   return (
     <div className={`flex flex-1 flex-col gap-5 ${isLoading ? "h-full" : ""} `}>
@@ -52,8 +71,29 @@ const Roles = () => {
       <div className="flex items-center gap-5">
         <p>Filters:</p>
         <DateRangePicker />
-        <ComboBox options={[]} placeholder="select role" />
-        <ComboBox options={[]} placeholder="select status" />
+        <ComboBox
+          options={allRoles}
+          placeholder="select role"
+          filter="role_type"
+          setFilters={setFilters}
+          reset={reset}
+        />
+
+        <ComboBox
+          options={allStatus}
+          placeholder="select status"
+          filter="status"
+          setFilters={setFilters}
+          reset={reset}
+        />
+
+        <Button
+          className="ml-auto text-secondary-100-75"
+          variant="outline"
+          onClick={handleReset}
+        >
+          <GrPowerReset /> Reset Filters
+        </Button>
       </div>
 
       {isLoading ? (
@@ -62,8 +102,8 @@ const Roles = () => {
         <DataTable
           data={accountRoles}
           columns={columns}
-          filters={[]}
-          setFilters={() => {}}
+          filters={filters}
+          setFilters={setFilters}
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
           columnActions={{ navigate }}

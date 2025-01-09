@@ -4,7 +4,7 @@ import useAuthStore from "../context/useAuthStore";
 import { useEffect } from "react";
 
 const useAuth = () => {
-  const { isLoading, isSuccess, isError } = useQuery({
+  const { isLoading: isAuthenticatedLoading, isSuccess, isError } = useQuery({
     queryKey: ["auth"],
     queryFn: () => isAuthenticated(),
     retry: false,
@@ -22,7 +22,7 @@ const useAuth = () => {
     }
   }, [isSuccess, isError, setIsAuthenticated]);
 
-  return { isLoading };
+  return { isAuthenticatedLoading };
 };
 
 export default useAuth;
