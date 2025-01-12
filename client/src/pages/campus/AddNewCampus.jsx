@@ -8,6 +8,7 @@ import CloseIcon from "../../assets/CloseIcon.png";
 import AddProgramModal from "./AddProgramModal";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import Header from "@/components/Header";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -24,7 +25,7 @@ const AddNewCampus = () => {
   const [marker, setMarker] = useState(null);
   const [campuses, setCampuses] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [programs, setPrograms] = useState({ undergraduate: [], graduate: [] });
+  const [programs, setPrograms] = useState({});
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [campusImage, setCampusImage] = useState(null);
   const [campusData, setCampusData] = useState({
@@ -97,24 +98,16 @@ const handleSubmit = async (e) => {
   formData.append("longitude", coordinates.lng);
   formData.append("campus_cover_photo", campusData.campus_cover_photo);
 
-  const formattedPrograms = [
-    {
-      program_type_id: "undergraduate",
-      programs: programs.undergraduate.map((program) => ({
-        program_name: program.programName,
-        majors: program.majors,
-      })),
-    },
-    {
-      program_type_id: "graduate",
-      programs: programs.graduate.map((program) => ({
-        program_name: program.programName,
-        majors: program.majors,
-      })),
-    },
-  ];
-
+  const formattedPrograms = Object.keys(programs).map((programType) => ({
+    program_type_id: programType,
+    programs: programs[programType].map((program) => ({
+      program_name: program.programName,
+      majors: program.majors,
+    })),
+  }));
+  
   formData.append("campus_programs", JSON.stringify(formattedPrograms));
+  
 
   console.log("Form Data Being Sent:", {
     campus_name,
@@ -170,13 +163,23 @@ const handleSubmit = async (e) => {
   }
 };
   
-  const handleRemoveProgram = (type, index) => {
-    setPrograms((prev) => {
-      const updatedPrograms = { ...prev };
-      updatedPrograms[type] = updatedPrograms[type].filter((_, i) => i !== index);
-      return updatedPrograms;
-    });
-  };
+const handleRemoveProgram = (programType, index) => {
+  setPrograms((prevPrograms) => {
+    const updatedPrograms = { ...prevPrograms };
+
+    // Remove the specific program
+    updatedPrograms[programType] = updatedPrograms[programType].filter(
+      (_, i) => i !== index
+    );
+
+    // If the programType has no programs left, delete the key
+    if (updatedPrograms[programType].length === 0) {
+      delete updatedPrograms[programType];
+    }
+
+    return updatedPrograms;
+  });
+};
 
   const secondHandleBack = () => {
         navigate("/campus");  
@@ -249,16 +252,18 @@ const handleSubmit = async (e) => {
             </div>
             </div>
         )}
-      <div className="w-full p-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Add Campus</h2>
-          <p className="text-gray-600 mt-2">Ensure that all information is accurate and relevant.</p>
-        </div>
-      </div>
+            <div className="w-[75%] flex flex-col justify-between">
+              <Header
+                title={"Add Campus"}
+                subtitle={
+                  "Ensure that all information is accurate and relevant."
+                }
+              />
+            </div>     
 
       <div className="w-[100%]">
         <form className="w-[100%]" onSubmit={handleSubmit}>
-          <div className="flex flex-row p-6 gap-6">
+          <div className="flex flex-row py-6 gap-6">
             <div className="flex flex-col w-[50%] gap-6">
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Campus Name</h3>
@@ -318,7 +323,7 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          <div className="h-[700px] p-6 flex flex-col gap-5">
+          <div className="h-[700px] py-6 flex flex-col gap-5">
             <div>
               <h3 className="text-lg font-medium">Address</h3>
               <p>Enter the complete address including street, city, province, and postal code</p>
@@ -370,7 +375,7 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          <div className="p-6 flex flex-col">
+          <div className="py-6 flex flex-col">
             <h3 className="text-lg font-medium">About</h3>
             <p>Provide a brief description of the campus, including any key features or services</p>
             <textarea
@@ -382,7 +387,7 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          <div className="p-6 flex flex-col gap-4">
+          <div className="py-6 flex flex-col gap-4">
             <div>
               <h3 className="text-lg font-medium">Campus Cover Photo</h3>
               <p>Upload an image of the campus (JPEG or PNG)</p>
@@ -409,57 +414,48 @@ const handleSubmit = async (e) => {
           </div>
 
 
-          <div className="p-6 flex flex-col gap-4">
+          <div className="py-6 flex flex-col gap-4">
             <div>
               <h3 className="text-lg font-medium">Academic Programs</h3>
               <p>Add all academic programs offered by the campus</p>
             </div>
             <div className="flex flex-col gap-3 border border-gray-300 rounded-md p-2">
-              <div className="flex flex-col gap-2 ">
-                <p>Graduate Programs</p>
-                {programs.graduate.map((program, index) => (
-                  <div key={index} className="flex flex-col gap-2 p-2 border rounded-md w-[100%]">
-                    <div className="flex flex-row justify-between w-[100%] pr-[10px]">
-                    <h3 className="text-lg">{program.programName}</h3>
-                    <button
-                      onClick={() => handleRemoveProgram("graduate", index)}
-                      className="text-red-500 mt-2 self-start"
-                    >
-                      <img src={CloseIcon} className="w-[20px] h-[20px]" alt="" />
-                    </button>
-                    </div>
-                    <p className="ml-[20px] text-sm">Major in:</p>
-                    <ul>
-                      {program.majors.map((major, i) => (
-                        <li className="ml-[20px] text-l" key={i}>{major}</li>
-                      ))}
-                    </ul>
+              <div className="flex flex-col gap-2">
+                {Object.keys(programs).map((programType) => (
+                  <div key={programType} className="flex flex-col gap-2">
+                    <p>{programType} Programs</p>
+                    {programs[programType].map((program, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col gap-2 p-2 border rounded-md w-[100%]"
+                      >
+                        <div className="flex flex-row justify-between w-[100%] pr-[10px]">
+                          <h3 className="text-lg">{program.programName}</h3>
+                          <button
+                            onClick={() => handleRemoveProgram(programType, index)}
+                            className="text-red-500 mt-2 self-start"
+                          >
+                            <img
+                              src={CloseIcon}
+                              className="w-[20px] h-[20px]"
+                              alt="Remove Program"
+                            />
+                          </button>
+                        </div>
+                        <p className="ml-[20px] text-sm">Major in:</p>
+                        <ul>
+                          {program.majors.map((major, i) => (
+                            <li className="ml-[20px] text-l" key={i}>
+                              {major}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
                   </div>
                 ))}
-              </div>
+            </div>
 
-              <div className="flex flex-col gap-2 ">
-                <p>Undergraduate Programs</p>
-                {programs.undergraduate.map((program, index) => (
-                  <div key={index} className="flex flex-col gap-2 p-2 border rounded-md w-[100%]">
-                    <div className="flex flex-row justify-between w-[100%] pr-[10px]">
-                    <h3 className="text-lg">{program.programName}</h3>
-                    <button
-                      onClick={() => handleRemoveProgram("undergraduate", index)}
-                      className="text-red-500 mt-2 self-start"
-                    >
-                      <img src={CloseIcon} className="w-[20px] h-[20px]" alt="" />
-                    </button>
-                    </div>
-                    <p className="ml-[20px] text-sm">Major in:</p>
-                    <ul>
-                      {program.majors.map((major, i) => (
-                        <li className="ml-[20px] text-l" key={i}>{major}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
 
               <div className="flex justify-end w-[100%]">
                 <button

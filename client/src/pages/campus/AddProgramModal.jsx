@@ -5,18 +5,23 @@ import CloseIcon from "../../assets/CloseIcon.png";
 const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
   const [programTypes, setProgramTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
+  const [programNames, setProgramNames] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState("");
+  const [majorNames, setMajorNames] = useState([]);
+  const [selectedMajor, setSelectedMajor] = useState("");
+
+
   const [programName, setProgramName] = useState("");
   const [majors, setMajors] = useState([]);
   const [newMajor, setNewMajor] = useState("");
-
-  // Fetch program types when modal opens
+  
   useEffect(() => {
     const fetchProgramTypes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/campusprogramtypes", {credentials: "include" });
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
+        const response = await fetch("http://localhost:3000/api/campusprogramtypes", {
+          credentials: "include",
+        });
+        if (!response.ok) throw new Error("Failed to fetch program types");
         const data = await response.json();
         setProgramTypes(data);
       } catch (error) {
@@ -24,16 +29,60 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
       }
     };
 
-    if (isOpen) {
-      fetchProgramTypes();
-    }
+    if (isOpen) fetchProgramTypes();
   }, [isOpen]);
+
+  // Fetch program names based on selected program type
+  useEffect(() => {
+    const fetchProgramNames = async () => {
+      try {
+        if (!selectedType) return;
+        console.log(selectedType);
+        const response = await fetch(
+          `http://localhost:3000/api/campusprogramnames?programtype=${selectedType}`,
+          { credentials: "include" }
+        );
+        if (!response.ok) throw new Error("Failed to fetch program names");
+        const data = await response.json();
+        console.log(data);
+        setProgramNames(data);
+        setSelectedProgram(""); // Reset program selection
+      } catch (error) {
+        console.error("Error fetching program names:", error);
+      }
+    };
+
+    fetchProgramNames();
+  }, [selectedType]);
+
+  // Fetch majors based on selected program name
+  useEffect(() => {
+    const fetchMajors = async () => {
+      try {
+        if (!selectedProgram) return;
+        
+        console.log(selectedProgram);
+        const response = await fetch(
+          `http://localhost:3000/api/campusmajors?programname=${selectedProgram}`,
+          { credentials: "include" }
+        );
+        if (!response.ok) throw new Error("Failed to fetch majors");
+        const data = await response.json();
+        setMajorNames(data);
+        setSelectedMajor(""); // Reset major selection
+      } catch (error) {
+        console.error("Error fetching majors:", error);
+      }
+    };
+
+    fetchMajors();
+  }, [selectedProgram]);
 
   if (!isOpen) return null;
 
   const handleAddMajor = () => {
-    if (newMajor.trim() !== "") {
-      setMajors([...majors, newMajor]);
+    if (selectedMajor.trim() !== "") {
+      setMajors([...majors, selectedMajor]);
       setNewMajor(""); // Clear input
     }
   };
@@ -47,7 +96,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
     e.preventDefault();
     
     const newProgram = {
-      program_name: programName,
+      program_name: selectedProgram,
       majors,
     };
   
@@ -77,7 +126,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
             >
               <option value="">SELECT PROGRAM TYPE</option>
               {programTypes.map((type) => (
-                <option key={type._id} value={type._id}>
+                <option key={type._id} value={type.program_type_name}>
                   {type.program_type_name}
                 </option>
               ))}
@@ -86,13 +135,19 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
 
           <div>
             <h3 className="text-lg font-medium">Program Name</h3>
-            <input
-              placeholder="Enter the name of the new program"
-              className="w-full h-10 pl-2 pr-2 outline-none border border-gray-300 rounded-md"
-              type="text"
-              value={programName}
-              onChange={(e) => setProgramName(e.target.value)}
-            />
+            <select
+              value={selectedProgram} // This stores the program._id
+              onChange={(e) => setSelectedProgram(e.target.value)} // This updates the _id
+              className="w-full h-10 border border-gray-300 rounded-md p-2"
+            >
+              <option value="">SELECT PROGRAM NAME</option>
+              {programNames.map((program) => (
+                <option key={program._id} value={program.programname}> {/* Use program._id as value */}
+                  {program.programname} {/* Display programname */}
+                </option>
+              ))}
+            </select>
+
           </div>
 
           <div className="flex justify-end">
@@ -107,13 +162,19 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
           </div>
 
           <div className="border border-gray-300 rounded-md p-4">
-            <input
-              placeholder="Enter major"
-              className="w-full h-10 pl-2 pr-2 outline-none border border-gray-300 rounded-md"
-              type="text"
-              value={newMajor}
-              onChange={(e) => setNewMajor(e.target.value)}
-            />
+          <select
+            value={selectedMajor} // This now holds the major name
+            onChange={(e) => setSelectedMajor(e.target.value)} // This updates based on name
+            className="w-full h-10 border border-gray-300 rounded-md p-2"
+          >
+            <option value="">SELECT MAJOR NAME</option>
+            {majorNames.map((major) => (
+              <option key={major._id} value={major.majorname}> {/* Use majorname as value */}
+                {major.majorname} {/* Display the name */}
+              </option>
+            ))}
+          </select>
+
             <p className="mb-2 mt-2">Major in:</p>
             
             <div className="flex flex-col gap-2">

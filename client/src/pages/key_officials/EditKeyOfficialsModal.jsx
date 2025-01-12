@@ -1,44 +1,62 @@
 import React, { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
-    const [positions, setPositions] = useState([]);
-    const [name, setName] = useState(official.name || "");
-    const [position, setPosition] = useState(official.administrative_position_id || "");  // Pre-select position ID
+    const queryClient = useQueryClient();
+
+    // Local state for form inputs
+    const [name, setName] = useState(official.name || "");// Use `official.administrative_position_id` instead of `official.position_name`
+    const [position, setPosition] = useState(official.administrative_position_id);    
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(official.key_official_photo_url);
 
+    // Fetch administrative positions
+    const { data: positions, isLoading, error } = useQuery({
+        queryKey: ["positions"],
+        queryFn: async () => {
+            const response = await fetch("http://localhost:3000/api/administartiveposition", {
+                method: "GET",
+                credentials: "include",
+            });
+            if (!response.ok) throw new Error("Failed to fetch positions");
+            return response.json();
+        },
+    });
+
     useEffect(() => {
-        const fetchPositions = async () => {
-            try {
-                const response = await fetch("http://localhost:3000/api/administartiveposition", {
-                    method: "GET",
-                    credentials: "include",
-                });
-                if (!response.ok) throw new Error("Failed to fetch positions");
-                const data = await response.json();
-                setPositions(data);
+        if (!official || !official.administrative_position_id) {
+            console.log("No administrative_position_id available for official.");
+        }
+    }, [official]);    
 
-                console.log("Positions List:", data);
-                console.log("Preselected Position ID:", official.administrative_position_id);
-                
-                // Find and set preselected position
-                const matchingPosition = data.find(
-                    pos => pos._id.toString() === official.administrative_position_id.toString()
-                );
+    const mutation = useMutation({
+        mutationFn: async ({ officialId, formData }) => {
+          const response = await fetch(`http://localhost:3000/api/keyofficials/${officialId}`, {
+            method: "PUT",
+            credentials: "include",
+            body: formData,
+          });
+          if (!response.ok) throw new Error("Failed to update official");
+          return response.json();
+        },
+        onSuccess: () => {
+          if (onUpdate) {
+            onUpdate(); // Notify parent to refresh data
+          }
+          closeModal(); // Close the modal
+        },
+        onError: (err) => {
+          console.error("Error updating official:", err);
+        },
+      });      
 
-                console.log("Matching Position:", matchingPosition);
-                
-                if (matchingPosition) {
-                    setPosition(matchingPosition._id);  // Set matching position ID
-                }
-            } catch (error) {
-                console.error("Error fetching positions:", error);
-            }
-        };
-
-        fetchPositions();
-    }, [official.administrative_position_id]);  // Refetch if the official changes
-
+      useEffect(() => {
+        if (positions && official?.administrative_position_id) {
+            setPosition(official.administrative_position_id); // Match by `_id`
+        }
+    }, [positions, official?.administrative_position_id]);
+    
+    
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         setImage(file);
@@ -47,7 +65,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
         reader.readAsDataURL(file);
     };
 
-    const handleSave = async () => {
+    const handleSave = () => {
         if (!official || !official._id) {
             console.error("Error: Missing official ID");
             return;
@@ -55,25 +73,14 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
 
         const formData = new FormData();
         formData.append("name", name);
-        formData.append("administrative_position_id", position);  // Use selected position ID
+        formData.append("administrative_position_id", position);
         if (image) formData.append("image", image);
 
-        try {
-            const response = await fetch(`http://localhost:3000/api/keyofficials/${official._id}`, {
-                method: "PUT",
-                credentials: "include",
-                body: formData,
-            });
-
-            if (!response.ok) throw new Error("Failed to update official");
-
-            const result = await response.json();
-            onUpdate(result.updatedOfficial);
-            closeModal();
-        } catch (error) {
-            console.error("Error updating official:", error);
-        }
+        mutation.mutate({ officialId: official._id, formData });
     };
+
+    if (isLoading) return <p>Loading...</p>;
+    if (error) return <p>Error loading positions: {error.message}</p>;
 
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
@@ -90,14 +97,12 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
                         />
                     </div>
 
-                    <p>{official.position_name}</p>
-
                     {/* Administrative Position Dropdown */}
                     <div className="mt-4">
                         <label className="block text-lg">Administrative Position</label>
                         <select
-                            value={position}
-                            onChange={(e) => setPosition(e.target.value)}
+                            value={position} // Ensure `position` is set to the `_id` of the selected position
+                            onChange={(e) => setPosition(e.target.value)} // Update `position` to the selected `_id`
                             className="w-full p-2 border border-gray-300 rounded-md"
                         >
                             <option value="">Select Position</option>
@@ -109,6 +114,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
                         </select>
                     </div>
 
+
                     <div className="mt-4">
                         <label className="block text-lg pb-[10px]">Upload Image</label>
                         <input type="file" accept="image/*" onChange={handleImageUpload} />
@@ -116,11 +122,15 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
 
                     <div className="mt-4">
                         <div className="w-[200px] h-[200px] border border-dashed border-gray-300 rounded-md flex justify-center items-center mt-2">
-                            <img
-                                src={imagePreview}
-                                alt="Preview"
-                                className="max-w-full max-h-full rounded-md"
-                            />
+                            {imagePreview ? (
+                                <img
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    className="max-w-full max-h-full rounded-md"
+                                />
+                            ) : (
+                                <span>No image selected</span>
+                            )}
                         </div>
                     </div>
 
@@ -137,7 +147,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
                             onClick={handleSave}
                             className="bg-blue-500 text-white w-[100px] p-2 rounded-md"
                         >
-                            Save
+                            {mutation.isLoading ? "Saving..." : "Save"}
                         </button>
                     </div>
                 </form>

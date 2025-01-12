@@ -1,4 +1,5 @@
 import {Outlet, Link} from "react-router-dom"
+import Header from "@/components/Header";
 import React, { useState, useEffect } from "react";
 import Pen from "../../assets/Pen.png";
 import addImage from "../../assets/add.png";
@@ -56,13 +57,13 @@ const DisplayCampus = () => {
   return (
     <div className="w-full flex w-[100%]">
       {/* Left Container */}
-      <div className="w-[75%] pl-6 flex flex-col justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Manage Campus</h2>
-          <p className="text-gray-600 mt-2">
-            See list of all campuses to manage and edit.
-          </p>
-        </div>
+      <div className="w-[75%] flex flex-col justify-between">
+      <Header
+        title={"Manage Campus"}
+        subtitle={
+          "See list of all campuses to manage and edit."
+        }
+      />
 
         {/* Search and Buttons */}
         <div className="w-full pt-6 flex gap-4">
@@ -142,7 +143,7 @@ const DisplayCampus = () => {
       </div>
 
       {/* Right Container */}
-      <div className="w-[40%] p-6 flex flex-col gap-4">
+      <div className="w-[40%] pl-6  py-2 flex flex-col gap-4">
         <div className="border px-2 w-[100%] h-[100px] flex justify-between rounded-md">
           <div className="w-[30%] flex items-center justify-center">
             <img className=" h-[45%]" src={university?.university_vector_url} alt="" />

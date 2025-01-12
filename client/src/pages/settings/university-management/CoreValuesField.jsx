@@ -125,6 +125,7 @@ const CoreValuesField = () => {
             </div>
           ) : (
             <div className="p-2 h-full flex flex-col">
+             <hr></hr>
               <div
                 dangerouslySetInnerHTML={{ __html: coreValues }}
                 className="ql-editor list-disc list-outside p-4 text-gray-700 text-justify leading-relaxed"

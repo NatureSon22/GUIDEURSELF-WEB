@@ -36,6 +36,53 @@ const getGeneralData = async () => {
   }
 };
 
+const getProgramTypeData = async () => {
+  try {
+    const response = await fetch("http://localhost:3000/api/campusprogramtypes",
+    {
+    method:"get",
+    credentials:"include"
+    }
+    );
+    const data = await response.json();
+    return(data); 
+  } catch (error) {
+    throw new Error("Failed to load program type!")
+  }
+};
+
+
+const getProgramNameData = async () => {
+  try {
+    const response = await fetch("http://localhost:3000/api/campusprogramnames",
+    {
+    method:"get",
+    credentials:"include"
+    }
+    );
+    const data = await response.json();
+    return(data); 
+  } catch (error) {
+    throw new Error("Failed to load program name!")
+  }
+};
+
+
+const getMajorData = async () => {
+  try {
+    const response = await fetch("http://localhost:3000/api/campusmajors",
+    {
+    method:"get",
+    credentials:"include"
+    }
+    );
+    const data = await response.json();
+    return(data); 
+  } catch (error) {
+    throw new Error("Failed to load majors!")
+  }
+};
+
 const getUniversityData = async () => { 
   try {
     const response = await fetch(
@@ -121,4 +168,4 @@ const getAllStatus = async () => {
 };
 
 
-export { getAllCampuses, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };
+export { getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };

@@ -10,6 +10,8 @@ import administrativePositionRoutes from "../router/administartivePositionRouter
 import keyOfficialRoutes from "../router/keyOfficialRouter.js";
 import campusRouter from "../router/campusRouter.js";
 import campusProgramTypeRouter from "../router/campusProgramTypeRouter.js";
+import campusProgramNameRouter from "../router/campusProgramNameRouter.js";
+import campusMajorRouter from "../router/campusMajorRouter.js";
 import roleTypesRouter from "../router/roleTypesRouter.js";
 import universityManagementRouter from "../router/universityManagementRouter.js";
 import generalSettingsRouter from "../router/generalSettingRouter.js";
@@ -34,7 +36,9 @@ app.use("/api/status", statusRouter);
 app.use("/api", campusRouter);
 app.use("/api", administrativePositionRoutes);
 app.use("/api", keyOfficialRoutes);
-app.use("/api", campusProgramTypeRouter);
+app.use("/api/campusprogramtypes", campusProgramTypeRouter);
+app.use("/api/campusprogramnames", campusProgramNameRouter);
+app.use("/api/campusmajors", campusMajorRouter);
 app.use("/api", universityManagementRouter);
 app.use("/api", generalSettingsRouter);
 

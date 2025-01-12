@@ -1,5 +1,5 @@
 import formatDate from "@/utils/formatDate";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { BiSolidEdit } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 import EditDialog from "@/pages/settings/user-management/EditDialog";

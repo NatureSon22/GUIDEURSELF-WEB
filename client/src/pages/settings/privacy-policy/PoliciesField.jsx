@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; 
 import "@/quillConfig.js"; 

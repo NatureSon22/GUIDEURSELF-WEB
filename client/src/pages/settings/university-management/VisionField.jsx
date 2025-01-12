@@ -125,7 +125,8 @@ const VisionField = (universityvision) => {
               </div>
             </div>
           ) : (
-            <div className="ql-editor p-2 h-full w-full rounded-md border">
+            <div className="ql-editor p-2 h-full w-full rounded-md">
+             <hr></hr>
               <div
                 dangerouslySetInnerHTML={{ __html: vision }}
                 className="p-4 text-gray-700 text-justify leading-relaxed"

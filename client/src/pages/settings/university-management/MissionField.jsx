@@ -57,7 +57,7 @@ const MissionField = () => {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ universitymission: mission }),
+          body: JSON.stringify({ university_mission: mission }),
         }
       );
       if (response.ok) {

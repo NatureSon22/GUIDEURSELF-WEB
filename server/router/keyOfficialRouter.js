@@ -83,24 +83,26 @@ router.get("/keyofficials", async (req, res) => {
   router.get("/keyofficials/:id", async (req, res) => {
     try {
       const keyOfficials = await KeyOfficial.find()
-      
-        .populate("administrative_position_id", "administartive_position_name") // Populate only the name of the position
+        .populate("administrative_position_id", "administartive_position_name") // Populate position name
         .populate("campus_id"); // Optionally populate campus_id if needed
   
-      // Map through the result and send the desired data (name, position name, and photo URL)
-      const populatedData = keyOfficials.map(official => ({
+      // Map through the result and send the desired data
+      const populatedData = keyOfficials.map((official) => ({
         _id: official._id,
         name: official.name,
-        position_name: official.administrative_position_id ? official.administrative_position_id.administartive_position_name : '',
+        position_name: official.administrative_position_id
+          ? official.administrative_position_id.administartive_position_name
+          : '',
         key_official_photo_url: official.key_official_photo_url,
       }));
   
-      res.status(200).json(populatedData);
+      res.status(200).json(populatedData); // Send the response with populated data
     } catch (error) {
       console.error("Error fetching key officials:", error);
       res.status(500).json({ message: "Error fetching key officials." });
     }
   });
+  
 
   router.delete("/keyofficials/:id", async (req, res) => {
     try {

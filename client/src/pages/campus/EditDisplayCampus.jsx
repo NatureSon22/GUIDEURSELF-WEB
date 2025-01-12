@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
 import React, { useState, useEffect } from "react";
 import Search from "../../assets/Search.png";
 import Pen from "../../assets/Pen.png";
@@ -99,7 +100,7 @@ const EditDisplayCampus = () => {
   );
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full">
       {loadingVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-md shadow-md text-center">
@@ -109,12 +110,14 @@ const EditDisplayCampus = () => {
           </div>
         </div>
       )}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-800">Manage Campus</h2>
-        <p className="text-gray-600 mt-2">
-          See list of all campuses to manage and edit.
-        </p>
-      </div>
+            <div className="w-[75%] flex flex-col justify-between">
+              <Header
+                title={"Manage Campus"}
+                subtitle={
+                  "See list of all campuses to manage and edit."
+                }
+              />
+            </div>
       <div className="w-full pt-6 flex gap-4">
         <div className="w-[80%] h-[40px] flex flex-row justify-between items-center py-1 px-2 rounded-md border-gray-300 border">
           <textarea

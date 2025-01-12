@@ -6,6 +6,9 @@ import VisionField from "./VisionField"
 import MissionField from "./MissionField"
 import CoreValuesField from "./CoreValuesField"
 import AdministrativeField from "./AdministrativeField";
+import ProgramTypeField from "./ProgramTypeField";
+import ProgramNameField from "./ProgramNameField";
+import MajorField from "./MajorField";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
 import { getUniversityData } from "@/api/component-info";
@@ -47,8 +50,16 @@ const UniversitySettings = () => {
       />
       <AdministrativeField
       isLoading={isLoading}
+      />     
+      <ProgramTypeField
+      isLoading={isLoading}
       />
-       
+      <ProgramNameField
+      isLoading={isLoading}
+      />
+      <MajorField
+      isLoading={isLoading}
+      />
     </div>
   );
 };

@@ -174,19 +174,30 @@ const EditCampus = () => {
             
 
             const handleRemoveProgram = (programTypeId, programIndex) => {
-                const updatedPrograms = campusData.campus_programs.map((programType) => {
-                  if (programType.program_type_id === programTypeId) {
-                    return {
-                      ...programType,
-                      programs: programType.programs.filter((_, index) => index !== programIndex)
-                    };
+              const updatedPrograms = campusData.campus_programs.map((programType) => {
+                if (programType.program_type_id === programTypeId) {
+                  const updatedProgramsList = programType.programs.filter((_, index) => index !== programIndex);
+            
+                  // If there are no more programs for this type, remove the program type entirely
+                  if (updatedProgramsList.length === 0) {
+                    return null; // Return null to remove this program type
                   }
-                  return programType;
-                });
-              
-                setCampusData({ ...campusData, campus_programs: updatedPrograms });
-              };
-              
+            
+                  return {
+                    ...programType,
+                    programs: updatedProgramsList,
+                  };
+                }
+            
+                return programType;
+              });
+            
+              // Filter out any program types that are null (i.e., removed)
+              const filteredPrograms = updatedPrograms.filter((programType) => programType !== null);
+            
+              setCampusData({ ...campusData, campus_programs: filteredPrograms });
+            };
+            
 
     const handleAddProgram = (newProgram) => {
         setCampusData((prevData) => {
@@ -409,6 +420,7 @@ const EditCampus = () => {
                         <div className="flex justify-between items-center">
                             <h4 className="text-lg font-medium">{program.program_name}</h4>
                             <button
+                            type="button"
                             className="text-red-500"
                             onClick={() => handleRemoveProgram(programType.program_type_id, index)}
                             >

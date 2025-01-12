@@ -6,38 +6,42 @@ import OfficialCard from "@/components/OfficialCard";
 import Pen from "@/assets/Pen.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
+import Header from "@/components/Header";
 
 const DisplayingKeyOfficials = () => {
-  const [officials, setOfficials] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const {data:university, isLoading, isError} = useQuery ({
+  const { data: university, isLoading: universityLoading, isError: universityError } = useQuery({
     queryKey: ["universitysettings"],
     queryFn: getUniversityData,
-  });  
+  });
 
-  useEffect(() => {
-    const getOfficials = async () => {
-      const data = await fetchKeyOfficials();
-      setOfficials(data);
-    };
-    getOfficials();
-  }, []);
+  const { data: officials, isLoading, isError } = useQuery({
+    queryKey: ["keyofficials"],
+    queryFn: fetchKeyOfficials,
+  });
 
-  const filteredOfficials = officials.filter((official) =>
-    official.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredOfficials = officials?.filter((official) =>
+    official.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (isLoading || universityLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (isError || universityError) {
+    return <p>Error loading data.</p>;
+  }
 
   return (
     <div className="w-full">
-      <div className="flex w-full items-center justify-between p-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Key Officials</h2>
-          <p className="mt-2 text-gray-600">
-            Manage university hierarchy, key officials, and their roles.
-          </p>
-        </div>
+      <div className="w-[75%] flex flex-col justify-between">
+        <Header
+          title={"Key Officials"}
+          subtitle={"Manage university hierarchy, key officials, and their roles."}
+        />
       </div>
-      <div className="flex w-full gap-4 p-6">
+
+      <div className="flex w-full gap-4 py-6">
         <SearchBox searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
         <Link className="w-[7%]" to="/key-officials/edit">
@@ -57,20 +61,16 @@ const DisplayingKeyOfficials = () => {
         <h2 className="mt-2 text-xl font-semibold">
           University of Rizal System
         </h2>
-        <p className="italic text-gray-500">
-          Nurturing Tomorrow&apos;s Noblest
-        </p>
+        <p className="italic text-gray-500">Nurturing Tomorrow&apos;s Noblest</p>
       </div>
 
-      <div className="mt-6 p-6">
+      <div className="mt-6 py-6">
         <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-5">
-          {filteredOfficials.map((official, index) => (
+          {filteredOfficials?.map((official, index) => (
             <OfficialCard key={index} official={official} />
           ))}
         </div>
       </div>
-
-
     </div>
   );
 };

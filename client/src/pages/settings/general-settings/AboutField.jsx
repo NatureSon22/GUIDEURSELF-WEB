@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {updateAbout} from "@/api/general-settings.js";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // import the default theme CSS
 import "@/quillConfig.js";  // Import the Quill config here
 import "@/quillCustom.css";
+import { useToast } from "@/hooks/use-toast";
 
 const AboutField = ({ isLoading, systemabout}) => {
   const modules = {
@@ -23,24 +22,66 @@ const AboutField = ({ isLoading, systemabout}) => {
       [{ size: ["small", "normal" , "large", "huge"] }] 
     ],
   };
+  const { toast } = useToast();
   const [about, setAbout] = useState(systemabout); 
-  const queryClient = useQueryClient();
   const [edit, setEdit] = useState(false); 
-  const {mutateAsync:handleUpdateAbout, isPending} = useMutation({
-    mutationFn:updateAbout, 
-    onSuccess: () => {
-      queryClient.invalidateQueries(["generalsettings"])
-      setEdit(false)
-    } 
-  })
 
-  const handleInputChange = (about) => {
-    setAbout(about); // React Quill returns the content as a string
-  };
+    useEffect(() => {
+      const fetchSystemAbout = async () => {
+        try {
+          const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          });
   
-  const handleClickUpdate = () => {
-    handleUpdateAbout(about);
-  };
+          if (response.ok) {
+            const data = await response.json();
+            setAbout(data.general_about); 
+          } else {
+            console.error("Failed to fetch terms and conditions");
+          }
+        } catch (error) {
+          console.error("Error fetching terms and conditions:", error);
+        }
+      };
+  
+      fetchSystemAbout();
+    }, []);
+
+    const handleInputChange = (content) => {
+      setAbout(content); 
+    };
+  
+  
+    const handleClickUpdate = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ general_about: about }),
+        });
+  
+        if (response.ok) {
+          toast({
+            title: "Success",
+            description: "System about successfully updated",
+          });
+          setEdit(false); 
+        } else {
+          console.error("Failed to update terms and conditions");
+          alert("Failed to update the terms. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error updating terms and conditions:", error);
+        alert("Error updating terms and conditions. Please try again.");
+      }
+    };
 
   const handleCancel = () => {
     setEdit(false);
@@ -88,7 +129,7 @@ const AboutField = ({ isLoading, systemabout}) => {
              <hr></hr>
              <div className="ql-editor list-disc list-outside p-4">
                <p
-                 dangerouslySetInnerHTML={{ __html: systemabout }}
+                 dangerouslySetInnerHTML={{ __html: about }}
                  className="p-4 h-full w-full text-gray-700 text-justify whitespace-[20px] leading-relaxed"
                ></p>
              </div>

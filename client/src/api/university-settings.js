@@ -82,6 +82,54 @@ const updateMission = async (mission) => {
   }
 };
 
+const deletePosition = async (id) => {
+  const response = await fetch(`http://localhost:3000/api/administartiveposition/${id}`, {
+    method: 'DELETE',
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete position');
+  }
+
+  return response.json();
+};
+
+const updatePosition = async (id, updatedName) => {
+  const response = await fetch(`http://localhost:3000/api/administartiveposition/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ administartive_position_name: updatedName }),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update position");
+  }
+
+  return await response.json();
+};
+
+const updateType = async (id, updatedType) => {
+  const response = await fetch(`http://localhost:3000/api/campusprogramtypes/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({program_type_name: updatedType }),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update position");
+  }
+
+  return await response.json();
+};
+
+
 const updateCoreValues = async (corevalues) => {
   try {
     const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
@@ -113,4 +161,48 @@ const addPosition = async (positionName) => {
   return response.json(); // Return the added position
 };
 
-export {updateUniversityLogo, updateVectorLogo, updateHistory, updateVision, updateMission, updateCoreValues, addPosition};
+
+const addType= async (typeName) => {
+  const response = await fetch("http://localhost:3000/api/campusprogramtypes", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ program_type_name: typeName}),
+  });
+
+  return response.json(); // Return the added position
+};
+
+
+const addProgram= async (programName) => {
+  const response = await fetch("http://localhost:3000/api/campusprogramnames", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ programname: programName }),
+  });
+
+  return response.json(); // Return the added position
+};
+
+
+
+
+export {
+  updateUniversityLogo,
+  updateType, 
+  updatePosition, 
+  updateVectorLogo, 
+  deletePosition, 
+  updateHistory, 
+  updateVision, 
+  updateMission, 
+  updateCoreValues, 
+  addPosition, 
+  addType,
+  addProgram,
+};

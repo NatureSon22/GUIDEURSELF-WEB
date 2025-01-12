@@ -42,58 +42,48 @@ const Modal = ({ closeModal, addOfficial }) => {
 
     const handleSave = async () => {
         if (!name || !position) {
-            console.error("Name and position are required");
-            return;
+          console.error("Name and position are required");
+          return;
         }
-
+      
         const formData = new FormData();
         formData.append("image", image);
         formData.append("name", name);
         formData.append("position", position);
         formData.append("campus_id", "675cd6ff56f690410f1473af");
         formData.append("administrative_position_id", position);
-
+      
         try {
-            const response = await fetch("http://localhost:3000/api/keyofficials",  {
-                method: "POST",
-                body: formData,
-                credentials:"include"
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to save official data");
-            }
-
-            const savedOfficial = await response.json();
-
-            // Call the addOfficial callback to update the parent component
-            const newOfficial = {
-                name: savedOfficial.data.name,
-                _id: savedOfficial.data._id,
-                key_official_photo_url: savedOfficial.data.key_official_photo_url,
-                position_name: positions.find((pos) => pos._id === position)?.administartive_position_name,
-            };
-
-            addOfficial(newOfficial);
-
-            setLoadingMessage("Adding New Campus...");
-            setLoadingVisible(true);
-
+          const response = await fetch("http://localhost:3000/api/keyofficials", {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+          });
+      
+          if (!response.ok) {
+            throw new Error("Failed to save official data");
+          }
+      
+          const savedOfficial = await response.json();
+      
+          // Trigger a refetch in the parent component
+          addOfficial();
+      
+          setLoadingMessage("Adding New Key Officials...");
+          setLoadingVisible(true);
+      
+          setTimeout(() => {
+            setLoadingMessage("Key Officials has been successfully added!");
             setTimeout(() => {
-                setLoadingMessage("Campus has been successfully added!");
-                setTimeout(() => {
-                setLoadingVisible(false); 
-                }, 1500);
-            }, 3000);
-
-            setTimeout(() => {
-            closeModal(true); 
-            }, 3000); 
-
+              setLoadingVisible(false);
+              closeModal(true);
+            }, 1500);
+          }, 3000);
         } catch (error) {
-            console.error("Error saving data:", error);
+          console.error("Error saving data:", error);
         }
-    };
+      };
+      
 
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
@@ -129,7 +119,7 @@ const Modal = ({ closeModal, addOfficial }) => {
                         >
                             <option value="">Select Position</option>
                             {positions.map((pos) => (
-                                <option key={pos._id} value={pos._id}>
+                                <option key={pos._id} value={pos.administartive_position_name}>
                                     {pos.administartive_position_name}
                                 </option>
                             ))}

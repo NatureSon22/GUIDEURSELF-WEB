@@ -1,16 +1,21 @@
-import mongoose from "mongoose";
+import {Schema, model} from "mongoose";
 
-const CampusProgramTypeSchema = new mongoose.Schema({
-  _id: {
-    type: String,
-    required: true,
-  },
-  program_type_name: {
-    type: String,
-    required: true,
-  },
-}, { timestamps: true });
+const CampusProgramTypeSchema = new Schema(
+  {
+    program_type_name: {
+      type: String,
+      required: true,
+    },
+    date_added: {
+      type: Date,
+      default: Date.now
+    },
+  });
 
-const CampusProgramType = mongoose.model("CampusProgramType", CampusProgramTypeSchema, "campusprogramtype");
+const CampusProgramType = model(
+  "CampusProgramType",
+  CampusProgramTypeSchema,
+  "campusprogramtype"
+);
 
 export default CampusProgramType;
