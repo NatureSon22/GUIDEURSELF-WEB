@@ -10,8 +10,8 @@ import { FaFile } from "react-icons/fa";
 
 const ReportTemplateField = () => {
   const inputRef = useRef(null);
-  const [fileURL, setFileUrl] = useState(null);
-  const [file, setFile] = useState(null);
+  const [fileURLs, setFileUrls] = useState([]);
+  const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
   const client = useQueryClient();
@@ -24,8 +24,8 @@ const ReportTemplateField = () => {
         title: "Success",
         description: data.message,
       });
-      setFileUrl(null);
-      setFile(null);
+      setFileUrls([]);
+      setFiles([]);
       setIsDragging(false);
     },
     onError: (error) => {
@@ -38,11 +38,12 @@ const ReportTemplateField = () => {
   });
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      setFileUrl({ uri: URL.createObjectURL(file) });
-      setFile(file);
+    const selectedFiles = e.target.files;
+    if (selectedFiles) {
+      const fileArray = Array.from(selectedFiles);
+      setFiles((prevFiles) => [...prevFiles, ...fileArray]);
+      const fileUrls = fileArray.map((file) => URL.createObjectURL(file));
+      setFileUrls((prevUrls) => [...prevUrls, ...fileUrls]);
     }
     setIsDragging(false);
   };
@@ -53,14 +54,18 @@ const ReportTemplateField = () => {
 
   const handleUploadClick = () => {
     const formData = new FormData();
-    formData.append("template", file);
+    files.forEach((file) => formData.append("template", file));
 
     handleUpload(formData);
   };
 
   const handleCancel = () => {
-    setFileUrl(null);
-    setFile(null);
+    setFileUrls([]);
+    setFiles([]);
+  };
+
+  const handleRemoveFile = (file) => {
+    setFiles((prevFiles) => prevFiles.filter((f) => f !== file));
   };
 
   const handleDragEnter = (e) => {
@@ -82,10 +87,12 @@ const ReportTemplateField = () => {
     e.preventDefault();
     setIsDragging(false);
 
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      setFileUrl({ uri: URL.createObjectURL(file) });
-      setFile(file);
+    const droppedFiles = e.dataTransfer.files;
+    if (droppedFiles) {
+      const fileArray = Array.from(droppedFiles);
+      setFiles((prevFiles) => [...prevFiles, ...fileArray]);
+      const fileUrls = fileArray.map((file) => URL.createObjectURL(file));
+      setFileUrls((prevUrls) => [...prevUrls, ...fileUrls]);
     }
   };
 
@@ -101,6 +108,7 @@ const ReportTemplateField = () => {
           type="file"
           className="hidden"
           onChange={handleFileChange}
+          multiple // Allow multiple files
         />
 
         <div
@@ -111,33 +119,49 @@ const ReportTemplateField = () => {
           onDrop={handleDrop}
           className={`grid w-full cursor-pointer place-items-center rounded-lg border-[4px] border-dashed bg-white transition-all duration-300 ${
             isDragging ? "bg-primary-100/50 border-secondary-100/30" : "py-24"
-          } ${file ? "py-20" : "py-24"}`}
+          } ${files.length > 0 ? "py-20" : "py-24"}`}
         >
           <div className="grid place-items-center gap-1 text-secondary-100/50">
             <MdCloudUpload
-              className={`text-[2.8rem] ${
-                isDragging ? "text-primary-500" : ""
-              }`}
+              className={`text-[2.8rem] ${isDragging ? "text-primary-500" : ""}`}
             />
             <p className="text-[0.95rem]">
               {isDragging
-                ? "Drop the file here to upload"
-                : "Upload a file or drag and drop"}
+                ? "Drop the files here to upload"
+                : "Upload files or drag and drop"}
             </p>
           </div>
         </div>
 
-        {file && (
-          <div className="flex w-fit items-center gap-3 rounded-md bg-secondary-200-60 px-5 py-3">
-            <FaFile className="text-[1.2rem]" />
-            <p className="text-[0.9rem]">{file.name}</p>
+        {files.length > 0 && (
+          <div className="flex flex-wrap gap-3">
+            {files.map((file, index) => (
+              <div
+                key={index}
+                className="flex w-fit items-center gap-5 rounded-md bg-secondary-200-60 px-5 py-3"
+              >
+                <div className="flex items-center gap-2">
+                  <FaFile className="text-[1.2rem]" />
+                  <p className="text-[0.9rem]">{file.name}</p>
+                </div>
+
+                <Button
+                  className="text-[0.8rem] font-semibold"
+                  onClick={() => handleRemoveFile(file)}
+                >
+                  &#x2715;
+                </Button>
+              </div>
+            ))}
           </div>
         )}
 
         <div className="ml-auto space-x-4">
-          <Button variant="ghost" onClick={handleCancel}>
-            Cancel
-          </Button>
+          {files.length > 0 && (
+            <Button variant="ghost" onClick={handleCancel} disabled={isPending} >
+              Cancel
+            </Button>
+          )}
           <Button onClick={handleUploadClick} disabled={isPending}>
             Upload
           </Button>

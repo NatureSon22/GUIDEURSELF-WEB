@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import useUser from "@/hooks/useUser";
+import SpinnerEllipse from "@/components/SpinnerEllipse";
 
 const AuthLayer = ({ children }) => {
   const { isAuthenticatedLoading } = useAuth();
@@ -12,7 +13,9 @@ const AuthLayer = ({ children }) => {
 
   if (isAuthenticatedLoading || isUserLoading) {
     return (
-      <div className="grid min-h-screen place-items-center"> Loading... </div>
+      <div className="grid min-h-screen place-items-center">
+        <SpinnerEllipse />
+      </div>
     );
   }
 

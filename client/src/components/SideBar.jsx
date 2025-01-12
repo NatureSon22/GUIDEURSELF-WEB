@@ -2,7 +2,7 @@ import logo from "../assets/guideURSelfLOGO 1.png";
 import SideBarElements from "./SideBarElements";
 import SideBarTab from "./SideBarTab";
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModulePermission from "@/layer/ModulePermission";
 
 const SideBar = () => {
@@ -12,6 +12,12 @@ const SideBar = () => {
   const [chosen, setSchosen] = useState(
     location ? `/${location}` : "/dashboard",
   );
+
+  useEffect(() => {
+    if (location) {
+      setSchosen(`/${location}`);
+    }
+  }, [location]);
 
   return (
     <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">

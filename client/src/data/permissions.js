@@ -32,14 +32,31 @@ const PERMISSIONS = [
     module: "Manage Accounts",
     description:
       "Check the permissions granted for managing accounts on their assigned campus",
-    access: ["add account", "edit account", "archive account"],
+    access: [
+      "add account",
+      "import account",
+      "verify account",
+      "edit account",
+      "archive account",
+    ],
   },
   {
     module: "Manage Roles and Permissions",
-    
     description:
       "Check the permissions granted for managing roles and permissions on their assigned campus",
-    access: ["add role", "edit role", "archive role"],
+    access: [
+      "add role",
+      "edit role",
+      "archive role",
+      "assign role",
+      "unassign role",
+    ],
+  },
+  {
+    module: "Manage Reports",
+    description:
+      "Check the permissions granted for managing reports on their assigned campus",
+    access: ["add report", "edit report", "archive report", "generate report"],
   },
   {
     module: "Manage System Setting",
