@@ -15,6 +15,12 @@ const Reports = () => {
           <ReportsTab key={i} {...info} />
         ))}
       </div>
+
+      <iframe
+        src="https://docs.google.com/gview?url=https://res.cloudinary.com/dtv9zeo30/raw/upload/v1736059473/templates/wc1789tovbezszoyobl7.docx&embedded=true"
+        className="w-full h-full
+        "
+      ></iframe>
     </div>
   );
 };

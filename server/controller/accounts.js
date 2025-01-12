@@ -10,10 +10,8 @@ const getAllAccounts = async (req, res, next) => {
     const users = await UserModel.aggregate([
       {
         $match: {
-          _id: {
-            $ne: new Types.ObjectId(req.userId),
-            campus_id: new Types.ObjectId(req.campusId),
-          }, // Exclude the specific ID
+          _id: { $ne: new Types.ObjectId(req.userId) },
+          campus_id: { $eq: new Types.ObjectId(req.campusId) },
         },
       },
       {

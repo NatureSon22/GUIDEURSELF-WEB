@@ -1,37 +1,56 @@
 import cloudinary from "cloudinary";
 import ReportTemplate from "../models/reportTemplate.js";
 import fs from "fs";
+import { config } from "dotenv";
+
+config();
 
 const postTemplate = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+    // Check if files are uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files were uploaded" });
     }
 
-    let fileUrl;
+    const uploadedFiles = [];
 
-    try {
-      const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: "templates",
-        resource_type: "auto",
+    // Iterate through all uploaded files
+    for (const file of req.files) {
+      let fileUrl;
+
+      try {
+        // Upload each file to Cloudinary
+        const result = await cloudinary.v2.uploader.upload(file.path, {
+          folder: "templates",
+          resource_type: "auto",
+        });
+        fileUrl = result.secure_url;
+      } catch (error) {
+        return res.status(500).json({
+          message: "Failed to upload template file",
+          error: `cloudinary error: ${error.message}`,
+        });
+      }
+
+      // Save the file details to the database
+      const template = new ReportTemplate({
+        name: file.originalname,
+        template_url: fileUrl,
       });
-      fileUrl = result.secure_url;
-    } catch (uploadError) {
-      return res.status(500).json({
-        message: "Failed to upload template file to Cloudinary",
-        error: uploadError.message,
+
+      await template.save();
+
+      // Add to the response array
+      uploadedFiles.push({
+        name: file.originalname,
+        url: fileUrl,
       });
     }
 
-    const template = new ReportTemplate({
-      name: req.file.originalname,
-      template_url: fileUrl,
-    });
-
-    await template.save();
-
-    res.status(200).json({
-      message: "Template added successfully",
+    // Return success response
+    return res.status(200).json({
+      message: "Templates added successfully",
+      uploadedFiles,
     });
   } catch (error) {
     res.status(500).json({
@@ -39,7 +58,10 @@ const postTemplate = async (req, res) => {
       error: error.message,
     });
   } finally {
-    fs.unlinkSync(req.file.path);
+    // Optionally delete uploaded files from the server
+    for (const file of req.files || []) {
+      fs.unlinkSync(file.path);
+    }
   }
 };
 

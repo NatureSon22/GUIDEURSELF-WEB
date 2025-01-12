@@ -1,11 +1,10 @@
-// routes/campusProgramTypeRoutes.js
-import express from 'express';
-import CampusProgramType from '../models/CampusProgramType.js';
-import verifyToken from "../middleware/verifyToken.js"
+import express from "express";
+import CampusProgramType from "../models/CampusProgramType.js";
+import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.use(verifyToken)
+router.use(verifyToken);
 
 router.get("/campusprogramtypes", async (req, res) => {
   try {

@@ -9,8 +9,12 @@ const fileIcons = {
   xlsx: XLS,
 };
 
-const TemplateIcon = ({ name }) => {
-  const filename = name.split(".")[0].substring(0, 10).toLowerCase() + "...";
+const TemplateIcon = ({ name, listStyle }) => {
+  const filename =
+    name
+      .split(".")[0]
+      .substring(0, listStyle === "grid" ? 10 : 20)
+      .toLowerCase() + "...";
   const filetype = name.split(".").pop().toLowerCase();
 
   const getFileIcon = (fileName) => {
@@ -18,9 +22,21 @@ const TemplateIcon = ({ name }) => {
     return fileIcons[fileType] || DOCS;
   };
 
-  return (
+  return listStyle === "grid" ? (
     <div className="flex flex-col flex-wrap items-center gap-2">
       <div className="flex aspect-square h-24 w-20 overflow-hidden">
+        <img
+          src={getFileIcon(name)}
+          alt={`${name} icon`}
+          className="h-full w-full object-cover"
+        />
+      </div>
+
+      <p className="text-[0.8rem]">{`${filename}.${filetype}`}</p>
+    </div>
+  ) : (
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="flex aspect-square h-5 w-5 overflow-hidden">
         <img
           src={getFileIcon(name)}
           alt={`${name} icon`}
@@ -35,6 +51,7 @@ const TemplateIcon = ({ name }) => {
 
 TemplateIcon.propTypes = {
   name: PropTypes.string,
+  listStyle: PropTypes.string,
 };
 
 export default TemplateIcon;
