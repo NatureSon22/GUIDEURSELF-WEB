@@ -48,10 +48,12 @@ accountRouter.use((err, req, res, next) => {
 });
 
 accountRouter.get("/logged-in-account", getLoggedInAccount);
-accountRouter.get("/:accountId", getAccount);
 accountRouter.get("/", getAllAccounts);
+accountRouter.get("/:accountId", getAccount);
+
 accountRouter.post("/import-add-account", upload.none(), bulkAddAccount);
 accountRouter.post("/add-account", upload.none(), addAccount);
+
 accountRouter.put("/update-account", upload.none(), updateAccount);
 accountRouter.put(
   "/update-profile",
@@ -70,6 +72,7 @@ accountRouter.put(
   updateAccountRoleType
 );
 accountRouter.put("/verify-account/:accountId", verifyAccount);
+
 accountRouter.delete("/delete-accounts", deleteAccounts);
 
 export default accountRouter;

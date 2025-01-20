@@ -6,6 +6,7 @@ import { getTemplates } from "@/api/template";
 import TemplateIcon from "./TemplateIcon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
+import TemplateDialog from "./TemplateDialog";
 
 const TemplatesField = () => {
   const { data: files, isLoading } = useQuery({
@@ -13,6 +14,7 @@ const TemplatesField = () => {
     queryFn: getTemplates,
   });
   const [listStyle, setListStyle] = useState("grid");
+  const [open, setOpen] = useState(false);
 
   const handleClick = () => {
     setListStyle((prev) => (prev === "list" ? "grid" : "list"));
@@ -43,7 +45,7 @@ const TemplatesField = () => {
               className={
                 listStyle === "grid"
                   ? "flex flex-wrap items-center gap-10"
-                  : "mt-5 grid gap-5 grid"
+                  : "mt-5 grid grid-cols-5 gap-5"
               }
             >
               {files.map((file) => (
@@ -51,6 +53,7 @@ const TemplatesField = () => {
                   key={file._id}
                   name={file.name}
                   listStyle={listStyle}
+                  setOpen={setOpen}
                 />
               ))}
             </div>
@@ -61,6 +64,8 @@ const TemplatesField = () => {
           )}
         </div>
       </div>
+
+      <TemplateDialog open={open} setOpen={setOpen} />
     </Layout>
   );
 };

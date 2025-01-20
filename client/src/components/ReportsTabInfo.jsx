@@ -10,8 +10,7 @@ const ReportsTabInfo = [
     ),
     title: "User Account",
     subtitle: "Access, review, and generate reports on user account records",
-    path: "user-account",
-    element: <Dashboard />
+    path: "/account",
   },
   {
     icon: (

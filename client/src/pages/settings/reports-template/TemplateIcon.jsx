@@ -9,7 +9,7 @@ const fileIcons = {
   xlsx: XLS,
 };
 
-const TemplateIcon = ({ name, listStyle }) => {
+const TemplateIcon = ({ name, listStyle, setOpen }) => {
   const filename =
     name
       .split(".")[0]
@@ -22,8 +22,15 @@ const TemplateIcon = ({ name, listStyle }) => {
     return fileIcons[fileType] || DOCS;
   };
 
+  const handleOpen = () => {
+    setOpen((prev) => !prev);
+  };
+
   return listStyle === "grid" ? (
-    <div className="flex flex-col flex-wrap items-center gap-2">
+    <div
+      className="flex cursor-pointer flex-col flex-wrap items-center gap-2"
+      onClick={handleOpen}
+    >
       <div className="flex aspect-square h-24 w-20 overflow-hidden">
         <img
           src={getFileIcon(name)}
@@ -35,7 +42,10 @@ const TemplateIcon = ({ name, listStyle }) => {
       <p className="text-[0.8rem]">{`${filename}.${filetype}`}</p>
     </div>
   ) : (
-    <div className="flex flex-wrap items-center gap-3">
+    <div
+      className="flex cursor-pointer flex-wrap items-center gap-3"
+      onClick={handleOpen}
+    >
       <div className="flex aspect-square h-5 w-5 overflow-hidden">
         <img
           src={getFileIcon(name)}
@@ -52,6 +62,7 @@ const TemplateIcon = ({ name, listStyle }) => {
 TemplateIcon.propTypes = {
   name: PropTypes.string,
   listStyle: PropTypes.string,
+  setOpen: PropTypes.func,
 };
 
 export default TemplateIcon;

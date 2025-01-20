@@ -17,18 +17,22 @@ import universityManagementRouter from "../router/universityManagementRouter.js"
 import generalSettingsRouter from "../router/generalSettingRouter.js";
 import templateRouter from "../router/templateRouter.js";
 import statusRouter from "../router/statusRouter.js";
+import documentRouter from "../router/documentRouter.js";
+import testChatRouter from "../router/testchatRouter.js";
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "*"],
     credentials: true,
   })
 );
 
 app.use("/api/auth", authRouter);
+app.use("/api/messages", testChatRouter);
+app.use("/api/documents", documentRouter);
 app.use("/api/role-types", roleTypesRouter);
 app.use("/api/accounts", accountRouter);
 app.use("/api/templates", templateRouter);

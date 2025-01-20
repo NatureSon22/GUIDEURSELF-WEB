@@ -10,7 +10,6 @@ import { FaFile } from "react-icons/fa";
 
 const ReportTemplateField = () => {
   const inputRef = useRef(null);
-  const [fileURLs, setFileUrls] = useState([]);
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
@@ -24,7 +23,7 @@ const ReportTemplateField = () => {
         title: "Success",
         description: data.message,
       });
-      setFileUrls([]);
+
       setFiles([]);
       setIsDragging(false);
     },
@@ -42,8 +41,6 @@ const ReportTemplateField = () => {
     if (selectedFiles) {
       const fileArray = Array.from(selectedFiles);
       setFiles((prevFiles) => [...prevFiles, ...fileArray]);
-      const fileUrls = fileArray.map((file) => URL.createObjectURL(file));
-      setFileUrls((prevUrls) => [...prevUrls, ...fileUrls]);
     }
     setIsDragging(false);
   };
@@ -60,7 +57,6 @@ const ReportTemplateField = () => {
   };
 
   const handleCancel = () => {
-    setFileUrls([]);
     setFiles([]);
   };
 
@@ -91,8 +87,6 @@ const ReportTemplateField = () => {
     if (droppedFiles) {
       const fileArray = Array.from(droppedFiles);
       setFiles((prevFiles) => [...prevFiles, ...fileArray]);
-      const fileUrls = fileArray.map((file) => URL.createObjectURL(file));
-      setFileUrls((prevUrls) => [...prevUrls, ...fileUrls]);
     }
   };
 
@@ -158,7 +152,7 @@ const ReportTemplateField = () => {
 
         <div className="ml-auto space-x-4">
           {files.length > 0 && (
-            <Button variant="ghost" onClick={handleCancel} disabled={isPending} >
+            <Button variant="ghost" onClick={handleCancel} disabled={isPending}>
               Cancel
             </Button>
           )}

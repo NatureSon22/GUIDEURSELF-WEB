@@ -77,7 +77,7 @@ const DataTable = ({
 
   return (
     <div className="flex h-full flex-1 flex-col">
-      <Table className="mt-3 flex-1 overflow-x-auto border-b border-t border-secondary-200-60 overflow-x-auto">
+      <Table className="mt-3 flex-1 overflow-x-auto border-b border-t border-secondary-200-60">
         <TableHeader className="border-collapse bg-secondary-400">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -106,7 +106,7 @@ const DataTable = ({
             <TableRow>
               <TableCell
                 colSpan={memoizedColumns.length}
-                className="text-center"
+                className="py-4 text-center"
               >
                 No matching data found.
               </TableCell>

@@ -21,6 +21,7 @@ const columns = () => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-5">
+          <div className="ml-auto"></div>
           <EditDialog role_id={row.original._id}>
             <Button
               variant="secondary"
@@ -34,6 +35,7 @@ const columns = () => [
           <Button variant="destructive">
             <MdDelete />
           </Button>
+          <div className="mr-auto"></div>
         </div>
       );
     },

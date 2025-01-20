@@ -10,7 +10,6 @@ import {
 import PageNotFound from "./pages/PageNotFound.jsx";
 import Login from "./pages/auth/Login.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
-import Documents from "./pages/documents/Documents.jsx";
 import VirtualTour from "./pages/virtual_tour/VirtualTour.jsx";
 import KeyOfficials from "./pages/key_officials/KeyOfficials.jsx";
 import EditKeyOfficials from "./pages/key_officials/EditKeyOfficials.jsx";
@@ -39,7 +38,17 @@ import PrivacyPolicySetting from "./pages/settings/privacy-policy/PrivacyPolicyS
 import Reports from "./pages/reports/Reports";
 import VirtualTourDashboard from "./pages/virtual_tour/VirtualTourDashboard";
 import BuildMode from "./pages/virtual_tour/BuildMode";
-import EditMode from "./pages/virtual_tour/EditMode";
+import EditMode from "./pages/virtual_tour/EditMode";import AccountReports from "./pages/reports/AccountReports";
+import FeedbackReport from "./pages/reports/FeedbackReport";
+import UserActivityReport from "./pages/reports/UserActivityReport";
+import AllCampusDocuments from "./pages/documents/AllCampusDocuments.jsx";
+import CampusDocument from "./pages/documents/CampusDocument";
+import AllDocuments from "./pages/documents/AllDocuments";
+import CreateNewDocument from "./pages/documents/CreateNewDocument";
+import ViewDocument from "./pages/documents/ViewDocument";
+import UploadDocument from "./pages/documents/UploadDocument";
+import WebDocument from "./pages/documents/WebDocument";
+import TestChat from "./pages/documents/TestChat";
 
 const router = createBrowserRouter([
   {
@@ -61,7 +70,44 @@ const router = createBrowserRouter([
       },
       {
         path: "/documents",
-        element: <Documents />,
+        element: <Container />,
+        children: [
+          {
+            path: "",
+            element: <AllCampusDocuments />,
+            // element: <CampusDocument />,
+            //<CreateNewDocument />,
+            //element: <AllCampusDocuments />,
+          },
+          {
+            path: "/documents/:campusId",
+            element: <CampusDocument />,
+          },
+          {
+            path: "/documents/all-documents",
+            element: <AllDocuments />,
+          },
+          {
+            path: "/documents/write-document",
+            element: <CreateNewDocument />,
+          },
+          {
+            path: "/documents/upload-document",
+            element: <UploadDocument />,
+          },
+          {
+            path: "/documents/import-website",
+            element: <WebDocument />,
+          },
+          {
+            path: "/documents/view/:docId",
+            element: <ViewDocument />,
+          },
+          {
+            path: "/documents/test-chat",
+            element: <TestChat />,
+          },
+        ],
       },
       {
         path: "/virtual-tour",
@@ -152,12 +198,18 @@ const router = createBrowserRouter([
           {
             path: "",
             element: <Reports />,
-            children: [
-              {
-              path: "/reports/user-accounnt",
-              element: <Dashboard />,
-              },
-            ],
+          },
+          {
+            path: "/reports/account",
+            element: <AccountReports />,
+          },
+          {
+            path: "/reports/feedback",
+            element: <FeedbackReport />,
+          },
+          {
+            path: "/reports/user-activity-log",
+            element: <UserActivityReport />,
           },
         ],
       },

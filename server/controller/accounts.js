@@ -6,14 +6,15 @@ import fs from "fs";
 import { Types } from "mongoose";
 
 const getAllAccounts = async (req, res, next) => {
+  // {
+  //   $match: {
+  //     _id: { $ne: new Types.ObjectId(req.userId) },
+  //      campus_id: { $eq: new Types.ObjectId(req.campusId) },
+  //   },
+  // },
+
   try {
     const users = await UserModel.aggregate([
-      {
-        $match: {
-          _id: { $ne: new Types.ObjectId(req.userId) },
-          campus_id: { $eq: new Types.ObjectId(req.campusId) },
-        },
-      },
       {
         $lookup: {
           from: "roles",
@@ -64,8 +65,6 @@ const getAllAccounts = async (req, res, next) => {
         },
       },
     ]);
-
-    // remove the current user
 
     res.status(200).json({ users });
   } catch (error) {
@@ -128,8 +127,6 @@ const bulkAddAccount = async (req, res) => {
   try {
     const { role_id, campus_id, users } = req.body;
     const parsedUsers = JSON.parse(users);
-
-    console.log(parsedUsers);
 
     const bulkUsers = [];
     const existingUsers = [];
@@ -211,7 +208,7 @@ const getAccount = async (req, res) => {
 
 const getLoggedInAccount = async (req, res) => {
   try {
-    const accountId = req.userId;
+    const accountId = req.user.userId;
 
     if (!accountId) {
       return res
@@ -423,20 +420,45 @@ const updateAccountRoleType = async (req, res) => {
     const { accountId } = req.params;
     const { roleId } = req.body;
 
-    const result = await UserModel.updateOne(
-      { _id: accountId },
-      {
-        $set: {
-          role_id: roleId,
-          date_updated: Date.now(),
-          date_assigned: Date.now(),
-        },
-      }
-    );
+    // Remember to parse the JSON strings back to objects
+    // const grantedPermissions = JSON.parse(granted);
+    // const revokedPermissions = JSON.parse(revoked);
 
-    res.status(200).json({
-      message: "User role type updated successfully",
-    });
+    console.log("data" + " " + Object.keys(req.body));
+
+    // const parsedGranted = JSON.parse(req.body.granted);
+    // console.log("parse: " + parsedGranted);
+
+    // const grantedPermissions = Array.isArray(granted)
+    //   ? granted
+    //   : granted
+    //   ? [granted]
+    //   : [];
+    // const revokedPermissions = Array.isArray(revoked)
+    //   ? revoked
+    //   : revoked
+    //   ? [revoked]
+    //   : [];
+
+    // console.log(grantedPermissions);
+    // console.log(revokedPermissions);
+
+    // await UserModel.updateOne(
+    //   { _id: accountId },
+    //   {
+    //     $set: {
+    //       role_id: roleId,
+    //       custom_permissions: {
+    //         granted: grantedPermissions,
+    //         revoked: revokedPermissions,
+    //       },
+    //       date_updated: Date.now(),
+    //       date_assigned: Date.now(),
+    //     },
+    //   }
+    // );
+
+    res.status(200).json({ message: "User role type updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

@@ -8,6 +8,7 @@ const login = async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
 
+    // Find user by email
     const user = await UserModel.findOne({ email });
 
     if (!user) {
@@ -16,16 +17,19 @@ const login = async (req, res) => {
         .json({ message: "No account found with the provided email." });
     }
 
+    // Validate password (use a hashed password comparison in production)
     if (user.password !== password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // Check account status
     if (user.status !== "active") {
       return res.status(401).json({
-        message: "Account is not active. Please wait for verification",
+        message: "Account is not active. Please wait for verification.",
       });
     }
 
+    // Generate JWT token
     const authToken = jwt.sign(
       {
         userId: user._id,
@@ -33,22 +37,20 @@ const login = async (req, res) => {
         campusId: user.campus_id,
       },
       process.env.JWT_SECRET,
-      {
-        expiresIn: rememberMe ? "30d" : "1d",
-      }
+      { expiresIn: rememberMe ? "30d" : "1d" }
     );
 
+    // Set authToken in cookies
     res.cookie("authToken", authToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // 30 days or 1 day
     });
 
-    res.status(200).json({
-      message: "Login successful",
-    });
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -58,7 +60,6 @@ const register = async (req, res) => {
     const { email, password } = req.body;
 
     const existingUser = await UserModel.findOne({ email });
-
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
     }
@@ -66,10 +67,9 @@ const register = async (req, res) => {
     const user = new UserModel({ email, password });
     await user.save();
 
-    res.status(201).json({
-      message: "User created successfully",
-    });
+    res.status(201).json({ message: "User created successfully" });
   } catch (error) {
+    console.error("Registration error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -80,23 +80,23 @@ const logout = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 0,
     });
 
-    res.status(200).json({
-      message: "Logout successful",
-    });
+    res.status(200).json({ message: "Logout successful" });
   } catch (error) {
+    console.error("Logout error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
+/**
+ * Validates if the token is still valid.
+ */
 const validateToken = (req, res) => {
   try {
-    res.status(200).json({
-      message: "Token is valid",
-    });
+    res.status(200).json({ message: "Token is valid" });
   } catch (error) {
+    console.error("Token validation error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
