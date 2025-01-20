@@ -37,6 +37,9 @@ import ReportsTemplate from "./pages/settings/reports-template/ReportsTemplate";
 import UniversityManagement from "./pages/settings/university-management/UniversityManagement";
 import PrivacyPolicySetting from "./pages/settings/privacy-policy/PrivacyPolicySetting";
 import Reports from "./pages/reports/Reports";
+import VirtualTourDashboard from "./pages/virtual_tour/VirtualTourDashboard";
+import BuildMode from "./pages/virtual_tour/BuildMode";
+import EditMode from "./pages/virtual_tour/EditMode";
 
 const router = createBrowserRouter([
   {
@@ -63,6 +66,12 @@ const router = createBrowserRouter([
       {
         path: "/virtual-tour",
         element: <VirtualTour />,
+        children: [
+          {
+            path: "",
+            element: <VirtualTourDashboard />,
+          },
+        ]
       },
       {
         path: "/key-officials",
@@ -143,6 +152,12 @@ const router = createBrowserRouter([
           {
             path: "",
             element: <Reports />,
+            children: [
+              {
+              path: "/reports/user-accounnt",
+              element: <Dashboard />,
+              },
+            ],
           },
         ],
       },
@@ -183,6 +198,22 @@ const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "/virtual-tour/build-mode",
+    element: (
+      <AuthLayer>
+        <BuildMode />
+      </AuthLayer>
+    ), 
+  },
+  {
+    path: "/virtual-tour/edit-mode/:id",
+    element: (
+      <AuthLayer>
+        <EditMode />
+      </AuthLayer>
+    ), 
   },
   {
     path: "/login",

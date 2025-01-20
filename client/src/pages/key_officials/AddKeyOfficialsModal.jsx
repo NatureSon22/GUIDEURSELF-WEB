@@ -87,15 +87,7 @@ const Modal = ({ closeModal, addOfficial }) => {
 
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
-            {loadingVisible && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-500">
-                <div className="bg-white p-6 rounded-md shadow-md text-center">
-                    <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
-                </div>
-                </div>
-            )}
             <div className="bg-white p-6 rounded-md w-1/3">
-
                 <form onSubmit={(e) => e.preventDefault()}>
                     {/* Name Input */}
                     <div className="mt-4">

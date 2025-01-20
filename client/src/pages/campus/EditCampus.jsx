@@ -136,7 +136,7 @@ const EditCampus = () => {
                 formData.append('campus_about', campusData.campus_about);
                 formData.append('latitude', coordinates.lat);  // Pull from coordinates
                 formData.append('longitude', coordinates.lng);
-                formData.append('campus_programs', JSON.stringify(campusData.campus_programs));
+                formData.append('campus_programs', JSON.stringify(campusData.target));
               
                 if (campusData.campus_cover_photo) {
                     formData.append('campus_cover_photo', campusData.campus_cover_photo);  // Use correct image

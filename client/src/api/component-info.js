@@ -103,7 +103,6 @@ const getUniversityData = async () => {
   }
 };
 
-
 const getPositions = async () => {
   try {
     const response = await fetch(

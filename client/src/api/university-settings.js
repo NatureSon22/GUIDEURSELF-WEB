@@ -175,6 +175,25 @@ const addType= async (typeName) => {
   return response.json(); // Return the added position
 };
 
+const uploadFloorImage = async (campusId, formData) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/campuses/${campusId}`, {
+      method: "PUT", // Use PUT to update an existing campus (and floors)
+      credentials: "include",
+      body: formData, // Send the FormData object as the body
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to upload floor.");
+    }
+
+    const data = await response.json();
+    return data; // Returning the response data
+  } catch (error) {
+    console.error("Error uploading floor:", error);
+    throw new Error("Failed to upload floor.");
+  }
+};
 
 const addProgram= async (programName) => {
   const response = await fetch("http://localhost:3000/api/campusprogramnames", {
@@ -189,9 +208,6 @@ const addProgram= async (programName) => {
   return response.json(); // Return the added position
 };
 
-
-
-
 export {
   updateUniversityLogo,
   updateType, 
@@ -205,4 +221,5 @@ export {
   addPosition, 
   addType,
   addProgram,
+  uploadFloorImage,
 };

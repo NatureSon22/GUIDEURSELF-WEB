@@ -1,6 +1,7 @@
 import { FaUserGroup } from "react-icons/fa6";
 import { TbMessageCircleFilled } from "react-icons/tb";
 import { IoTv } from "react-icons/io5";
+import Dashboard from "@/pages/dashboard/Dashboard";
 
 const ReportsTabInfo = [
   {
@@ -9,7 +10,8 @@ const ReportsTabInfo = [
     ),
     title: "User Account",
     subtitle: "Access, review, and generate reports on user account records",
-    path: "/user-account",
+    path: "user-account",
+    element: <Dashboard />
   },
   {
     icon: (
@@ -17,7 +19,7 @@ const ReportsTabInfo = [
     ),
     title: "Feedback",
     subtitle: "Access, review, and generate reports on user feedback",
-    path: "/feedback",
+    path: "feedback",
   },
   {
     icon: (
@@ -25,7 +27,7 @@ const ReportsTabInfo = [
     ),
     title: "User Activity Log",
     subtitle: "Access, review, and generate reports on user activity logs",
-    path: "/user-activity-log",
+    path: "user-activity-log",
   },
 ];
 

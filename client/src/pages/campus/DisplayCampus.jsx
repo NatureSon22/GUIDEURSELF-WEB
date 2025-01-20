@@ -1,21 +1,19 @@
-import {Outlet, Link} from "react-router-dom"
+import { Outlet, Link } from "react-router-dom";
 import Header from "@/components/Header";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Pen from "../../assets/Pen.png";
 import addImage from "../../assets/add.png";
 import Search from "../../assets/Search.png";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import UrsVector from "../../assets/UrsVector.png";
-import UrsLogo from "../../assets/UrsLogo.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 
-// Fix for default marker icon not showing
+// Fix for default marker icon not showing  
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -23,47 +21,53 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
+const fetchCampuses = async () => {
+  const response = await fetch("http://localhost:3000/api/campuses", {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch campuses");
+  }
+  return response.json();
+};
+
 const DisplayCampus = () => {
-  const [position, setPosition] = useState([14.466440, 121.226080]);
-  const [campuses, setCampuses] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const {data:university, isLoading, isError} = useQuery ({
+  const [position] = useState([14.46644, 121.22608]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const { data: campuses = [], isLoading, isError } = useQuery({
+    queryKey: ["campuses"],
+    queryFn: fetchCampuses,
+  });
+
+  const { data: university } = useQuery({
     queryKey: ["universitysettings"],
     queryFn: getUniversityData,
-  });  
-
-  useEffect(() => {
-    const fetchCampuses = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/campuses", {
-          method: "get",
-          credentials: "include",
-        });
-        const data = await response.json();
-        setCampuses(data); // Store fetched campuses
-      } catch (error) {
-        console.error("Error fetching campuses:", error);
-      }
-    };
-
-    fetchCampuses();
-  }, []);
+  });
 
   // Filter campuses based on search term
   const filteredCampuses = campuses.filter((campus) =>
     campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error fetching campuses</div>;
+  }
+
   return (
     <div className="w-full flex w-[100%]">
       {/* Left Container */}
       <div className="w-[75%] flex flex-col justify-between">
-      <Header
-        title={"Manage Campus"}
-        subtitle={
-          "See list of all campuses to manage and edit."
-        }
-      />
+        <Header
+          title={"Manage Campus"}
+          subtitle={"See list of all campuses to manage and edit."}
+        />
 
         {/* Search and Buttons */}
         <div className="w-full pt-6 flex gap-4">
@@ -72,7 +76,7 @@ const DisplayCampus = () => {
               className="overflow-hidden w-[100%] h-5 resize-none outline-none"
               placeholder="Search"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
             <img className="h-[100%]" src={Search} alt="" />
           </div>
@@ -146,12 +150,12 @@ const DisplayCampus = () => {
       <div className="w-[40%] pl-6  py-2 flex flex-col gap-4">
         <div className="border px-2 w-[100%] h-[100px] flex justify-between rounded-md">
           <div className="w-[30%] flex items-center justify-center">
-            <img className=" h-[45%]" src={university?.university_vector_url} alt="" />
-            <img className=" h-[45%]" src={university?.university_logo_url} alt="" />
+            <img className="h-[45%]" src={university?.university_vector_url} alt="" />
+            <img className="h-[45%]" src={university?.university_logo_url} alt="" />
           </div>
           <div className="w-[70%] flex flex-col justify-center">
             <h2 className="font-bold text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>
-            <h3 className=" text-sm">NURTURING TOMORROW'S NOBLEST</h3>
+            <h3 className="text-sm">NURTURING TOMORROW'S NOBLEST</h3>
           </div>
         </div>
 
@@ -169,5 +173,4 @@ const DisplayCampus = () => {
   );
 };
 
-
-export default DisplayCampus
+export default DisplayCampus;

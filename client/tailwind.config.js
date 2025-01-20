@@ -13,11 +13,13 @@ export default {
         "secondary-200": "rgba(205, 205, 205, 1)",
         "secondary-200-60": "rgba(205, 205, 205, 0.6)",
         "secondary-300": "rgba(253, 255, 255, 1)",
+        "secondary-350": "rgb(241, 241, 241)",
         "secondary-400": "rgba(244, 245, 247, 1)",
         "accent-100": "rgba(239, 68, 68, 1)",
         "accent-200": "rgba(254, 226, 226, 1)",
         "accent-300": "rgba(34, 197, 94, 1)",
         "accent-400": "rgba(220, 252, 231, 1)",
+        "accent-500": "rgb(254, 226, 226, 1)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

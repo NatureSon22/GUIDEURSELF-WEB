@@ -6,7 +6,7 @@ const ReportsTab = ({ icon, title, subtitle, path }) => {
 
   const handleClick = () => {
     if (path) {
-      navigate(`/reports/${path}`);
+      navigate(`/reports/`);
     } else {
       console.error("Navigation path is missing");
     }

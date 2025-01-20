@@ -22,7 +22,6 @@ universityManagementRouter.get("/university/:id", async (req, res) => {
     if (!university) {
       return res.status(404).json({ message: "University not found" });
     }
-    console.log("Found university:", university); // Log university data
     res.json(university);
   } catch (error) {
     console.error("Error fetching university data:", error);
