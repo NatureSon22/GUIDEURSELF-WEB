@@ -109,7 +109,7 @@ const EditDialog = ({ role_id, children }) => {
         </DialogHeader>
 
         <div>
-          <p className="w-min rounded-md bg-secondary-100-75 px-4 py-2 text-white">
+          <p className="w-min rounded-md bg-secondary-100-75/50 px-4 py-2 text-white">
             {roleDetails?.role_type.toUpperCase()}
           </p>
         </div>
@@ -122,6 +122,7 @@ const EditDialog = ({ role_id, children }) => {
                   permission.module.toLowerCase() ===
                   module.module.toLowerCase(),
               );
+
               return (
                 <Permissions
                   key={i}
@@ -135,11 +136,15 @@ const EditDialog = ({ role_id, children }) => {
           </div>
         </div>
 
-        <DialogFooter className="flex justify-end gap-4">
-          <Button variant="secondary" onClick={handleCancel}>
+        <DialogFooter className="flex justify-end gap-3">
+          <Button
+            className="text-base-200"
+            variant="ghost"
+            onClick={handleCancel}
+          >
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSave}>
+          <Button className="bg-base-200" type="submit" onClick={handleSave}>
             Save changes
           </Button>
         </DialogFooter>

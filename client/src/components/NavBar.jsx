@@ -7,6 +7,7 @@ const NavBar = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
   });
 
   return (

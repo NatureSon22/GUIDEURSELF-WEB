@@ -12,12 +12,17 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    req.roleId = decoded.roleId;
-    req.campusId = decoded.campusId;
+
+    req.user = {
+      userId: decoded.userId,
+      roleId: decoded.roleId,
+      campusId: decoded.campusId,
+    };
+
     next();
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Token verification error:", error);
+    res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 

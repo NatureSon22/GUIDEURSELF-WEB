@@ -105,17 +105,14 @@ const update = async (data) => {
   return response.json();
 };
 
-const updateAccountRoleType = async (accountId, roleId) => {
+const updateAccountRoleType = async (accountId, formData) => {
+  console.log(formData);
   const response = await fetch(
-    `
-    ${import.meta.env.VITE_API_URL}/accounts/update-account-role-type/${accountId}`,
+    `${import.meta.env.VITE_API_URL}/accounts/update-account-role-type/${accountId}`,
     {
       method: "PUT",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ roleId }),
+      body: JSON.stringify({ roleId: formData }),
     },
   );
 
@@ -124,7 +121,8 @@ const updateAccountRoleType = async (accountId, roleId) => {
     throw new Error(message);
   }
 
-  return response.json();
+  const { message } = await response.json();
+  return message;
 };
 
 const verifyAccount = async (accountId) => {

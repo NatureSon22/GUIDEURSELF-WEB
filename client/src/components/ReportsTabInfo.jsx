@@ -9,7 +9,7 @@ const ReportsTabInfo = [
     ),
     title: "User Account",
     subtitle: "Access, review, and generate reports on user account records",
-    path: "/user-account",
+    path: "account",
   },
   {
     icon: (
@@ -17,7 +17,7 @@ const ReportsTabInfo = [
     ),
     title: "Feedback",
     subtitle: "Access, review, and generate reports on user feedback",
-    path: "/feedback",
+    path: "feedback",
   },
   {
     icon: (
@@ -25,7 +25,7 @@ const ReportsTabInfo = [
     ),
     title: "User Activity Log",
     subtitle: "Access, review, and generate reports on user activity logs",
-    path: "/user-activity-log",
+    path: "user-activity-log",
   },
 ];
 

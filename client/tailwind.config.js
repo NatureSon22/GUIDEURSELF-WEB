@@ -75,5 +75,4 @@ export default {
         "zoom-out": "zoom-out 0.2s ease-out",
       },
     },
-  },
-};
+  },};

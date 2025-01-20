@@ -37,21 +37,25 @@ const TipTapEditor = React.memo(({ documentContent, setDocumentContent }) => {
     (value) => {
       setDocumentContent(value);
     },
-    [setDocumentContent] // Dependencies
+    [setDocumentContent], // Dependencies
   );
 
   return (
-    <RichTextEditor
-      output="html"
-      className="custom-outline"
-      content={documentContent}
-      onChangeContent={onChangeContent}
-      extensions={extensions}
-      maxHeight={500}
-      bubbleMenu={{
-        hidden: true,
-      }}
-    />
+    <div className="mt-1">
+      <RichTextEditor
+        output="html"
+        className="custom-outline"
+        contentClass={"text-md"}
+        content={documentContent}
+        onChangeContent={onChangeContent}
+        extensions={extensions}
+        maxHeight={500}
+        resetCSS={true}
+        bubbleMenu={{
+          hidden: true,
+        }}
+      />
+    </div>
   );
 });
 
