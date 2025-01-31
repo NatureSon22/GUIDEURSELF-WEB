@@ -32,6 +32,7 @@ const getGeneralData = async () => {
     const data = await response.json();
     return(data); 
   } catch (error) {
+    console.log(error);
     throw new Error("Failed to load system logo!")
   }
 };
@@ -47,6 +48,7 @@ const getProgramTypeData = async () => {
     const data = await response.json();
     return(data); 
   } catch (error) {
+    console.log(error);
     throw new Error("Failed to load program type!")
   }
 };
@@ -63,6 +65,7 @@ const getProgramNameData = async () => {
     const data = await response.json();
     return(data); 
   } catch (error) {
+    console.log(error);
     throw new Error("Failed to load program name!")
   }
 };
@@ -79,6 +82,7 @@ const getMajorData = async () => {
     const data = await response.json();
     return(data); 
   } catch (error) {
+    console.log(error);
     throw new Error("Failed to load majors!")
   }
 };

@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(verifyToken);
 
 // POST route to add a new administrative position
-router.post("/administartiveposition", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { administartive_position_name, date_added } = req.body;
     const newPosition = new AdministartivePosition({
@@ -23,7 +23,7 @@ router.post("/administartiveposition", async (req, res) => {
 });
 
 // GET route to fetch all administrative positions
-router.get("/administartiveposition", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const positions = await AdministartivePosition.find();
     res.json(positions);
@@ -34,7 +34,7 @@ router.get("/administartiveposition", async (req, res) => {
 });
 
 // DELETE route to remove an administrative position by ID
-router.delete("/administartiveposition/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const deletedPosition = await AdministartivePosition.findByIdAndDelete(id);
@@ -51,7 +51,7 @@ router.delete("/administartiveposition/:id", async (req, res) => {
 });
 
 // PUT route to update an administrative position by ID
-router.put("/administartiveposition/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { administartive_position_name } = req.body;

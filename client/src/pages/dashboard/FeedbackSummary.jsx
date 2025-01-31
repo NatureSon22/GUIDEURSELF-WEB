@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { GoDotFill } from "react-icons/go";
+import FeedbackSummaryChart from "./FeedbackSummaryChart";
+import FeedbackSummaryReviews from "./FeedbackSummaryReviews";
 
 const filters = ["All", "Student", "Faculty", "Staff", "Other"];
 
@@ -14,21 +15,24 @@ const FeedbackSummary = () => {
     <div className="space-y-5 rounded-xl border border-secondary-200/50 bg-white px-7 py-7">
       <p className="font-medium">Feedback Summary</p>
 
-      <div className="px-5">
+      <div className="space-y-6 px-5">
         <div className="flex items-center justify-between">
           {filters.map((filter) => {
             return (
               <div
                 key={filter}
-                className={`cursor-pointer rounded-full px-[1.2rem] py-[0.5rem] text-[0.9rem] ${filter === filterState ? "border-2 border-base-300" : ""}`}
+                className={`flex cursor-pointer items-center gap-2 rounded-full px-[1.2rem] py-[0.5rem] text-[0.9rem] ${filter === filterState ? "border-2 border-base-300" : "transition-[background] duration-150 hover:bg-secondary-200/30"}`}
                 onClick={() => handleFilter(filter)}
               >
-                <GoDotFill />
-
                 {filter}
               </div>
             );
           })}
+        </div>
+
+        <div className="flex items-center gap-8">
+          <FeedbackSummaryReviews />
+          <FeedbackSummaryChart />
         </div>
       </div>
     </div>

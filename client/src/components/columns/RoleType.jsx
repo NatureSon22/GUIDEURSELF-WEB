@@ -25,15 +25,18 @@ const columns = () => [
           <EditDialog role_id={row.original._id}>
             <Button
               variant="secondary"
-              className="bg-base-200/10 text-base-200"
+              className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
             >
               <BiSolidEdit />
               Edit
             </Button>
           </EditDialog>
 
-          <Button variant="destructive">
-            <MdDelete />
+          <Button
+            variant="destructive"
+            className="group rounded-full bg-accent-100/10 px-[0.65rem]"
+          >
+            <MdDelete className="text-accent-100 group-hover:text-white" />
           </Button>
           <div className="mr-auto"></div>
         </div>

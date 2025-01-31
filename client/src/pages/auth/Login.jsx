@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import useAuthStore from "../../context/useAuthStore";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa";
 
@@ -46,14 +46,14 @@ const Login = () => {
       rememberMe: false,
     },
   });
-  const { mutate: handleLogin } = useMutation({
+  const { mutate: handleLogin, isPending } = useMutation({
     mutationFn: (data) => login(data),
     onSuccess: () => {
       navigate("/dashboard");
       setIsAuthenticated(true);
     },
     onError: (error) => setError(error.message),
-  });  
+  });
 
   return (
     <div className="grid min-h-screen grid-rows-[1fr_auto]">
@@ -65,11 +65,7 @@ const Login = () => {
             className="box-shadow w-full max-w-md space-y-5 rounded-lg p-6 pt-14"
           >
             <div className="mb-8 flex justify-center">
-            <img 
-              src={logo} 
-              alt="GuideURSelf Logo" 
-              className="w-[250px]" 
-            />
+              <img src={logo} alt="GuideURSelf Logo" className="w-[250px]" />
             </div>
 
             {error ? (
@@ -176,21 +172,20 @@ const Login = () => {
             <Button
               type="submit"
               className="mt-5 w-full bg-base-200 py-6 text-[1rem] font-semibold"
+              disabled={isPending}
             >
-              Login
+              {isPending ? "Logging in..." : "Login"}
             </Button>
           </form>
         </Form>
       </div>
 
-      <div className="item shadow-top-only flex w-full justify-center gap-10 py-4 text-center text-[0.85rem]">
-        <Link to="/" className="hover:text-base-200">
-          &copy; 2024 GuideURSelf. All rights reserved
-        </Link>
-        <Link to="/" className="hover:text-base-200">
+      <div className="item flex w-full justify-center gap-10 py-4 text-center text-[0.85rem] shadow-top-only">
+        <p>&copy; 2024 GuideURSelf. All rights reserved</p>
+        <Link to="/legal/terms" className="hover:text-base-200">
           Terms of Service
         </Link>
-        <Link to="/" className="hover:text-base-200">
+        <Link to="/legal/privacy" className="hover:text-base-200">
           Privacy Policy
         </Link>
       </div>

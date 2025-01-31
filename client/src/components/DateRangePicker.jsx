@@ -16,6 +16,18 @@ const DateRangePicker = () => {
     to: addDays(new Date(), 0),
   });
 
+  // 2024-12-19T07:29:04.437+00:00 this is a sample date format to be compared (from the backend)
+
+  // const handleDateChange = () => {
+  //   setFilters((prevFilters) => ({
+  //     ...prevFilters,
+  //     dateRange: {
+  //       from: date.from,
+  //       to: date.to,
+  //     },
+  //   }));
+  // };
+
   return (
     <div className={cn("grid gap-2")}>
       <Popover>

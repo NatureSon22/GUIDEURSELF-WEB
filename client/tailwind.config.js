@@ -20,6 +20,12 @@ export default {
         "accent-300": "rgba(34, 197, 94, 1)",
         "accent-400": "rgba(220, 252, 231, 1)",
         "accent-500": "rgb(254, 226, 226, 1)",
+        "accent-600": "rgba(249, 180, 0, 1)",
+        "accent-700": "rgba(254, 243, 199, 1)",
+        "chart-100": "rgba(14, 70, 163, 1)",
+        "chart-200": "rgba(128, 202, 238, 1)",
+        "chart-300": "rgba(60, 80, 224, 1)",
+        "chart-400": "rgba(18, 165, 188, 1)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -77,4 +83,5 @@ export default {
         "zoom-out": "zoom-out 0.2s ease-out",
       },
     },
-  },};
+  },
+};

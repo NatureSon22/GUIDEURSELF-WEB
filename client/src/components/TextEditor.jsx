@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { memo, useCallback, useRef } from "react";
 import RichTextEditor, { BaseKit } from "reactjs-tiptap-editor";
 import "reactjs-tiptap-editor/style.css";
 import {
@@ -10,8 +10,9 @@ import {
   Link,
   Underline,
 } from "reactjs-tiptap-editor";
+import PropTypes from "prop-types";
+import { useEffect } from "react";
 
-// Define extensions outside the component to avoid re-creation
 const extensions = [
   BaseKit.configure({
     placeholder: {
@@ -28,26 +29,45 @@ const extensions = [
   BulletList,
   Link,
   Underline,
-  // Import Extensions Here
 ];
 
-const TipTapEditor = React.memo(({ documentContent, setDocumentContent }) => {
-  // Use useCallback to memoize the function reference
-  const onChangeContent = useCallback(
+const TipTapEditor = memo(({ documentContent, setDocumentContent }) => {
+  // Use useRef to store the debounce timer
+  const debounceTimer = useRef(null);
+
+  const handleChangeContent = useCallback(
     (value) => {
-      setDocumentContent(value);
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      debounceTimer.current = setTimeout(() => {
+        // Only update if content actually changed
+        if (value !== documentContent) {
+          setDocumentContent(value);
+        }
+      }, 300);
     },
-    [setDocumentContent], // Dependencies
+    [documentContent, setDocumentContent],
   );
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="mt-1">
       <RichTextEditor
         output="html"
         className="custom-outline"
-        contentClass={"text-md"}
+        contentClass="text-md"
         content={documentContent}
-        onChangeContent={onChangeContent}
+        onChangeContent={handleChangeContent}
         extensions={extensions}
         maxHeight={500}
         resetCSS={true}
@@ -60,5 +80,10 @@ const TipTapEditor = React.memo(({ documentContent, setDocumentContent }) => {
 });
 
 TipTapEditor.displayName = "TipTapEditor";
+
+TipTapEditor.propTypes = {
+  documentContent: PropTypes.string.isRequired,
+  setDocumentContent: PropTypes.func.isRequired,
+};
 
 export default TipTapEditor;

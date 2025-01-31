@@ -14,20 +14,18 @@ const SideBarElements = [
     modules: [
       {
         title: "Dashboard",
-        isPublic: true,
         path: "/dashboard",
+        module: "Manage Dashboard",
         icon: <MdDashboard />,
       },
       {
         title: "Documents",
-        isPublic: false,
         path: "/documents",
         module: "Manage Documents",
         icon: <FaFolder />,
       },
       {
         title: "Virtual Tour",
-        isPublic: false,
         path: "/virtual-tour",
         module: "Manage Virtual Tour",
         icon: <FaLocationDot />,
@@ -39,13 +37,12 @@ const SideBarElements = [
     modules: [
       {
         title: "Key Officials",
-        isPublic: true,
         path: "/key-officials",
+        module: "Manage Key Officials",
         icon: <BsPersonCircle />,
       },
       {
         title: "Campus",
-        isPublic: true,
         path: "/campus",
         module: "Manage Campus",
         icon: <FaBuilding />,
@@ -57,14 +54,12 @@ const SideBarElements = [
     modules: [
       {
         title: "Accounts",
-        isPublic: false,
         path: "/accounts",
         module: "Manage Accounts",
         icon: <IoPerson />,
       },
       {
         title: "Roles & Permissions",
-        isPublic: false,
         path: "/roles-permissions",
         module: "Manage Roles and Permissions",
         icon: <BsPersonFillAdd />,
@@ -76,15 +71,14 @@ const SideBarElements = [
     modules: [
       {
         title: "Reports",
-        isPublic: true,
         path: "/reports",
+        module: "Manage Reports",
         icon: <FaFileAlt />,
       },
       {
         title: "Settings",
-        isPublic: false,
         path: "/settings",
-        module: "Manage System Setting",
+        module: "Manage System Settings",
         icon: <BsGearFill />,
       },
     ],

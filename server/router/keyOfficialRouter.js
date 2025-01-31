@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(verifyToken)
 
 // POST route to save key official data (including image upload)
-router.post('/keyofficials', upload.single('image'), async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
   try {
     const { name, position, campus_id, administrative_position_id } = req.body;
 
@@ -58,7 +58,7 @@ router.post('/keyofficials', upload.single('image'), async (req, res) => {
   }
 });
 
-router.get("/keyofficials", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
       const keyOfficials = await KeyOfficial.find()
       
@@ -80,7 +80,7 @@ router.get("/keyofficials", async (req, res) => {
     }
   });
 
-  router.get("/keyofficials/:id", async (req, res) => {
+  router.get("/:id", async (req, res) => {
     try {
       const keyOfficials = await KeyOfficial.find()
         .populate("administrative_position_id", "administartive_position_name") // Populate position name
@@ -104,7 +104,7 @@ router.get("/keyofficials", async (req, res) => {
   });
   
 
-  router.delete("/keyofficials/:id", async (req, res) => {
+  router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params; // Extract id from request params
         const deletedOfficial = await KeyOfficial.findByIdAndDelete(id); // Delete by ID
@@ -118,7 +118,7 @@ router.get("/keyofficials", async (req, res) => {
     }
 });
 
-router.put("/keyofficials/:id", upload.single("image"), async (req, res) => {
+router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, administrative_position_id } = req.body;

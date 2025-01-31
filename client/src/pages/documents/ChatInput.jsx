@@ -35,7 +35,16 @@ const ChatInput = ({ conversationId, setMessages, setLoading }) => {
 
     setQuery("");
     setLoading(true);
-    await handleChat(userQuery);
+    await handleChat(`Web Query: ${userQuery}`);
+  };
+
+  const handleInputChange = (e) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+      return;
+    }
+
+    setQuery(e.target.value);
   };
 
   return (
@@ -43,7 +52,7 @@ const ChatInput = ({ conversationId, setMessages, setLoading }) => {
       <TextareaAutosize
         maxRows={4}
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleInputChange}
         className="w-full resize-none py-[0.3rem] focus-within:outline-none"
         disabled={isPending}
       />

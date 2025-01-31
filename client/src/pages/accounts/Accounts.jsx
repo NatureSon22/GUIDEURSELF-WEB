@@ -16,6 +16,8 @@ import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loading from "@/components/Loading";
 import { GrPowerReset } from "react-icons/gr";
+import FeaturePermission from "@/layer/FeaturePermission";
+import MultiCampus from "@/layer/MultiCampus";
 
 const Accounts = () => {
   const navigate = useNavigate();
@@ -23,6 +25,8 @@ const Accounts = () => {
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [reset, setReset] = useState(false);
+
+  // 2024-12-19T07:29:04.437+00:00
 
   const {
     data: allAccounts,
@@ -86,28 +90,32 @@ const Accounts = () => {
         />
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="text-secondary-100-75"
-            onClick={() => handleNavigate("/accounts/add-account")}
-          >
-            <RiAddLargeFill /> Add Account
-          </Button>
+          <FeaturePermission module="Manage Accounts" access="add account">
+            <Button
+              variant="outline"
+              className="text-secondary-100-75"
+              onClick={() => handleNavigate("/accounts/add-account")}
+            >
+              <RiAddLargeFill /> Add Account
+            </Button>
+          </FeaturePermission>
 
-          <Button
-            variant="outline"
-            className="text-secondary-100-75"
-            onClick={() => handleNavigate("/accounts/import-add-account")}
-          >
-            <MdUpload />
-            Import File
-          </Button>
+          <FeaturePermission module="Manage Accounts" access="import account">
+            <Button
+              variant="outline"
+              className="text-secondary-100-75"
+              onClick={() => handleNavigate("/accounts/import-add-account")}
+            >
+              <MdUpload />
+              Import File
+            </Button>
+          </FeaturePermission>
         </div>
       </div>
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker />
+        <DateRangePicker setFilters={setFilters} />
         <ComboBox
           options={allRoles}
           placeholder="select user type"
@@ -115,13 +123,17 @@ const Accounts = () => {
           setFilters={setFilters}
           reset={reset}
         />
-        <ComboBox
-          options={allCampuses}
-          placeholder="select campus"
-          filter="campus_name"
-          setFilters={setFilters}
-          reset={reset}
-        />
+        
+        <MultiCampus>
+          <ComboBox
+            options={allCampuses}
+            placeholder="select campus"
+            filter="campus_name"
+            setFilters={setFilters}
+            reset={reset}
+          />
+        </MultiCampus>
+
         <ComboBox
           options={accountStatus}
           placeholder="select status"

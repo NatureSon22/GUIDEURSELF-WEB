@@ -14,7 +14,8 @@ const upload = multer({ storage });
 
 // Create Campus
 router.post(
-  "/campuses",
+  "/",
+
   upload.single("campus_cover_photo"),
   async (req, res) => {
     try {
@@ -107,7 +108,7 @@ router.post(
 );
 
 // Get All Campuses
-router.get("/campuses", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const campuses = await Campus.find();
     res.json(campuses);
@@ -117,7 +118,7 @@ router.get("/campuses", async (req, res) => {
 });
 
 // Get Campus by ID
-router.get("/campuses/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const campus = await Campus.findById(req.params.id);
     if (!campus) {
@@ -130,7 +131,7 @@ router.get("/campuses/:id", async (req, res) => {
 });
 
 router.put(
-  "/campuses/:id",
+  "/:id",
   upload.fields([
     { name: "campus_cover_photo", maxCount: 1 },
     { name: "floor_photo", maxCount: 10 },
@@ -169,7 +170,9 @@ router.put(
             })),
           }));
         } catch (error) {
-          return res.status(400).json({ message: "Invalid format for campus_programs" });
+          return res
+            .status(400)
+            .json({ message: "Invalid format for campus_programs" });
         }
       }
 
@@ -182,18 +185,23 @@ router.put(
       // Update fields if provided
       if (campus_name) existingCampus.campus_name = campus_name;
       if (campus_code) existingCampus.campus_code = campus_code;
-      if (campus_phone_number) existingCampus.campus_phone_number = campus_phone_number;
+      if (campus_phone_number)
+        existingCampus.campus_phone_number = campus_phone_number;
       if (campus_email) existingCampus.campus_email = campus_email;
       if (campus_address) existingCampus.campus_address = campus_address;
       if (campus_about) existingCampus.campus_about = campus_about;
       if (latitude) existingCampus.latitude = latitude;
       if (longitude) existingCampus.longitude = longitude;
-      if (formattedPrograms.length) existingCampus.campus_programs = formattedPrograms;
+      if (formattedPrograms.length)
+        existingCampus.campus_programs = formattedPrograms;
 
       // Update campus cover photo
       if (req.files["campus_cover_photo"]) {
         const campusCoverPhoto = req.files["campus_cover_photo"][0];
-        const campusCoverPhotoUrl = await uploadToCloudinary(campusCoverPhoto.buffer, "campus_cover_photo");
+        const campusCoverPhotoUrl = await uploadToCloudinary(
+          campusCoverPhoto.buffer,
+          "campus_cover_photo"
+        );
         existingCampus.campus_cover_photo_url = campusCoverPhotoUrl;
       }
 
@@ -220,11 +228,16 @@ router.put(
         if (req.files["floor_photo"]) {
           const floorPhotos = req.files["floor_photo"];
           const floorUrls = await Promise.all(
-            floorPhotos.map((photo) => uploadToCloudinary(photo.buffer, "floor_photos"))
+            floorPhotos.map((photo) =>
+              uploadToCloudinary(photo.buffer, "floor_photos")
+            )
           );
 
           floorUrls.forEach((url, index) => {
-            const floorToUpdate = existingCampus.floors[existingCampus.floors.length - floorUrls.length + index];
+            const floorToUpdate =
+              existingCampus.floors[
+                existingCampus.floors.length - floorUrls.length + index
+              ];
             if (floorToUpdate) {
               floorToUpdate.floor_photo_url = url;
             }
@@ -235,7 +248,9 @@ router.put(
         if (req.files["marker_photo"]) {
           const markerPhotos = req.files["marker_photo"];
           const markerUrls = await Promise.all(
-            markerPhotos.map((photo) => uploadToCloudinary(photo.buffer, "marker_photos"))
+            markerPhotos.map((photo) =>
+              uploadToCloudinary(photo.buffer, "marker_photos")
+            )
           );
 
           existingCampus.floors.forEach((floor) => {
@@ -257,7 +272,9 @@ router.put(
       });
     } catch (error) {
       console.error("Error updating campus:", error);
-      res.status(500).json({ message: "Error updating campus", error: error.message });
+      res
+        .status(500)
+        .json({ message: "Error updating campus", error: error.message });
     }
   }
 );
@@ -285,7 +302,7 @@ const uploadToCloudinary = (buffer, folder) => {
 };
 
 // Update floors for a specific campus
-router.put("/campuses/:id/floors", async (req, res) => {
+router.put("/:id/floors", async (req, res) => {
   const { id } = req.params; // Campus ID
   const { floors } = req.body; // Updated floors array
 
@@ -308,12 +325,14 @@ router.put("/campuses/:id/floors", async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating floors:", error);
-    res.status(500).json({ message: "Error updating floors", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating floors", error: error.message });
   }
 });
 
 // Get All Campuses (Only campus_name, latitude, longitude)
-router.get("/campuses", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const campuses = await Campus.find().select(
       "campus_name latitude longitude"
@@ -325,7 +344,7 @@ router.get("/campuses", async (req, res) => {
 });
 
 // Delete Campus
-router.delete("/campuses/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const campus = await Campus.findByIdAndDelete(req.params.id);
     if (!campus) {

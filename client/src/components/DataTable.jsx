@@ -14,12 +14,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { GrNext, GrPrevious } from "react-icons/gr";
 import PropTypes from "prop-types";
-import { fuzzyFilter } from "@/utils/fuzzysort";
-import { Button } from "./ui/button";
-import { GrNext } from "react-icons/gr";
-import { GrPrevious } from "react-icons/gr";
-import { Input } from "./ui/input";
+import { fuzzyFilter, dateBetweenFilterFn } from "@/utils/fuzzysort";
 
 const DataTable = ({
   data,
@@ -30,18 +29,21 @@ const DataTable = ({
   setGlobalFilter = () => {},
   pageSize = 10,
   columnActions = {},
+  rowSelection = {},
+  setRowSelection = () => {},
   showFooter = true,
 }) => {
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize,
+  });
+
+  // Memoized values
   const memoizedData = useMemo(() => data, [data]);
   const memoizedColumns = useMemo(
     () => columns(columnActions),
     [columnActions, columns],
   );
-
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize,
-  });
 
   const handlePageChange = (e) => {
     const page = Number(e.target.value) - 1;
@@ -55,17 +57,22 @@ const DataTable = ({
     columns: memoizedColumns,
     filterFns: {
       fuzzy: fuzzyFilter,
+      dateBetweenFilterFn,
     },
     state: {
       columnFilters: filters,
       globalFilter,
       pagination,
+      rowSelection,
     },
     initialState: {
       columnVisibility: {
         full_name: false,
       },
     },
+    enableRowSelection: true,
+    getRowId: (row) => row._id,
+    onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setFilters,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "fuzzy",
@@ -74,6 +81,31 @@ const DataTable = ({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+
+  const renderTableBody = () => {
+    if (table.getRowModel().rows.length === 0) {
+      return (
+        <TableRow>
+          <TableCell
+            colSpan={memoizedColumns.length}
+            className="py-4 text-center"
+          >
+            No matching data found.
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return table.getRowModel().rows.map((row) => (
+      <TableRow key={row.id}>
+        {row.getVisibleCells().map((cell) => (
+          <TableCell key={cell.id}>
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        ))}
+      </TableRow>
+    ));
+  };
 
   return (
     <div className="flex h-full flex-1 flex-col">
@@ -101,28 +133,7 @@ const DataTable = ({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={memoizedColumns.length}
-                className="py-4 text-center"
-              >
-                No matching data found.
-              </TableCell>
-            </TableRow>
-          ) : (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          )}
-        </TableBody>
+        <TableBody>{renderTableBody()}</TableBody>
       </Table>
 
       {showFooter && table.getRowModel().rows.length > 0 && (
@@ -178,6 +189,8 @@ DataTable.propTypes = {
   setGlobalFilter: PropTypes.func,
   pageSize: PropTypes.number,
   columnActions: PropTypes.object,
+  rowSelection: PropTypes.object,
+  setRowSelection: PropTypes.func,
   showFooter: PropTypes.bool,
 };
 

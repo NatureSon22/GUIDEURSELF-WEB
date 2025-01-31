@@ -1,4 +1,16 @@
 const PERMISSIONS = [
+  // {
+  //   module: "Enable multiple campus handling",
+  //   description:
+  //     "Check the permissions granted for enabling multiple campuses on the system",
+  //   access: ["enable multiple campuses"],
+  // },
+  {
+    module: "Manage Dashboard",
+    description:
+      "Check the permissions granted for accessing and managing the dashboard",
+    access: ["view dashboard"],
+  },
   {
     module: "Manage Documents",
     description:
@@ -14,24 +26,30 @@ const PERMISSIONS = [
   {
     module: "Manage Virtual Tour",
     description:
-      "Check the permissions granted for managing virtual tour on their assigned campus",
+      "Check the permissions granted for managing virtual tours on their assigned campus",
     access: [
-      "upload map and panaromic images",
-      "edit map and panaromic images",
+      "upload map and panoramic images",
+      "edit map and panoramic images",
       "modify tour paths or pins",
       "archive virtual tour",
     ],
   },
   {
+    module: "Manage Key Officials",
+    description:
+      "Check the permissions granted for managing university key officials",
+    access: ["add key official", "edit key official", "archive key official"],
+  },
+  {
     module: "Manage Campus",
     description:
-      "Check the permissions granted for managing campus on their assigned campus",
+      "Check the permissions granted for managing campus details on their assigned campus",
     access: ["add campus", "edit campus", "archive campus"],
   },
   {
     module: "Manage Accounts",
     description:
-      "Check the permissions granted for managing accounts on their assigned campus",
+      "Check the permissions granted for managing user accounts on their assigned campus",
     access: [
       "add account",
       "import account",
@@ -59,13 +77,14 @@ const PERMISSIONS = [
     access: ["add report", "edit report", "archive report", "generate report"],
   },
   {
-    module: "Manage System Setting",
+    module: "Manage System Settings",
     description:
       "Check the permissions granted for managing system settings on their assigned campus",
     access: [
       "edit system settings",
       "edit account profile",
       "edit university management",
+      "edit user management",
       "edit reports template",
       "edit privacy policy",
       "edit archives",

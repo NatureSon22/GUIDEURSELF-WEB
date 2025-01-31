@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import ursLogo from "@/assets/UrsLogo.png";
 
 const AllCampusDocuments = () => {
   const navigate = useNavigate();
@@ -40,10 +41,17 @@ const AllCampusDocuments = () => {
           campusDocuments.map((document) => (
             <div
               key={document._id}
-              className="cursor-pointer rounded border bg-white p-4 shadow-sm hover:shadow-md"
+              className="flex cursor-pointer items-center gap-2 rounded border bg-white p-4 shadow-sm hover:shadow-md"
               onClick={() => handleClick(document._id, document.folder_id)}
             >
-              <p>{document.folder_name}</p>
+              <div>
+                <img className="w-14" src={ursLogo} alt="university logo" />
+              </div>
+              <p className="font-medium">
+                {document.folder_name === "URS"
+                  ? document.folder_name
+                  : `${document.folder_name} campus`}{" "}
+              </p>
             </div>
           ))
         ) : (

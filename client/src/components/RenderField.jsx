@@ -23,7 +23,7 @@ const RenderField = (
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-col gap-1">
-          <FormLabel htmlFor={fieldId} className="text-[0.9rem]">
+          <FormLabel htmlFor={fieldId} className={`text-[0.9rem] ${additionalProps.className} `}>
             {fieldTitle}
           </FormLabel>
           <FormControl>

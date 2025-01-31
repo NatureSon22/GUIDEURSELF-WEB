@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { addBulkAccount } from "@/api/accounts";
 import ImportDialog from "./ImportDialog";
+import MultiCampus from "@/layer/MultiCampus";
 
 const formSchema = z.object({
   userType: z.string().nonempty({ message: "User type is required" }),
@@ -89,12 +90,14 @@ const ImportAddAccount = () => {
               />,
             )}
 
-            {RenderField(
-              form,
-              "campus",
-              "Campus",
-              <ComboBox options={allCampuses} placeholder="Select campus" />,
-            )}
+            <MultiCampus>
+              {RenderField(
+                form,
+                "campus",
+                "Campus",
+                <ComboBox options={allCampuses} placeholder="Select campus" />,
+              )}
+            </MultiCampus>
           </div>
 
           <div>

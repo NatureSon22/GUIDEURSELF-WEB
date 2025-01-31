@@ -1,6 +1,6 @@
 import { Label, Pie, PieChart } from "recharts";
 import { useMemo } from "react";
-
+import { GoDotFill } from "react-icons/go";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -10,10 +10,10 @@ import {
 import ComboBox from "@/components/ComboBox";
 
 const chartData = [
-  { browser: "student", visitors: 65, fill: "var(--color-chrome)" },
-  { browser: "staff", visitors: 45, fill: "var(--color-safari)" },
-  { browser: "faculty", visitors: 34, fill: "var(--color-firefox)" },
-  { browser: "administrators", visitors: 12, fill: "var(--color-edge)" },
+  { browser: "student", visitors: 650, fill: "rgba(14, 70, 163, 1)" },
+  { browser: "staff", visitors: 450, fill: "rgba(128, 202, 238, 1)" },
+  { browser: "faculty", visitors: 340, fill: "rgba(60, 80, 224, 1)" },
+  { browser: "administrators", visitors: 120, fill: "rgba(18, 165, 188, 1)" },
 ];
 
 const chartConfig = {
@@ -53,10 +53,11 @@ const UserSummary = () => {
         <p className="font-medium">User Summary</p>
         <ComboBox />
       </div>
+
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[400px]"
+          className="mx-auto aspect-square max-h-[420px]"
         >
           <PieChart>
             <ChartTooltip
@@ -103,8 +104,51 @@ const UserSummary = () => {
           </PieChart>
         </ChartContainer>
       </CardContent>
+
+      <div className="grid grid-cols-2 gap-5">
+        <div className="mx-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <GoDotFill className="text-chart-100 text-2xl" />
+            <div>Student</div>
+          </div>
+
+          <p>65%</p>
+        </div>
+
+        <div className="mx-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <GoDotFill className="text-chart-200 text-2xl" />
+            <div>Staff</div>
+          </div>
+
+          <p>34%</p>
+        </div>
+
+        <div className="mx-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <GoDotFill className="text-chart-300 text-2xl" />
+            <div>Faculty</div>
+          </div>
+
+          <p>45%</p>
+        </div>
+
+        <div className="mx-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <GoDotFill className="text-chart-400 rgba(18, 165, 188, 1) text-2xl" />
+            <div>Administrator</div>
+          </div>
+
+          <p>12%</p>
+        </div>
+      </div>
     </Card>
   );
 };
+
+// { browser: "student", visitors: 650, fill: "rgba(14, 70, 163, 1)" },
+// { browser: "staff", visitors: 450, fill: "rgba(128, 202, 238, 1)" },
+// { browser: "faculty", visitors: 340, fill: "rgba(60, 80, 224, 1)" },
+// { browser: "administrators", visitors: 120, fill: "rgba(18, 165, 188, 1)" },
 
 export default UserSummary;

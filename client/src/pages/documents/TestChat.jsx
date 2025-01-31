@@ -13,7 +13,7 @@ const TestChat = () => {
   const [loading, setLoading] = useState(false);
 
   if (creatingConversation) {
-    return <div></div>;
+    return <></>;
   }
 
   return (
