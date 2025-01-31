@@ -44,6 +44,8 @@ return (
     center={position}
     zoom={11}
     className="min-h-screen w-[100%] z-[10] outline-none border border-gray-300"
+    zoomControl={false}
+    attributionControl={false}
   >
     <TileLayer
       url={`https://{s}.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}.png?apikey=c5319e635a224bbe8fd69f82a629bd97`}

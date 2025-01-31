@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const keyOfficialSchema = new mongoose.Schema({
-  administrative_position_id: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    required: true, ref: "AdministartivePosition" 
+  position_name: { 
+    type: String, 
+    required: true 
   },
   name: { 
     type: String, 

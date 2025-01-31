@@ -148,13 +148,13 @@ const AdministrativeField = () => {
               {(positions || []).length > 0 ? (
                 positions.map((position) => (
                   <tr key={position._id}>
-                    <td className="p-2 border text-[0.9rem] w-1/1">
-                      {position.administartive_position_name}
+                    <td className="p-2 border text-[0.9rem] w-[702px]">
+                      {position.position_name}
                     </td>
-                    <td className="p-2 border text-center text-[0.9rem] w-1/1">
+                    <td className="p-2 border text-center text-[0.9rem]">
                     {formatDate(position.date_added)} 
                     </td>
-                    <td className="p-2 border text-[0.9rem] flex gap-2 w-1/10">
+                    <td className="p-2 border text-[0.9rem] flex gap-2">
                       <Button
                         variant="secondary"
                         className="bg-base-200/10 text-base-200"

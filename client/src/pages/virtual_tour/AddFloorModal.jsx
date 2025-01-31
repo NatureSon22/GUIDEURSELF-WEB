@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 const uploadFloorImage = async (campusId, formData) => {
   console.log("Sending request to server...");
   try {
-    const response = await fetch(`http://localhost:3000/api/campuses/${campusId}`, {
+    const response = await fetch(`http://localhost:3000/api/campuses/floors/${campusId}`, {
       method: "PUT",
       credentials: "include",
       body: formData,
@@ -64,7 +64,7 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
-
+     console.log(formData);
     addFloor(formData);
   };
 
@@ -118,7 +118,7 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
           </div>
 
           <div className="mb-4">
-          <input
+          <Input
             type="file"
             id="floorImage"
             onChange={handleFileChange}

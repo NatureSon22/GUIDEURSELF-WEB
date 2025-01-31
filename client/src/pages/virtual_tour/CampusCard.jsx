@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { getUniversityData } from "@/api/component-info";
-import TouchFinger from "@/assets/TouchFinger.png";
-import Map from "@/assets/Map.png";
-import Lens from "@/assets/Lens.png";
+import { TbMap2 } from "react-icons/tb";
+import { RiCameraLensLine } from "react-icons/ri";
+import { MdTouchApp } from "react-icons/md";
 
 const CampusCard = ({ campus, onClose }) => {
 
@@ -16,6 +16,9 @@ const CampusCard = ({ campus, onClose }) => {
       (sum, floor) => sum + (floor.markers?.length || 0),
       0
     );
+
+
+  const totalFloors = campus.floors?.length || 0;
   
     // Calculate total markers with photo URLs
     const totalMarkerPhotos = campus.floors?.reduce(
@@ -24,6 +27,17 @@ const CampusCard = ({ campus, onClose }) => {
         (floor.markers?.filter((marker) => marker.marker_photo_url)?.length || 0),
       0
     );  
+
+    const totalCategories = campus.floors?.reduce((total, floor) => {
+      // Loop through each marker in the floor
+      floor.markers?.forEach((marker) => {
+        if (marker.category) {
+          // Increment the total count for each category
+          total += 1;
+        }
+      });
+      return total;
+    }, 0) || 0;
   
     return (
       <div className="fixed inset-1 flex h-[550px] justify-end z-50 gap-4">
@@ -40,31 +54,31 @@ const CampusCard = ({ campus, onClose }) => {
           </div>
           <div className="h-[200px]">
               <img
-              className="object-cover h-[100%] rounded-md"
+              className="object-cover max-h-[184px] w-[100%] rounded-md"
               src={campus.campus_cover_photo_url} alt="" />
           </div>
           <hr />
           <div className="py-6 flex items-center justify-center gap-6">
             <div>
-              <div className="flex flex-row items-center justify-center gap-1">
-                <p className="text-[1.5rem] font-bold text-base-200">{totalMarkers}</p>
-                <img className="h-[40px]" src={Map} alt="" />
+              <div className="flex flex-row items-center justify-center gap-2">
+                <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
+                <TbMap2 className="text-4xl text-base-200 mb-1"/>
               </div>  
-              <p className="text-center text-sm">Featured Locations</p>
+              <p className="text-center text-sm mt-2">Featured Locations</p>
             </div>
             <div>
-              <div className="flex flex-row items-center justify-center gap-1">
+              <div className="flex flex-row items-center justify-center gap-2">
                 <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
-                <img className="h-[40px]" src={Lens} alt="" />
+                <RiCameraLensLine className="text-4xl text-base-200 mb-1"/>
               </div>
-              <p className="text-center text-sm">360° View Available</p>
+              <p className="text-center text-sm mt-2">360° View Available</p>
             </div>
             <div>
-              <div className="flex flex-row items-center justify-center gap-1">
-                <p className="text-[1.5rem] font-bold text-base-200">0</p>
-                <img className="h-[40px]" src={TouchFinger} alt="" />
+              <div className="flex flex-row items-center justify-center gap-2">
+                <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
+                <MdTouchApp className="text-4xl text-base-200 mb-2"/>
               </div>
-              <p className="text-center text-sm">Interactive Hotspots</p>
+              <p className="text-center text-sm mt-2">Interactive Hotspots</p>
             </div>
           </div>
           <hr />

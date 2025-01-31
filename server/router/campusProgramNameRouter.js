@@ -1,6 +1,7 @@
 import express from "express";
 import CampusProgramName from "../models/CampusProgramName.js";
 import verifyToken from "../middleware/verifyToken.js";
+import CampusMajor from "../models/CampusMajor.js"; 
 
 const campusProgramNameRouter = express.Router();
 
@@ -53,15 +54,28 @@ campusProgramNameRouter.post("/", async (req, res) => {
 
 campusProgramNameRouter.put("/:id", async (req, res) => {
   try {
+    const { id } = req.params;
+    const { programname: newProgramName } = req.body;
+
+    // Find the old program name
+    const oldProgram = await CampusProgramName.findById(id);
+    if (!oldProgram) {
+      return res.status(404).json({ message: "Program name not found" });
+    }
+    const oldProgramName = oldProgram.programname;
+
+    // Update the program name in CampusProgramName
     const updatedProgramName = await CampusProgramName.findByIdAndUpdate(
-      req.params.id,
-      req.body, // Data to update
+      id,
+      { programname: newProgramName },
       { new: true } // This ensures the updated document is returned
     );
 
-    if (!updatedProgramName) {
-      return res.status(404).json({ message: "Program type not found" });
-    }
+    // Update all related majors in CampusMajor
+    await CampusMajor.updateMany(
+      { programname: oldProgramName },
+      { programname: newProgramName }
+    );
 
     res.status(200).json(updatedProgramName);
   } catch (err) {

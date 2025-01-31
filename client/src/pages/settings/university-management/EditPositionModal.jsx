@@ -64,7 +64,7 @@ const EditPositionModal = ({ open, onClose, position }) => {
         <Input
           id="position"
           ref={inputRef}
-          defaultValue={position?.administartive_position_name}
+          defaultValue={position?.position_name}
           placeholder="Enter position name"
           aria-label="Position Name"
         />

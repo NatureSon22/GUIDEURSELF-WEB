@@ -20,26 +20,27 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
   const [programTypes, setProgramTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
 
-  // Fetch program types when the modal is opened
-  useEffect(() => {
-    const fetchProgramTypes = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:3000/api/campusprogramtypes",
-          {
-            credentials: "include",
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch program types");
-        const data = await response.json();
-        setProgramTypes(data);
-      } catch (error) {
-        console.error("Error fetching program types:", error);
-      }
-    };
+  // Function to fetch program types
+  const fetchProgramTypes = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/campusprogramtypes", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to fetch program types");
+      const data = await response.json();
+      setProgramTypes(data);
+    } catch (error) {
+      console.error("Error fetching program types:", error);
+    }
+  };
 
-    fetchProgramTypes();
-  }, []);
+  // Fetch program types whenever the modal opens
+  useEffect(() => {
+    if (open) {
+      fetchProgramTypes();
+    }
+  }, [open]);
 
   // Set the initial selected type when the modal opens or the program changes
   useEffect(() => {
@@ -49,7 +50,6 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
   }, [program]);
 
   const handleUpdateType = async () => {
-    // Validate inputs
     if (!selectedType || !inputRef.current.value.trim()) {
       toast({
         title: "Error",
@@ -62,13 +62,11 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
     setLoading(true);
 
     try {
-      // Prepare the updated data
       const updatedProgram = {
         programtype: selectedType,
         programname: inputRef.current.value.trim(),
       };
 
-      // Make the API call to update the program
       const response = await fetch(
         `http://localhost:3000/api/campusprogramnames/${program._id}`,
         {
@@ -85,19 +83,17 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
         throw new Error("Failed to update program");
       }
 
-      // Show success toast
       toast({
         title: "Success",
         description: "Program updated successfully.",
       });
 
-      // Invalidate the query to refetch updated data
+      // Invalidate queries to refresh data
       queryClient.invalidateQueries(["programnames"]);
+      queryClient.invalidateQueries(["programTypes"]); // Ensure dropdown updates
 
-      // Close the modal
-      onClose();
+      onClose(); // Close modal
     } catch (error) {
-      // Show error toast
       toast({
         title: "Error",
         description: error.message,

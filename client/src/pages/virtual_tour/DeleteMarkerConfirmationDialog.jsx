@@ -1,6 +1,6 @@
 import Bin from "@/assets/bin.png"; // Your bin icon
 
-const ConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
+const DeleteMarkerConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
   if (!isOpen) return null;
 
   return (
@@ -8,7 +8,7 @@ const ConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
       <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] flex flex-col gap-3">
         <div className="text-center">
           <h2 className="text-lg font-semibold">
-            Do you want to remove this floor?
+            Do you want to remove this marker?
           </h2>
         </div>
         <div className="flex justify-center gap-4">
@@ -30,4 +30,4 @@ const ConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
   );
 };
 
-export default ConfirmationDialog;
+export default DeleteMarkerConfirmationDialog;

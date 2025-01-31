@@ -9,6 +9,9 @@ import AddProgramModal from "./AddProgramModal";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import Header from "@/components/Header";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -22,7 +25,7 @@ const AddNewCampus = () => {
   const [loadingVisible, setLoadingVisible] = useState(false);
   const navigate = useNavigate();
   const [loadingMessage, setLoadingMessage] = useState("");
-  const [marker, setMarker] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [campuses, setCampuses] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [programs, setPrograms] = useState({});
@@ -55,6 +58,8 @@ const AddNewCampus = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  setIsLoading(true);
+
   const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, campus_about, campus_cover_photo } = campusData;
 
   // Form validation
@@ -70,7 +75,7 @@ const handleSubmit = async (e) => {
   ) {
     setLoadingMessage("Please fill out all required fields.");
     setLoadingVisible(true);
-
+    setIsLoading(false);
     setTimeout(() => {
       setLoadingVisible(false);
     }, 2000);
@@ -80,7 +85,7 @@ const handleSubmit = async (e) => {
   if (!campus_cover_photo) {
     setLoadingMessage("Please upload a campus cover photo.");
     setLoadingVisible(true);
-
+    setIsLoading(false);
     setTimeout(() => {
       setLoadingVisible(false);
     }, 2000);
@@ -108,20 +113,6 @@ const handleSubmit = async (e) => {
   
   formData.append("campus_programs", JSON.stringify(formattedPrograms));
   
-
-  console.log("Form Data Being Sent:", {
-    campus_name,
-    campus_code,
-    campus_phone_number,
-    campus_email,
-    campus_address,
-    campus_about,
-    latitude: coordinates.lat,
-    longitude: coordinates.lng,
-    campus_cover_photo,
-    campus_programs: formattedPrograms,
-  });
-
   try {
     const response = await fetch("http://localhost:3000/api/campuses", {
       method: "POST",
@@ -130,6 +121,8 @@ const handleSubmit = async (e) => {
     });
 
     if (response.ok) {
+      
+      setIsLoading(false);
       setLoadingMessage("Adding New Campus...");
       setLoadingVisible(true);
 
@@ -268,7 +261,7 @@ const handleRemoveProgram = (programType, index) => {
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Campus Name</h3>
                 <p>Enter the official name of the campus</p>
-                <input
+                <Input
                   name="campus_name"
                   value={campusData.campus_name}
                   onChange={(e) => setCampusData({...campusData, campus_name: e.target.value})}
@@ -280,7 +273,7 @@ const handleRemoveProgram = (programType, index) => {
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Phone Number</h3>
                 <p>Input the contact number of the campus</p>
-                <input
+                <Input
                   name="campus_phone_number"
                   value={campusData.campus_phone_number}
                   onChange={(e) => setCampusData({...campusData, campus_phone_number: e.target.value})}
@@ -298,10 +291,13 @@ const handleRemoveProgram = (programType, index) => {
                   <p className="w-[10%] text-center flex items-center justify-center border border-gray-300 rounded-md">
                     URS
                   </p>
-                  <input
+                  <Input
+                    maxLength={3}
                     name="campus_code"
                     value={campusData.campus_code}
-                    onChange={(e) => setCampusData({...campusData, campus_code: e.target.value})}
+                    onChange={(e) =>
+                      setCampusData({ ...campusData, campus_code: e.target.value.toUpperCase() })
+                    }
                     placeholder="BIN"
                     className="w-[10%] h-[40px] outline-none text-center border border-gray-300 rounded-md"
                     type="text"
@@ -311,7 +307,7 @@ const handleRemoveProgram = (programType, index) => {
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Email Address</h3>
                 <p>Enter the official email for campus communication</p>
-                <input
+                <Input
                   name="campus_email"
                   value={campusData.campus_email}
                   onChange={(e) => setCampusData({...campusData, campus_email: e.target.value})}
@@ -330,7 +326,7 @@ const handleRemoveProgram = (programType, index) => {
             </div>
             <div className="border border-gray-300 rounded-md">
               <div className="p-4">
-                <input
+                <Input
                   name="campus_address"
                   value={campusData.campus_address}
                   onChange={(e) => setCampusData({...campusData, campus_address: e.target.value})}
@@ -344,6 +340,8 @@ const handleRemoveProgram = (programType, index) => {
                 zoom={11}
                 className="h-[530px] w-[100%] outline-none border border-gray-300"
                 style={{ cursor: "crosshair" }}
+                zoomControl={false}
+                attributionControl={false}
               >
                             <TileLayer url={`https://{s}.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}.png?apikey=c5319e635a224bbe8fd69f82a629bd97`} />
 
@@ -378,7 +376,7 @@ const handleRemoveProgram = (programType, index) => {
           <div className="py-6 flex flex-col">
             <h3 className="text-lg font-medium">About</h3>
             <p>Provide a brief description of the campus, including any key features or services</p>
-            <textarea
+            <Textarea
             name="campus_about"
             value={campusData.campus_about}
             onChange={(e) => setCampusData({...campusData, campus_about: e.target.value})}
@@ -391,7 +389,7 @@ const handleRemoveProgram = (programType, index) => {
             <div>
               <h3 className="text-lg font-medium">Campus Cover Photo</h3>
               <p>Upload an image of the campus (JPEG or PNG)</p>
-              <input
+              <Input
                 name="campus_cover_photo"
                 type="file"
                 accept="image/*"
@@ -431,7 +429,7 @@ const handleRemoveProgram = (programType, index) => {
                       >
                         <div className="flex flex-row justify-between w-[100%] pr-[10px]">
                           <h3 className="text-lg">{program.programName}</h3>
-                          <button
+                          <Button
                             onClick={() => handleRemoveProgram(programType, index)}
                             className="text-red-500 mt-2 self-start"
                           >
@@ -440,7 +438,7 @@ const handleRemoveProgram = (programType, index) => {
                               className="w-[20px] h-[20px]"
                               alt="Remove Program"
                             />
-                          </button>
+                          </Button>
                         </div>
                         <p className="ml-[20px] text-sm">Major in:</p>
                         <ul>
@@ -458,41 +456,43 @@ const handleRemoveProgram = (programType, index) => {
 
 
               <div className="flex justify-end w-[100%]">
-                <button
+                <Button
                   onClick={(e) => {
                     e.preventDefault();
                     toggleModal();
                   }}a
-                  className="w-[12%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300"
+                  className="w-[12%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 bg-gray-200  hover:bg-gray-200 transition duration-300"
                 >
                   <img className="w-[30px] h-[30px]" src={addImage} alt="Add Program" />
                   Add Program
-                </button>
+                </Button>
               </div>
             </div>
           </div>
 
           <AddProgramModal isOpen={isModalOpen} onClose={toggleModal} onAddProgram={handleAddProgram} />
-          <div className="pr-6 pl-6">  
+          <div className="">  
             <p className="text-justify">
             Note: All contents, instructions, and details provided in the Add Campus Form are hereby deemed legitimate and accurate, ensuring that administrators can rely on this information for correctly managing campus data in the GuideURSelf system. The form’s fields and their instructions have been structured to capture essential and relevant campus information, aligning with system requirements for virtual tours and campus management.
             </p>
           </div>
 
           <div className="p-6 flex justify-end gap-[10px]">
-            <button  
+            <Button  
               type="button"
               onClick={secondHandleBack}
-              className="text-blue-500 w-[100px] p-2 border-none"
+              className="text-base-200 bg-white shadow-none hover:bg-secondary-350 w-[100px] p-2 border-none"
+              disabled={isLoading}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="bg-blue-500 text-white w-[100px] p-2 rounded-md"
+              className="border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
+              disabled={isLoading}
             >
-              Save
-            </button>
+              {isLoading ? "Adding..." : "Add"}
+            </Button>
           </div>
 
         </form>

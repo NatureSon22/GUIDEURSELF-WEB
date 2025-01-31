@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import Gallery from "@/assets/Gallery.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
-import TouchFinger from "@/assets/TouchFinger.png";
-import Map from "@/assets/Map.png";
-import Lens from "@/assets/Lens.png";
+import { TbMap2 } from "react-icons/tb";
+import { RiCameraLensLine } from "react-icons/ri";
+import { MdTouchApp } from "react-icons/md";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 const fetchCampuses = async () => {
     
@@ -20,7 +21,7 @@ const fetchCampuses = async () => {
   return response.json();
 };
 
-const SlideBar = ({ onCampusSelect }) => {
+const SlideBar = ({ onCampusSelect, exitBuildMode }) => {
   const [searchTerm, setSearchTerm] = useState("");
   
   const { data: campuses = [], isLoading, isError } = useQuery({
@@ -33,9 +34,8 @@ const SlideBar = ({ onCampusSelect }) => {
     queryFn: getUniversityData,
   });
   
-  const totalMarkers = campuses.reduce(
-    (sum, campus) => sum + (campus.floors?.reduce(
-      (floorSum, floor) => floorSum + (floor.markers?.length || 0), 0) || 0),
+  const totalFloors = campuses.reduce(
+    (sum, campus) => sum + (campus.floors?.length || 0),
     0
   );
 
@@ -45,6 +45,17 @@ const SlideBar = ({ onCampusSelect }) => {
         floorSum + (floor.markers?.filter((marker) => marker.marker_photo_url)?.length || 0), 0) || 0),
     0
   );
+
+  const totalCategories = campuses.reduce((total, campus) => {
+    campus.floors?.forEach((floor) => {
+      floor.markers?.forEach((marker) => {
+        if (marker.category) {
+          total += 1;
+        }
+      });
+    });
+    return total;
+  }, 0);
 
   const filteredCampuses = campuses.filter((campus) =>
     campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -73,22 +84,22 @@ const SlideBar = ({ onCampusSelect }) => {
                   <div className=" pb-5 flex items-center justify-between gap-6 px-1">
                       <div>
                         <div className="flex flex-row items-center justify-center gap-3">
-                          <p className="text-[1.5rem] font-bold text-base-200">{totalMarkers}</p>
-                          <img className="h-[40px]" src={Map} alt="" />
+                          <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
+                          <TbMap2 className="text-4xl text-base-200 mb-2"/>
                         </div>
                         <p className="text-center text-sm">Featured Locations</p>
                       </div>
                       <div>
                         <div className="flex flex-row items-center justify-center gap-3">
                           <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
-                          <img className="h-[40px]" src={Lens} alt="" />
+                          <RiCameraLensLine className="text-4xl text-base-200 mb-2"/>
                         </div>  
                         <p className="text-center text-sm">360° View Available</p>
                       </div>
                       <div>
                         <div className="flex flex-row items-center justify-center gap-3">
-                            <p className="text-[1.5rem] font-bold text-base-200">0</p>
-                                <img className="h-[40px]" src={TouchFinger} alt="" />
+                            <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
+                            <MdTouchApp className="text-4xl text-base-200 mb-2"/>
                         </div>
                             <p className="text-center text-sm">Interactive Hotspots</p>
                       </div>
@@ -113,14 +124,13 @@ const SlideBar = ({ onCampusSelect }) => {
 
             <div>
                 <div>
-                    <Link
-                    className="flex justify-center items-center h-[45px] rounded-md px-[50px] w-[100%] text-accent-100 bg-accent-500 hover:bg-accent-100 hover:text-white"
-                    to="/virtual-tour"
+                    <div
+                      onClick={exitBuildMode}
+                      className="flex justify-center items-center bg-accent-150 text-accent-100 hover:bg-accent-100 hover:text-white h-[45px] gap-2 rounded-md px-[50px] w-[100%] cursor-pointer"
                     >
-                    <button>
-                        Exit Build Mode
-                    </button>
-                    </Link>
+                      <FaMapMarkerAlt/>
+                      <button>Exit Build Mode</button>
+                    </div>
                 </div>
             </div>
         </div>

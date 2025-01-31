@@ -1,5 +1,6 @@
 import express from "express";
 import AdministartivePosition from "../models/AdministartivePosition.js";
+import KeyOfficial from "../models/KeyOfficial.js"; // Import the KeyOfficial model
 import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
@@ -9,9 +10,9 @@ router.use(verifyToken);
 // POST route to add a new administrative position
 router.post("/administartiveposition", async (req, res) => {
   try {
-    const { administartive_position_name, date_added } = req.body;
+    const { position_name, date_added } = req.body;
     const newPosition = new AdministartivePosition({
-      administartive_position_name,
+      position_name,
       date_added,
     });
     const savedPosition = await newPosition.save();
@@ -54,11 +55,19 @@ router.delete("/administartiveposition/:id", async (req, res) => {
 router.put("/administartiveposition/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { administartive_position_name } = req.body;
+    const { position_name } = req.body;
 
+    // Find the old position name
+    const oldPosition = await AdministartivePosition.findById(id);
+    if (!oldPosition) {
+      return res.status(404).json({ message: "Position not found" });
+    }
+    const oldPositionName = oldPosition.position_name;
+
+    // Update the position name in AdministartivePosition
     const updatedPosition = await AdministartivePosition.findByIdAndUpdate(
       id,
-      { administartive_position_name },
+      { position_name },
       { new: true } // Return the updated document
     );
 
@@ -66,7 +75,16 @@ router.put("/administartiveposition/:id", async (req, res) => {
       return res.status(404).json({ message: "Position not found" });
     }
 
-    res.json({ message: "Position updated successfully", updatedPosition });
+    // Update all related KeyOfficial documents
+    await KeyOfficial.updateMany(
+      { position_name: oldPositionName }, // Find documents with the old position name
+      { position_name: position_name }   // Update to the new position name
+    );
+
+    res.json({ 
+      message: "Position updated successfully", 
+      updatedPosition 
+    });
   } catch (error) {
     console.error("Error updating position:", error);
     res.status(500).json({ message: "Error updating position" });

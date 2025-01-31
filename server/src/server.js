@@ -19,6 +19,7 @@ import templateRouter from "../router/templateRouter.js";
 import statusRouter from "../router/statusRouter.js";
 import documentRouter from "../router/documentRouter.js";
 import testChatRouter from "../router/testchatRouter.js";
+import virtualTourLogRouter from '../router/virtualTourLogRouter.js';
 
 const app = express();
 app.use(express.json());
@@ -45,6 +46,7 @@ app.use("/api/campusprogramnames", campusProgramNameRouter);
 app.use("/api/campusmajors", campusMajorRouter);
 app.use("/api", universityManagementRouter);
 app.use("/api", generalSettingsRouter);
+app.use('/api/virtualtourlogs', virtualTourLogRouter);
 
 (async () => {
   config();

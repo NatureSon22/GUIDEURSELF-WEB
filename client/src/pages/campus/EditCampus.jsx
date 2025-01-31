@@ -11,6 +11,9 @@ import Pin from "../../assets/pin.png";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -27,7 +30,6 @@ const EditCampus = () => {
     const [loadingVisible, setLoadingVisible] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const [campuses, setCampuses] = useState([]);
-    const [programs, setPrograms] = useState({ undergraduate: [], graduate: [] });
     const [isModalOpen, setModalOpen] = useState(false);
     const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
     const [campusImage, setCampusImage] = useState(null);
@@ -43,7 +45,7 @@ const EditCampus = () => {
     });
     
     const secondHandleBack = () => {
-        navigate("/campus/edit");  // Navigate back to the key officials list
+        navigate("/campus/edit");  
     };
 
     const toggleModal = () => {
@@ -55,7 +57,7 @@ const EditCampus = () => {
         if (file) {
           setCampusData((prev) => ({
             ...prev,
-            campus_cover_photo: file,  // Set the file directly in campusData
+            campus_cover_photo: file,  
           }));
       
           const reader = new FileReader();
@@ -136,7 +138,7 @@ const EditCampus = () => {
                 formData.append('campus_about', campusData.campus_about);
                 formData.append('latitude', coordinates.lat);  // Pull from coordinates
                 formData.append('longitude', coordinates.lng);
-                formData.append('campus_programs', JSON.stringify(campusData.target));
+                formData.append('campus_programs', JSON.stringify(campusData.campus_programs));
               
                 if (campusData.campus_cover_photo) {
                     formData.append('campus_cover_photo', campusData.campus_cover_photo);  // Use correct image
@@ -252,7 +254,7 @@ const EditCampus = () => {
         )}
       <div className="w-full p-6 flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Add Campus</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Edit Campus</h2>
           <p className="text-gray-600 mt-2">Ensure that all information is accurate and relevant.</p>
         </div>
       </div>
@@ -264,7 +266,7 @@ const EditCampus = () => {
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Campus Name</h3>
                 <p>Enter the official name of the campus</p>
-                <input
+                <Input
                   name="campus_name"
                   value={campusData.campus_name}
                   onChange={(e) => setCampusData({...campusData, campus_name: e.target.value})}
@@ -276,7 +278,7 @@ const EditCampus = () => {
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Phone Number</h3>
                 <p>Input the contact number of the campus</p>
-                <input
+                <Input
                   name="campus_phone_number"
                   value={campusData.campus_phone_number}
                   onChange={(e) => setCampusData({...campusData, campus_phone_number: e.target.value})}
@@ -294,10 +296,11 @@ const EditCampus = () => {
                   <p className="w-[10%] text-center flex items-center justify-center border border-gray-300 rounded-md">
                     URS
                   </p>
-                  <input
+                  <Input
                     name="campus_code"
+                    maxLength={3}
                     value={campusData.campus_code}
-                    onChange={(e) => setCampusData({...campusData, campus_code: e.target.value})}
+                    onChange={(e) => setCampusData({...campusData, campus_code: e.target.value.toUpperCase()})} 
                     placeholder="BIN"
                     className="w-[10%] h-[40px] outline-none text-center border border-gray-300 rounded-md"
                     type="text"
@@ -307,7 +310,7 @@ const EditCampus = () => {
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Email Address</h3>
                 <p>Enter the official email for campus communication</p>
-                <input
+                <Input
                   name="campus_email"
                   value={campusData.campus_email}
                   onChange={(e) => setCampusData({...campusData, campus_email: e.target.value})}
@@ -326,7 +329,7 @@ const EditCampus = () => {
             </div>
             <div className="border border-gray-300 rounded-md">
               <div className="p-4">
-                <input
+                <Input
                   name="campus_address"
                   value={campusData.campus_address}
                   onChange={(e) => setCampusData({...campusData, campus_address: e.target.value})}
@@ -340,6 +343,8 @@ const EditCampus = () => {
                 zoom={11}
                 className="h-[530px] w-[100%] outline-none border border-gray-300"
                 style={{ cursor: "crosshair" }}
+                zoomControl={false}
+                attributionControl={false}
                 >
                 <TileLayer
                     url={`https://{s}.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}.png?apikey=c5319e635a224bbe8fd69f82a629bd97`}
@@ -368,7 +373,7 @@ const EditCampus = () => {
           <div className="p-6 flex flex-col">
             <h3 className="text-lg font-medium">About</h3>
             <p>Provide a brief description of the campus, including any key features or services</p>
-            <textarea
+            <Textarea
             name="campus_about"
             value={campusData.campus_about}
             onChange={(e) => setCampusData({...campusData, campus_about: e.target.value})}
@@ -381,7 +386,7 @@ const EditCampus = () => {
             <div>
                 <h3 className="text-lg font-medium">Campus Cover Photo</h3>
                 <p>Upload an image of the campus (JPEG or PNG)</p>
-                <input
+                <Input
                 name="campus_cover_photo"
                 type="file"
                 accept="image/*"
@@ -419,13 +424,13 @@ const EditCampus = () => {
                         <div key={index} className="flex flex-col gap-2">
                         <div className="flex justify-between items-center">
                             <h4 className="text-lg font-medium">{program.program_name}</h4>
-                            <button
+                            <Button
                             type="button"
                             className="text-red-500"
                             onClick={() => handleRemoveProgram(programType.program_type_id, index)}
                             >
                             <img src={CloseIcon} className="w-[20px] h-[20px]" alt="Remove Program" />
-                            </button>
+                            </Button>
                         </div>
                         <p className="text-sm ml-4">Major in:</p>
                         <ul className="list-disc ml-8">
@@ -441,16 +446,16 @@ const EditCampus = () => {
 
                     
                     <div className="flex justify-end w-[100%]">
-                    <button
+                    <Button
                     onClick={(e) => {
                         e.preventDefault();
                         toggleModal();
                     }}
-                    className="w-[12%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300"
+                    className="w-[12%] pr-2 text-md h-10 flex justify-start items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 bg-gray-200  hover:bg-gray-200 transition duration-300"
                     >
                     <img className="w-[30px] h-[30px]" src={addImage} alt="Add Program" />
                     Add Program
-                    </button>           
+                    </Button>           
                 </div>
                 </div>
                 
@@ -459,19 +464,19 @@ const EditCampus = () => {
             <AddProgramModal isOpen={isModalOpen} onClose={toggleModal} onAddProgram={handleAddProgram} />
 
           <div className="p-6 flex justify-end gap-[10px]">
-            <button  
+            <Button  
               type="button"
               onClick={secondHandleBack}
-              className="text-blue-500 w-[100px] p-2 border-none"
+              className="text-base-200 bg-white shadow-none hover:bg-secondary-350 w-[100px] p-2 border-none"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="bg-blue-500 text-white w-[100px] p-2 rounded-md"
+              className="border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
               >
               Save
-            </button>
+            </Button>
           </div>
         </form>
       </div>

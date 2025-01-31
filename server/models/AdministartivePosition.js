@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 
 // Define the schema
 const administartivePositionSchema = new Schema({
-  administartive_position_name: { 
+  position_name: { 
     type: String, 
     required: true 
   },

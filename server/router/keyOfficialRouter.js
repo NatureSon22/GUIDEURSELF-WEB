@@ -17,7 +17,7 @@ router.use(verifyToken)
 // POST route to save key official data (including image upload)
 router.post('/keyofficials', upload.single('image'), async (req, res) => {
   try {
-    const { name, position, campus_id, administrative_position_id } = req.body;
+    const { name, position, campus_id, position_name } = req.body;
 
     // Check if the image was uploaded
     if (!req.file) {
@@ -36,7 +36,7 @@ router.post('/keyofficials', upload.single('image'), async (req, res) => {
       // Create a new KeyOfficial document with the image URL
       const newOfficial = new KeyOfficial({
         name,
-        administrative_position_id,
+        position_name,
         key_official_photo_url: imageUrl,
         campus_id,
         is_deleted: false, // Default to false
@@ -59,51 +59,37 @@ router.post('/keyofficials', upload.single('image'), async (req, res) => {
 });
 
 router.get("/keyofficials", async (req, res) => {
-    try {
-      const keyOfficials = await KeyOfficial.find()
-      
-        .populate("administrative_position_id", "administartive_position_name") // Populate only the name of the position
-        .populate("campus_id"); // Optionally populate campus_id if needed
-  
-      // Map through the result and send the desired data (name, position name, and photo URL)
-      const populatedData = keyOfficials.map(official => ({
-        _id: official._id,
-        name: official.name,
-        position_name: official.administrative_position_id ? official.administrative_position_id.administartive_position_name : '',
-        key_official_photo_url: official.key_official_photo_url,
-      }));
-  
-      res.status(200).json(populatedData);
-    } catch (error) {
-      console.error("Error fetching key officials:", error);
-      res.status(500).json({ message: "Error fetching key officials." });
-    }
-  });
+  try {
+    // Fetch all key officials without populating any fields
+    const keyOfficials = await KeyOfficial.find();
 
-  router.get("/keyofficials/:id", async (req, res) => {
-    try {
-      const keyOfficials = await KeyOfficial.find()
-        .populate("administrative_position_id", "administartive_position_name") // Populate position name
-        .populate("campus_id"); // Optionally populate campus_id if needed
-  
-      // Map through the result and send the desired data
-      const populatedData = keyOfficials.map((official) => ({
-        _id: official._id,
-        name: official.name,
-        position_name: official.administrative_position_id
-          ? official.administrative_position_id.administartive_position_name
-          : '',
-        key_official_photo_url: official.key_official_photo_url,
-      }));
-  
-      res.status(200).json(populatedData); // Send the response with populated data
-    } catch (error) {
-      console.error("Error fetching key officials:", error);
-      res.status(500).json({ message: "Error fetching key officials." });
-    }
-  });
-  
+    // Return the data as is
+    res.status(200).json(keyOfficials);
+  } catch (error) {
+    console.error("Error fetching key officials:", error);
+    res.status(500).json({ message: "Error fetching key officials." });
+  }
+});
 
+router.get("/keyofficials/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch a single key official by ID without populating any fields
+    const keyOfficial = await KeyOfficial.findById(id);
+
+    if (!keyOfficial) {
+      return res.status(404).json({ message: "Key official not found." });
+    }
+
+    // Return the data as is
+    res.status(200).json(keyOfficial);
+  } catch (error) {
+    console.error("Error fetching key official:", error);
+    res.status(500).json({ message: "Error fetching key official." });
+  }
+});
+  
   router.delete("/keyofficials/:id", async (req, res) => {
     try {
         const { id } = req.params; // Extract id from request params
@@ -121,59 +107,39 @@ router.get("/keyofficials", async (req, res) => {
 router.put("/keyofficials/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, administrative_position_id } = req.body;
+    const { name, position_name } = req.body;
 
-    const updatedData = { 
-      name, 
-      administrative_position_id
-    };
+    // Prepare the update object
+    const updatedData = { name, position_name };
 
-    // Check if a new image is uploaded
+    // Check if an image was uploaded
     if (req.file) {
-      // Upload image to Cloudinary
-      const cloudinaryResponse = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.v2.uploader.upload_stream(
-          { resource_type: "image" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
+      try {
+        const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.file.path, {
+          resource_type: "image",
+        });
 
-        // Pipe the image buffer to Cloudinary
-        const bufferStream = new Readable();
-        bufferStream.push(req.file.buffer);
-        bufferStream.push(null);
-        bufferStream.pipe(uploadStream);
-      });
-
-      // Add the new image URL to updatedData
-      updatedData.key_official_photo_url = cloudinaryResponse.secure_url;
+        updatedData.key_official_photo_url = cloudinaryResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Cloudinary Upload Error:", uploadError);
+        return res.status(500).json({ message: "Failed to upload image to Cloudinary" });
+      }
     }
 
-    // Update the Key Official document in MongoDB
+    // Update Key Official
     const updatedOfficial = await KeyOfficial.findByIdAndUpdate(id, updatedData, { new: true });
 
     if (!updatedOfficial) {
       return res.status(404).json({ message: "Key Official not found" });
     }
 
-    // Fetch the administrative position name
-    const position = await AdministartivePosition.findById(administrative_position_id);
-
-    // Add the position name to the response
-    const responseOfficial = {
-      ...updatedOfficial.toObject(),
-      position_name: position ? position.administartive_position_name : "",
-    };
-
     res.status(200).json({
       message: "Key Official updated successfully",
-      updatedOfficial: responseOfficial,
+      updatedOfficial,
     });
   } catch (error) {
     console.error("Error updating Key Official:", error);
-    res.status(500).json({ message: "Failed to update Key Official", error });
+    res.status(500).json({ message: "Failed to update Key Official", error: error.message });
   }
 });
 

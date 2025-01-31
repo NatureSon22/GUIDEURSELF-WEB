@@ -24,14 +24,6 @@ const DisplayingKeyOfficials = () => {
     official.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (isLoading || universityLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (isError || universityError) {
-    return <p>Error loading data.</p>;
-  }
-
   return (
     <div className="w-full">
       <div className="w-[75%] flex flex-col justify-between">

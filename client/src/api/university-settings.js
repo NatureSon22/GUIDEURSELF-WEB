@@ -101,7 +101,7 @@ const updatePosition = async (id, updatedName) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ administartive_position_name: updatedName }),
+    body: JSON.stringify({ position_name: updatedName }),
     credentials: "include",
   });
 
@@ -155,7 +155,7 @@ const addPosition = async (positionName) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ administartive_position_name: positionName }),
+    body: JSON.stringify({ position_name: positionName }),
   });
 
   return response.json(); // Return the added position
