@@ -44,7 +44,7 @@ const getRoleById = async (req, res) => {
 
 const updateRolePermissions = async (req, res) => {
   try {
-    const { role_id, permissions } = req.body;
+    const { role_id, permissions, isMultiCampus } = req.body;
     const parsedPermissions = JSON.parse(permissions);
 
     if (!Array.isArray(parsedPermissions)) {
@@ -56,6 +56,7 @@ const updateRolePermissions = async (req, res) => {
       {
         $set: {
           permissions: parsedPermissions,
+          isMultiCampus: isMultiCampus,
           date_updated: new Date(),
           date_assigned: new Date(),
         },

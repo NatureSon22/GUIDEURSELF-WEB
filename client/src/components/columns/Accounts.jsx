@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { BiEdit } from "react-icons/bi";
 import { FaCheckCircle } from "react-icons/fa";
 import formatTitle from "@/utils/formatTitle";
+import FeaturePermission from "@/layer/FeaturePermission";
 
 const handleEditClick = (row, navigate) => {
   navigate(`/accounts/edit-account/${row.original._id}`);
@@ -57,7 +58,7 @@ const columns = ({ navigate, handleVerifyAccount }) => [
     accessorKey: "date_created",
     header: "Date Created",
     cell: ({ row }) => formatDate(row.original.date_created),
-    filterFn: "equalsString",
+    filterFn: "dateBetweenFilterFn",
   },
   {
     accessorKey: "status",
@@ -65,7 +66,7 @@ const columns = ({ navigate, handleVerifyAccount }) => [
     header: "Status",
     filterFn: "equalsString",
     cell: ({ row }) => (
-      <div className="w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
+      <div className="mx-auto w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
         <p>{formatTitle(row.original.status)}</p>
       </div>
     ),
@@ -91,24 +92,29 @@ const columns = ({ navigate, handleVerifyAccount }) => [
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-around gap-2">
-          <Button
-            className={
-              "bg-base-200/10 text-[0.75rem] text-base-200 shadow-none hover:bg-base-200 hover:text-white"
-            }
-            onClick={() => handleEditClick(row, navigate)}
-          >
-            <BiEdit />
-            Edit
-          </Button>
-          <Button
-            className={`bg-base-200/10 text-[0.75rem] text-base-200 shadow-none ${row.original.status === "pending" ? "px-5" : ""} hover:bg-base-200 hover:text-white`}
-            onClick={() =>
-              handleVerifyClick(row.original._id, handleVerifyAccount)
-            }
-          >
-            <FaCheckCircle />
-            {row.original.status === "pending" ? "Verify" : "Resend"}
-          </Button>
+          <FeaturePermission module="Manage Accounts" access="edit account">
+            <Button
+              className={
+                "bg-base-200/10 text-[0.75rem] text-base-200 shadow-none hover:bg-base-200 hover:text-white"
+              }
+              onClick={() => handleEditClick(row, navigate)}
+            >
+              <BiEdit />
+              Edit
+            </Button>
+          </FeaturePermission>
+
+          <FeaturePermission module="Manage Accounts" access="verify account">
+            <Button
+              className={`bg-base-200/10 text-[0.75rem] text-base-200 shadow-none ${row.original.status === "pending" ? "px-5" : ""} hover:bg-base-200 hover:text-white`}
+              onClick={() =>
+                handleVerifyClick(row.original._id, handleVerifyAccount)
+              }
+            >
+              <FaCheckCircle />
+              {row.original.status === "pending" ? "Verify" : "Resend"}
+            </Button>
+          </FeaturePermission>
         </div>
       );
     },

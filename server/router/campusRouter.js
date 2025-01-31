@@ -14,7 +14,7 @@ const upload = multer({ storage });
 
 // Create Campus
 router.post(
-  "/campuses",
+  "/",
   upload.single("campus_cover_photo"),
   async (req, res) => {
     try {
@@ -107,7 +107,7 @@ router.post(
 );
 
 // Get All Campuses
-router.get("/campuses", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const campuses = await Campus.find();
     res.json(campuses);
@@ -116,16 +116,16 @@ router.get("/campuses", async (req, res) => {
   }
 });
 
-router.get("/campus", async (req, res) => {
-  try {
-    const campuses = await Campus.find();
-    res.json({ success: true, campuses });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
+// router.get("/", async (req, res) => {
+//   try {
+//     const campuses = await Campus.find();
+//     res.json({ success: true, campuses });
+//   } catch (err) {
+//     res.status(500).json({ success: false, error: err.message });
+//   }
+// });
 
-router.get("/campuses/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const campus = await Campus.findById(req.params.id);
     if (!campus) {
@@ -137,7 +137,7 @@ router.get("/campuses/:id", async (req, res) => {
   }
 });
 
-router.put("/campuses/:id", upload.fields([{ name: "campus_cover_photo", maxCount: 1 }]), async (req, res) => {
+router.put("/:id", upload.fields([{ name: "campus_cover_photo", maxCount: 1 }]), async (req, res) => {
   const { id } = req.params;
   const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, campus_about, campus_programs, latitude, longitude } = req.body;
 
@@ -183,7 +183,7 @@ router.put("/campuses/:id", upload.fields([{ name: "campus_cover_photo", maxCoun
   }
 });
 
-router.put("/campuses/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 10 }]), async (req, res) => {
+router.put("/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 10 }]), async (req, res) => {
   const { campusId } = req.params;
   const { floors } = req.body;
 
@@ -231,7 +231,7 @@ router.put("/campuses/floors/:campusId", upload.fields([{ name: "floor_photo", m
   }
 });
 
-router.get("/campuses/:campusId/floors/:floorId/markers", async (req, res) => {
+router.get("/:campusId/floors/:floorId/markers", async (req, res) => {
   const { campusId, floorId } = req.params;
 
   try {
@@ -252,7 +252,7 @@ router.get("/campuses/:campusId/floors/:floorId/markers", async (req, res) => {
   }
 });
 
-router.put("/campuses/:campusId/floors/:floorId/markers", upload.fields([{ name: "marker_photo", maxCount: 1 }]), async (req, res) => {
+router.put("/:campusId/floors/:floorId/markers", upload.fields([{ name: "marker_photo", maxCount: 1 }]), async (req, res) => {
   const { campusId, floorId } = req.params;
   const { latitude, longitude } = req.body;
 
@@ -310,7 +310,7 @@ const uploadToCloudinary = (buffer, folder) => {
 };
 
 // Update floors for a specific campus
-router.put("/campuses/:id/floors", async (req, res) => {
+router.put("/:id/floors", async (req, res) => {
   const { id } = req.params; // Campus ID
   const { floors } = req.body; // Updated floors array
 
@@ -338,7 +338,7 @@ router.put("/campuses/:id/floors", async (req, res) => {
 });
 
 // Get All Campuses (Only campus_name, latitude, longitude)
-router.get("/campuses", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const campuses = await Campus.find().select(
       "campus_name latitude longitude"
@@ -350,7 +350,7 @@ router.get("/campuses", async (req, res) => {
 });
 
 // Delete Campus
-router.delete("/campuses/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const campus = await Campus.findByIdAndDelete(req.params.id);
     if (!campus) {
@@ -387,7 +387,7 @@ router.get("/floors/:floorId/markers", async (req, res) => {
 });
 
 router.put(
-  "/campuses/:campusId/floors/:floorId/markers/:markerId",
+  "/:campusId/floors/:floorId/markers/:markerId",
   upload.single("marker_photo"), // Single file upload for the marker photo
   async (req, res) => {
     const { campusId, floorId, markerId } = req.params;
@@ -484,7 +484,7 @@ router.delete("/:campusId/floors/:floorId/markers/:markerId", async (req, res) =
   }
 });
 
-router.put("/campuses/:campusId/update-floor-order", async (req, res) => {
+router.put("//:campusId/update-floor-order", async (req, res) => {
   try {
     const { campusId } = req.params;
     const { floors } = req.body; // Array of floors with updated order

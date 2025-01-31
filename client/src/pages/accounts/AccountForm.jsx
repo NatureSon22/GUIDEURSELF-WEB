@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RenderField from "@/components/RenderField";
 import accountStatus from "@/utils/accountStatus";
+import MultiCampus from "@/layer/MultiCampus";
 
 const AccountForm = ({
   formSchema,
@@ -97,12 +98,18 @@ const AccountForm = ({
                   placeholder="Select user type"
                 />,
               )}
-              {RenderField(
-                form,
-                "campus",
-                "Campus",
-                <ComboBox options={allCampuses} placeholder="Select campus" />,
-              )}
+              
+              <MultiCampus>
+                {RenderField(
+                  form,
+                  "campus",
+                  "Campus",
+                  <ComboBox
+                    options={allCampuses}
+                    placeholder="Select campus"
+                  />,
+                )}
+              </MultiCampus>
             </div>
 
             <div className="flex gap-10">

@@ -7,7 +7,10 @@ const column = () => [
     header: "Filename",
     filterFn: "equalsString",
     cell: ({ row }) => (
-      <Link to={`/documents/view/${row.original._id}`} className="hover:underline" >
+      <Link
+        to={`/documents/view/${row.original._id}`}
+        className="hover:underline"
+      >
         {row.original.file_name}
       </Link>
     ),
@@ -29,9 +32,29 @@ const column = () => [
     filterFn: "equalsString",
   },
   {
+    accessorKey: "type",
+    header: "State",
+    filterFn: "equalsString",
+  },
+  {
     accessorKey: "status",
     header: "Status",
     filterFn: "equalsString",
+    cell: ({ row }) => (
+      <div className="grid place-items-center">
+        <span
+          className={`w-[85px] rounded-full px-2 py-2 text-center text-xs font-medium ${
+            row.original.status === "synced"
+              ? "bg-accent-400 text-accent-300"
+              : row.original.status === "syncing"
+                ? "bg-accent-700 text-accent-600"
+                : "bg-accent-200 text-accent-100"
+          }`}
+        >
+          {row.original.status}
+        </span>
+      </div>
+    ),
   },
 ];
 

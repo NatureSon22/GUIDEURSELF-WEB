@@ -4,6 +4,7 @@ import { addAccount } from "@/api/accounts";
 import AccountForm from "./AccountForm";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import useUserStore from "@/context/useUserStore";
 
 const formSchema = z
   .object({
@@ -31,12 +32,13 @@ const formSchema = z
   });
 
 const AddAccount = () => {
+  const currentUser = useUserStore((state) => state.currentUser);
   const navigate = useNavigate();
   const { toast } = useToast();
   const defaultValues = {
     user_number: "",
     userType: "",
-    campus: "",
+    campus: currentUser?.isMultiCampus ? "" : currentUser?.campus_id,
     firstName: "",
     username: "",
     middleName: "",

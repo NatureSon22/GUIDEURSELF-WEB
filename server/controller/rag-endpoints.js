@@ -13,6 +13,7 @@ const CODY_URLS = {
   CREATE_UPLOAD: () => "https://getcody.ai/api/v1/documents/file",
   GET_DOCUMENT: (id) => `https://getcody.ai/api/v1/documents?folder_id=${id}`,
   UPLOAD_WEBPAGE: () => "https://getcody.ai/api/v1/documents/webpage",
+  LIST_DOCUMENT: () => "https://getcody.ai/api/v1/documents",
 };
 
 const HEADERS = {

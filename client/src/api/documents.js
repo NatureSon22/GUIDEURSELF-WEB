@@ -1,3 +1,4 @@
+// Fetch Operations
 const getAllFolders = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/documents`, {
     method: "GET",
@@ -10,13 +11,17 @@ const getAllFolders = async () => {
   }
 
   const { folders } = await response.json();
-
   return folders || [];
 };
 
-const getAllDocuments = async (folder_id) => {
+const getAllDocuments = async (
+  folder_id = "",
+  type = "",
+  draftsOnly = false,
+  recent = false,
+) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/documents/get-all-documents/${folder_id}`,
+    `${import.meta.env.VITE_API_URL}/documents/get-all-documents/${folder_id}?type=${type}&draftsOnly=${draftsOnly}&recent=${recent}`,
     {
       method: "GET",
       credentials: "include",
@@ -50,6 +55,7 @@ const getDocument = async (documentId) => {
   return document || {};
 };
 
+// Create Operations
 const createDocument = async (data) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/documents/create-document`,
@@ -68,9 +74,66 @@ const createDocument = async (data) => {
   return response.json();
 };
 
+const saveAsDraft = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/create-draft`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return await response.json();
+};
+
+// Upload Operations
 const createFromUploadDocument = async (formData) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/documents/upload-document`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+  return message;
+};
+
+const uploadDraftDocument = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/upload-draft-document`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+  return message;
+};
+
+const saveAsDraftDocument = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/create-draft-document`,
     {
       method: "POST",
       credentials: "include",
@@ -106,11 +169,34 @@ const uploadFromWeb = async (formData) => {
   return message;
 };
 
+const saveAsDraftWeb = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/create-draft-web`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+  return message;
+};
+
 export {
   getAllFolders,
   getAllDocuments,
   getDocument,
   createDocument,
   createFromUploadDocument,
+  uploadDraftDocument,
   uploadFromWeb,
+  saveAsDraftWeb,
+  saveAsDraft,
+  saveAsDraftDocument,
 };

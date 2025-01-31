@@ -112,10 +112,13 @@ const routes = [
             path: "",
             element: <VirtualTourDashboard />,
           },
+<<<<<<< HEAD
           {
             path: "media-library",
             element: <MediaLibrary />,
           },
+=======
+>>>>>>> 2d061da6b605285f64b3c7411aa9a889506babf5
         ],
       },
       {

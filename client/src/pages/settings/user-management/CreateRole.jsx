@@ -16,6 +16,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllRolesWithoutPermissions } from "@/api/role";
 import { updateRolePermissions } from "@/api/role";
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const CreateRole = () => {
   const { toast } = useToast();
@@ -26,6 +28,7 @@ const CreateRole = () => {
     queryFn: getAllRolesWithoutPermissions,
   });
   const [permissions, setPermissions] = useState([]);
+  const [enableAllCampus, setEnableAllCampus] = useState(false);
   const [roleId, setRoleId] = useState("");
   const { mutateAsync: addRolePermission, isLoading } = useMutation({
     mutationFn: updateRolePermissions,
@@ -49,6 +52,7 @@ const CreateRole = () => {
   const handleSave = () => {
     const formData = new FormData();
     formData.append("role_id", roleId);
+    formData.append("isMultiCampus", enableAllCampus);
     formData.append("permissions", JSON.stringify(permissions));
 
     addRolePermission(formData);
@@ -116,6 +120,42 @@ const CreateRole = () => {
             />
 
             <div className="container my-5 max-h-[400px] overflow-y-auto border">
+              <div className="bg-secondary-200/5 px-5 py-6">
+                <Label>Enable Multiple Campus Handling</Label>
+                <p className="text-[0.85rem]">
+                  Apply this permission across all campuses assigned to the
+                  user, expanding their access while still respecting their
+                  campus-specific restrictions
+                </p>
+
+                <RadioGroup
+                  className="ml-5 mt-5 space-y-2 fill-base-200"
+                  value={String(enableAllCampus)}
+                  onValueChange={(value) =>
+                    setEnableAllCampus(value === "true")
+                  }
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="true" id="r1" />
+                    <Label
+                      className="text-[0.8rem] text-secondary-100-75"
+                      htmlFor="r1"
+                    >
+                      Enable for All Assigned Campuses
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="false" id="r2" />
+                    <Label
+                      className="text-[0.8rem] text-secondary-100-75"
+                      htmlFor="r2"
+                    >
+                      Restrict to Primary Campus Only
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
               {PERMISSIONS.map((module, i) => (
                 <Permissions
                   key={i}

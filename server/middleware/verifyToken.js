@@ -7,7 +7,7 @@ const verifyToken = (req, res, next) => {
   const token = req.cookies?.authToken;
 
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unathorized" });
   }
 
   try {
@@ -17,6 +17,7 @@ const verifyToken = (req, res, next) => {
       userId: decoded.userId,
       roleId: decoded.roleId,
       campusId: decoded.campusId,
+      isMultiCampus: decoded.isMultiCampus
     };
 
     next();

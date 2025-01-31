@@ -49,7 +49,13 @@ const EditAssignRole = () => {
 
   const { mutateAsync: updateRolePermission, isLoading: isUpdating } =
     useMutation({
-      mutationFn: () => updateAccountRoleType(accountId, roleType),
+      mutationFn: () =>
+        updateAccountRoleType(
+          accountId,
+          roleType,
+          grantedPermissions,
+          revokedPermissions,
+        ),
       onSuccess: (data) => {
         toast({ title: "Success", description: data });
         navigate("/roles-permissions");
@@ -199,37 +205,6 @@ const EditAssignRole = () => {
         );
       }
     }
-  };
-
-  const handleUpdateRolePermission = () => {
-    // Validate required data
-    if (!roleType) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please select a role type",
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("roleId", roleType);
-
-    // Only append if arrays have content
-    // if (grantedPermissions.length > 0) {
-    //   formData.append("granted", JSON.stringify(grantedPermissions));
-    // }
-
-    // if (revokedPermissions.length > 0) {
-    //   formData.append("revoked", JSON.stringify(revokedPermissions));
-    // }
-
-    // Log the actual FormData content
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-
-    updateRolePermission(accountId, formData);
   };
 
   const handleReturnClick = () => navigate("/roles-permissions");

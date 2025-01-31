@@ -33,7 +33,9 @@ const Roles = () => {
 
   const navigate = useNavigate();
 
-  const handleAssignRoleClick = () => {};
+  const handleAssignRoleClick = () => {
+    navigate("/roles-permissions/assign-role");
+  };
 
   const handleReset = () => {
     setFilters([]);
@@ -44,8 +46,8 @@ const Roles = () => {
   return (
     <div className={`flex flex-1 flex-col gap-5 ${isLoading ? "h-full" : ""} `}>
       <Header
-        title="Assign Role"
-        subtitle="Manage roles and permissions by selecting staff members and defining their access levels"
+        title="Roles & Permissions"
+        subtitle="Manage roles and permissions by selecting a staff member, assigning their campus and designation, defining their role and customizing their access levels within the system based on their responsibilities"
       />
 
       <div className="flex items-center gap-5">

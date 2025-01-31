@@ -6,15 +6,24 @@ import fs from "fs";
 import { Types } from "mongoose";
 
 const getAllAccounts = async (req, res, next) => {
-  // {
-  //   $match: {
-  //     _id: { $ne: new Types.ObjectId(req.userId) },
-  //      campus_id: { $eq: new Types.ObjectId(req.campusId) },
-  //   },
-  // },
-
   try {
+    // Create a $match stage based on isMultiCampus
+    console.log(req.user.isMultiCampus);
+    const matchStage = req.user.isMultiCampus
+      ? {
+          $match: {
+            _id: { $ne: new Types.ObjectId(req.user.userId) }, // Exclude the current user
+          },
+        }
+      : {
+          $match: {
+            _id: { $ne: new Types.ObjectId(req.user.userId) },
+            campus_id: { $eq: new Types.ObjectId(req.user.campusId) }, // Filter by campus
+          },
+        };
+
     const users = await UserModel.aggregate([
+      matchStage, // Apply the match condition
       {
         $lookup: {
           from: "roles",
@@ -24,11 +33,11 @@ const getAllAccounts = async (req, res, next) => {
         },
       },
       {
-        $unwind: { path: "$role", preserveNullAndEmptyArrays: true },
+        $unwind: { path: "$role", preserveNullAndEmptyArrays: true }, // Unwind roles array
       },
       {
         $addFields: {
-          role_type: "$role.role_type",
+          role_type: "$role.role_type", // Add role_type directly from role
         },
       },
       {
@@ -40,11 +49,11 @@ const getAllAccounts = async (req, res, next) => {
         },
       },
       {
-        $unwind: { path: "$campus", preserveNullAndEmptyArrays: true },
+        $unwind: { path: "$campus", preserveNullAndEmptyArrays: true }, // Unwind campus array
       },
       {
         $addFields: {
-          campus_name: "$campus.campus_name",
+          campus_name: "$campus.campus_name", // Add campus_name directly from campus
         },
       },
       {
@@ -66,8 +75,10 @@ const getAllAccounts = async (req, res, next) => {
       },
     ]);
 
+    // Respond with the fetched users
     res.status(200).json({ users });
   } catch (error) {
+    console.error("Error fetching accounts:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -233,6 +244,7 @@ const getLoggedInAccount = async (req, res) => {
         $addFields: {
           role_type: "$role.role_type",
           role_permissions: "$role.permissions",
+          isMultiCampus: "$role.isMultiCampus",
         },
       },
       {
@@ -256,9 +268,11 @@ const getLoggedInAccount = async (req, res) => {
           _id: 1,
           username: 1,
           role_type: 1,
+          campus_id: 1,
           user_photo_url: 1,
           role_permissions: 1,
           custom_permissions: 1,
+          isMultiCampus: 1,
           campus_name: 1,
           user_number: 1,
           email: 1,
@@ -418,48 +432,30 @@ const updatePhoto = async (req, res) => {
 const updateAccountRoleType = async (req, res) => {
   try {
     const { accountId } = req.params;
-    const { roleId } = req.body;
+    const { roleId, grantedPermissions, revokedPermissions } = req.body;
 
-    // Remember to parse the JSON strings back to objects
-    // const grantedPermissions = JSON.parse(granted);
-    // const revokedPermissions = JSON.parse(revoked);
+    const updateFields = {
+      role_id: roleId,
+      date_updated: Date.now(),
+      date_assigned: Date.now(),
+    };
 
-    console.log("data" + " " + Object.keys(req.body));
+    if (
+      (grantedPermissions && grantedPermissions.length > 0) ||
+      (revokedPermissions && revokedPermissions.length > 0)
+    ) {
+      updateFields.custom_permissions = {
+        granted: grantedPermissions || [],
+        revoked: revokedPermissions || [],
+      };
+    }
 
-    // const parsedGranted = JSON.parse(req.body.granted);
-    // console.log("parse: " + parsedGranted);
-
-    // const grantedPermissions = Array.isArray(granted)
-    //   ? granted
-    //   : granted
-    //   ? [granted]
-    //   : [];
-    // const revokedPermissions = Array.isArray(revoked)
-    //   ? revoked
-    //   : revoked
-    //   ? [revoked]
-    //   : [];
-
-    // console.log(grantedPermissions);
-    // console.log(revokedPermissions);
-
-    // await UserModel.updateOne(
-    //   { _id: accountId },
-    //   {
-    //     $set: {
-    //       role_id: roleId,
-    //       custom_permissions: {
-    //         granted: grantedPermissions,
-    //         revoked: revokedPermissions,
-    //       },
-    //       date_updated: Date.now(),
-    //       date_assigned: Date.now(),
-    //     },
-    //   }
-    // );
+    // Perform update
+    await UserModel.updateOne({ _id: accountId }, { $set: updateFields });
 
     res.status(200).json({ message: "User role type updated successfully" });
   } catch (error) {
+    console.error("Error updating account role type:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

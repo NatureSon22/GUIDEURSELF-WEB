@@ -4,14 +4,15 @@ import SideBarTab from "./SideBarTab";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ModulePermission from "@/layer/ModulePermission";
+import useUserStore from "@/context/useUserStore";
 import { getGeneralData } from "@/api/component-info";
 import {Skeleton} from "@/components/ui/skeleton"
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-
 const SideBar = () => {
   const { pathname } = useLocation();
   const location = pathname.split("/")[1];
+  const currentUser = useUserStore((state) => state.currentUser);
 
   const [chosen, setSchosen] = useState(
     location ? `/${location}` : "/dashboard",
@@ -28,6 +29,14 @@ const SideBar = () => {
     queryFn: getGeneralData,
   });
 
+  const userHasAccess = (modules) => {
+    return modules.some((module) => {
+      return currentUser?.permissions?.some((permission) => {
+        return permission.module.toLowerCase() === module.module.toLowerCase();
+      });
+    });
+  };
+
   return (
     <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
       <div className="grid place-items-center px-5">
@@ -37,30 +46,32 @@ const SideBar = () => {
       <div className="space-y-2">
         {SideBarElements.map((section) => {
           return (
-            <div key={section.sectionTitle}>
-              <p className="mb-1 ml-4 text-[0.8rem] text-secondary-100-75">
-                {section.sectionTitle}
-              </p>
-              <div>
-                {section.modules.map((module) => {
-                  return (
-                    <ModulePermission
-                      key={module.title}
-                      required={{
-                        module: module.module,
-                        isPublic: module.isPublic,
-                      }}
-                    >
-                      <SideBarTab
-                        {...module}
-                        setSchosen={setSchosen}
-                        chosen={chosen}
-                      />
-                    </ModulePermission>
-                  );
-                })}
+            userHasAccess(section.modules) && (
+              <div key={section.sectionTitle}>
+                <p className="mb-1 ml-4 text-[0.8rem] text-secondary-100-75">
+                  {section.sectionTitle}
+                </p>
+
+                <div>
+                  {section.modules.map((module) => {
+                    return (
+                      <ModulePermission
+                        key={module.title}
+                        required={{
+                          module: module.module,
+                        }}
+                      >
+                        <SideBarTab
+                          {...module}
+                          setSchosen={setSchosen}
+                          chosen={chosen}
+                        />
+                      </ModulePermission>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )
           );
         })}
       </div>

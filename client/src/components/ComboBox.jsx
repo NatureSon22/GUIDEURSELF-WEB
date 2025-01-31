@@ -26,6 +26,7 @@ const ComboBox = React.forwardRef(
       setFilters,
       onChange,
       value: propValue,
+      style = {},
     },
     ref,
   ) => {
@@ -76,7 +77,7 @@ const ComboBox = React.forwardRef(
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={`w-[200px] justify-between ${
+            className={`${style?.width || "w-[200px]"} ${style?.py || ""} justify-between ${
               selectedValue
                 ? "text-base-300"
                 : "uppercase text-secondary-100-75"
@@ -91,7 +92,7 @@ const ComboBox = React.forwardRef(
         <PopoverContent className="w-[200px] p-0">
           <Command>
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>No results found</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => (
                   <CommandItem
@@ -127,6 +128,7 @@ ComboBox.propTypes = {
   setFilters: PropTypes.func,
   onChange: PropTypes.func,
   value: PropTypes.string,
+  style: PropTypes.object,
 };
 
 ComboBox.displayName = "ComboBox";

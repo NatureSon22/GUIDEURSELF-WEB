@@ -8,8 +8,10 @@ const login = async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
 
-    // Find user by email
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email }).populate({
+      path: "role_id",
+      select: "isMultiCampus",
+    });
 
     if (!user) {
       return res
@@ -29,12 +31,20 @@ const login = async (req, res) => {
       });
     }
 
+    // Ensure role_id is populated and exists
+    if (!user.role_id) {
+      return res.status(400).json({
+        message: "User role not assigned or role details missing.",
+      });
+    }
+
     // Generate JWT token
     const authToken = jwt.sign(
       {
         userId: user._id,
-        roleId: user.role_id,
+        roleId: user.role_id._id, // Use the populated role's ID
         campusId: user.campus_id,
+        isMultiCampus: user.role_id.isMultiCampus,
       },
       process.env.JWT_SECRET,
       { expiresIn: rememberMe ? "30d" : "1d" }
@@ -48,7 +58,7 @@ const login = async (req, res) => {
       maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // 30 days or 1 day
     });
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({ message: "Login successful", token: authToken });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });

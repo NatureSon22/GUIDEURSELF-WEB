@@ -1,3 +1,7 @@
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,25 +12,42 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
-import { getRoleById } from "@/api/role";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+import { getRoleById, updateRolePermissions } from "@/api/role";
 import PERMISSIONS from "@/data/permissions";
-import Permissions from "@/components/Permissions";
-import { updateRolePermissions } from "@/api/role";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
+
+import Permissions from "@/components/Permissions";
 
 const EditDialog = ({ role_id, children }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
   const [isOpen, setIsOpen] = useState(false);
-  const { data: roleDetails, isError } = useQuery({
+
+  const [permissions, setPermissions] = useState([]);
+  const [enableAllCampus, setEnableAllCampus] = useState(false);
+
+  const {
+    data: roleDetails,
+    isError,
+    isLoading,
+  } = useQuery({
     queryKey: ["roleDetails", role_id],
     queryFn: () => getRoleById(role_id),
+    enabled: !!role_id,
   });
-  const { mutateAsync: updateRolePermission } = useMutation({
+
+  useEffect(() => {
+    if (roleDetails) {
+      setPermissions(roleDetails.permissions || []);
+      setEnableAllCampus(roleDetails.isMultiCampus || false);
+    }
+  }, [roleDetails]);
+
+  const { mutateAsync: updateRolePermission, isPending } = useMutation({
     mutationFn: updateRolePermissions,
     onSuccess: (data) => {
       setIsOpen(false);
@@ -34,25 +55,12 @@ const EditDialog = ({ role_id, children }) => {
         "rolesWithPermissions",
         "rolesWithoutPermissions",
       ]);
-      toast({
-        title: "Success",
-        description: data.message,
-      });
+      toast({ title: "Success", description: data.message });
     },
     onError: () => setIsOpen(false),
   });
 
-  const [permissions, setPermissions] = useState([]);
-
-  useEffect(() => {
-    if (roleDetails?.permissions) {
-      setPermissions(roleDetails.permissions);
-    }
-  }, [roleDetails]);
-
-  const handleCancel = () => {
-    setIsOpen(false);
-  };
+  const handleCancel = () => setIsOpen(false);
 
   const handleSetPermissions = (module, access, checked) => {
     setPermissions((prev) => {
@@ -80,6 +88,7 @@ const EditDialog = ({ role_id, children }) => {
   const handleSave = () => {
     const formData = new FormData();
     formData.append("role_id", role_id);
+    formData.append("isMultiCampus", enableAllCampus);
     formData.append("permissions", JSON.stringify(permissions));
 
     updateRolePermission(formData);
@@ -91,7 +100,17 @@ const EditDialog = ({ role_id, children }) => {
         variant="secondary"
         className="bg-base-200/10 text-base-200"
         disabled
-      ></Button>
+      >
+        Error
+      </Button>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Button variant="secondary" disabled>
+        Loading...
+      </Button>
     );
   }
 
@@ -100,51 +119,89 @@ const EditDialog = ({ role_id, children }) => {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="grid gap-4 md:max-w-[900px] [&>button]:hidden">
         <DialogHeader>
-          <DialogTitle>
-            <p>Edit Permissions</p>
-          </DialogTitle>
+          <DialogTitle>Edit Permissions</DialogTitle>
           <DialogDescription>
             Control access and permissions for roles.
           </DialogDescription>
         </DialogHeader>
 
+        {/* Role Type Display */}
         <div>
           <p className="w-min rounded-md bg-secondary-100-75/50 px-4 py-2 text-white">
             {roleDetails?.role_type.toUpperCase()}
           </p>
         </div>
 
-        <div className="grid gap-4 pb-4">
-          <div className="container my-5 max-h-[400px] overflow-y-auto border">
-            {PERMISSIONS.map((module, i) => {
-              const rolePermissions = permissions.find(
-                (permission) =>
-                  permission.module.toLowerCase() ===
-                  module.module.toLowerCase(),
-              );
+        {/* Multi-Campus Handling */}
+        <div className="container my-5 max-h-[400px] overflow-y-auto border">
+          <div className="bg-secondary-200/5 px-5 py-6">
+            <Label>Enable Multiple Campus Handling</Label>
+            <p className="text-[0.85rem]">
+              Apply this permission across all assigned campuses, expanding
+              access while still respecting campus-specific restrictions.
+            </p>
 
-              return (
-                <Permissions
-                  key={i}
-                  module={module}
-                  roleaccess={rolePermissions?.access}
-                  handleSetPermissions={handleSetPermissions}
-                  customizePermission={true}
-                />
-              );
-            })}
+            <RadioGroup
+              className="ml-5 mt-5 space-y-2"
+              value={String(enableAllCampus)}
+              onValueChange={(value) => setEnableAllCampus(value === "true")}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="true" id="r1" />
+                <Label
+                  className="text-[0.8rem] text-secondary-100-75"
+                  htmlFor="r1"
+                >
+                  Enable for All Assigned Campuses
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="false" id="r2" />
+                <Label
+                  className="text-[0.8rem] text-secondary-100-75"
+                  htmlFor="r2"
+                >
+                  Restrict to Primary Campus Only
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
+
+          {/* Permissions Section */}
+          {PERMISSIONS.map((module, i) => {
+            const rolePermissions = permissions.find(
+              (permission) =>
+                permission.module.toLowerCase() === module.module.toLowerCase(),
+            );
+
+            return (
+              <Permissions
+                key={i}
+                module={module}
+                roleaccess={rolePermissions?.access}
+                handleSetPermissions={handleSetPermissions}
+                customizePermission={true}
+              />
+            );
+          })}
         </div>
 
+        {/* Footer Buttons */}
         <DialogFooter className="flex justify-end gap-3">
           <Button
             className="text-base-200"
             variant="ghost"
             onClick={handleCancel}
+            disabled={isLoading || isPending}
           >
             Cancel
           </Button>
-          <Button className="bg-base-200" type="submit" onClick={handleSave}>
+          <Button
+            className="bg-base-200"
+            type="submit"
+            onClick={handleSave}
+            disabled={isLoading || isPending}
+          >
             Save changes
           </Button>
         </DialogFooter>
@@ -154,7 +211,7 @@ const EditDialog = ({ role_id, children }) => {
 };
 
 EditDialog.propTypes = {
-  role_id: PropTypes.string,
+  role_id: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
 };
 

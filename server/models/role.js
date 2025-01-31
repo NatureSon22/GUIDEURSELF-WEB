@@ -8,6 +8,7 @@ const RoleSchema = new Schema({
       access: { type: [String], default: [] },
     },
   ],
+  isMultiCampus: { type: Boolean, default: false },
   date_added: { type: Date, default: Date.now },
   date_updated: { type: Date, default: Date.now },
   date_assigned: { type: Date, default: Date.now },

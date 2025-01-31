@@ -1,7 +1,12 @@
 import { Outlet } from "react-router-dom";
+import NetworkLayer from "@/layer/NetworkLayer";
 
 const Container = () => {
-  return <Outlet></Outlet>;
+  return (
+    <NetworkLayer>
+      <Outlet></Outlet>
+    </NetworkLayer>
+  );
 };
 
 export default Container;

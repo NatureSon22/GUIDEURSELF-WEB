@@ -14,7 +14,7 @@ const universityManagementRouter = express.Router();
 universityManagementRouter.use(verifyToken);
 
 // Route to fetch university by ID
-universityManagementRouter.get("/university/:id", async (req, res) => {
+universityManagementRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -30,7 +30,7 @@ universityManagementRouter.get("/university/:id", async (req, res) => {
 });
 
 // Route to update the university details (including logo and vector image)
-universityManagementRouter.put("/university/:id", upload.fields([{ name: "university_logo_url", maxCount: 1 }, { name: "university_vector_url", maxCount: 1 }]), async (req, res) => {
+universityManagementRouter.put("/:id", upload.fields([{ name: "university_logo_url", maxCount: 1 }, { name: "university_vector_url", maxCount: 1 }]), async (req, res) => {
   const { id } = req.params;
   const { university_history, university_vision, university_mission, university_core_values } = req.body;
 

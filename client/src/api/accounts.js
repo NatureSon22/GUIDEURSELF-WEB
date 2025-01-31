@@ -105,14 +105,21 @@ const update = async (data) => {
   return response.json();
 };
 
-const updateAccountRoleType = async (accountId, formData) => {
-  console.log(formData);
+const updateAccountRoleType = async (
+  accountId,
+  roleId,
+  grantedPermissions,
+  revokedPermissions,
+) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/accounts/update-account-role-type/${accountId}`,
     {
       method: "PUT",
       credentials: "include",
-      body: JSON.stringify({ roleId: formData }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ roleId, grantedPermissions, revokedPermissions }),
     },
   );
 

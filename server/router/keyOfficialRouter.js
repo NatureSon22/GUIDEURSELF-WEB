@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(verifyToken)
 
 // POST route to save key official data (including image upload)
-router.post('/keyofficials', upload.single('image'), async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
   try {
     const { name, position, campus_id, position_name } = req.body;
 
@@ -58,39 +58,53 @@ router.post('/keyofficials', upload.single('image'), async (req, res) => {
   }
 });
 
-router.get("/keyofficials", async (req, res) => {
-  try {
-    // Fetch all key officials without populating any fields
-    const keyOfficials = await KeyOfficial.find();
-
-    // Return the data as is
-    res.status(200).json(keyOfficials);
-  } catch (error) {
-    console.error("Error fetching key officials:", error);
-    res.status(500).json({ message: "Error fetching key officials." });
-  }
-});
-
-router.get("/keyofficials/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Fetch a single key official by ID without populating any fields
-    const keyOfficial = await KeyOfficial.findById(id);
-
-    if (!keyOfficial) {
-      return res.status(404).json({ message: "Key official not found." });
-    }
-
-    // Return the data as is
-    res.status(200).json(keyOfficial);
-  } catch (error) {
-    console.error("Error fetching key official:", error);
-    res.status(500).json({ message: "Error fetching key official." });
-  }
-});
+router.get("/", async (req, res) => {
+    try {
+      const keyOfficials = await KeyOfficial.find()
+      
+        .populate("administrative_position_id", "administartive_position_name") // Populate only the name of the position
+        .populate("campus_id"); // Optionally populate campus_id if needed
   
-  router.delete("/keyofficials/:id", async (req, res) => {
+      // Map through the result and send the desired data (name, position name, and photo URL)
+      const populatedData = keyOfficials.map(official => ({
+        _id: official._id,
+        name: official.name,
+        position_name: official.administrative_position_id ? official.administrative_position_id.administartive_position_name : '',
+        key_official_photo_url: official.key_official_photo_url,
+      }));
+  
+      res.status(200).json(populatedData);
+    } catch (error) {
+      console.error("Error fetching key officials:", error);
+      res.status(500).json({ message: "Error fetching key officials." });
+    }
+  });
+
+  router.get("/:id", async (req, res) => {
+    try {
+      const keyOfficials = await KeyOfficial.find()
+        .populate("administrative_position_id", "administartive_position_name") // Populate position name
+        .populate("campus_id"); // Optionally populate campus_id if needed
+  
+      // Map through the result and send the desired data
+      const populatedData = keyOfficials.map((official) => ({
+        _id: official._id,
+        name: official.name,
+        position_name: official.administrative_position_id
+          ? official.administrative_position_id.administartive_position_name
+          : '',
+        key_official_photo_url: official.key_official_photo_url,
+      }));
+  
+      res.status(200).json(populatedData); // Send the response with populated data
+    } catch (error) {
+      console.error("Error fetching key officials:", error);
+      res.status(500).json({ message: "Error fetching key officials." });
+    }
+  });
+  
+
+  router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params; // Extract id from request params
         const deletedOfficial = await KeyOfficial.findByIdAndDelete(id); // Delete by ID
@@ -104,7 +118,7 @@ router.get("/keyofficials/:id", async (req, res) => {
     }
 });
 
-router.put("/keyofficials/:id", upload.single("image"), async (req, res) => {
+router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, position_name } = req.body;

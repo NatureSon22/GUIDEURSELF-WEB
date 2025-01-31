@@ -7,13 +7,12 @@ import { useNavigate } from "react-router-dom";
 import DataTable from "@/components/DataTable";
 import { GrPowerReset } from "react-icons/gr";
 import Loading from "@/components/Loading";
-import { LuDownload } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
 import AllDocumentsColumns from "@/components/columns/AllDocuments";
 import DraftDocumentsColumns from "@/components/columns/DraftsDocument";
 import ComboBox from "@/components/ComboBox";
-import { getAllRoleTypes, getAllCampuses } from "@/api/component-info";
 import DateRangePicker from "@/components/DateRangePicker";
+import { getAllDocuments } from "@/api/documents";
 
 const AllDocuments = () => {
   const [type, setType] = useState("all-documents");
@@ -21,15 +20,22 @@ const AllDocuments = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [reset, setReset] = useState(false);
 
+  const { data: allDocuments, isLoading: isLoadingAllDocuments } = useQuery({
+    queryKey: ["all-documents"],
+    queryFn: () => getAllDocuments(),
+  });
+
+  const { data: draftedDocuments, isLoading: isLoadingDraftedDocuments } =
+    useQuery({
+      queryKey: ["drafted-documents"],
+      queryFn: () => getAllDocuments("", "", true),
+    });
+
   const navigate = useNavigate();
 
-  const handleTypeChange = (newType) => {
-    setType(newType);
-  };
+  const handleTypeChange = (newType) => setType(newType);
 
-  const handleNavigate = (path) => {
-    navigate(path);
-  };
+  const handleNavigate = (path) => navigate(path);
 
   const handleReset = () => {
     setFilters([]);
@@ -38,7 +44,7 @@ const AllDocuments = () => {
   };
 
   return (
-    <div className="flex gap-8">
+    <div className="flex gap-8 overflow-hidden">
       <div className="flex flex-1 flex-col gap-5">
         <Header
           title="All Documents"
@@ -57,7 +63,7 @@ const AllDocuments = () => {
             <Button
               variant="outline"
               className="text-secondary-100-75"
-              onClick={() => handleNavigate("/accounts/add-account")}
+              onClick={() => handleNavigate(-1)}
             >
               <RiAddLargeFill /> Create Document
             </Button>
@@ -67,13 +73,6 @@ const AllDocuments = () => {
         <div className="flex items-center gap-5">
           <p>Filters:</p>
           <DateRangePicker />
-          <ComboBox
-            options={[]}
-            placeholder="select user type"
-            filter="role_type"
-            setFilters={setFilters}
-            reset={reset}
-          />
           <ComboBox
             options={[]}
             placeholder="select campus"
@@ -98,16 +97,22 @@ const AllDocuments = () => {
           </Button>
         </div>
 
-        <DataTable
-          data={[]}
-          columns={
-            type === "all-documents"
-              ? AllDocumentsColumns
-              : DraftDocumentsColumns
-          }
-          globalFilter={globalFilter}
-          filters={filters}
-        />
+        {isLoadingAllDocuments || isLoadingDraftedDocuments ? (
+          <Loading />
+        ) : (
+          <DataTable
+            data={type === "drafts" ? draftedDocuments : allDocuments}
+            columns={
+              type === "all-documents"
+                ? AllDocumentsColumns
+                : DraftDocumentsColumns
+            }
+            globalFilter={globalFilter}
+            filters={filters}
+            pageSize={8}
+            columnActions={{ navigate }}
+          />
+        )}
       </div>
 
       <div className="max-w-[300px] flex-1 space-y-4 border-l border-secondary-200-60 bg-white px-7 py-6">

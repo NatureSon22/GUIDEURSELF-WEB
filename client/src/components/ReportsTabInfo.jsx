@@ -1,7 +1,6 @@
 import { FaUserGroup } from "react-icons/fa6";
 import { TbMessageCircleFilled } from "react-icons/tb";
 import { IoTv } from "react-icons/io5";
-import Dashboard from "@/pages/dashboard/Dashboard";
 
 const ReportsTabInfo = [
   {
@@ -10,7 +9,7 @@ const ReportsTabInfo = [
     ),
     title: "User Account",
     subtitle: "Access, review, and generate reports on user account records",
-    path: "/account",
+    path: "account",
   },
   {
     icon: (

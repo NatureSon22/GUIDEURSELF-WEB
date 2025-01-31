@@ -1,35 +1,66 @@
-import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MdCloudUpload } from "react-icons/md";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@radix-ui/react-label";
 import { Button } from "@/components/ui/button";
-import { FaFile } from "react-icons/fa";
+import { Label } from "@radix-ui/react-label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
-import { createFromUploadDocument } from "@/api/documents";
-import { useLocation } from "react-router-dom";
+import DocumentDialog from "./DocumentDialog";
+
+import { MdCloudUpload } from "react-icons/md";
+import { FaFile } from "react-icons/fa";
+
+import {
+  createFromUploadDocument,
+  getDocument,
+  saveAsDraftDocument,
+  uploadDraftDocument,
+} from "@/api/documents";
+import DocumentIcon from "./DocumentIcon";
+
+const ACCEPTED_FILE_TYPES = ["pdf", "doc", "pptx"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const uploadSchema = z.object({
-  // title: z
-  //   .string()
-  //   .min(1, "Title is required")
-  //   .max(100, "Title must be less than 100 characters"),
   visibility: z.enum(["onlyMe", "viewOnly"], {
-    required_error: "Visibility is required",
+    required_error: "Please select a visibility option",
   }),
+  files: z
+    .array(
+      z
+        .any()
+        .refine(
+          (file) => file?.size <= MAX_FILE_SIZE,
+          "File size must be less than 10MB",
+        )
+        .refine(
+          (file) =>
+            ACCEPTED_FILE_TYPES.includes(
+              file?.name?.split(".")?.pop()?.toLowerCase(),
+            ),
+          "Invalid file type. Only PDF, DOC, and PPTX are allowed",
+        ),
+    )
+    .optional(),
 });
 
 const UploadDocument = () => {
-  const { state } = useLocation();
-  const folder_id = state?.folder_id;
+  const navigate = useNavigate();
+  const { documentId } = useParams();
   const inputRef = useRef(null);
+  const { toast } = useToast();
+
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [submitAction, setSubmitAction] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const {
     handleSubmit,
@@ -39,209 +70,302 @@ const UploadDocument = () => {
   } = useForm({
     resolver: zodResolver(uploadSchema),
     defaultValues: {
-      // title: "",
       visibility: "onlyMe",
+      files: [],
     },
   });
+
   const visibility = watch("visibility");
 
-  const { mutateAsync: handleCreateDocument, isPending } = useMutation({
+  const { data: documentData, isLoading: isDocumentLoading } = useQuery({
+    queryKey: ["document", documentId],
+    queryFn: () => (documentId ? getDocument(documentId) : {}),
+    enabled: !!documentId,
+  });
+
+  const { mutateAsync: handleCreateDocument } = useMutation({
     mutationFn: createFromUploadDocument,
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
-        title: "Success",
-        description: data,
+        title: "Document Published",
+        description: "Your document has been successfully published.",
       });
+      navigate(-1);
     },
-    onError: (data) => {
-      const { message } = data;
+    onError: (error) => {
       toast({
-        title: "Error",
-        description: message,
+        title: "Publication Failed",
+        description: error.message || "Failed to publish document",
         variant: "destructive",
       });
+      setIsProcessing(false);
     },
   });
 
-  const handleFileChange = (e) => {
-    const selectedFiles = e.target.files;
-    if (selectedFiles) {
-      const fileArray = Array.from(selectedFiles);
-      setFiles((prevFiles) => [...prevFiles, ...fileArray]);
+  const { mutateAsync: handleUploadDocument } = useMutation({
+    mutationFn: uploadDraftDocument,
+    onSuccess: () => {
+      toast({
+        title: "Document Published",
+        description: "Your document has been successfully published.",
+      });
+      navigate(-1);
+    },
+    onError: (error) => {
+      toast({
+        title: "Publication Failed",
+        description: error.message || "Failed to publish document",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    },
+  });
+
+  const { mutateAsync: handleSaveDraft } = useMutation({
+    mutationFn: saveAsDraftDocument,
+    onSuccess: () => {
+      toast({
+        title: "Draft Saved",
+        description: "Your document has been saved as a draft.",
+      });
+      navigate(-1);
+    },
+    onError: (error) => {
+      toast({
+        title: "Save Failed",
+        description: error.message || "Failed to save draft",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    },
+  });
+
+  const handleFileOperation = (fileList) => {
+    if (isProcessing) return;
+
+    const newFiles = Array.from(fileList);
+    const validFiles = newFiles.filter((file) => {
+      const isValidType = ACCEPTED_FILE_TYPES.includes(
+        file.name.split(".").pop().toLowerCase(),
+      );
+      const isValidSize = file.size <= MAX_FILE_SIZE;
+
+      if (!isValidType || !isValidSize) {
+        toast({
+          title: "Invalid File",
+          description: `${file.name} was rejected. Please check file type and size.`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    });
+
+    setFiles((prev) => [...prev, ...validFiles]);
+    setValue("files", validFiles);
+  };
+
+  const handleDragEvents = (e) => {
+    if (isProcessing) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragging(true);
+    } else if (e.type === "dragleave" || e.type === "drop") {
+      setIsDragging(false);
+      if (e.type === "drop") {
+        handleFileOperation(e.dataTransfer.files);
+      }
     }
-    setIsDragging(false);
   };
 
-  const handleClick = () => {
-    inputRef.current.click();
-  };
-
-  const handleRemoveFile = (file) => {
-    setFiles((prevFiles) => prevFiles.filter((f) => f !== file));
-  };
-
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const droppedFiles = e.dataTransfer.files;
-    if (droppedFiles) {
-      const fileArray = Array.from(droppedFiles);
-      setFiles((prevFiles) => [...prevFiles, ...fileArray]);
-    }
-  };
-
-  const onSubmit = (data) => {
+  const handleSubmitForm = async (data) => {
     const formData = new FormData();
-    files.forEach((file) => formData.append("document", file));
-    formData.append("visibility", data.visibility);
-    formData.append("folder_id", folder_id);
 
-    handleCreateDocument(formData);
+    if (documentData?.document_url) {
+      formData.append("document_url", documentData.document_url);
+    } else {
+      if (files.length === 0) {
+        toast({
+          title: "No Files Selected",
+          description: "Please select at least one file to upload",
+          variant: "destructive",
+        });
+        return;
+      }
+      files.forEach((file) => formData.append("document", file));
+    }
+
+    setIsProcessing(true);
+
+    formData.append("visibility", data.visibility);
+
+    try {
+      if (submitAction === "publish") {
+        if (documentData?.document_url) {
+          await handleUploadDocument(formData);
+        } else {
+          await handleCreateDocument(formData);
+        }
+      } else {
+        await handleSaveDraft(formData);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      setIsProcessing(false);
+    }
   };
+
+  const renderDragDropArea = () => (
+    <div
+      onClick={() => !isProcessing && inputRef.current?.click()}
+      onDragEnter={handleDragEvents}
+      onDragOver={handleDragEvents}
+      onDragLeave={handleDragEvents}
+      onDrop={handleDragEvents}
+      className={`grid w-full cursor-pointer place-items-center rounded-lg border-4 border-dashed ${isDragging ? "border-primary-500 bg-primary-100/50" : "border-secondary-100/30"} ${files.length > 0 ? "py-20" : "py-24"} ${isProcessing ? "cursor-not-allowed opacity-50" : ""}`}
+    >
+      <div className="grid place-items-center gap-1 text-secondary-100/50">
+        <MdCloudUpload
+          className={`text-4xl ${isDragging ? "text-primary-500" : ""}`}
+        />
+        <p className="text-base">
+          {isDragging ? "Drop files here" : "Upload files or drag and drop"}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderFileList = () => (
+    <div className="flex flex-wrap gap-3">
+      {files.map((file, index) => (
+        <div
+          key={index}
+          className="flex items-center gap-3 rounded-md bg-secondary-200/40 px-5 py-3"
+        >
+          <FaFile className="text-lg" />
+          <p className="text-sm">{file.name}</p>
+          <Button
+            className="ml-2 px-3 text-sm font-semibold text-white"
+            onClick={() => {
+              if (!isProcessing) {
+                setFiles((prev) => prev.filter((_, i) => i !== index));
+                setValue(
+                  "files",
+                  files.filter((_, i) => i !== index),
+                );
+              }
+            }}
+            disabled={isProcessing}
+          >
+            ×
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+
+  if (isDocumentLoading) {
+    return <Skeleton className="h-96 w-full" />;
+  }
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleSubmitForm)}
       className="flex flex-1 flex-col gap-8"
     >
       <Input
         ref={inputRef}
         type="file"
         className="hidden"
-        onChange={handleFileChange}
+        onChange={(e) => handleFileOperation(e.target.files)}
         multiple
+        accept={ACCEPTED_FILE_TYPES.map((type) => `.${type}`).join(",")}
+        disabled={isProcessing}
       />
-      {/* <div className="space-y-1">
-        <p className="font-medium">Title</p>
-        <p className="text-[0.95rem]">
-          Enter a clear, descriptive title for the document. This will help in
-          organizing and retrieving documents.
-        </p>
-        <Input
-          {...register("title")}
-          placeholder="Enter the title of the document"
-          className="bg-white"
-        />
-        {errors.title && (
-          <p className="mt-1 text-sm text-red-500">{errors.title.message}</p>
-        )}
-      </div> */}
-      <div className="space-y-1">
-        <p className="font-medium">File Upload</p>
-        <p className="text-[0.95rem]">
-          Click to upload a file. Accepted formats only include PDF, DOC, and
-          PPTX.
-        </p>
-        <div
-          onClick={handleClick}
-          onDragEnter={handleDragEnter}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`grid w-full cursor-pointer place-items-center rounded-lg border-[4px] border-dashed bg-white transition-all duration-300 ${
-            isDragging ? "bg-primary-100/50 border-secondary-100/30" : "py-24"
-          } ${files.length > 0 ? "py-20" : "py-24"}`}
-        >
-          <div className="grid place-items-center gap-1 text-secondary-100/50">
-            <MdCloudUpload
-              className={`text-[2.8rem] ${isDragging ? "text-primary-500" : ""}`}
-            />
-            <p className="text-[0.95rem]">
-              {isDragging
-                ? "Drop the files here to upload"
-                : "Upload files or drag and drop"}
-            </p>
-          </div>
+
+      <div className="grid gap-4">
+        <div>
+          <h2 className="font-medium">File Upload</h2>
+          <p className="text-base text-gray-600">
+            Upload your documents in PDF, DOC, or PPTX format.
+          </p>
         </div>
-        <p className="mt-1 text-[0.9rem] text-secondary-100-75">
-          Note: Ensure the document follows any size and format restrictions
-          before uploading. Review all fields before uploading to avoid errors
-          or missing information.
-        </p>
+
+        {documentData?.document_url ? (
+          <DocumentIcon
+            name={documentData.file_name}
+            setOpen={setIsDialogOpen}
+          />
+        ) : (
+          files.length === 0 && renderDragDropArea()
+        )}
+
+        {files.length > 0 && renderFileList()}
       </div>
 
-      {files.length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {files.map((file, index) => (
-            <div
-              key={index}
-              className="flex w-fit items-center gap-5 rounded-md bg-secondary-200/40 px-5 py-3"
-            >
-              <div className="flex items-center gap-3">
-                <FaFile className="text-[1.15rem]" />
-                <p className="text-[0.85rem]">{file.name}</p>
-              </div>
-
-              <Button
-                className="ml-2 px-3 text-[0.8rem] font-semibold text-white"
-                onClick={() => handleRemoveFile(file)}
-              >
-                &#x2715;
-              </Button>
-            </div>
-          ))}
+      <div className="space-y-4">
+        <div>
+          <h2 className="font-medium">Visibility Settings</h2>
+          <p className="text-base text-gray-600">
+            Control who can access this document.
+          </p>
         </div>
-      )}
 
-      <div className="grid gap-1">
-        <p className="font-medium">Visibility</p>
-        <p className="text-[0.95rem]">
-          Define the visibility of this document. Decide who should be able to
-          edit this document.
-        </p>
         <RadioGroup
-          className="ml-5 mt-3 space-y-3"
+          className={`ml-5 space-y-3 ${isProcessing ? "opacity-50" : ""}`}
           value={visibility}
-          onValueChange={(value) => setValue("visibility", value)}
+          onValueChange={(value) =>
+            !isProcessing && setValue("visibility", value)
+          }
+          disabled={isProcessing}
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="onlyMe" id="r1" />
-            <Label className="text-secondary-100-75" htmlFor="r1">
-              Only me
-            </Label>
+            <RadioGroupItem value="onlyMe" id="r1" disabled={isProcessing} />
+            <Label htmlFor="r1">Only me</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="viewOnly" id="r2" />
-            <Label className="text-secondary-100-75" htmlFor="r2">
-              Allow others to View
-            </Label>
+            <RadioGroupItem value="viewOnly" id="r2" disabled={isProcessing} />
+            <Label htmlFor="r2">Allow others to view</Label>
           </div>
         </RadioGroup>
         {errors.visibility && (
-          <p className="mt-1 text-sm text-red-500">
-            {errors.visibility.message}
-          </p>
+          <p className="text-sm text-red-500">{errors.visibility.message}</p>
         )}
       </div>
+
       <div className="ml-auto flex gap-3">
+        {!documentId && (
+          <Button
+            type="submit"
+            variant="ghost"
+            className="text-base-200"
+            disabled={isProcessing}
+            onClick={() => setSubmitAction("draft")}
+          >
+            {isProcessing && submitAction === "draft"
+              ? "Saving..."
+              : "Save as Draft"}
+          </Button>
+        )}
         <Button
           type="submit"
-          variant="ghost"
-          className="text-base-200"
-          disabled={isPending}
+          className="bg-base-200"
+          disabled={isProcessing}
+          onClick={() => setSubmitAction("publish")}
         >
-          Save as Draft
-        </Button>
-        <Button type="submit" className="bg-base-200" disabled={isPending}>
-          Publish
+          {isProcessing && submitAction === "publish"
+            ? "Publishing..."
+            : "Publish"}
         </Button>
       </div>
+
+      <DocumentDialog
+        open={isDialogOpen}
+        setOpen={setIsDialogOpen}
+        document_url={documentData?.document_url}
+      />
     </form>
   );
 };

@@ -13,24 +13,35 @@ const RadioGroup = React.forwardRef(({ className, ...props }, ref) => {
     />
   );
 });
+
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
-const RadioGroupItem = React.forwardRef(({ className, ...props }, ref) => {
-  return (
-    <RadioGroupPrimitive.Item
-      ref={ref}
-      className={cn(
-        "aspect-square h-4 w-4 rounded-full border border-secondary-100-75 text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
-      {...props}
-    >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-3.5 w-3.5 fill-base-300" />
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
-  );
-});
+const RadioGroupItem = React.forwardRef(
+  (
+    {
+      className,
+      bordercolor = "border-secondary-100-75",
+      fillbase = "fill-base-300",
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <RadioGroupPrimitive.Item
+        ref={ref}
+        className={cn(
+          `aspect-square h-4 w-4 rounded-full border ${bordercolor} text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50`,
+          className,
+        )}
+        {...props}
+      >
+        <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+          <Circle className={`h-3.5 w-3.5 ${fillbase}`} />
+        </RadioGroupPrimitive.Indicator>
+      </RadioGroupPrimitive.Item>
+    );
+  },
+);
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
 export { RadioGroup, RadioGroupItem };
