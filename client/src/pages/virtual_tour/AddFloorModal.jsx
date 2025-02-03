@@ -122,7 +122,7 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
             type="file"
             id="floorImage"
             onChange={handleFileChange}
-            className="w-full"
+            className="w-full py-1 px-0"
           />
           {imagePreview ? (
             <div className="mt-4">

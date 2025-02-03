@@ -8,6 +8,8 @@ import CampusCard from "./CampusCard";
 import SlideBar from "./SlideBar";
 import WelcomeCard from "./WelcomeCard";
 import { useNavigate } from "react-router-dom";
+import { loggedInUser } from "@/api/auth";
+import { useQuery } from "@tanstack/react-query";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -24,6 +26,12 @@ const BuildMode = () => {
   const [loadingMessage, setLoadingMessage] = useState("");
 
   const navigate = useNavigate();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
+  });
 
   const handleExitBuildMode = () => {
     setLoadingMessage("Exiting Build Mode");
@@ -57,8 +65,8 @@ const BuildMode = () => {
         </div>
       )}
       {/* {isWelcomeCardOpen && <WelcomeCard onClose={closeWelcomeCard} />} */}
-      <SlideBar onCampusSelect={handleCampusSelect} exitBuildMode={handleExitBuildMode} />
-      <WorldMap />
+      <SlideBar userData={data} onCampusSelect={handleCampusSelect} exitBuildMode={handleExitBuildMode} />
+      <WorldMap userData={data} />
       {selectedCampus && (
         <CampusCard campus={selectedCampus} onClose={closeModal} />
       )}

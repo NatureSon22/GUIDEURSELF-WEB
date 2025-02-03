@@ -233,7 +233,7 @@ const EditMarkerModal =
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
-                className="bg-white w-[50%] cursor-pointer mb-4"
+                className="bg-white w-[50%] cursor-pointer mb-4  py-1 px-0  "
               />
               </div>
               {newImagePreview ? (

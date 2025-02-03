@@ -162,7 +162,7 @@ const Modal = ({ closeModal, addOfficial }) => {
                                 type="file"
                                 accept="image/*"
                                 onChange={handleImageUpload}
-                                className="mt-2"
+                                className="mt-2 py-1"
                             />
                         </div>
 

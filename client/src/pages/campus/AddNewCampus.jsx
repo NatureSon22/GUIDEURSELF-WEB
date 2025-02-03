@@ -429,7 +429,7 @@ const handleRemoveProgram = (programType, index) => {
                       >
                         <div className="flex flex-row justify-between w-[100%] pr-[10px]">
                           <h3 className="text-lg">{program.programName}</h3>
-                          <Button
+                          <button
                             onClick={() => handleRemoveProgram(programType, index)}
                             className="text-red-500 mt-2 self-start"
                           >
@@ -438,7 +438,7 @@ const handleRemoveProgram = (programType, index) => {
                               className="w-[20px] h-[20px]"
                               alt="Remove Program"
                             />
-                          </Button>
+                          </button>
                         </div>
                         <p className="ml-[20px] text-sm">Major in:</p>
                         <ul>

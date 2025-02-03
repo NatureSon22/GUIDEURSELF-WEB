@@ -3,6 +3,7 @@ import { loggedInUser } from "@/api/auth";
 import { Skeleton } from "./ui/skeleton";
 import formatTitle from "@/utils/formatTitle";
 import ProfileTab from "./ProfileTab";
+
 const NavBar = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["user"],

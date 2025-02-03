@@ -12,6 +12,7 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
+import FeaturePermission from "@/layer/FeaturePermission";
 
 // Fix for default marker icon not showing  
 delete L.Icon.Default.prototype._getIconUrl;
@@ -71,7 +72,7 @@ const DisplayCampus = () => {
 
         {/* Search and Buttons */}
         <div className="w-full pt-6 flex gap-4">
-          <div className="w-[75%] h-[40px] flex flex-row justify-between items-center py-1 px-2 rounded-md border-gray-300 border">
+          <div className="w-[90%] h-[40px] flex flex-row justify-between items-center py-1 px-2 rounded-md border-gray-300 border">
             <textarea
               className="overflow-hidden w-[100%] h-5 resize-none outline-none"
               placeholder="Search"
@@ -81,16 +82,19 @@ const DisplayCampus = () => {
             <img className="h-[100%]" src={Search} alt="" />
           </div>
 
-          <Link to="/campus/add" className="w-[20%]">
-            <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
-              <img
-                className="w-[30px] h-[30px]"
-                src={addImage}
-                alt="Add Officials"
-              />
-              Add Campus
-            </button>
-          </Link>
+          <FeaturePermission  module="Manage Campus" access="add campus">
+            <Link to="/campus/add" className="w-[20%]">
+              <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
+                <img
+                  className="w-[30px] h-[30px]"
+                  src={addImage}
+                  alt="Add Officials"
+                />
+                Add Campus
+              </button>
+            </Link>
+            </FeaturePermission>
+           
 
           <Link to="/campus/edit" className="w-[10%]">
             <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">

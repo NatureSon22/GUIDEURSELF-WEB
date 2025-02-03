@@ -7,6 +7,7 @@ import Pen from "@/assets/Pen.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import Header from "@/components/Header";
+import FeaturePermission from "@/layer/FeaturePermission";
 
 const DisplayingKeyOfficials = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,12 +37,15 @@ const DisplayingKeyOfficials = () => {
       <div className="flex w-full gap-4 py-6">
         <SearchBox searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
+
+      <FeaturePermission module="Manage Key Officials" access="edit key official" >
         <Link className="w-[7%]" to="/key-officials/edit">
           <button className="text-md focus-none flex h-10 w-[100%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none transition duration-300 hover:bg-gray-200">
             <img src={Pen} alt="Edit" />
             Edit
           </button>
         </Link>
+      </FeaturePermission>
       </div>
 
       <div className="mt-8 flex w-full flex-row items-center justify-center">

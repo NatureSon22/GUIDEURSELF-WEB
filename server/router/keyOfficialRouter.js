@@ -2,8 +2,7 @@ import express from 'express';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
 import { Readable } from 'stream';
-import KeyOfficial from '../models/KeyOfficial.js';
-import AdministartivePosition from "../models/AdministartivePosition.js";
+import { KeyOfficial, ArchivedKeyOfficial } from "../models/KeyOfficial.js"; 
 import verifyToken from "../middleware/verifyToken.js"
 
 // Set up multer storage (using memory storage for file handling)
@@ -59,51 +58,84 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-    try {
-      const keyOfficials = await KeyOfficial.find()
-      
-        .populate("administrative_position_id", "administartive_position_name") // Populate only the name of the position
-        .populate("campus_id"); // Optionally populate campus_id if needed
-  
-      // Map through the result and send the desired data (name, position name, and photo URL)
-      const populatedData = keyOfficials.map(official => ({
-        _id: official._id,
-        name: official.name,
-        position_name: official.administrative_position_id ? official.administrative_position_id.administartive_position_name : '',
-        key_official_photo_url: official.key_official_photo_url,
-      }));
-  
-      res.status(200).json(populatedData);
-    } catch (error) {
-      console.error("Error fetching key officials:", error);
-      res.status(500).json({ message: "Error fetching key officials." });
-    }
-  });
+  try {
+    // Fetch all key officials without populating any fields
+    const keyOfficials = await KeyOfficial.find();
 
-  router.get("/:id", async (req, res) => {
-    try {
-      const keyOfficials = await KeyOfficial.find()
-        .populate("administrative_position_id", "administartive_position_name") // Populate position name
-        .populate("campus_id"); // Optionally populate campus_id if needed
-  
-      // Map through the result and send the desired data
-      const populatedData = keyOfficials.map((official) => ({
-        _id: official._id,
-        name: official.name,
-        position_name: official.administrative_position_id
-          ? official.administrative_position_id.administartive_position_name
-          : '',
-        key_official_photo_url: official.key_official_photo_url,
-      }));
-  
-      res.status(200).json(populatedData); // Send the response with populated data
-    } catch (error) {
-      console.error("Error fetching key officials:", error);
-      res.status(500).json({ message: "Error fetching key officials." });
-    }
-  });
-  
+    // Return the data as is
+    res.status(200).json(keyOfficials);
+  } catch (error) {
+    console.error("Error fetching key officials:", error);
+    res.status(500).json({ message: "Error fetching key officials." });
+  }
+});
 
+
+router.post("/unarchive/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Step 1: Find the archived key official by ID
+    const archivedOfficial = await ArchivedKeyOfficial.findById(id);
+
+    if (!archivedOfficial) {
+      return res.status(404).json({ message: "Archived key official not found" });
+    }
+
+    // Step 2: Insert the archived data into the KeyOfficial collection
+    const newKeyOfficial = new KeyOfficial({
+      position_name: archivedOfficial.position_name,
+      name: archivedOfficial.name,
+      key_official_photo_url: archivedOfficial.key_official_photo_url,
+      campus_id: archivedOfficial.campus_id,
+      date_added: new Date(),
+    });
+
+    await newKeyOfficial.save();
+
+    // Step 3: Delete the data from the ArchivedKeyOfficial collection
+    await ArchivedKeyOfficial.findByIdAndDelete(id);
+
+    // Respond with success message
+    res.status(200).json({
+      message: "Key official unarchived successfully",
+      data: newKeyOfficial,
+    });
+  } catch (error) {
+    console.error("Error unarchiving key official:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/archived", async (req, res) => {
+  try {
+    const archivedOfficials = await ArchivedKeyOfficial.find();
+    res.status(200).json(archivedOfficials);
+  } catch (error) {
+    console.error("Error fetching archived key officials:", error); // Log the error
+    res.status(500).json({ message: "Error fetching key official.", error: error.message });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch a single key official by ID without populating any fields
+    const keyOfficial = await KeyOfficial.findById(id);
+
+    if (!keyOfficial) {
+      return res.status(404).json({ message: "Key official not found." });
+    }
+
+    // Return the data as is
+    res.status(200).json(keyOfficial);
+  } catch (error) {
+    console.error("Error fetching key official:", error);
+    res.status(500).json({ message: "Error fetching key official." });
+  }
+});
+  
   router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params; // Extract id from request params
@@ -116,6 +148,41 @@ router.get("/", async (req, res) => {
         console.error("Error deleting Key Official:", error);
         res.status(500).json({ message: "Failed to delete Key Official.", error });
     }
+});
+
+
+router.post('/archive/:id', async (req, res) => {
+  const officialId = req.params.id;
+
+  try {
+    // Find the official to be archived by its ID
+    const official = await KeyOfficial.findById(officialId);
+
+    if (!official) {
+      return res.status(404).json({ message: 'Key Official not found' });
+    }
+
+    // Archive the official by copying the data to ArchiveKeyOfficial
+    const archivedOfficial = new ArchivedKeyOfficial({
+      _id: official._id,
+      position_name: official.position_name,
+      name: official.name,
+      key_official_photo_url: official.key_official_photo_url,
+      campus_id: official.campus_id,
+      date_added: new Date(),
+    });
+
+    // Save the archived official
+    await archivedOfficial.save();
+
+    // Optionally, you may delete the official from the original collection if needed
+    await KeyOfficial.findByIdAndDelete(officialId);
+
+    res.status(200).json({ message: 'Key Official archived successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while archiving the key official' });
+  }
 });
 
 router.put("/:id", upload.single("image"), async (req, res) => {

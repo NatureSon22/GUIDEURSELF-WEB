@@ -111,7 +111,7 @@ const ProgramTypeField = () => {
             Define program type for university
           </p>
         </div>
-        <p className="text-[0.7] font-semibold">New Program Type</p>
+        <p className="text-[0.95rem ] font-semibold">New Program Type</p>
         <div className="w-[100%] flex flex-row gap-2">
           <Input
             type="text"
@@ -128,7 +128,7 @@ const ProgramTypeField = () => {
           </Button>
         </div>
 
-        <div className="mt-4">
+        <div  className="mt-4 h-[200px] overflow-y-auto">
           {isLoading ? (
             <p>Loading program type...</p>
           ) : isError ? (

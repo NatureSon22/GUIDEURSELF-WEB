@@ -5,7 +5,6 @@ import { getUniversityData } from "@/api/component-info";
 import AddFloorModal from "./AddFloorModal";
 import HeaderSection from "./HeaderSection";
 import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
 import L from "leaflet"; 
 import AddMarkerModal from "./AddMarkerModal";
@@ -174,7 +173,7 @@ const fetchMarkers = async () => {
   if (!selectedFloor) return [];
   try {
     const response = await fetch(
-      `http://localhost:3000/api/floors/${selectedFloor._id}/markers`,
+      `http://localhost:3000/api/campuses/floors/${selectedFloor._id}/markers`,
       { credentials: "include" }
     );
     if (!response.ok) throw new Error("Failed to fetch markers.");
@@ -235,6 +234,27 @@ const handleAddFloorClick = () => setIsModalOpen(true);
 const closeModal = () => setIsModalOpen(false);
 const refreshFloors = () => queryClient.invalidateQueries(["campuses", campus._id]);
 
+const LocationMarker = () => {
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      setCoordinates({ lat, lng });
+    },
+  });
+
+  return coordinates.lat ? (
+    <Marker 
+    position={[coordinates.lat, coordinates.lng]}
+    icon={defaultIcon}>
+    </Marker>
+  ) : null;
+};
+
+const handleAddMarkerClick = () => {
+  setAddMarkerModalOpen(true);
+  toggleSlider();
+};
+
 const toggleEditMode = async () => {
   if (isEditing) {
     try {
@@ -260,27 +280,6 @@ const toggleEditMode = async () => {
   setIsRemove(false);
 };
 
-const LocationMarker = () => {
-  useMapEvents({
-    click(e) {
-      const { lat, lng } = e.latlng;
-      setCoordinates({ lat, lng });
-    },
-  });
-
-  return coordinates.lat ? (
-    <Marker 
-    position={[coordinates.lat, coordinates.lng]}
-    icon={defaultIcon}>
-    </Marker>
-  ) : null;
-};
-
-const handleAddMarkerClick = () => {
-  setAddMarkerModalOpen(true);
-  toggleSlider();
-};
-
 const confirmRemoveFloor = (floorId) => {
   setFloorToRemove(floorId);
   setIsDialogOpen(true);
@@ -291,18 +290,50 @@ const handleCancelRemove = () => {
   setFloorToRemove(null);
 };
 
-const handleProceedRemove = () => {
+const handleProceedRemove = async () => {
   if (floorToRemove) {
-    const updatedFloors = updatedCampus.floors.filter(
-      (floor) => floor._id !== floorToRemove
-    );
+    try {
+      // Step 1: Find the floor to archive
+      const floorToArchive = updatedCampus.floors.find(
+        (floor) => floor._id === floorToRemove
+      );
 
-    queryClient.setQueryData(["campuses", campus._id], {
-      ...updatedCampus,
-      floors: updatedFloors,
-    });
+      if (!floorToArchive) {
+        console.error("Floor not found");
+        return;
+      }
 
-    console.log(`Floor with ID ${floorToRemove} removed from UI.`);
+      // Step 2: Call the backend route to archive the floor
+      const response = await fetch(
+        `http://localhost:3000/api/campuses/${campus._id}/floors/${floorToRemove}/archive`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            type: "floor", // Set the type to "floor"
+            floor_data: floorToArchive, // Pass the floor data
+            campus_id: campus._id, // Pass the campus ID
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to archive floor");
+
+      // Step 3: Update the UI to remove the archived floor
+      const updatedFloors = updatedCampus.floors.filter(
+        (floor) => floor._id !== floorToRemove
+      );
+
+      queryClient.setQueryData(["campuses", campus._id], {
+        ...updatedCampus,
+        floors: updatedFloors,
+      });
+
+      console.log(`Floor with ID ${floorToRemove} archived successfully.`);
+    } catch (error) {
+      console.error("Error archiving floor:", error);
+    }
   }
 
   setIsDialogOpen(false);
@@ -323,17 +354,24 @@ const handleCancelRemoveMarker = () => {
 const handleProceedRemoveMarker = async () => {
   if (markerToRemove && selectedFloor) {
     try {
-      // Delete the marker
+      // Step 1: Call the backend route to archive the marker
       const response = await fetch(
-        `http://localhost:3000/api/${campus._id}/floors/${selectedFloor._id}/markers/${markerToRemove._id}`,
-        { method: "DELETE", credentials: "include" }
+        `http://localhost:3000/api/campuses/${campus._id}/floors/${selectedFloor._id}/markers/${markerToRemove._id}/archive`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            type: "location", // Set the type to "location"
+            location_data: markerToRemove, // Pass the marker data
+            campus_id: campus._id, // Pass the campus ID
+          }),
+        }
       );
 
-      if (!response.ok) throw new Error("Failed to delete marker on server");
+      if (!response.ok) throw new Error("Failed to archive marker");
 
-      console.log(`Marker with ID ${markerToRemove} deleted on server.`);
-
-      // Log the deletion activity
+      // Step 2: Log the archiving activity
       const logResponse = await fetch("http://localhost:3000/api/virtualtourlogs", {
         method: "POST",
         credentials: "include",
@@ -342,22 +380,24 @@ const handleProceedRemoveMarker = async () => {
         },
         body: JSON.stringify({
           campus_name: campus.campus_name || "Unknown Campus",
-          activity: `Deleted a location ${markerToRemove.marker_name}`,
+          activity: `Archived a location ${markerToRemove.marker_name}`,
           updated_by: data?.username || "Unknown User",
         }),
       });
 
       if (!logResponse.ok) {
-        console.error("Failed to log deletion activity:", logResponse.statusText);
+        console.error("Failed to log archiving activity:", logResponse.statusText);
       }
 
+      console.log(`Marker with ID ${markerToRemove._id} archived successfully.`);
+
+      // Step 3: Update the UI to remove the archived marker
+      refreshFloors();
+      refreshMarkers();
     } catch (error) {
-      console.error("Error deleting marker on server:", error);
+      console.error("Error archiving marker:", error);
     }
   }
-
-  refreshFloors();
-  refreshMarkers();
 
   setIsMarkerDialogOpen(false);
   setMarkerToRemove(null);
@@ -446,10 +486,8 @@ const filteredFloors = floors?.filter((floor) =>
             <div className={`max-h-[360px] pl-6 pr-6 overflow-y-auto ${isRemove ? "max-h-[460px]" : "max-h-[340px]"}`}>
               {filteredFloors?.map((floor) => (
                 <div key={floor._id} className="flex flex-col justify-between w-[100%]">
-                    {/* Conditional UI for editing */}
                     {isEditing ? (
                       <>
-                        {/* Only show floor name and remove button in editing mode */}
                         <div
                         onClick={() => {
                           toggleFloor(floor._id);
@@ -501,7 +539,6 @@ const filteredFloors = floors?.filter((floor) =>
                           </button>
                         </div>
 
-                        {/* Show the markers only when not in editing mode */}
                         <div
                           className={`overflow-hidden transition-all duration-1000 ease-in-out ${
                             expandedFloor === floor._id ? "max-h-[1000px]" : "max-h-0"
@@ -515,7 +552,6 @@ const filteredFloors = floors?.filter((floor) =>
                             >
                               <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
                                 <p className="text-md flex items-center">{marker.marker_name}</p>
-                                {/* The images are hidden by default and appear when the parent is hovered */}
                                 <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
                                   <FaPen onClick={() => handleMarkerClick(marker)} className="h-[16px] w-[16px] cursor-pointer" />
                                   <RiDeleteBin5Fill

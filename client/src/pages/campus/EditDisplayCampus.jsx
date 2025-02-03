@@ -7,22 +7,31 @@ import Bin from "../../assets/Bin.png";
 import Check from "../../assets/Check.png";
 import addImage from "../../assets/add.png";
 import { IoAlertCircle } from "react-icons/io5";
-import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
-import { useToast } from "@/hooks/use-toast"; 
+import { useToast } from "@/hooks/use-toast";
+import FeaturePermission from "@/layer/FeaturePermission";
+import { loggedInUser } from "@/api/auth";
+import { useQuery } from "@tanstack/react-query";
 
 const EditDisplayCampus = () => {
   const [campusToDelete, setCampusToDelete] = useState(null);
   const [loadingVisible, setLoadingVisible] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState(""); 
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [campuses, setCampuses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const {data:university, isLoading, isError} = useQuery ({
+
+  const { data: university, isLoading, isError } = useQuery({
     queryKey: ["universitysettings"],
     queryFn: getUniversityData,
+  });
+
+  const { data: user, isLoading: userLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -47,20 +56,47 @@ const EditDisplayCampus = () => {
     setIsDeleteModalOpen(true);
   };
 
-  // Proceed with Deletion
+  const archiveCampus = async (campus) => {
+    try {
+      const response = await fetch("http://localhost:3000/api/archived-campuses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(campus),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to archive campus");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error archiving campus:", error);
+      throw error;
+    }
+  };
+
   const handleConfirmDelete = async () => {
     if (!campusToDelete) return;
 
     try {
+      // Step 1: Archive the campus
+      await archiveCampus(campusToDelete);
+
+      // Step 2: Delete the campus from the active list
       const response = await fetch(
         `http://localhost:3000/api/campuses/${campusToDelete._id}`,
         { method: "DELETE", credentials: "include" }
       );
-      if (response.ok) { 
+
+      if (response.ok) {
         toast({
-        title: "Success",
-        description: `Campus successfully deleted ${campusToDelete.campus_name} Campus`,
-        variant: "default",
+          title: "Success",
+          description: `Campus successfully archived and deleted: ${campusToDelete.campus_name}`,
+          variant: "default",
         });
         setCampuses((prevCampuses) =>
           prevCampuses.filter((c) => c._id !== campusToDelete._id)
@@ -68,15 +104,20 @@ const EditDisplayCampus = () => {
       } else {
         toast({
           title: "Error",
-          description: `Unsuccessfully deleting ${campusToDelete.campus_name} Campus`,
+          description: `Failed to delete campus: ${campusToDelete.campus_name}`,
           variant: "destructive",
-          });
+        });
       }
 
       setIsDeleteModalOpen(false);
       setCampusToDelete(null); // Clear the selected campus
     } catch (error) {
       console.error("Error deleting campus:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred while archiving or deleting the campus.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -97,7 +138,23 @@ const EditDisplayCampus = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredCampuses = campuses.filter((campus) =>
+  // Determine if the user has access to all campuses
+  const isMultiCampus = user?.isMultiCampus ?? false;
+  const userCampusId = user?.campus_id;
+
+  // Step 1: Filter campuses based on the user's access
+  const filteredByAccess = campuses.filter((campus) => {
+    if (isMultiCampus) {
+      // If user has access to all campuses, show all campuses
+      return true;
+    } else {
+      // If user does not have access to all campuses, show only their campus
+      return String(campus._id) === String(userCampusId);
+    }
+  });
+
+  // Step 2: Apply the search filter
+  const filteredCampuses = filteredByAccess.filter((campus) =>
     campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -112,16 +169,14 @@ const EditDisplayCampus = () => {
           </div>
         </div>
       )}
-            <div className="w-[75%] flex flex-col justify-between">
-              <Header
-                title={"Manage Campus"}
-                subtitle={
-                  "See list of all campuses to manage and edit."
-                }
-              />
-            </div>
+      <div className="w-[75%] flex flex-col justify-between">
+        <Header
+          title={"Manage Campus"}
+          subtitle={"See list of all campuses to manage and edit."}
+        />
+      </div>
       <div className="w-full pt-6 flex gap-4">
-        <div className="w-[80%] h-[40px] flex flex-row justify-between items-center py-1 px-2 rounded-md border-gray-300 border">
+        <div className="w-[100%] h-[40px] flex flex-row justify-between items-center py-1 px-2 rounded-md border-gray-300 border">
           <textarea
             className="overflow-hidden w-[95%] h-5 resize-none outline-none"
             placeholder="Search"
@@ -131,13 +186,14 @@ const EditDisplayCampus = () => {
           <img className="h-[100%]" src={Search} alt="Search" />
         </div>
 
-        <Link className="w-[12%]" to="/campus/add">
-          <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 ">
-            <img className="w-[30px] h-[30px]" src={addImage} alt="Add Campus" />
-            Add Campus
-          </button>
-        </Link>
-
+        <FeaturePermission module="Manage Campus" access="add campus">
+          <Link className="w-[13%]" to="/campus/add">
+            <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 ">
+              <img className="w-[30px] h-[30px]" src={addImage} alt="Add Campus" />
+              Add Campus
+            </button>
+          </Link>
+        </FeaturePermission>
         <button
           onClick={handleBack}
           className="w-[7%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-base-200 text-base-200"
@@ -178,35 +234,37 @@ const EditDisplayCampus = () => {
               >
                 <img className="h-[18px]" src={Pen} alt="Edit" />
               </Link>
-              
-              <button onClick={() => handleDeleteClick(campus)}>
-                <img className="h-[25px]" src={Bin} alt="" />
-              </button>
 
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-[20%] flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-md shadow-md w-[500px] flex flex-col justify-center items-center  text-center">
-            <IoAlertCircle className="text-[3rem] w-[100%] text-base-200"/>
-            <p className="text-gray-600 my-4">
-              Do you want to remove this campus?
-            </p>
-            <div className="flex justify-center w-[100%] gap-4 mt-4">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 text-secondary-210 bg-secondary-300 w-[100%] border border-secondary-210 rounded-md"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-4 text-base-200 py-2 bg-base-210 w-[100%] border border-base-200 rounded-md"
-              >
-                Proceed
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <FeaturePermission module="Manage Campus" access="archive campus">
+                <button onClick={() => handleDeleteClick(campus)}>
+                  <img className="h-[25px]" src={Bin} alt="" />
+                </button>
+              </FeaturePermission>
+
+              {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-[20%] flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-md shadow-md w-[500px] flex flex-col justify-center items-center  text-center">
+                    <IoAlertCircle className="text-[3rem] w-[100%] text-base-200" />
+                    <p className="text-gray-600 my-4">
+                      Do you want to archive this campus?
+                    </p>
+                    <div className="flex justify-center w-[100%] gap-4 mt-4">
+                      <button
+                        onClick={() => setIsDeleteModalOpen(false)}
+                        className="px-4 py-2 text-secondary-210 bg-secondary-300 w-[100%] border border-secondary-210 rounded-md"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleConfirmDelete}
+                        className="px-4 text-base-200 py-2 bg-base-210 w-[100%] border border-base-200 rounded-md"
+                      >
+                        Proceed
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

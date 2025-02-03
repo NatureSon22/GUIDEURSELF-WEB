@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const markerSchema = new mongoose.Schema({
-  marker_name: { type: String, required: true, trim: true, default: "" },
+  marker_name: { type: String, trim: true, default: "" },
   latitude: { type: Number, required: true},
   longitude: { type: Number, required: true },
   marker_description: { type: String, trim: true, default: ""  },
@@ -51,6 +51,21 @@ const campusSchema = new mongoose.Schema({
 campusSchema.index({ campus_name: 1 });
 campusSchema.index({ latitude: 1, longitude: 1 });
 
-const Campus = mongoose.model("Campus", campusSchema, "campus");
 
-export default Campus;
+const archivedItemSchema = new mongoose.Schema({
+  type: { type: String, required: true, enum: ["floor", "location"] },
+  floor_data: { type: floorSchema }, 
+  location_data: {
+    type: markerSchema,
+    default: {},
+  }, 
+  floor_id: { type: mongoose.Schema.Types.ObjectId, ref: "Campus.floors" }, // Add this!
+  campus_id: { type: mongoose.Schema.Types.ObjectId, ref: "Campus", required: true },
+  date_archived: { type: Date, default: Date.now },
+});
+
+const ArchivedItem = mongoose.model("ArchivedItem", archivedItemSchema, "archiveditems");
+const Campus = mongoose.model("Campus", campusSchema, "campus");
+const ArchivedCampus = mongoose.model('ArchivedCampus', campusSchema, 'archivedcampus');
+
+export {Campus, ArchivedCampus, ArchivedItem};

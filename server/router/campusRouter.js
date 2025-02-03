@@ -1,5 +1,5 @@
 import express from "express";
-import Campus from "../models/campusModel.js";
+import { Campus, ArchivedCampus, ArchivedItem } from "../models/campusModel.js";
 import multer from "multer";
 import cloudinary from "cloudinary";
 import { Readable } from "stream";
@@ -14,7 +14,7 @@ const upload = multer({ storage });
 
 // Create Campus
 router.post(
-  "/",
+  "/campuses",
   upload.single("campus_cover_photo"),
   async (req, res) => {
     try {
@@ -107,7 +107,7 @@ router.post(
 );
 
 // Get All Campuses
-router.get("/", async (req, res) => {
+router.get("/campuses", async (req, res) => {
   try {
     const campuses = await Campus.find();
     res.json(campuses);
@@ -116,16 +116,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-// router.get("/", async (req, res) => {
-//   try {
-//     const campuses = await Campus.find();
-//     res.json({ success: true, campuses });
-//   } catch (err) {
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });
+router.get("/campus", async (req, res) => {
+  try {
+    const campuses = await Campus.find();
+    res.json({ success: true, campuses });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
-router.get("/:id", async (req, res) => {
+router.get("/campuses/:id", async (req, res) => {
   try {
     const campus = await Campus.findById(req.params.id);
     if (!campus) {
@@ -137,7 +137,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", upload.fields([{ name: "campus_cover_photo", maxCount: 1 }]), async (req, res) => {
+router.put("/campuses/:id", upload.fields([{ name: "campus_cover_photo", maxCount: 1 }]), async (req, res) => {
   const { id } = req.params;
   const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, campus_about, campus_programs, latitude, longitude } = req.body;
 
@@ -183,7 +183,7 @@ router.put("/:id", upload.fields([{ name: "campus_cover_photo", maxCount: 1 }]),
   }
 });
 
-router.put("/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 10 }]), async (req, res) => {
+router.put("/campuses/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 10 }]), async (req, res) => {
   const { campusId } = req.params;
   const { floors } = req.body;
 
@@ -231,7 +231,7 @@ router.put("/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 
   }
 });
 
-router.get("/:campusId/floors/:floorId/markers", async (req, res) => {
+router.get("/campuses/:campusId/floors/:floorId/markers", async (req, res) => {
   const { campusId, floorId } = req.params;
 
   try {
@@ -252,7 +252,7 @@ router.get("/:campusId/floors/:floorId/markers", async (req, res) => {
   }
 });
 
-router.put("/:campusId/floors/:floorId/markers", upload.fields([{ name: "marker_photo", maxCount: 1 }]), async (req, res) => {
+router.put("/campuses/:campusId/floors/:floorId/markers", upload.fields([{ name: "marker_photo", maxCount: 1 }]), async (req, res) => {
   const { campusId, floorId } = req.params;
   const { latitude, longitude } = req.body;
 
@@ -310,7 +310,7 @@ const uploadToCloudinary = (buffer, folder) => {
 };
 
 // Update floors for a specific campus
-router.put("/:id/floors", async (req, res) => {
+router.put("/campuses/:id/floors", async (req, res) => {
   const { id } = req.params; // Campus ID
   const { floors } = req.body; // Updated floors array
 
@@ -337,8 +337,7 @@ router.put("/:id/floors", async (req, res) => {
   }
 });
 
-// Get All Campuses (Only campus_name, latitude, longitude)
-router.get("/", async (req, res) => {
+router.get("/campuses", async (req, res) => {
   try {
     const campuses = await Campus.find().select(
       "campus_name latitude longitude"
@@ -350,7 +349,7 @@ router.get("/", async (req, res) => {
 });
 
 // Delete Campus
-router.delete("/:id", async (req, res) => {
+router.delete("/campuses/:id", async (req, res) => {
   try {
     const campus = await Campus.findByIdAndDelete(req.params.id);
     if (!campus) {
@@ -362,7 +361,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.get("/floors/:floorId/markers", async (req, res) => {
+router.get("/campuses/floors/:floorId/markers", async (req, res) => {
   const { floorId } = req.params;
 
   try {
@@ -387,7 +386,7 @@ router.get("/floors/:floorId/markers", async (req, res) => {
 });
 
 router.put(
-  "/:campusId/floors/:floorId/markers/:markerId",
+  "/campuses/:campusId/floors/:floorId/markers/:markerId",
   upload.single("marker_photo"), // Single file upload for the marker photo
   async (req, res) => {
     const { campusId, floorId, markerId } = req.params;
@@ -457,7 +456,7 @@ router.get("/markers", async (req, res) => {
   }
 });
 
-router.delete("/:campusId/floors/:floorId/markers/:markerId", async (req, res) => {
+router.delete("/campuses/:campusId/floors/:floorId/markers/:markerId", async (req, res) => {
   const { campusId, floorId, markerId } = req.params;
 
   try {
@@ -484,7 +483,7 @@ router.delete("/:campusId/floors/:floorId/markers/:markerId", async (req, res) =
   }
 });
 
-router.put("//:campusId/update-floor-order", async (req, res) => {
+router.put("/campuses/:campusId/update-floor-order", async (req, res) => {
   try {
     const { campusId } = req.params;
     const { floors } = req.body; // Array of floors with updated order
@@ -508,6 +507,333 @@ router.put("//:campusId/update-floor-order", async (req, res) => {
   }
 });
 
+router.post('/campuses/unarchive/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the archived campus
+    const archivedCampus = await ArchivedCampus.findById(id);
+    if (!archivedCampus) {
+      return res.status(404).send({ message: "Archived campus not found" });
+    }
+
+    // Create a new campus document in the active collection
+    const newCampus = new Campus(archivedCampus.toObject());
+    await newCampus.save();
+
+    // Delete the archived campus
+    await ArchivedCampus.findByIdAndDelete(id);
+
+    res.status(200).send(newCampus);
+  } catch (error) {
+    res.status(500).send({ message: "Error unarchiving campus", error });
+  }
+});
+
+router.post('/archived-campuses', async (req, res) => {
+  try {
+    // Add the current date as the date_added field
+    const archivedCampusData = {
+      ...req.body, // Copy all fields from the request body
+      date_added: new Date(), // Set the current date as the date_added field
+    };
+
+    // Create a new archived campus document
+    const archivedCampus = new ArchivedCampus(archivedCampusData);
+
+    // Save the archived campus to the database
+    await archivedCampus.save();
+
+    // Send a success response
+    res.status(201).send(archivedCampus);
+  } catch (error) {
+    console.error("Error archiving campus:", error);
+    res.status(400).send(error);
+  }
+});
+
+router.get("/archived-campuses", async (req, res) => {
+  try {
+    // Fetch all archived campuses from the database
+    const archivedCampuses = await ArchivedCampus.find({});
+
+    // Send the archived campuses as a response
+    res.status(200).json(archivedCampuses);
+  } catch (error) {
+    console.error("Error fetching archived campuses:", error);
+    res.status(500).json({ message: "Failed to fetch archived campuses" });
+  }
+});
+
+router.post("/archived-campuses/unarchive/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Step 1: Find the archived campus
+    const archivedCampus = await ArchivedCampus.findById(id);
+    if (!archivedCampus) {
+      return res.status(404).json({ message: "Archived campus not found" });
+    }
+
+    // Step 2: Create a new campus document in the active collection
+    const newCampusData = {
+      ...archivedCampus.toObject(), // Copy all fields from the archived campus
+      date_added: new Date(), // Set the current date as the date_added field
+    };
+
+    const newCampus = new Campus(newCampusData);
+
+    // Step 3: Save the new campus to the active collection
+    await newCampus.save();
+
+    // Step 4: Delete the archived campus from the archived collection
+    await ArchivedCampus.findByIdAndDelete(id);
+
+    // Step 5: Send a success response
+    res.status(200).json({
+      message: "Campus unarchived successfully",
+      campus: newCampus,
+    });
+  } catch (error) {
+    console.error("Error unarchiving campus:", error);
+    res.status(500).json({ message: "Failed to unarchive campus" });
+  }
+});
+
+router.post("/campuses/:campusId/floors/:floorId/archive", async (req, res) => {
+  try {
+    const { campusId, floorId } = req.params;
+
+    // Step 1: Find the campus
+    const campus = await Campus.findById(campusId);
+    if (!campus) {
+      return res.status(404).json({ message: "Campus not found" });
+    }
+
+    // Step 2: Find the floor
+    const floorToArchive = campus.floors.find(floor => floor._id.toString() === floorId);
+    if (!floorToArchive) {
+      return res.status(404).json({ message: "Floor not found" });
+    }
+
+    // Step 3: Archive the floor (store it in ArchivedItem)
+    const archivedItem = new ArchivedItem({
+      type: "floor", // Set type as floor
+      floor_data: floorToArchive.toObject(), // Store floor details
+      location_data: null, // Make sure this is null to prevent validation errors
+      campus_id: campusId,
+      date_archived: new Date(),
+    });
+
+    await archivedItem.save();
+
+    // Step 4: Remove the floor from the original campus
+    campus.floors = campus.floors.filter(floor => floor._id.toString() !== floorId);
+
+    await campus.save();
+
+    // Step 5: Respond with success
+    res.status(201).json({
+      message: "Floor archived successfully",
+      archivedItem,
+    });
+  } catch (error) {
+    console.error("Error archiving floor:", error);
+    res.status(500).json({ message: "Failed to archive floor" });
+  }
+});
+
+router.get("/archived-items", async (req, res) => {
+  try {
+    // Fetch all archived items and populate the campus name
+    const archivedItems = await ArchivedItem.find({})
+      .populate("campus_id", "campus_name"); // Populate the campus_name field
+
+    // Send the archived items as a response
+    res.status(200).json(archivedItems);
+  } catch (error) {
+    console.error("Error fetching archived items:", error);
+    res.status(500).json({ message: "Failed to fetch archived items" });
+  }
+});
+
+router.post("/archived-items/:id/unarchive", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Step 1: Find the archived item
+    const archivedItem = await ArchivedItem.findById(id);
+    if (!archivedItem) {
+      return res.status(404).json({ message: "Archived item not found" });
+    }
+
+    // Step 2: Find the original campus
+    const campus = await Campus.findById(archivedItem.campus_id);
+    if (!campus) {
+      return res.status(404).json({ message: "Campus not found" });
+    }
+
+    // Step 3: Restore the item
+    if (archivedItem.type === "floor") {
+      campus.floors.push(archivedItem.floor_data);
+    } else if (archivedItem.type === "location") {
+      // Get the floor ID stored in the archived data
+      const floor = campus.floors.id(archivedItem.floor_id);
+      if (!floor) {
+        return res.status(404).json({ message: "Floor not found for this marker" });
+      }
+
+      // Restore the marker to the floor
+      floor.markers.push(archivedItem.location_data);
+    }
+
+    // Step 4: Save changes
+    await campus.save();
+
+    // Step 5: Delete the archived item
+    await ArchivedItem.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Item unarchived successfully", campus });
+  } catch (error) {
+    console.error("Error unarchiving item:", error);
+    res.status(500).json({ message: "Failed to unarchive item" });
+  }
+});
+
+
+
+router.post("/campuses/:campusId/locations/:locationId/archive", async (req, res) => {
+  try {
+    const { campusId, locationId } = req.params;
+    console.log(`Archiving location ${locationId} from campus ${campusId}`);
+
+    // Step 1: Find the campus
+    const campus = await Campus.findById(campusId);
+    if (!campus) {
+      console.log("Campus not found");
+      return res.status(404).json({ message: "Campus not found" });
+    }
+
+    // Step 2: Find the specific location to archive
+    const locationToArchive = campus.locations.find(
+      (location) => location._id.toString() === locationId
+    );
+    if (!locationToArchive) {
+      console.log("Location not found");
+      return res.status(404).json({ message: "Location not found" });
+    }
+
+    // Step 3: Create a new archived item for the location
+    const archivedItem = new ArchivedItem({
+      type: "location", // Set the type to "location"
+      location_data: locationToArchive.toObject(), // Copy all fields from the location
+      campus_id: campusId, // Reference to the original campus
+      date_archived: new Date(), // Set the current date as the date_archived field
+    });
+
+    // Step 4: Save the archived item
+    await archivedItem.save();
+
+    // Step 5: Remove the location from the original campus
+    campus.locations = campus.locations.filter(
+      (location) => location._id.toString() !== locationId
+    );
+
+    // Step 6: Save the updated campus
+    await campus.save();
+
+    // Step 7: Send a success response
+    console.log("Location archived successfully");
+    res.status(201).json({
+      message: "Location archived successfully",
+      archivedItem,
+    });
+  } catch (error) {
+    console.error("Error archiving location:", error);
+    res.status(500).json({ message: "Failed to archive location" });
+  }
+});
+
+router.post("/archive-item", async (req, res) => {
+  try {
+    const { type, floor_data, location_data, campus_id } = req.body;
+
+    // Create a new archived item
+    const archivedItem = new ArchivedItem({
+      type,
+      floor_data: type === "floor" ? floor_data : undefined,
+      location_data: type === "location" ? location_data : undefined,
+      campus_id,
+    });
+
+    // Save the archived item
+    await archivedItem.save();
+
+    // Send a success response
+    res.status(201).json({
+      message: "Item archived successfully",
+      archivedItem,
+    });
+  } catch (error) {
+    console.error("Error archiving item:", error);
+    res.status(500).json({ message: "Failed to archive item" });
+  }
+});
+
+router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", async (req, res) => {
+  try {
+    const { campusId, floorId, markerId } = req.params;
+
+    // Step 1: Find the campus
+    const campus = await Campus.findById(campusId);
+    if (!campus) {
+      return res.status(404).json({ message: "Campus not found" });
+    }
+
+    // Step 2: Find the specific floor
+    const floor = campus.floors.find((floor) => floor._id.toString() === floorId);
+    if (!floor) {
+      return res.status(404).json({ message: "Floor not found" });
+    }
+
+    // Step 3: Find the specific marker to archive
+    const markerToArchive = floor.markers.find(
+      (marker) => marker._id.toString() === markerId
+    );
+    if (!markerToArchive) {
+      return res.status(404).json({ message: "Marker not found" });
+    }
+
+    // Step 4: Create a new archived item for the marker
+    const archivedItem = new ArchivedItem({
+      type: "location", // Set type to "location"
+      location_data: markerToArchive.toObject(), // Store marker details
+      floor_id: floorId, // 🔹 Store floor ID to track its original location
+      campus_id: campusId, // Store campus ID
+      date_archived: new Date(),
+    });
+
+    // Step 5: Save the archived item
+    await archivedItem.save();
+
+    // Step 6: Remove the marker from the floor
+    floor.markers = floor.markers.filter(
+      (marker) => marker._id.toString() !== markerId
+    );
+
+    // Step 7: Save the updated campus
+    await campus.save();
+
+    // Step 8: Send a success response
+    res.status(201).json({
+      message: "Marker archived successfully",
+      archivedItem,
+    });
+  } catch (error) {
+    console.error("Error archiving marker:", error);
+    res.status(500).json({ message: "Failed to archive marker" });
+  }
+});
 
 
 export default router;

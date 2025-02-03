@@ -101,7 +101,7 @@ const MajorField = () => {
           </Button>
         </div>
 
-        <div className="mt-2">
+        <div  className="mt-4 h-[300px] overflow-y-auto">
           {isLoading ? (
             <p>Loading all major...</p>
           ) : isError ? (

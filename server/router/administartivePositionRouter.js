@@ -1,6 +1,6 @@
 import express from "express";
 import AdministartivePosition from "../models/AdministartivePosition.js";
-import KeyOfficial from "../models/KeyOfficial.js"; // Import the KeyOfficial model
+import {KeyOfficial} from "../models/KeyOfficial.js"; // Import the KeyOfficial model
 import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();

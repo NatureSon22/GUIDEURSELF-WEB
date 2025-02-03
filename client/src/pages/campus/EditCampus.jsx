@@ -424,13 +424,13 @@ const EditCampus = () => {
                         <div key={index} className="flex flex-col gap-2">
                         <div className="flex justify-between items-center">
                             <h4 className="text-lg font-medium">{program.program_name}</h4>
-                            <Button
+                            <button
                             type="button"
                             className="text-red-500"
                             onClick={() => handleRemoveProgram(programType.program_type_id, index)}
                             >
                             <img src={CloseIcon} className="w-[20px] h-[20px]" alt="Remove Program" />
-                            </Button>
+                            </button>
                         </div>
                         <p className="text-sm ml-4">Major in:</p>
                         <ul className="list-disc ml-8">

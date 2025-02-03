@@ -130,59 +130,58 @@ const AdministrativeField = () => {
           </Button>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 h-[300px] overflow-y-auto">
           {isLoading ? (
             <p>Loading positions...</p>
           ) : isError ? (
             <p>Error fetching positions.</p>
           ) : (
-            <table className="w-full text-left border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 border text-center text-[0.9rem]">Position Name</th>
-                <th className="p-2 border text-center text-[0.9rem]">Date Added</th>
-                <th className="p-2 border text-center text-[0.9rem]">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(positions || []).length > 0 ? (
-                positions.map((position) => (
-                  <tr key={position._id}>
-                    <td className="p-2 border text-[0.9rem] w-[702px]">
-                      {position.position_name}
-                    </td>
-                    <td className="p-2 border text-center text-[0.9rem]">
-                    {formatDate(position.date_added)} 
-                    </td>
-                    <td className="p-2 border text-[0.9rem] flex gap-2">
-                      <Button
-                        variant="secondary"
-                        className="bg-base-200/10 text-base-200"
-                        onClick={() => handleOpenEditModal(position)}
-                      >
-                      <BiSolidEdit />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        className="p-1 bg-red-500 w-full text-white rounded-md"
-                        onClick={() => handleDeletePosition(position._id)}
-                      >
-                     <MdDelete />
-                      </Button>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 border text-center text-[0.9rem]">Position Name</th>
+                  <th className="p-2 border text-center text-[0.9rem]">Date Added</th>
+                  <th className="p-2 border text-center text-[0.9rem]">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(positions || []).length > 0 ? (
+                  positions.map((position) => (
+                    <tr key={position._id}>
+                      <td className="p-2 border text-[0.9rem] w-[702px]">
+                        {position.position_name}
+                      </td>
+                      <td className="p-2 border text-center text-[0.9rem]">
+                        {formatDate(position.date_added)}
+                      </td>
+                      <td className="p-2 border text-[0.9rem] flex gap-2">
+                        <Button
+                          variant="secondary"
+                          className="bg-base-200/10 text-base-200"
+                          onClick={() => handleOpenEditModal(position)}
+                        >
+                          <BiSolidEdit />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="p-1 bg-red-500 w-full text-white rounded-md"
+                          onClick={() => handleDeletePosition(position._id)}
+                        >
+                          <MdDelete />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="p-2 border text-center" colSpan="3">
+                      No positions available
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="p-2 border" colSpan="3">
-                    No positions available
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          
+                )}
+              </tbody>
+            </table>
           )}
         </div>
       </div>

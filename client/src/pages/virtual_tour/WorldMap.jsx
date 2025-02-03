@@ -3,6 +3,7 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useQuery } from "@tanstack/react-query";
  
@@ -39,12 +40,10 @@ const WorldMap = () => {
       );
 
 return (
-    
     <MapContainer
     center={position}
     zoom={11}
-    className="min-h-screen w-[100%] z-[10] outline-none border border-gray-300"
-    zoomControl={false}
+    className="h-[100vh] w-[100%] z-[10] outline-none border border-gray-300"
     attributionControl={false}
   >
     <TileLayer
@@ -77,8 +76,6 @@ return (
       ))}
   </MapContainer>
 )
-
-
 }
 
 export default WorldMap;

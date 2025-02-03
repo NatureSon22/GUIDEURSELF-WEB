@@ -16,12 +16,13 @@ const keyOfficialSchema = new mongoose.Schema({
   campus_id: { 
     type: mongoose.Schema.Types.ObjectId, 
     required: true },
-  is_deleted: { 
-    type: Boolean, 
-    default: false 
+  date_added: { 
+    type: Date, 
+    default: Date.now 
   },
 });
 
 const KeyOfficial = mongoose.model("KeyOfficial", keyOfficialSchema, 'keyofficial');
+const ArchivedKeyOfficial = mongoose.model("ArchivedKeyOfficial", keyOfficialSchema, 'archivedkeyofficial');
 
-export default KeyOfficial;
+export {KeyOfficial, ArchivedKeyOfficial};

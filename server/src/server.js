@@ -38,7 +38,7 @@ app.use("/api/role-types", roleTypesRouter);
 app.use("/api/accounts", accountRouter);
 app.use("/api/templates", templateRouter);
 app.use("/api/status", statusRouter);
-app.use("/api/campuses", campusRouter);
+app.use("/api", campusRouter);
 app.use("/api/administartiveposition", administrativePositionRoutes);
 app.use("/api/keyofficials", keyOfficialRoutes);
 app.use("/api/campusprogramtypes", campusProgramTypeRouter);
@@ -46,6 +46,7 @@ app.use("/api/campusprogramnames", campusProgramNameRouter);
 app.use("/api/campusmajors", campusMajorRouter);
 app.use("/api/university", universityManagementRouter);
 app.use("/api/general", generalSettingsRouter);
+app.use("/api/virtualtourlogs", virtualTourLogRouter);
 
 (async () => {
   config();

@@ -16,5 +16,24 @@ const fetchKeyOfficials = async () => {
   }
 };
 
+const fetchArchivedKeyOfficials = async () => {
+  try {
+  const res = await fetch("http://localhost:3000/api/keyofficials/archived", {
+    method: "GET",
+    credentials: "include",
+  });
 
-export { fetchKeyOfficials };
+  if (!res.ok) {
+    throw new Error("Failed to fetch archived key officials");
+  }
+
+  
+  const data = await res.json();
+  return data;
+} catch (error) {
+  throw new Error(error.message || "Failed to load key officials!");
+}
+};
+
+
+export { fetchKeyOfficials, fetchArchivedKeyOfficials };

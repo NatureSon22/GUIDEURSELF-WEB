@@ -1,16 +1,13 @@
-const columns = () => [
+import {Button} from "@/components/ui/button";
+
+const columns = (columnActions) => [
   {
-    accessorKey: "file_name",
-    header: "Filename",
+    accessorKey: "floor_photo_url",
+    header: "Floor",
     filterFn: "equalsString",
   },
   {
-    accessorKey: "uploaded_by",
-    header: "Uploaded by",
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "campus",
+    accessorKey: "campus_id.campus_name",
     header: "Campus",
     filterFn: "equalsString",
   },
@@ -18,6 +15,7 @@ const columns = () => [
     accessorKey: "date_archived",
     header: "Date Archived",
     filterFn: "equalsString",
+    cell: ({ row }) => new Date(row.original.date_archived).toLocaleDateString(), // Format the date
   },
   {
     accessorKey: "type",
@@ -26,6 +24,12 @@ const columns = () => [
   },
   {
     header: "Action",
+    accessorKey: "action",
+    cell: ({ row }) => (
+      <Button onClick={() => columnActions.handleUnarchive(row.original._id)}>
+        Unarchive
+      </Button>
+    ),
   },
 ];
 

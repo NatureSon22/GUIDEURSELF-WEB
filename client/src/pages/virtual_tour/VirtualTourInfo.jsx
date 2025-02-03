@@ -2,13 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { getUniversityData } from "@/api/component-info";
-import Gallery from "@/assets/DoubleGallery.png"
-import Pin from "@/assets/StylePin.png";
 import { TbMap2 } from "react-icons/tb";
 import { RiCameraLensLine } from "react-icons/ri";
 import { MdTouchApp } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { loggedInUser } from "@/api/auth";
 
 const fetchCampuses = async () => {
     
@@ -27,6 +26,12 @@ const VirtualTourInfo = () => {
     const [loadingVisible, setLoadingVisible] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const navigate = useNavigate();
+
+    const { data, isLoading } = useQuery({
+      queryKey: ["user"],
+      queryFn: loggedInUser,
+      refetchOnWindowFocus: false,
+    });
 
     const { data: university } = useQuery({
         queryKey: ["universitysettings"],
@@ -132,7 +137,7 @@ const VirtualTourInfo = () => {
                     </div>        
                     <Link to="/virtual-tour/media-library" className="w-[100%] h-[50px]">
                         <button className="w-[100%] text-md h-[100%] flex justify-center gap-4 font-medium items-center border-base-200 outline-none focus-none border-[1.5px] rounded-md">
-                        <img className="w-[30] h-[30px]" src={Gallery} alt="Add Officials" />
+                        
                         <p className="text-base-200 font-medium">Media Library</p>
                         </button>
                     </Link>

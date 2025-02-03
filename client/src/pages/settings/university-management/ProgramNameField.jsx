@@ -101,7 +101,7 @@ const ProgramNameField = () => {
           </Button>
         </div>
 
-        <div className="mt-2">
+        <div  className="mt-4 h-[300px] overflow-y-auto">
           {isLoading ? (
             <p>Loading program type...</p>
           ) : isError ? (
