@@ -23,7 +23,6 @@ import {
   AddAccount,
   EditAccount,
   Roles,
-  EditAssignRole,
   Settings,
   CampusDocument,
   AllDocuments,
@@ -47,6 +46,7 @@ import {
   LegalContainer,
   TermsOfService,
   PrivacyPolicy,
+  MediaLibrary
 } from "./routescomponents.jsx";
 import NetworkLayer from "./layer/NetworkLayer.jsx";
 import EditAssignRoleRefined from "./pages/roles/EditAssignRoleRefined.jsx";
@@ -112,13 +112,10 @@ const routes = [
             path: "",
             element: <VirtualTourDashboard />,
           },
-<<<<<<< HEAD
           {
             path: "media-library",
             element: <MediaLibrary />,
-          },
-=======
->>>>>>> 2d061da6b605285f64b3c7411aa9a889506babf5
+          }
         ],
       },
       {

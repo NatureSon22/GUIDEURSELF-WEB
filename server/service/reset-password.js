@@ -5,6 +5,12 @@ config();
 
 const sendPasswordResendEmail = async (email, password) => {
   try {
+    const loginUrl = `${
+      process.env.CLIENT_URL
+    }/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(
+      password
+    )}`;
+
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
@@ -32,9 +38,10 @@ const sendPasswordResendEmail = async (email, password) => {
             </div>
             <div class="header" style="font-size: 26px; font-weight: 600; color: #2c3e50; margin-bottom: 25px;">Password Resend Request</div>
             <div class="content" style="text-align: left; font-size: 15px; color: #555; line-height: 1.8;">
-              <p>Your password has been resent. Here is your password:</p>
+              <p>Your password has been resent. Here are your login credentials:</p>
               
               <div class="credentials" style="background-color: rgba(18, 165, 188, 0.1); padding: 20px; border-radius: 8px; margin: 25px 0; font-weight: 500; color: #2c3e50; border: 1px solid rgba(18, 165, 188, 0.2);">
+                <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Password:</strong> ${password}</p>
               </div>
               
@@ -45,7 +52,7 @@ const sendPasswordResendEmail = async (email, password) => {
               </ul>
               
               <div style="text-align: center;">
-                <a href="https://your-platform-url.com/login" class="button" style="display: inline-block; padding: 14px 32px; margin: 25px 0; background: linear-gradient(135deg, rgba(18, 165, 188, 1), rgba(0, 123, 255, 1)); color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500; transition: 0.3s ease-in-out; box-shadow: 0 4px 12px rgba(18, 165, 188, 0.2);">Login to Your Account</a>
+                <a href="${loginUrl}" class="button" style="display: inline-block; padding: 14px 32px; margin: 25px 0; background: linear-gradient(135deg, rgba(18, 165, 188, 1), rgba(0, 123, 255, 1)); color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500; transition: 0.3s ease-in-out; box-shadow: 0 4px 12px rgba(18, 165, 188, 0.2);">Login to Your Account</a>
               </div>
             </div>
             

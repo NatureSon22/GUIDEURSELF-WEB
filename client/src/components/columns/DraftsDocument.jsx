@@ -13,7 +13,7 @@ const handleNavigate = (navigate, type, id) => {
   navigate(route);
 };
 
-const column = ({ navigate }) => {
+const column = ({ navigate, setOpen, setSelectedDocument }) => {
   return [
     {
       accessorKey: "file_name",
@@ -54,6 +54,10 @@ const column = ({ navigate }) => {
           <Button
             variant="destructive"
             className="group rounded-full bg-accent-100/10 px-[0.65rem]"
+            onClick={() => {
+              setOpen(true);
+              setSelectedDocument(row.original._id);
+            }}
           >
             <MdDelete className="text-accent-100 group-hover:text-white" />
           </Button>

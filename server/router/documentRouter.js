@@ -11,9 +11,12 @@ import {
   saveAsDraftUploadWebPage,
   saveAsDraftUploadDocuments,
   uploadDraftFilesAndCreateDocuments,
+  syncDocument,
+  deleteDocument,
 } from "../controller/document.js";
 import multer from "multer";
 import storage from "../config/storage.js";
+import { updateUploadDocument } from "../controller/documentUpdate.js";
 
 const MAX_TOTAL_SIZE = 100 * 1024 * 1024;
 
@@ -79,6 +82,13 @@ documentRouter.post(
   "/create-draft-web",
   upload.none(),
   saveAsDraftUploadWebPage
+);
+documentRouter.put("/sync-draft/:documentId", syncDocument);
+documentRouter.delete("/delete-document/:documentId", deleteDocument);
+documentRouter.put(
+  "/update-upload-document",
+  upload.none(),
+  updateUploadDocument
 );
 
 documentRouter.use((err, req, res, next) => {

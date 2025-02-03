@@ -4,11 +4,12 @@ import sendVerificationEmail from "../service/email.js";
 import generatePassword from "password-generator";
 import fs from "fs";
 import { Types } from "mongoose";
+import sendPasswordResendEmail from "../service/reset-password.js";
 
 const getAllAccounts = async (req, res, next) => {
   try {
     // Create a $match stage based on isMultiCampus
-    console.log(req.user.isMultiCampus);
+    console.log(req.user.isMultiCampus); // true or false
     const matchStage = req.user.isMultiCampus
       ? {
           $match: {
@@ -500,6 +501,41 @@ const deleteAccounts = async (req, res) => {
   }
 };
 
+const resetPassword = async (req, res) => {
+  try {
+    const { email, campusId } = req.body;
+
+    const user = await UserModel.findOne({ email, campus_id: campusId });
+
+    if (!user) {
+      return res.status(200).json({
+        message: "If the account exists, a password reset has been initiated.",
+      });
+    }
+
+    const password = generatePassword(12, false);
+
+    await UserModel.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          password: password,
+          date_updated: new Date(),
+        },
+      }
+    );
+
+    await sendPasswordResendEmail(user.email, password);
+
+    res.status(200).json({
+      message: "If the account exists, a password reset has been initiated.",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 export {
   getAllAccounts,
   addAccount,
@@ -511,4 +547,5 @@ export {
   bulkAddAccount,
   deleteAccounts,
   getLoggedInAccount,
+  resetPassword,
 };

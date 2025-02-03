@@ -1,24 +1,35 @@
-import Header from "@/components/Header";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { RiAddLargeFill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import DataTable from "@/components/DataTable";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { RiAddLargeFill } from "react-icons/ri";
 import { GrPowerReset } from "react-icons/gr";
-import Loading from "@/components/Loading";
-import { useQuery } from "@tanstack/react-query";
+
+import { deleteDocument, getAllDocuments } from "@/api/documents";
+
+import Header from "@/components/Header";
+import DataTable from "@/components/DataTable";
 import AllDocumentsColumns from "@/components/columns/AllDocuments";
 import DraftDocumentsColumns from "@/components/columns/DraftsDocument";
 import ComboBox from "@/components/ComboBox";
 import DateRangePicker from "@/components/DateRangePicker";
-import { getAllDocuments } from "@/api/documents";
+import Loading from "@/components/Loading";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import DialogContainer from "@/components/DialogContainer";
+import { FaCircleExclamation } from "react-icons/fa6";
+import { useToast } from "@/hooks/use-toast";
+import { getAllCampuses } from "@/api/component-info";
+import documentStatus from "@/data/documentStatus";
 
 const AllDocuments = () => {
+  const { toast } = useToast();
   const [type, setType] = useState("all-documents");
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [reset, setReset] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: allDocuments, isLoading: isLoadingAllDocuments } = useQuery({
     queryKey: ["all-documents"],
@@ -31,7 +42,38 @@ const AllDocuments = () => {
       queryFn: () => getAllDocuments("", "", true),
     });
 
-  const navigate = useNavigate();
+  const { data: allCampuses } = useQuery({
+    queryKey: ["allCampuses"],
+    queryFn: getAllCampuses,
+  });
+
+  const [open, setOpen] = useState(false);
+
+  const [selectedDocument, setSelectedDocument] = useState(null);
+
+  const {
+    mutateAsync: handleDeleteDocument,
+    isPending,
+    isSuccess,
+  } = useMutation({
+    mutationFn: () => deleteDocument(selectedDocument),
+    onSuccess: () => {
+      setTimeout(() => {
+        setOpen(false);
+        setSelectedDocument(null);
+        queryClient.invalidateQueries(["all-documents"]);
+      }, 1000);
+    },
+    onError: () => {
+      toast({
+        title: "Delete Failed",
+        variant: "destructive",
+        description: "Failed to delete document. Please try again.",
+      });
+      setOpen(false);
+      setSelectedDocument(null);
+    },
+  });
 
   const handleTypeChange = (newType) => setType(newType);
 
@@ -42,6 +84,8 @@ const AllDocuments = () => {
     setGlobalFilter("");
     setReset(!reset);
   };
+
+  const handleClose = () => setOpen(false);
 
   return (
     <div className="flex gap-8 overflow-hidden">
@@ -74,14 +118,14 @@ const AllDocuments = () => {
           <p>Filters:</p>
           <DateRangePicker />
           <ComboBox
-            options={[]}
+            options={allCampuses || []}
             placeholder="select campus"
             filter="campus_name"
             setFilters={setFilters}
             reset={reset}
           />
           <ComboBox
-            options={[]}
+            options={documentStatus || []}
             placeholder="select status"
             filter="status"
             setFilters={setFilters}
@@ -110,7 +154,7 @@ const AllDocuments = () => {
             globalFilter={globalFilter}
             filters={filters}
             pageSize={8}
-            columnActions={{ navigate }}
+            columnActions={{ navigate, setOpen, setSelectedDocument }}
           />
         )}
       </div>
@@ -146,6 +190,41 @@ const AllDocuments = () => {
           </p>
         </div>
       </div>
+
+      <DialogContainer
+        openDialog={open}
+        style={{ width: isSuccess ? "sm:max-w-[350px]" : "sm:max-w-[400px]" }}
+      >
+        {isSuccess ? (
+          <p className="text-[0.95rem] font-semibold">
+            Document successfully removed!
+          </p>
+        ) : (
+          <div className="flex flex-col items-center gap-5">
+            <FaCircleExclamation className="text-[2.5rem] text-base-200" />
+            <p className="text-[0.95rem] font-semibold">
+              Do you want to remove this document?
+            </p>
+            <div className="flex w-full gap-4">
+              <Button
+                variant="outline"
+                className="flex-1 border-secondary-200 py-1 text-secondary-100-75"
+                onClick={handleClose}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="hover:bg flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
+                onClick={handleDeleteDocument}
+                disabled={isPending}
+              >
+                {isPending ? "Proceeding..." : "Proceed"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContainer>
     </div>
   );
 };

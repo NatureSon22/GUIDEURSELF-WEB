@@ -3,17 +3,11 @@ import { lazy } from "react";
 // Dashboard & Virtual Tour
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard.jsx"));
 const VirtualTour = lazy(() => import("./pages/virtual_tour/VirtualTour.jsx"));
-<<<<<<< HEAD
 const MediaLibrary = lazy(() => import("./pages/virtual_tour/MediaLibrary"));
 const VirtualTourDashboard = lazy(
   () => import("./pages/virtual_tour/VirtualTourDashboard.jsx"),
 );
 
-=======
-const VirtualTourDashboard = lazy(
-  () => import("./pages/virtual_tour/VirtualTourDashboard.jsx"),
-);
->>>>>>> 2d061da6b605285f64b3c7411aa9a889506babf5
 const BuildMode = lazy(() => import("./pages/virtual_tour/BuildMode.jsx"));
 const EditMode = lazy(() => import("./pages/virtual_tour/EditMode.jsx"));
 
@@ -152,8 +146,5 @@ export {
   LegalContainer,
   TermsOfService,
   PrivacyPolicy,
-<<<<<<< HEAD
   MediaLibrary,
-=======
->>>>>>> 2d061da6b605285f64b3c7411aa9a889506babf5
 };

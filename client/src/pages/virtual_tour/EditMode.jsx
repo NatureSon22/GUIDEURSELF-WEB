@@ -4,13 +4,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import AddFloorModal from "./AddFloorModal";
 import HeaderSection from "./HeaderSection";
-import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  ImageOverlay,
+  Marker,
+  useMapEvents,
+  Popup,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
-import L from "leaflet"; 
+import L from "leaflet";
 import AddMarkerModal from "./AddMarkerModal";
 import ConfirmationDialog from "./ConfirmationDialog";
-import DeleteMarkerConfirmationDialog from "./DeleteMarkerConfirmationDialog"
+import DeleteMarkerConfirmationDialog from "./DeleteMarkerConfirmationDialog";
 import EditMarkerModal from "./EditMarkerModal";
 import { GoAlert } from "react-icons/go";
 import { MdClose } from "react-icons/md";
@@ -28,13 +34,17 @@ import { BsDoorOpenFill } from "react-icons/bs";
 import { PiOfficeChairFill } from "react-icons/pi";
 import { FaGraduationCap } from "react-icons/fa";
 import { FaFlag } from "react-icons/fa";
-import { ImManWoman } from "react-icons/im";  
+import { ImManWoman } from "react-icons/im";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HiSquaresPlus } from "react-icons/hi2";
 import { loggedInUser } from "@/api/auth";
 
 const categoryConfig = {
-  "Academic Spaces": { color: "bg-yellow-500", padding: "pl-[1px]", icon: BsDoorOpenFill },
+  "Academic Spaces": {
+    color: "bg-yellow-500",
+    padding: "pl-[1px]",
+    icon: BsDoorOpenFill,
+  },
   "Administrative Offices": { color: "bg-red-500", icon: PiOfficeChairFill },
   "Student Services": { color: "bg-blue-500", icon: FaGraduationCap },
   "Campus Attraction": { color: "bg-green-500", icon: FaFlag },
@@ -44,12 +54,16 @@ const categoryConfig = {
 
 // Reusable Marker Component
 const MarkerIcon = ({ bgColor, IconComponent }) => (
-  <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] ${bgColor}`}>
+  <div
+    className={`flex h-[45px] w-[45px] items-center justify-center rounded-full pl-[2px] ${bgColor}`}
+  >
     <IconComponent color="white" size={25} className="" />
   </div>
 );
 
-const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={38} className="text-base-200" />);
+const iconSvg = renderToStaticMarkup(
+  <FaMapMarkerAlt size={38} className="text-base-200" />,
+);
 const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
 
 // Convert React component to Leaflet divIcon
@@ -57,7 +71,9 @@ const createIcon = (category) => {
   const { color, icon: IconComponent } = categoryConfig[category] || {}; // Get config or undefined
   if (!IconComponent) return defaultIcon; // Return default if category not found
 
-  const iconString = renderToString(<MarkerIcon bgColor={color} IconComponent={IconComponent} />);
+  const iconString = renderToString(
+    <MarkerIcon bgColor={color} IconComponent={IconComponent} />,
+  );
 
   return L.divIcon({
     html: iconString,
@@ -68,9 +84,13 @@ const createIcon = (category) => {
 };
 
 // Generate only when needed
-const customIcons = new Proxy({}, {
-  get: (target, category) => target[category] || (target[category] = createIcon(category))
-});
+const customIcons = new Proxy(
+  {},
+  {
+    get: (target, category) =>
+      target[category] || (target[category] = createIcon(category)),
+  },
+);
 
 // Default marker icon
 const defaultIcon = L.icon({
@@ -80,11 +100,13 @@ const defaultIcon = L.icon({
 });
 
 const fetchCampusData = async (campusId) => {
-
-  const response = await fetch(`http://localhost:3000/api/campuses/${campusId}`, {
-    method: "GET",
-    credentials: "include",
-  });
+  const response = await fetch(
+    `http://localhost:3000/api/campuses/${campusId}`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch campus data");
@@ -104,31 +126,31 @@ const fetchCampusData = async (campusId) => {
 
 const EditMode = () => {
   const location = useLocation();
-const navigate = useNavigate();
-const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-const { campus } = location.state || {};
+  const { campus } = location.state || {};
 
-const [selectedFloor, setSelectedFloor] = useState(null);
-const [selectedMarker, setSelectedMarker] = useState(null);
-const [isModalOpen, setIsModalOpen] = useState(false);
-const [isEditing, setIsEditing] = useState(false);
-const [isDialogOpen, setIsDialogOpen] = useState(false);
-const [isMarkerDialogOpen, setIsMarkerDialogOpen] = useState(false);
-const [markerToRemove, setMarkerToRemove] = useState(null);
-const [floorToRemove, setFloorToRemove] = useState(null);
-const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
-const [currentMarkers, setCurrentMarkers] = useState([]);
-const [isAddMarkerModalOpen, setAddMarkerModalOpen] = useState(false);
-const [loadingVisible, setLoadingVisible] = useState(false);
-const [isRemove, setIsRemove] = useState(false);
-const [expandedFloor, setExpandedFloor] = useState(null);
-const [isSliderOpen, setIsSliderOpen] = useState(true);
-const [searchQuery, setSearchQuery] = useState("");
-const [loadingMessage, setLoadingMessage] = useState("");
-const toggleSlider = () => {
-  setIsSliderOpen(!isSliderOpen);
-};
+  const [selectedFloor, setSelectedFloor] = useState(null);
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMarkerDialogOpen, setIsMarkerDialogOpen] = useState(false);
+  const [markerToRemove, setMarkerToRemove] = useState(null);
+  const [floorToRemove, setFloorToRemove] = useState(null);
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  const [currentMarkers, setCurrentMarkers] = useState([]);
+  const [isAddMarkerModalOpen, setAddMarkerModalOpen] = useState(false);
+  const [loadingVisible, setLoadingVisible] = useState(false);
+  const [isRemove, setIsRemove] = useState(false);
+  const [expandedFloor, setExpandedFloor] = useState(null);
+  const [isSliderOpen, setIsSliderOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const toggleSlider = () => {
+    setIsSliderOpen(!isSliderOpen);
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ["user"],
@@ -136,260 +158,269 @@ const toggleSlider = () => {
     refetchOnWindowFocus: false,
   });
 
-const removeAlert = () => {
-  setIsRemove(true);
-};
+  const removeAlert = () => {
+    setIsRemove(true);
+  };
 
-const toggleFloor = (floorId) => {
-  setExpandedFloor((prev) => (prev === floorId ? null : floorId));
-};
+  const toggleFloor = (floorId) => {
+    setExpandedFloor((prev) => (prev === floorId ? null : floorId));
+  };
 
-const handleExitBuildMode = () => {
-  setLoadingMessage("Exiting Build Mode");
-  setLoadingVisible(true);
+  const handleExitBuildMode = () => {
+    setLoadingMessage("Exiting Build Mode");
+    setLoadingVisible(true);
 
-  setTimeout(() => {
-    setLoadingVisible(false);
-    navigate("/virtual-tour");
-  }, 3000);
-};
+    setTimeout(() => {
+      setLoadingVisible(false);
+      navigate("/virtual-tour");
+    }, 3000);
+  };
 
-const handleMarkerClick = (marker) => {
-  setSelectedMarker(marker);
-  toggleSlider();
-};
+  const handleMarkerClick = (marker) => {
+    setSelectedMarker(marker);
+    toggleSlider();
+  };
 
-const handleCloseEditMarkerModal = () => {
-  setSelectedMarker(null);
-  setIsSliderOpen(true);
-  setIsRemove(false);
-};
+  const handleCloseEditMarkerModal = () => {
+    setSelectedMarker(null);
+    setIsSliderOpen(true);
+    setIsRemove(false);
+  };
 
-const handleSelectFloor = (floor) => {
-  setSelectedFloor(floor);
-  setCoordinates({ lat: null, lng: null });
-};
+  const handleSelectFloor = (floor) => {
+    setSelectedFloor(floor);
+    setCoordinates({ lat: null, lng: null });
+  };
 
-const fetchMarkers = async () => {
-  if (!selectedFloor) return [];
-  try {
-    const response = await fetch(
-      `http://localhost:3000/api/floors/${selectedFloor._id}/markers`,
-      { credentials: "include" }
-    );
-    if (!response.ok) throw new Error("Failed to fetch markers.");
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching markers:", error);
-    return [];
-  }
-};
-
-const refreshMarkers = async () => {
-  const updatedMarkers = await fetchMarkers();
-  setCurrentMarkers(updatedMarkers);
-};
-
-useEffect(() => {
-  if (selectedFloor) {
-    setCurrentMarkers(selectedFloor.markers || []);
-  } else {
-    setCurrentMarkers([]);
-  }
-}, [selectedFloor]);
-
-useEffect(() => {
-  if (selectedFloor) {
-    refreshMarkers();
-  }
-}, [selectedFloor, isAddMarkerModalOpen]);
-
-const handleCloseModal = () => {
-  setAddMarkerModalOpen(false);
-  setIsSliderOpen(true);
-  setIsRemove(false);
-  setCoordinates({ lat: null, lng: null });
-};
-
-const handleExitEditModal = () => {
-  setCoordinates({ lat: null, lng: null });
-  setIsRemove(false);
-};
-
-const { data: university } = useQuery({
-  queryKey: ["universitysettings"],
-  queryFn: getUniversityData,
-});
-
-const { data: updatedCampus } = useQuery({
-  queryKey: ["campuses", campus?._id],
-  queryFn: () => fetchCampusData(campus._id),
-  enabled: !!campus, // Ensure query runs only when campus exists
-  initialData: campus,
-});
-
-if (!university) return <div>Loading...</div>;
-if (!updatedCampus) return <p>No campus data provided. Please select a campus first.</p>;
-
-const handleAddFloorClick = () => setIsModalOpen(true);
-const closeModal = () => setIsModalOpen(false);
-const refreshFloors = () => queryClient.invalidateQueries(["campuses", campus._id]);
-
-const toggleEditMode = async () => {
-  if (isEditing) {
+  const fetchMarkers = async () => {
+    if (!selectedFloor) return [];
     try {
       const response = await fetch(
-        `http://localhost:3000/api/campuses/${campus._id}/floors`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ floors: updatedCampus.floors }),
-        }
+        `http://localhost:3000/api/floors/${selectedFloor._id}/markers`,
+        { credentials: "include" },
       );
-
-      if (!response.ok) throw new Error("Failed to save floor data");
-
-      console.log("Floors updated successfully");
-      refreshFloors();
+      if (!response.ok) throw new Error("Failed to fetch markers.");
+      return await response.json();
     } catch (error) {
-      console.error("Error saving floor data:", error);
+      console.error("Error fetching markers:", error);
+      return [];
     }
-  }
-  setIsEditing(!isEditing);
-  setIsRemove(false);
-};
+  };
 
-const LocationMarker = () => {
-  useMapEvents({
-    click(e) {
-      const { lat, lng } = e.latlng;
-      setCoordinates({ lat, lng });
-    },
+  const refreshMarkers = async () => {
+    const updatedMarkers = await fetchMarkers();
+    setCurrentMarkers(updatedMarkers);
+  };
+
+  useEffect(() => {
+    if (selectedFloor) {
+      setCurrentMarkers(selectedFloor.markers || []);
+    } else {
+      setCurrentMarkers([]);
+    }
+  }, [selectedFloor]);
+
+  useEffect(() => {
+    if (selectedFloor) {
+      refreshMarkers();
+    }
+  }, [selectedFloor, isAddMarkerModalOpen]);
+
+  const handleCloseModal = () => {
+    setAddMarkerModalOpen(false);
+    setIsSliderOpen(true);
+    setIsRemove(false);
+    setCoordinates({ lat: null, lng: null });
+  };
+
+  const handleExitEditModal = () => {
+    setCoordinates({ lat: null, lng: null });
+    setIsRemove(false);
+  };
+
+  const { data: university } = useQuery({
+    queryKey: ["universitysettings"],
+    queryFn: getUniversityData,
   });
 
-  return coordinates.lat ? (
-    <Marker 
-    position={[coordinates.lat, coordinates.lng]}
-    icon={defaultIcon}>
-    </Marker>
-  ) : null;
-};
+  const { data: updatedCampus } = useQuery({
+    queryKey: ["campuses", campus?._id],
+    queryFn: () => fetchCampusData(campus._id),
+    enabled: !!campus, // Ensure query runs only when campus exists
+    initialData: campus,
+  });
 
-const handleAddMarkerClick = () => {
-  setAddMarkerModalOpen(true);
-  toggleSlider();
-};
+  if (!university) return <div>Loading...</div>;
+  if (!updatedCampus)
+    return <p>No campus data provided. Please select a campus first.</p>;
 
-const confirmRemoveFloor = (floorId) => {
-  setFloorToRemove(floorId);
-  setIsDialogOpen(true);
-};
+  const handleAddFloorClick = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+  const refreshFloors = () =>
+    queryClient.invalidateQueries(["campuses", campus._id]);
 
-const handleCancelRemove = () => {
-  setIsDialogOpen(false);
-  setFloorToRemove(null);
-};
+  const toggleEditMode = async () => {
+    if (isEditing) {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/campuses/${campus._id}/floors`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ floors: updatedCampus.floors }),
+          },
+        );
 
-const handleProceedRemove = () => {
-  if (floorToRemove) {
-    const updatedFloors = updatedCampus.floors.filter(
-      (floor) => floor._id !== floorToRemove
-    );
+        if (!response.ok) throw new Error("Failed to save floor data");
 
-    queryClient.setQueryData(["campuses", campus._id], {
-      ...updatedCampus,
-      floors: updatedFloors,
+        console.log("Floors updated successfully");
+        refreshFloors();
+      } catch (error) {
+        console.error("Error saving floor data:", error);
+      }
+    }
+    setIsEditing(!isEditing);
+    setIsRemove(false);
+  };
+
+  const LocationMarker = () => {
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setCoordinates({ lat, lng });
+      },
     });
 
-    console.log(`Floor with ID ${floorToRemove} removed from UI.`);
-  }
+    return coordinates.lat ? (
+      <Marker
+        position={[coordinates.lat, coordinates.lng]}
+        icon={defaultIcon}
+      ></Marker>
+    ) : null;
+  };
 
-  setIsDialogOpen(false);
-  setFloorToRemove(null);
-  setSelectedFloor(null);
-};
+  const handleAddMarkerClick = () => {
+    setAddMarkerModalOpen(true);
+    toggleSlider();
+  };
 
-const confirmRemoveMarker = (marker) => {
-  setMarkerToRemove(marker);
-  setIsMarkerDialogOpen(true);
-};
+  const confirmRemoveFloor = (floorId) => {
+    setFloorToRemove(floorId);
+    setIsDialogOpen(true);
+  };
 
-const handleCancelRemoveMarker = () => {
-  setIsMarkerDialogOpen(false);
-  setMarkerToRemove(null);
-};
+  const handleCancelRemove = () => {
+    setIsDialogOpen(false);
+    setFloorToRemove(null);
+  };
 
-const handleProceedRemoveMarker = async () => {
-  if (markerToRemove && selectedFloor) {
-    try {
-      // Delete the marker
-      const response = await fetch(
-        `http://localhost:3000/api/${campus._id}/floors/${selectedFloor._id}/markers/${markerToRemove._id}`,
-        { method: "DELETE", credentials: "include" }
+  const handleProceedRemove = () => {
+    if (floorToRemove) {
+      const updatedFloors = updatedCampus.floors.filter(
+        (floor) => floor._id !== floorToRemove,
       );
 
-      if (!response.ok) throw new Error("Failed to delete marker on server");
-
-      console.log(`Marker with ID ${markerToRemove} deleted on server.`);
-
-      // Log the deletion activity
-      const logResponse = await fetch("http://localhost:3000/api/virtualtourlogs", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          campus_name: campus.campus_name || "Unknown Campus",
-          activity: `Deleted a location ${markerToRemove.marker_name}`,
-          updated_by: data?.username || "Unknown User",
-        }),
+      queryClient.setQueryData(["campuses", campus._id], {
+        ...updatedCampus,
+        floors: updatedFloors,
       });
 
-      if (!logResponse.ok) {
-        console.error("Failed to log deletion activity:", logResponse.statusText);
-      }
-
-    } catch (error) {
-      console.error("Error deleting marker on server:", error);
+      console.log(`Floor with ID ${floorToRemove} removed from UI.`);
     }
-  }
 
-  refreshFloors();
-  refreshMarkers();
+    setIsDialogOpen(false);
+    setFloorToRemove(null);
+    setSelectedFloor(null);
+  };
 
-  setIsMarkerDialogOpen(false);
-  setMarkerToRemove(null);
-};
+  const confirmRemoveMarker = (marker) => {
+    setMarkerToRemove(marker);
+    setIsMarkerDialogOpen(true);
+  };
 
+  const handleCancelRemoveMarker = () => {
+    setIsMarkerDialogOpen(false);
+    setMarkerToRemove(null);
+  };
 
-const floors = updatedCampus?.floors || [];
-const totalFloors = floors.length;
+  const handleProceedRemoveMarker = async () => {
+    if (markerToRemove && selectedFloor) {
+      try {
+        // Delete the marker
+        const response = await fetch(
+          `http://localhost:3000/api/${campus._id}/floors/${selectedFloor._id}/markers/${markerToRemove._id}`,
+          { method: "DELETE", credentials: "include" },
+        );
 
-const filteredFloors = floors?.filter((floor) =>
-  floor.floor_name.toLowerCase().includes(searchQuery.toLowerCase())
-);
- 
+        if (!response.ok) throw new Error("Failed to delete marker on server");
+
+        console.log(`Marker with ID ${markerToRemove} deleted on server.`);
+
+        // Log the deletion activity
+        const logResponse = await fetch(
+          "http://localhost:3000/api/virtualtourlogs",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              campus_name: campus.campus_name || "Unknown Campus",
+              activity: `Deleted a location ${markerToRemove.marker_name}`,
+              updated_by: data?.username || "Unknown User",
+            }),
+          },
+        );
+
+        if (!logResponse.ok) {
+          console.error(
+            "Failed to log deletion activity:",
+            logResponse.statusText,
+          );
+        }
+      } catch (error) {
+        console.error("Error deleting marker on server:", error);
+      }
+    }
+
+    refreshFloors();
+    refreshMarkers();
+
+    setIsMarkerDialogOpen(false);
+    setMarkerToRemove(null);
+  };
+
+  const floors = updatedCampus?.floors || [];
+  const totalFloors = floors.length;
+
+  const filteredFloors = floors?.filter((floor) =>
+    floor.floor_name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
   return (
-      <div className="flex bg-secondary-500">
-
-        {loadingVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-md shadow-md text-center">
-            <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
+    <div className="flex bg-secondary-500">
+      {loadingVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="rounded-md bg-white p-6 text-center shadow-md">
+            <p className="text-xl font-semibold text-gray-800">
+              {loadingMessage}
+            </p>
           </div>
         </div>
-        )}
-        <div
-        className={`flex-shrink-0 w-[30%] flex flex-col z-20 justify-between gap-3 min-h-screen border-r transition-transform duration-500 
-        ${isSliderOpen ? "translate-x-[0%]" : "-translate-x-[100%]"}`}
-        >   
+      )}
+      <div
+        className={`z-20 flex min-h-screen w-[30%] flex-shrink-0 flex-col justify-between gap-3 border-r transition-transform duration-500 ${isSliderOpen ? "translate-x-[0%]" : "-translate-x-[100%]"}`}
+      >
         <div className="h-[100%]">
-          <div className="flex justify-end w-[100%]">
-          </div>
-          <HeaderSection className="" university={university} updatedCampus={updatedCampus} />
-          <div className=" flex flex-col gap-3">
+          <div className="flex w-[100%] justify-end"></div>
+          <HeaderSection
+            className=""
+            university={university}
+            updatedCampus={updatedCampus}
+          />
+          <div className="flex flex-col gap-3">
             <div className="relative px-6">
               <Input
                 placeholder="Search"
@@ -399,14 +430,14 @@ const filteredFloors = floors?.filter((floor) =>
               />
               <CiSearch className="absolute right-10 top-2 text-lg text-gray-500" />
             </div>
-            <div className="flex justify-between items-center pl-6">
+            <div className="flex items-center justify-between pl-6">
               <p className="text-sm">List of Floors</p>
               <div className="flex gap-3 pr-6">
                 {!isEditing ? (
                   <>
                     <button
                       onClick={toggleEditMode}
-                      className="h-[40px] w-[80px] px-1 flex justify-end text-secondary-200-70 items-center hover:text-black"
+                      className="flex h-[40px] w-[80px] items-center justify-end px-1 text-secondary-200-70 hover:text-black"
                     >
                       Edit
                     </button>
@@ -414,7 +445,7 @@ const filteredFloors = floors?.filter((floor) =>
                 ) : (
                   <button
                     onClick={toggleEditMode}
-                    className="h-[40px] w-[80px] px-1 flex justify-end items-center hover:underline"
+                    className="flex h-[40px] w-[80px] items-center justify-end px-1 hover:underline"
                   >
                     Save
                   </button>
@@ -423,310 +454,345 @@ const filteredFloors = floors?.filter((floor) =>
             </div>
 
             <div className="flex flex-col items-center">
-            {isEditing && (
-              !isRemove && (
-                <div className="flex w-[90%] p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-white">
+              {isEditing && !isRemove && (
+                <div className="mb-4 flex h-[90px] w-[90%] rounded-lg bg-white p-4 pl-6 shadow-md">
                   <div className="flex w-[90%] gap-6">
-                  <button>
-                  <GoAlert className="text-base-350 h-[20px] w-[20px]" />
-                  </button>
-                  <p className="text-base-350 text-sm flex items-center">
-                      Removing a floor map will also erase all <br/> associated featured locations uploaded to that <br/> floor
-                  </p>
+                    <button>
+                      <GoAlert className="h-[20px] w-[20px] text-base-350" />
+                    </button>
+                    <p className="flex items-center text-sm text-base-350">
+                      Removing a floor map will also erase all <br /> associated
+                      featured locations uploaded to that <br /> floor
+                    </p>
                   </div>
-                  
-                  <button onClick={removeAlert} className="w-[10%]  justify-center flex items-center">
-                  <MdClose className="text-secondary-200 h-[20px] w-[20px]"/>
+
+                  <button
+                    onClick={removeAlert}
+                    className="flex w-[10%] items-center justify-center"
+                  >
+                    <MdClose className="h-[20px] w-[20px] text-secondary-200" />
                   </button>
                 </div>
-              )
-            )}
+              )}
 
-          <div className="max-h-[360px] group w-[100%]">
-            <div className={`max-h-[360px] pl-6 pr-6 overflow-y-auto ${isRemove ? "max-h-[460px]" : "max-h-[340px]"}`}>
-              {filteredFloors?.map((floor) => (
-                <div key={floor._id} className="flex flex-col justify-between w-[100%]">
-                    {/* Conditional UI for editing */}
-                    {isEditing ? (
-                      <>
-                        {/* Only show floor name and remove button in editing mode */}
-                        <div
-                        onClick={() => {
-                          toggleFloor(floor._id);
-                          handleSelectFloor(floor);
-                        }} 
-                        className={`px-5 pr-3 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
-                            selectedFloor && selectedFloor._id === floor._id
-                              ? "border-black text-black"
-                              : "bg-none"
-                          }`}>
-                          <div className="flex items-center gap-2">
-                            <RxDragHandleDots2 className="text-black h-[30px] w-[30px]"/>
-                            <h3 className="font-semibold p-2">{floor.floor_name}</h3>
-                          </div>
-                          <button
-                            onClick={() => confirmRemoveFloor(floor._id)}
-                            className="h-[30px] w-[30px]"
-                          >
-                            <RiDeleteBin5Fill className="cursor-pointer h-[18px] w-[18px] text-accent-100" />
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div
-                          onClick={() => {
-                            toggleFloor(floor._id);
-                            handleSelectFloor(floor);
-                          }}
-                          className={`px-5 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
-                            selectedFloor && selectedFloor._id === floor._id
-                              ? "border-base-200 text-base-200"
-                              : "bg-none"
-                          }`}
-                        >
-                          <h3
-                            className="font-semibold"
-                          >
-                            {floor.floor_name}
-                          </h3>
-                          <button
+              <div className="group max-h-[360px] w-[100%]">
+                <div
+                  className={`max-h-[360px] overflow-y-auto pl-6 pr-6 ${isRemove ? "max-h-[460px]" : "max-h-[340px]"}`}
+                >
+                  {filteredFloors?.map((floor) => (
+                    <div
+                      key={floor._id}
+                      className="flex w-[100%] flex-col justify-between"
+                    >
+                      {/* Conditional UI for editing */}
+                      {isEditing ? (
+                        <>
+                          {/* Only show floor name and remove button in editing mode */}
+                          <div
                             onClick={() => {
                               toggleFloor(floor._id);
                               handleSelectFloor(floor);
                             }}
-                            className="text-md"
+                            className={`mb-3 flex h-[60px] w-[100%] cursor-pointer items-center justify-between rounded-lg border px-5 pr-3 ${
+                              selectedFloor && selectedFloor._id === floor._id
+                                ? "border-black text-black"
+                                : "bg-none"
+                            }`}
                           >
-                            {expandedFloor === floor._id ? <TiArrowSortedUp className="text-base-200"/> : <TiArrowSortedDown className="text-secondary-200" />}
-                          </button>
-                        </div>
-
-                        {/* Show the markers only when not in editing mode */}
-                        <div
-                          className={`overflow-hidden transition-all duration-1000 ease-in-out ${
-                            expandedFloor === floor._id ? "max-h-[1000px]" : "max-h-0"
-                          }`}
-                        >
-                          <div className="pl-[50px]">
-                          {floor.markers?.map((marker) => (
-                            <div
-                              key={marker._id}
-                              className="relative flex-col h-[100%] flex pl-3 items-center group"
-                            >
-                              <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
-                                <p className="text-md flex items-center">{marker.marker_name}</p>
-                                {/* The images are hidden by default and appear when the parent is hovered */}
-                                <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
-                                  <FaPen onClick={() => handleMarkerClick(marker)} className="h-[16px] w-[16px] cursor-pointer" />
-                                  <RiDeleteBin5Fill
-                                    onClick={() => confirmRemoveMarker(marker)}
-                                    className="cursor-pointer h-[18px] w-[18px] text-accent-100"
-                                  />
-                                </div>
-                              </div>
+                            <div className="flex items-center gap-2">
+                              <RxDragHandleDots2 className="h-[30px] w-[30px] text-black" />
+                              <h3 className="p-2 font-semibold">
+                                {floor.floor_name}
+                              </h3>
                             </div>
-                            
-                          ))}
-                          </div>
                             <button
-                                onClick={handleAddMarkerClick}
-                                className="pl-[60px] w-[100%] cursor-default"
+                              onClick={() => confirmRemoveFloor(floor._id)}
+                              className="h-[30px] w-[30px]"
                             >
-                              <div className="px-3 hover:border-base-200 font-semibold border border-white h-[50px] text-base-200 cursor-pointer items-center flex w-[100%] gap-4 rounded-lg mb-3">
-                                <LuPlus  className="h-[30px] w-[30px]"/>
+                              <RiDeleteBin5Fill className="h-[18px] w-[18px] cursor-pointer text-accent-100" />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div
+                            onClick={() => {
+                              toggleFloor(floor._id);
+                              handleSelectFloor(floor);
+                            }}
+                            className={`mb-3 flex h-[60px] w-[100%] cursor-pointer items-center justify-between rounded-lg border px-5 ${
+                              selectedFloor && selectedFloor._id === floor._id
+                                ? "border-base-200 text-base-200"
+                                : "bg-none"
+                            }`}
+                          >
+                            <h3 className="font-semibold">
+                              {floor.floor_name}
+                            </h3>
+                            <button
+                              onClick={() => {
+                                toggleFloor(floor._id);
+                                handleSelectFloor(floor);
+                              }}
+                              className="text-md"
+                            >
+                              {expandedFloor === floor._id ? (
+                                <TiArrowSortedUp className="text-base-200" />
+                              ) : (
+                                <TiArrowSortedDown className="text-secondary-200" />
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Show the markers only when not in editing mode */}
+                          <div
+                            className={`overflow-hidden transition-all duration-1000 ease-in-out ${
+                              expandedFloor === floor._id
+                                ? "max-h-[1000px]"
+                                : "max-h-0"
+                            }`}
+                          >
+                            <div className="pl-[50px]">
+                              {floor.markers?.map((marker) => (
+                                <div
+                                  key={marker._id}
+                                  className="group relative flex h-[100%] flex-col items-center pl-3"
+                                >
+                                  <div className="flex h-[50px] w-[100%] justify-between px-3 hover:bg-secondary-200-50">
+                                    <p className="text-md flex items-center">
+                                      {marker.marker_name}
+                                    </p>
+                                    {/* The images are hidden by default and appear when the parent is hovered */}
+                                    <div className="flex items-center gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                      <FaPen
+                                        onClick={() =>
+                                          handleMarkerClick(marker)
+                                        }
+                                        className="h-[16px] w-[16px] cursor-pointer"
+                                      />
+                                      <RiDeleteBin5Fill
+                                        onClick={() =>
+                                          confirmRemoveMarker(marker)
+                                        }
+                                        className="h-[18px] w-[18px] cursor-pointer text-accent-100"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <button
+                              onClick={handleAddMarkerClick}
+                              className="w-[100%] cursor-default pl-[60px]"
+                            >
+                              <div className="mb-3 flex h-[50px] w-[100%] cursor-pointer items-center gap-4 rounded-lg border border-white px-3 font-semibold text-base-200 hover:border-base-200">
+                                <LuPlus className="h-[30px] w-[30px]" />
                                 <p>Add Location</p>
                               </div>
                             </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-              ))}
-              </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Add Floor Button only in non-editing mode */}
               {!isEditing && (
-                <div className="px-6 w-[100%] pt-4">
-                <button
-                  onClick={handleAddFloorClick}
-                  className="px-4 border-base-200 font-semibold border h-[60px] text-base-200 cursor-pointer items-center flex w-[100%] gap-4 rounded-lg mb-3"
-                >
-                  <LuPlus className="h-[30px] w-[30px]"/>
-                  <p>Add Floor</p>
-                </button>
+                <div className="w-[100%] px-6 pt-4">
+                  <button
+                    onClick={handleAddFloorClick}
+                    className="mb-3 flex h-[60px] w-[100%] cursor-pointer items-center gap-4 rounded-lg border border-base-200 px-4 font-semibold text-base-200"
+                  >
+                    <LuPlus className="h-[30px] w-[30px]" />
+                    <p>Add Floor</p>
+                  </button>
                 </div>
               )}
             </div>
           </div>
-
         </div>
-        <div className="py-5 flex gap-2 px-6">
+        <div className="flex gap-2 px-6 py-5">
           <Link
-            className="flex justify-center items-center h-[45px] rounded-md px-[50px] w-[50%] text-base-200 hover:bg-secondary-350"
+            className="flex h-[45px] w-[50%] items-center justify-center rounded-md px-[50px] text-base-200 hover:bg-secondary-350"
             to="/virtual-tour/build-mode"
           >
             <button>Return View</button>
           </Link>
           <div
             onClick={handleExitBuildMode}
-            className="flex justify-center items-center bg-accent-150 text-accent-100 hover:bg-accent-100 hover:text-white h-[45px] gap-2 rounded-md px-[50px] w-[60%] cursor-pointer"
+            className="flex h-[45px] w-[60%] cursor-pointer items-center justify-center gap-2 rounded-md bg-accent-150 px-[50px] text-accent-100 hover:bg-accent-100 hover:text-white"
           >
-            <FaMapMarkerAlt/>
+            <FaMapMarkerAlt />
             <button>Exit Build Mode</button>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-        <div
+      <div
         className={`flex-grow transition-all duration-500 ${
           isSliderOpen ? "ml-[0%]" : "ml-[-30%]"
         }`}
-        >
-
-          {selectedFloor ? (
-            <div className="">
-              {!isRemove && (
-                <div className={`absolute flex w-[600px] top-10 left-[350px] z-50 p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-blue-200 transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
-                  <div className="flex w-[90%] gap-6 items-center">
-                    <button>
-                    <IoAlertCircle className="text-base-200 h-[25px] w-[25px]"/>
-                    </button>
-                    <p className="text-base-200 text-sm w-[100%] justify-center">
-                      You are adding at <b className="text-[1rem]">{selectedFloor.floor_name}</b> <br /> Pin a location anywhere on the screen to add a featured location
-                    </p>
-                  </div>
-
-                  <button onClick={removeAlert} className="w-[10%] justify-end flex items-center">
-                    <MdClose className="text-secondary-200 h-[20px] w-[20px]" />
+      >
+        {selectedFloor ? (
+          <div className="">
+            {!isRemove && (
+              <div
+                className={`absolute left-[350px] top-10 z-50 mb-4 flex h-[90px] w-[600px] rounded-lg bg-blue-200 p-4 pl-6 shadow-md transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}
+              >
+                <div className="flex w-[90%] items-center gap-6">
+                  <button>
+                    <IoAlertCircle className="h-[25px] w-[25px] text-base-200" />
                   </button>
+                  <p className="w-[100%] justify-center text-sm text-base-200">
+                    You are adding at{" "}
+                    <b className="text-[1rem]">{selectedFloor.floor_name}</b>{" "}
+                    <br /> Pin a location anywhere on the screen to add a
+                    featured location
+                  </p>
                 </div>
-              )}
-              <MapContainer
+
+                <button
+                  onClick={removeAlert}
+                  className="flex w-[10%] items-center justify-end"
+                >
+                  <MdClose className="h-[20px] w-[20px] text-secondary-200" />
+                </button>
+              </div>
+            )}
+            <MapContainer
+              bounds={[
+                [110, 110],
+                [1000, 1000],
+              ]}
+              maxZoom={4}
+              style={{
+                height: "100vh",
+                width: "100%",
+                backgroundColor: "white",
+                zIndex: 0,
+              }}
+              crs={L.CRS.Simple}
+              zoomControl={false}
+              attributionControl={false}
+            >
+              <ImageOverlay
+                className="z-0"
+                url={selectedFloor.floor_photo_url}
                 bounds={[
                   [110, 110],
                   [1000, 1000],
                 ]}
-                maxZoom={4}
-                style={{
-                  height: "100vh",
-                  width: "100%",
-                  backgroundColor: "white",
-                  zIndex: 0,
-                }}
-                crs={L.CRS.Simple}
-                zoomControl={false}
-                attributionControl={false}
-              >
-                <ImageOverlay
-                  className="z-0"
-                  url={selectedFloor.floor_photo_url}
-                  bounds={[
-                    [110, 110],
-                    [1000, 1000],
-                  ]}
-                />
-                
-                {currentMarkers.map((marker, index) => {
-                  // Get the icon based on the marker's category
-                  const icon = customIcons[marker.category] || defaultIcon;
-                  const categoryColor = categoryConfig[marker.category]?.color || "bg-green"; // Default to green if category not found
-
-                  return (
-                    <Marker
-                      key={index}
-                      position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
-                      icon={icon} // Assign the custom icon
-                    >
-                      <Popup>
-                        <div>
-                          <strong>{marker.marker_name}</strong>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  );
-                })}
-                <LocationMarker setCoordinates={setCoordinates} />
-              </MapContainer>
-              
-            </div>
-          ) : (
-            <div className="flex min-h-screen flex-col gap-6 justify-center items-center">
-              <div className="w-[30%] flex items-center justify-center">
-                <img
-                  className="h-[100%]"
-                  src={university.university_vector_url || "/default-vector.png"}
-                  alt="University vector"
-                />
-                <img
-                  className="h-[100%]"
-                  src={university.university_logo_url || "/default-logo.png"}
-                  alt="University logo"
-                />
-              </div>
-              <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
-                <h3 className="text-md">NURTURING TOMORROW'S NOBLEST</h3>
-              </div>
-              { (totalFloors == 0) ? (
-                <div className="flex gap-3 p-4 items-center bg-white shadow-md rounded-md">
-                  <IoAlertCircle className="text-accent-100 h-[25px] w-[25px]"/>
-                  <p className="text-accent-100">No floor has been added. Nothing to display.</p>
-                </div>
-              ) : (
-                <div className="flex gap-3 p-4 items-center bg-white shadow-md rounded-md">
-                  <p className="text-base-200">Click a floor to display.</p>
-                </div>
-              )}
-              <div>
-
-              </div>
-            </div>
-          )}
-        </div>
-      
-        {isModalOpen && (
-          <AddFloorModal closeModal={closeModal} campusId={campus._id} refreshFloors={refreshFloors} />
-        )}
-
-        <ConfirmationDialog
-          isOpen={isDialogOpen}
-          onCancel={handleCancelRemove}
-          onProceed={handleProceedRemove}
-        />
-
-        <DeleteMarkerConfirmationDialog
-          isOpen={isMarkerDialogOpen}
-          onCancel={handleCancelRemoveMarker}
-          onProceed={handleProceedRemoveMarker}
-        />
-
-        {selectedMarker && (
-          <EditMarkerModal
-            className="w-[600px]"
-            coordinates={coordinates}
-            marker={selectedMarker}
-            campusId={campus._id}
-            floorId={selectedFloor._id}
-            onClose={handleCloseEditMarkerModal}
-            exitModal={handleExitEditModal}
-            refreshMarkers={refreshMarkers}
-            updatedCampus={updatedCampus}
-          />
-        )}
-
-            {isAddMarkerModalOpen && (
-              <AddMarkerModal
-                className={`w-[600px] ${isAddMarkerModalOpen ? "translate-x-[110%]" : "-translate-x-[100%]"}`}
-                coordinates={coordinates}
-                selectedFloor={selectedFloor}
-                campusId={campus._id}
-                closeModal={handleCloseModal}
-                updatedCampus={updatedCampus}
               />
+
+              {currentMarkers.map((marker, index) => {
+                // Get the icon based on the marker's category
+                const icon = customIcons[marker.category] || defaultIcon;
+                const categoryColor =
+                  categoryConfig[marker.category]?.color || "bg-green"; // Default to green if category not found
+
+                return (
+                  <Marker
+                    key={index}
+                    position={[
+                      parseFloat(marker.latitude),
+                      parseFloat(marker.longitude),
+                    ]}
+                    icon={icon} // Assign the custom icon
+                  >
+                    <Popup>
+                      <div>
+                        <strong>{marker.marker_name}</strong>
+                      </div>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+              <LocationMarker setCoordinates={setCoordinates} />
+            </MapContainer>
+          </div>
+        ) : (
+          <div className="flex min-h-screen flex-col items-center justify-center gap-6">
+            <div className="flex w-[30%] items-center justify-center">
+              <img
+                className="h-[100%]"
+                src={university.university_vector_url || "/default-vector.png"}
+                alt="University vector"
+              />
+              <img
+                className="h-[100%]"
+                src={university.university_logo_url || "/default-logo.png"}
+                alt="University logo"
+              />
+            </div>
+            <div className="flex w-[70%] flex-col items-center justify-center">
+              <h2 className="text-xl font-bold">UNIVERSITY OF RIZAL SYSTEM</h2>
+              <h3 className="text-md">NURTURING TOMORROW&apos;S NOBLEST</h3>
+            </div>
+            {totalFloors == 0 ? (
+              <div className="flex items-center gap-3 rounded-md bg-white p-4 shadow-md">
+                <IoAlertCircle className="h-[25px] w-[25px] text-accent-100" />
+                <p className="text-accent-100">
+                  No floor has been added. Nothing to display.
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 rounded-md bg-white p-4 shadow-md">
+                <p className="text-base-200">Click a floor to display.</p>
+              </div>
             )}
+            <div></div>
+          </div>
+        )}
       </div>
+
+      {isModalOpen && (
+        <AddFloorModal
+          closeModal={closeModal}
+          campusId={campus._id}
+          refreshFloors={refreshFloors}
+        />
+      )}
+
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        onCancel={handleCancelRemove}
+        onProceed={handleProceedRemove}
+      />
+
+      <DeleteMarkerConfirmationDialog
+        isOpen={isMarkerDialogOpen}
+        onCancel={handleCancelRemoveMarker}
+        onProceed={handleProceedRemoveMarker}
+      />
+
+      {selectedMarker && (
+        <EditMarkerModal
+          className="w-[600px]"
+          coordinates={coordinates}
+          marker={selectedMarker}
+          campusId={campus._id}
+          floorId={selectedFloor._id}
+          onClose={handleCloseEditMarkerModal}
+          exitModal={handleExitEditModal}
+          refreshMarkers={refreshMarkers}
+          updatedCampus={updatedCampus}
+        />
+      )}
+
+      {isAddMarkerModalOpen && (
+        <AddMarkerModal
+          className={`w-[600px] ${isAddMarkerModalOpen ? "translate-x-[110%]" : "-translate-x-[100%]"}`}
+          coordinates={coordinates}
+          selectedFloor={selectedFloor}
+          campusId={campus._id}
+          closeModal={handleCloseModal}
+          updatedCampus={updatedCampus}
+        />
+      )}
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -6,7 +6,7 @@ import L from "leaflet";
 import WorldMap from "./WorldMap";
 import CampusCard from "./CampusCard";
 import SlideBar from "./SlideBar";
-import WelcomeCard from "./WelcomeCard";
+import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 
 delete L.Icon.Default.prototype._getIconUrl;

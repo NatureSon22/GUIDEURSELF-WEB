@@ -46,6 +46,7 @@ app.use("/api/campusprogramnames", campusProgramNameRouter);
 app.use("/api/campusmajors", campusMajorRouter);
 app.use("/api/university", universityManagementRouter);
 app.use("/api/general", generalSettingsRouter);
+app.use("/api/virtualtourlog", virtualTourLogRouter);
 
 (async () => {
   config();

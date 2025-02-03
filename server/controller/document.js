@@ -10,9 +10,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { config } from "dotenv";
 import documentParser from "./documentParser.js";
-import axios from "axios";
-import os from "os";
-import fileSystem from "fs";
+import { response } from "express";
 
 config();
 
@@ -59,24 +57,34 @@ const uploadFileToS3 = async (url, file) => {
   }
 };
 
-const createCodyDocument = async (folderId, key) => {
-  const response = await fetch("https://getcody.ai/api/v1/documents/file", {
-    method: "POST",
-    headers: {
-      ...HEADERS,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      folder_id: FOLDER_ID,
-      key: key,
-    }),
-  });
+const createCodyDocument = async (key) => {
+  try {
+    const response = await fetch("https://getcody.ai/api/v1/documents/file", {
+      method: "POST",
+      headers: {
+        ...HEADERS,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        folder_id: FOLDER_ID, // Ensure using parameter, not undefined variable
+        key: key,
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to create document in Cody AI.");
+    if (!response.ok) {
+      const errorBody = await response.text(); // Capture response body for debugging
+      console.error(`Error: ${response.status} - ${response.statusText}`);
+      console.error(`Response Body: ${errorBody}`);
+      throw new Error(
+        `Failed to create document in Cody AI: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Request failed:", error.message);
+    throw error;
   }
-
-  return await response.json();
 };
 
 const getWebPageTitle = async (url) => {
@@ -148,7 +156,7 @@ const createFolder = async (req, res) => {
 
 // Document Retrieval Operations
 const getAllDocuments = async (req, res) => {
-  const { type, draftsOnly, recent } = req.query;
+  const { type, draftsOnly, recent, is_deleted } = req.query;
   const params = {};
   const isDraftOnly = draftsOnly === "true";
 
@@ -160,14 +168,18 @@ const getAllDocuments = async (req, res) => {
     params.type = { $ne: "draft" };
   }
 
+  if (is_deleted === "true") {
+    params.is_deleted = true;
+  } else {
+    params.is_deleted = { $ne: true };
+  }
+
   try {
     let baseQuery = { ...params };
-
     const sortQuery = recent === "true" ? { date_and_time: -1 } : {};
 
     const documents = await DocumentModel.find(baseQuery).sort(sortQuery);
 
-    // Collect user IDs to minimize database queries
     const userIds = new Set();
     documents.forEach((doc) => {
       if (doc.published_by) userIds.add(doc.published_by.toString());
@@ -176,13 +188,10 @@ const getAllDocuments = async (req, res) => {
       }
     });
 
-    // Fetch all users at once
     const users = await UserModel.find({ _id: { $in: Array.from(userIds) } });
 
-    // Create a map for quick lookup
     const userMap = new Map(users.map((user) => [user._id.toString(), user]));
 
-    // Process documents with enriched user data
     const enrichedDocuments = documents.map((doc) => {
       const publishedByUser = userMap.get(doc.published_by?.toString());
       const contributorUsers = (doc.contributors || []).map((id) =>
@@ -434,7 +443,7 @@ const saveAsDraftCreatedDocument = async (req, res) => {
   }
 };
 
-const getContentURL = async (document_id, filename) => {
+const getContentURL = async (filename) => {
   try {
     const alldocuments = await fetch(CODY_URLS.LIST_DOCUMENT(), {
       method: "GET",
@@ -444,6 +453,7 @@ const getContentURL = async (document_id, filename) => {
     const { data } = await alldocuments.json();
 
     const doc = data.find((doc) => doc.name === filename);
+    console.log(doc);
 
     return doc ? { content_url: doc.content_url, id: doc.id } : {};
   } catch (error) {
@@ -473,12 +483,15 @@ const uploadFilesAndCreateDocuments = async (req, res) => {
             );
           }
 
+          console.log("UPLOAD CARE");
+          console.log(file);
+
           // Get signed URL and upload to S3
           const { key, url } = await getSignedUploadURL(file);
           await uploadFileToS3(url, file);
 
           // Create document
-          const document = await createCodyDocument(folder_id, key);
+          const document = await createCodyDocument(key);
 
           // Parse content
           const contentResponse = await documentParser(file.path, false);
@@ -487,7 +500,7 @@ const uploadFilesAndCreateDocuments = async (req, res) => {
           }
 
           const content = contentResponse.map((item) => item.text).join("\n");
-          const docData = await getContentURL("", file.originalname);
+          const docData = await getContentURL(file.originalname);
 
           return {
             success: true,
@@ -588,59 +601,79 @@ const uploadFilesAndCreateDocuments = async (req, res) => {
   }
 };
 
-const downloadFile = async (document_url) => {
-  try {
-    const response = await axios({
-      url: document_url,
-      method: "GET",
-      responseType: "arraybuffer",
-    });
-
-    const filename = document_url.split("/").pop();
-    const fileData = response.data;
-
-    // Create a Blob from the array buffer
-    const blob = new Blob([fileData], {
-      type: response.headers["content-type"],
-    });
-
-    // Create a File object
-    const file = new File([blob], filename, {
-      type: response.headers["content-type"],
-    });
-
-    return { filename, fileData, file };
-  } catch (error) {
-    throw new Error("Failed to download the file: " + error.message);
-  }
-};
-
 const uploadDraftFilesAndCreateDocuments = async (req, res) => {
+  const { document_url, visibility, documentId } = req.body;
+
+  // Ensure that document_url and documentId are provided
+  if (!document_url || !documentId) {
+    return res.status(400).json({
+      message: "document_url and documentId are required.",
+    });
+  }
+
+  const metadata = {
+    url: document_url,
+    visibility,
+  };
+
   try {
-    const { document_url, visibility } = req.body;
-    const userId = req.user.userId;
+    const response = await fetch(CODY_URLS.UPLOAD_WEBPAGE(), {
+      method: "POST",
+      headers: HEADERS,
+      body: JSON.stringify({
+        folder_id: FOLDER_ID,
+        url: document_url, // Use the document_url provided
+      }),
+    });
 
-    const { filename, fileData, filePath } = await downloadFile(document_url);
-
-    const { key, url } = await getSignedUploadURL(filename);
-    await uploadFileToS3(url, fileData);
-
-    const document = await createCodyDocument("", key);
-    const contentResponse = await documentParser(filePath, false);
-
-    if (!contentResponse?.length) {
-      throw new Error("Document parsing failed - no content extracted");
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res.status(response.status).json({
+        message: "Failed to upload document. Please try again later.",
+        error: errorText,
+      });
     }
 
-    res.status(200).json({
-      message: "File successfully uploaded and processed.",
-      document,
-    });
+    const {
+      data: { content_url, name, id },
+    } = await response.json();
+
+    // Check if content_url is available
+    if (!content_url) {
+      return res.status(500).json({
+        message: "Content URL is missing in the response.",
+      });
+    }
+
+    if (documentId) {
+      const result = await DocumentModel.updateOne(
+        { _id: documentId },
+        {
+          $set: {
+            file_name: name,
+            metadata,
+            content_url,
+            document_id: id,
+            status: "synced",
+            type: "published",
+            date_last_modified: new Date(),
+          },
+        }
+      );
+
+      if (result.nModified === 0) {
+        return res
+          .status(404)
+          .json({ message: "Document not found or already up-to-date." });
+      }
+    }
+
+    return res.status(200).json({ message: "Document uploaded successfully." });
   } catch (error) {
-    res.status(500).json({
-      message: "Server error occurred during upload process.",
-      error: error.message,
-    });
+    console.error("Error in uploadDraftFilesAndCreateDocuments:", error);
+    return res
+      .status(500)
+      .json({ message: error.message || "Server error occurred." });
   }
 };
 
@@ -846,6 +879,107 @@ const saveAsDraftUploadWebPage = async (req, res) => {
   }
 };
 
+const syncDocument = async (req, res) => {
+  try {
+    const { documentId } = req.params;
+
+    // Fetch the document from the database
+    const existingDoc = await DocumentModel.findById(documentId);
+    if (!existingDoc) {
+      return res.status(404).json({ error: "Document not found in database." });
+    }
+
+    // Fetch the document's content URL from external API
+    const updatedDoc = await getContentURL(existingDoc.file_name);
+    if (!updatedDoc) {
+      return res.status(404).json({ error: "Document not found in API." });
+    }
+
+    // Update database with new document URL
+    await DocumentModel.updateOne(
+      { _id: documentId },
+      {
+        $set: {
+          document_id: updatedDoc.id,
+          content_url: updatedDoc.content_url,
+        },
+      }
+    );
+
+    return res.status(200).json({ message: "Document synced successfully." });
+  } catch (error) {
+    console.error("Error syncing document:", error);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+const deleteDocument = async (req, res) => {
+  try {
+    const { documentId } = req.params;
+    const doc = await DocumentModel.findById(documentId);
+
+    if (!doc) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const isDraft = doc.type === "draft";
+    let docId = doc.document_id;
+
+    if (!isDraft && !docId) {
+      try {
+        const document = await getContentURL(doc.file_name);
+        if (document?.id) {
+          docId = document.id;
+        } else {
+          return res
+            .status(400)
+            .json({ message: "Failed to retrieve document ID" });
+        }
+      } catch (error) {
+        return res.status(500).json({
+          message: "Error fetching document ID",
+          error: error.message,
+        });
+      }
+    }
+
+    if (docId) {
+      try {
+        const response = await fetch(CODY_URLS.DELETE_DOCUMENT(docId), {
+          method: "DELETE",
+          headers: HEADERS,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          return res.status(response.status).json({
+            message: "Failed to delete document from external service",
+            error: errorText || response.statusText,
+          });
+        }
+      } catch (apiError) {
+        return res.status(500).json({
+          message: "Error contacting external service",
+          error: apiError.message,
+        });
+      }
+    }
+
+    doc.is_deleted = true;
+    await doc.save();
+
+    return res.status(200).json({
+      message: "Document deleted successfully.",
+      deletedDocument: doc.toObject(),
+    });
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
 export {
   getAllFolders,
   createFolder,
@@ -858,4 +992,6 @@ export {
   saveAsDraftCreatedDocument,
   saveAsDraftUploadWebPage,
   saveAsDraftUploadDocuments,
+  syncDocument,
+  deleteDocument,
 };

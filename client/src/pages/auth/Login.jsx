@@ -14,7 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import useAuthStore from "../../context/useAuthStore";
 import { useState } from "react";
@@ -34,6 +38,11 @@ const formSchema = z.object({
 });
 
 const Login = () => {
+  const [searchParams] = useSearchParams();
+
+  const email = searchParams.get("email");
+  const password = searchParams.get("password");
+
   const navigate = useNavigate();
   const [showPassword, setPassword] = useState(false);
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
@@ -41,8 +50,8 @@ const Login = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: email || "",
+      password: password || "",
       rememberMe: false,
     },
   });

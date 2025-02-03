@@ -59,25 +59,14 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-    try {
-      const keyOfficials = await KeyOfficial.find()
-      
-        .populate("administrative_position_id", "administartive_position_name") // Populate only the name of the position
-        .populate("campus_id"); // Optionally populate campus_id if needed
-  
-      // Map through the result and send the desired data (name, position name, and photo URL)
-      const populatedData = keyOfficials.map(official => ({
-        _id: official._id,
-        name: official.name,
-        position_name: official.administrative_position_id ? official.administrative_position_id.administartive_position_name : '',
-        key_official_photo_url: official.key_official_photo_url,
-      }));
-  
-      res.status(200).json(populatedData);
-    } catch (error) {
-      console.error("Error fetching key officials:", error);
-      res.status(500).json({ message: "Error fetching key officials." });
-    }
+  try {
+    const keyOfficials = await KeyOfficial.find()
+
+    res.status(200).json(keyOfficials); // Send the response with populated data
+  } catch (error) {
+    console.error("Error fetching key officials:", error);
+    res.status(500).json({ message: "Error fetching key officials." });
+  }
   });
 
   router.get("/:id", async (req, res) => {

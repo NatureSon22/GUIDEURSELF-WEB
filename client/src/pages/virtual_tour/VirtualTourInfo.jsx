@@ -1,14 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { getUniversityData } from "@/api/component-info";
-import Gallery from "@/assets/DoubleGallery.png"
-import Pin from "@/assets/StylePin.png";
 import { TbMap2 } from "react-icons/tb";
 import { RiCameraLensLine } from "react-icons/ri";
 import { MdTouchApp } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { useState } from "react";
 
 const fetchCampuses = async () => {
     
@@ -37,12 +35,6 @@ const VirtualTourInfo = () => {
         queryKey: ["campuses"],
         queryFn: fetchCampuses,
     });
-    
-    const totalMarkers = campuses.reduce(
-        (sum, campus) => sum + (campus.floors?.reduce(
-          (floorSum, floor) => floorSum + (floor.markers?.length || 0), 0) || 0),
-        0
-      );
 
       const totalFloors = campuses.reduce(
         (sum, campus) => sum + (campus.floors?.length || 0),
@@ -95,7 +87,7 @@ const VirtualTourInfo = () => {
                     </div>
                     <div className="flex flex-col justify-center">
                         <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
-                        <h3 className="text-md">NURTURING TOMORROW'S NOBLEST</h3>
+                        <h3 className="text-md">NURTURING TOMORROW&apos;S NOBLEST</h3>
                     </div>
                 </div>
                 <hr />
@@ -132,7 +124,6 @@ const VirtualTourInfo = () => {
                     </div>        
                     <Link to="/virtual-tour/media-library" className="w-[100%] h-[50px]">
                         <button className="w-[100%] text-md h-[100%] flex justify-center gap-4 font-medium items-center border-base-200 outline-none focus-none border-[1.5px] rounded-md">
-                        <img className="w-[30] h-[30px]" src={Gallery} alt="Add Officials" />
                         <p className="text-base-200 font-medium">Media Library</p>
                         </button>
                     </Link>
@@ -145,7 +136,7 @@ const VirtualTourInfo = () => {
                 </div>
                 <div className="w-[70%] flex flex-col justify-center items-center justify-center">
                     <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
-                    <h3 className="text-md">NURTURING TOMORROW'S NOBLEST</h3>
+                    <h3 className="text-md">NURTURING TOMORROW&apos;S NOBLEST</h3>
                 </div>
             </div>
         </div>

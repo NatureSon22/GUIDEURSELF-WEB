@@ -66,6 +66,8 @@ const Accounts = () => {
 
   const columnActions = { navigate, handleVerifyAccount };
 
+  console.log(filters);
+
   const handleReset = () => {
     setFilters([]);
     setGlobalFilter("");
@@ -115,7 +117,7 @@ const Accounts = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker setFilters={setFilters} />
+        <DateRangePicker setFilters={setFilters} filterId="date_created" />
         <ComboBox
           options={allRoles}
           placeholder="select user type"

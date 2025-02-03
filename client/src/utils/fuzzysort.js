@@ -1,6 +1,12 @@
 import { rankItem, compareItems } from "@tanstack/match-sorter-utils";
 import { sortingFns } from "@tanstack/table-core";
 
+const parseDate = (dateString) => {
+  if (!dateString) return null;
+  const [month, day, year] = dateString.split('/');
+  return new Date(year, month - 1, day);
+};
+
 function fuzzyFilter(row, columnId, value, addMeta) {
   const itemRank = rankItem(row.getValue(columnId), value);
 
@@ -24,25 +30,26 @@ function fuzzySort(rowA, rowB, columnId) {
   return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir;
 }
 
-function dateBetweenFilterFn(row, columnId, value) {
-  const data = row.getValue(columnId); 
-  const { from, to } = value; // Destructure the `from` and `to` dates from the value
+const dateBetweenFilterFn = (row, columnId, value) => {
+  const cellValue = row.getValue(columnId);
+  const { start, end } = value;
 
-  if (!data) return false;
+  if (!start && !end) return true;
+  if (!cellValue) return false;
 
-  const rowDate = new Date(data); // Convert the row date to a Date object
-  const start = from ? new Date(from) : null; // Convert `from` to a Date object
-  const end = to ? new Date(to) : null; // Convert `to` to a Date object
+  const date = parseDate(cellValue);
+  const startDate = parseDate(start);
+  const endDate = parseDate(end);
 
-  // Filtering logic
-  if (start && !end) {
-    return rowDate >= start; 
-  } else if (!start && end) {
-    return rowDate <= end;
-  } else if (start && end) {
-    return rowDate >= start && rowDate <= end; // Check within the range
+  if (startDate && endDate) {
+    return date >= startDate && date <= endDate;
   }
-
+  if (startDate) {
+    return date >= startDate;
+  }
+  if (endDate) {
+    return date <= endDate;
+  }
   return true;
 }
 

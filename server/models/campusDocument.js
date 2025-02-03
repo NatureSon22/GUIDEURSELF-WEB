@@ -25,6 +25,7 @@ const DocumentSchema = new Schema({
   metadata: {
     type: Object,
   },
+  is_deleted: { type: Boolean, default: false },
 });
 
 const DocumentModel = model("Document", DocumentSchema);

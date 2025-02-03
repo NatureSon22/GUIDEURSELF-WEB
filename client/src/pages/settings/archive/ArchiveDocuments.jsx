@@ -6,11 +6,25 @@ import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import DataTable from "@/components/DataTable";
 import documentColumns from "@/components/columns/ArchiveDocuments";
+import { useQuery } from "@tanstack/react-query";
+import { getAllCampuses } from "@/api/component-info";
+import documentStatus from "@/data/documentStatus";
+import { getAllDocuments } from "@/api/documents";
 
 const ArchiveDocuments = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState([]);
   const [reset, setReset] = useState(false);
+
+  const { data: allDocuments } = useQuery({
+    queryKey: ["allDocuments"],
+    queryFn: () => getAllDocuments("", "", false, false, true),
+  });
+
+  const { data: allCampuses } = useQuery({
+    queryKey: ["allCampuses"],
+    queryFn: getAllCampuses,
+  });
 
   const handleReset = () => {
     setFilters([]);
@@ -19,7 +33,7 @@ const ArchiveDocuments = () => {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-1 flex-col space-y-5">
       <Input
         type="text"
         placeholder="Search"
@@ -32,14 +46,14 @@ const ArchiveDocuments = () => {
         <DateRangePicker />
 
         <ComboBox
-          options={[]}
+          options={allCampuses || []}
           placeholder="select campus"
           filter="campus_name"
           setFilters={setFilters}
           reset={reset}
         />
         <ComboBox
-          options={[]}
+          options={documentStatus}
           placeholder="select status"
           filter="status"
           setFilters={setFilters}
@@ -55,15 +69,17 @@ const ArchiveDocuments = () => {
         </Button>
       </div>
 
-      <DataTable
-        data={[]}
-        columns={documentColumns}
-        filters={filters}
-        setFilters={setFilters}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-        columnActions={{}}
-      />
+      <div className="flex-1">
+        <DataTable
+          data={allDocuments || []}
+          columns={documentColumns}
+          filters={filters}
+          setFilters={setFilters}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          columnActions={{}}
+        />
+      </div>
     </div>
   );
 };
