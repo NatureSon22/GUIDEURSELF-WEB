@@ -1,4 +1,3 @@
-// Fetch Operations
 const getAllFolders = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/documents`, {
     method: "GET",
@@ -19,9 +18,10 @@ const getAllDocuments = async (
   type = "",
   draftsOnly = false,
   recent = false,
+  is_deleted = false,
 ) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/documents/get-all-documents/${folder_id}?type=${type}&draftsOnly=${draftsOnly}&recent=${recent}`,
+    `${import.meta.env.VITE_API_URL}/documents/get-all-documents/${folder_id}?type=${type}&draftsOnly=${draftsOnly}&recent=${recent}&is_deleted=${is_deleted}`,
     {
       method: "GET",
       credentials: "include",
@@ -188,6 +188,34 @@ const saveAsDraftWeb = async (formData) => {
   return message;
 };
 
+const syncDraftDocument = async (documentId) => {
+  await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/sync-draft/${documentId}`,
+    {
+      method: "PUT",
+      credentials: "include",
+    },
+  );
+};
+
+const deleteDocument = async (documentId) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/delete-document/${documentId}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+  return message;
+};
+
 export {
   getAllFolders,
   getAllDocuments,
@@ -199,4 +227,6 @@ export {
   saveAsDraftWeb,
   saveAsDraft,
   saveAsDraftDocument,
+  syncDraftDocument,
+  deleteDocument,
 };

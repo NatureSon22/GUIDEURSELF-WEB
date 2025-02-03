@@ -14,6 +14,7 @@ const CODY_URLS = {
   GET_DOCUMENT: (id) => `https://getcody.ai/api/v1/documents?folder_id=${id}`,
   UPLOAD_WEBPAGE: () => "https://getcody.ai/api/v1/documents/webpage",
   LIST_DOCUMENT: () => "https://getcody.ai/api/v1/documents",
+  DELETE_DOCUMENT: (id) => `https://getcody.ai/api/v1/documents/${id}`,
 };
 
 const HEADERS = {

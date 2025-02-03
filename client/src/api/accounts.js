@@ -149,6 +149,23 @@ const verifyAccount = async (accountId) => {
   return response.json();
 };
 
+const resetPassword = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/reset-password`,
+    {
+      method: "PUT",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
 export {
   addAccount,
   addBulkAccount,
@@ -158,4 +175,5 @@ export {
   update,
   updateAccountRoleType,
   verifyAccount,
+  resetPassword,
 };

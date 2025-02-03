@@ -89,7 +89,7 @@ const ComboBox = React.forwardRef(
             <ChevronDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent className={`${style?.width || "w-[200px]"} p-0`}>
           <Command>
             <CommandList>
               <CommandEmpty>No results found</CommandEmpty>

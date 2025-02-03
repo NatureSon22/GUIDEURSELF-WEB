@@ -7,7 +7,7 @@ const sidebarElements = [
   {
     title: "Account Management",
     path: "/account-management",
-    access: "edit account settings",
+    access: "edit account profile",
   },
   {
     title: "University Management",

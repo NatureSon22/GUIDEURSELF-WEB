@@ -170,7 +170,7 @@ const CreateNewDocument = () => {
           <Skeleton className="w-full py-40"></Skeleton>
         ) : (
           <>
-            <p>{editorContent}</p>
+            {/* <p>{editorContent}</p> */}
             <TipTapEditor
               documentContent={editorContent}
               setDocumentContent={handleContentUpdate}

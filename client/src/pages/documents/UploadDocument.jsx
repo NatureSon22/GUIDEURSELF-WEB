@@ -15,6 +15,9 @@ import DocumentDialog from "./DocumentDialog";
 
 import { MdCloudUpload } from "react-icons/md";
 import { FaFile } from "react-icons/fa";
+import { FaCircleExclamation } from "react-icons/fa6";
+
+import DialogContainer from "@/components/DialogContainer";
 
 import {
   createFromUploadDocument,
@@ -23,6 +26,7 @@ import {
   uploadDraftDocument,
 } from "@/api/documents";
 import DocumentIcon from "./DocumentIcon";
+import { Dialog } from "@radix-ui/react-dialog";
 
 const ACCEPTED_FILE_TYPES = ["pdf", "doc", "pptx"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -61,6 +65,7 @@ const UploadDocument = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [submitAction, setSubmitAction] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const {
     handleSubmit,
@@ -170,6 +175,7 @@ const UploadDocument = () => {
 
     e.preventDefault();
     e.stopPropagation();
+
     if (e.type === "dragenter" || e.type === "dragover") {
       setIsDragging(true);
     } else if (e.type === "dragleave" || e.type === "drop") {
@@ -184,6 +190,7 @@ const UploadDocument = () => {
     const formData = new FormData();
 
     if (documentData?.document_url) {
+      formData.append("documentId", documentData._id);
       formData.append("document_url", documentData.document_url);
     } else {
       if (files.length === 0) {
@@ -360,6 +367,32 @@ const UploadDocument = () => {
             : "Publish"}
         </Button>
       </div>
+
+      <DialogContainer openDialog={openDialog}>
+        <div className="flex flex-col items-center gap-5">
+          <FaCircleExclamation className="text-[2.5rem] text-base-200" />
+          <p className="text-[0.95rem] font-semibold">
+            Do you want to upload this document?
+          </p>
+          <div className="flex w-full gap-4">
+            <Button
+              variant="outline"
+              className="flex-1 border-secondary-200 py-1 text-secondary-100-75"
+              // onClick={handleClose}
+              // disabled={isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="hover:bg flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
+              // onClick={handleDeleteDocument}
+              // disabled={isPending}
+            >
+              Proceed
+            </Button>
+          </div>
+        </div>
+      </DialogContainer>
 
       <DocumentDialog
         open={isDialogOpen}

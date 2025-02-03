@@ -57,7 +57,7 @@ const columns = ({ navigate, handleVerifyAccount }) => [
   {
     accessorKey: "date_created",
     header: "Date Created",
-    cell: ({ row }) => formatDate(row.original.date_created),
+    cell: ({ row }) => formatDate(row.original.date_created), // does this mean this is now the value of the cell?
     filterFn: "dateBetweenFilterFn",
   },
   {

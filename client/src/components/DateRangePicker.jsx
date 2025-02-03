@@ -1,7 +1,6 @@
 import { addDays, format } from "date-fns";
 import { useState } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -9,47 +8,47 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import PropTypes from "prop-types";
 
-const DateRangePicker = () => {
-  const [date, setDate] = useState({
+const DateRangePicker = ({ setFilters, filterId }) => {
+  const [dateRange, setDateRange] = useState({
     from: addDays(new Date(), -7),
-    to: addDays(new Date(), 0),
+    to: new Date(),
   });
 
-  // 2024-12-19T07:29:04.437+00:00 this is a sample date format to be compared (from the backend)
+  const handleDateChange = (selectedDateRange) => {
+    if (selectedDateRange?.from && selectedDateRange?.to) {
+      const combinedDateRange = {
+        start: format(selectedDateRange.from, "MM/dd/yyyy"),
+        end: format(selectedDateRange.to, "MM/dd/yyyy"),
+      };
 
-  // const handleDateChange = () => {
-  //   setFilters((prevFilters) => ({
-  //     ...prevFilters,
-  //     dateRange: {
-  //       from: date.from,
-  //       to: date.to,
-  //     },
-  //   }));
-  // };
+      setFilters((prevFilters) => {
+        const existingIndex = prevFilters.findIndex(filter => filter.id === filterId);
+        if (existingIndex !== -1) {
+          return prevFilters.map((filter, index) =>
+            index === existingIndex ? { id: filterId, dateRange: combinedDateRange } : filter
+          );
+        }
+        return [...prevFilters, { id: filterId, dateRange: combinedDateRange }];
+      });
+    }
+  };
 
   return (
-    <div className={cn("grid gap-2")}>
+    <div className="grid gap-2">
       <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
-            className={cn(
-              "w-[300px] justify-start text-left font-normal",
-              !date && "text-muted-foreground",
-            )}
+            variant="outline"
+            className="w-[300px] justify-start text-left font-normal"
           >
             <CalendarIcon />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
-                </>
-              ) : (
-                format(date.from, "LLL dd, y")
-              )
+            {dateRange.from && dateRange.to ? (
+              <>
+                {format(dateRange.from, "MM/dd/yyyy")} - {format(dateRange.to, "MM/dd/yyyy")}
+              </>
             ) : (
               <span>Pick a date</span>
             )}
@@ -59,15 +58,25 @@ const DateRangePicker = () => {
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
+            defaultMonth={dateRange?.from || new Date()}
+            selected={dateRange}
+            onSelect={(selected) => {
+              if (selected?.from && selected?.to) {
+                setDateRange(selected);
+                handleDateChange(selected);
+              }
+            }}
             numberOfMonths={2}
           />
         </PopoverContent>
       </Popover>
     </div>
   );
+};
+
+DateRangePicker.propTypes = {
+  setFilters: PropTypes.func,
+  filterId: PropTypes.string, // Ensure filterId is provided
 };
 
 export default DateRangePicker;

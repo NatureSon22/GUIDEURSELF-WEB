@@ -1,8 +1,8 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 const fetchVirtualTourLogs = async () => {
-  const response = await fetch('http://localhost:3000/api/virtualtourlogs', {
+  const response = await fetch("http://localhost:3000/api/virtualtourlog", {
+    method: "GET",
     credentials: "include",
   }); 
   if (!response.ok) {

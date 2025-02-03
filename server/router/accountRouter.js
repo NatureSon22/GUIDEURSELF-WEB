@@ -10,6 +10,7 @@ import {
   deleteAccounts,
   getLoggedInAccount,
   updatePhoto,
+  resetPassword,
 } from "../controller/accounts.js";
 import multer from "multer";
 import verifyToken from "../middleware/verifyToken.js";
@@ -36,7 +37,6 @@ const upload = multer({
 
 const accountRouter = Router();
 
-accountRouter.use(verifyToken);
 accountRouter.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({ error: `Multer error: ${err.message}` });
@@ -47,16 +47,22 @@ accountRouter.use((err, req, res, next) => {
   return res.status(500).json({ error: "Internal Server Error" });
 });
 
-accountRouter.get("/logged-in-account", getLoggedInAccount);
-accountRouter.get("/", getAllAccounts);
+accountRouter.get("/logged-in-account", verifyToken, getLoggedInAccount);
+accountRouter.get("/", verifyToken, getAllAccounts);
 accountRouter.get("/:accountId", getAccount);
 
-accountRouter.post("/import-add-account", upload.none(), bulkAddAccount);
-accountRouter.post("/add-account", upload.none(), addAccount);
+accountRouter.post(
+  "/import-add-account",
+  verifyToken,
+  upload.none(),
+  bulkAddAccount
+);
+accountRouter.post("/add-account", verifyToken, upload.none(), addAccount);
 
-accountRouter.put("/update-account", upload.none(), updateAccount);
+accountRouter.put("/update-account", verifyToken, upload.none(), updateAccount);
 accountRouter.put(
   "/update-profile",
+  verifyToken,
   (req, res, next) => {
     upload.single("profile_photo")(req, res, (err) => {
       if (err) {
@@ -69,10 +75,12 @@ accountRouter.put(
 );
 accountRouter.put(
   "/update-account-role-type/:accountId",
+  verifyToken,
   updateAccountRoleType
 );
-accountRouter.put("/verify-account/:accountId", verifyAccount);
+accountRouter.put("/verify-account/:accountId", verifyToken, verifyAccount);
+accountRouter.put("/reset-password", upload.none(), resetPassword);
 
-accountRouter.delete("/delete-accounts", deleteAccounts);
+accountRouter.delete("/delete-accounts", verifyToken, deleteAccounts);
 
 export default accountRouter;
