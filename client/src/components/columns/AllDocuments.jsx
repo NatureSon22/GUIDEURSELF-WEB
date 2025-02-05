@@ -49,6 +49,11 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
     cell: ({ row }) => formatDateTime(row.original.date_last_modified),
   },
   {
+    accessorKey: "campus_name",
+    header: "Campus",
+    cell: ({ row }) => row.original.campus_name,
+  },
+  {
     accessorKey: "status",
     header: "Status",
     filterFn: "equalsString",

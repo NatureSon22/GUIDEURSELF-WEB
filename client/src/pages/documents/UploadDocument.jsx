@@ -15,7 +15,6 @@ import DocumentDialog from "./DocumentDialog";
 
 import { MdCloudUpload } from "react-icons/md";
 import { FaFile } from "react-icons/fa";
-import { FaCircleExclamation } from "react-icons/fa6";
 
 import DialogContainer from "@/components/DialogContainer";
 
@@ -26,7 +25,7 @@ import {
   uploadDraftDocument,
 } from "@/api/documents";
 import DocumentIcon from "./DocumentIcon";
-import { Dialog } from "@radix-ui/react-dialog";
+import Loading from "@/components/Loading";
 
 const ACCEPTED_FILE_TYPES = ["pdf", "doc", "pptx"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -203,11 +202,9 @@ const UploadDocument = () => {
       }
       files.forEach((file) => formData.append("document", file));
     }
-
-    setIsProcessing(true);
-
     formData.append("visibility", data.visibility);
-
+    setIsProcessing(true);
+    setOpenDialog(true);
     try {
       if (submitAction === "publish") {
         if (documentData?.document_url) {
@@ -360,7 +357,9 @@ const UploadDocument = () => {
           type="submit"
           className="bg-base-200"
           disabled={isProcessing}
-          onClick={() => setSubmitAction("publish")}
+          onClick={() => {
+            setSubmitAction("publish");
+          }}
         >
           {isProcessing && submitAction === "publish"
             ? "Publishing..."
@@ -369,29 +368,21 @@ const UploadDocument = () => {
       </div>
 
       <DialogContainer openDialog={openDialog}>
-        <div className="flex flex-col items-center gap-5">
-          <FaCircleExclamation className="text-[2.5rem] text-base-200" />
-          <p className="text-[0.95rem] font-semibold">
-            Do you want to upload this document?
-          </p>
-          <div className="flex w-full gap-4">
-            <Button
-              variant="outline"
-              className="flex-1 border-secondary-200 py-1 text-secondary-100-75"
-              // onClick={handleClose}
-              // disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="hover:bg flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
-              // onClick={handleDeleteDocument}
-              // disabled={isPending}
-            >
-              Proceed
-            </Button>
+        {submitAction === "draft" ? (
+          <div className="grid place-items-center gap-7 py-1">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">
+              Please wait while the document is being saved
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="grid place-items-center gap-7 py-1">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">
+              Please wait while the document is being uploaded
+            </p>
+          </div>
+        )}
       </DialogContainer>
 
       <DocumentDialog

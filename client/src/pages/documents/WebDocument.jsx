@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import DialogContainer from "@/components/DialogContainer";
+import Loading from "@/components/Loading";
 
 const formSchema = z.object({
   title: z.string().optional(),
@@ -47,6 +49,7 @@ const WebDocument = () => {
 
   const { toast } = useToast();
   const [action, setAction] = useState("publish");
+  const [openDialog, setOpenDialog] = useState(false);
   const { mutateAsync: handleUploadFromWeb, isPending } = useMutation({
     mutationFn: uploadFromWeb,
     onSuccess: (data) => {
@@ -116,6 +119,8 @@ const WebDocument = () => {
     if (documentId) {
       formData.append("documentId", documentId);
     }
+
+    setOpenDialog(true);
 
     if (action === "publish") {
       handleUploadFromWeb(formData);
@@ -275,6 +280,17 @@ const WebDocument = () => {
           </Button>
         </div>
       )}
+
+      <DialogContainer openDialog={openDialog} >
+        {action === "draft" && (
+          <div className="grid place-items-center gap-7 py-1">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">
+              Please wait while the website is being saved
+            </p>
+          </div>
+        )}
+      </DialogContainer>
     </form>
   );
 };

@@ -156,42 +156,47 @@ const createFolder = async (req, res) => {
 
 // Document Retrieval Operations
 const getAllDocuments = async (req, res) => {
-  const { type, draftsOnly, recent, is_deleted } = req.query;
-  const params = {};
-  const isDraftOnly = draftsOnly === "true";
-
-  if (type) {
-    params.type = type;
-  } else if (isDraftOnly) {
-    params.type = "draft";
-  } else {
-    params.type = { $ne: "draft" };
-  }
-
-  if (is_deleted === "true") {
-    params.is_deleted = true;
-  } else {
-    params.is_deleted = { $ne: true };
-  }
-
   try {
-    let baseQuery = { ...params };
-    const sortQuery = recent === "true" ? { date_and_time: -1 } : {};
+    const { type, draftsOnly, recent, is_deleted } = req.query;
+    const isDraftOnly = draftsOnly === "true";
+    const isDeleted = is_deleted === "true";
+    const isRecent = recent === "true";
 
-    const documents = await DocumentModel.find(baseQuery).sort(sortQuery);
+    // Build query parameters
+    const params = {
+      type: isDraftOnly ? "draft" : type || { $ne: "draft" },
+      is_deleted: isDeleted ? true : { $ne: true },
+    };
 
+    // Ensure "onlyMe" documents are only accessible to contributors
+    if (req.user?.userId) {
+      params.$or = [
+        { visibility: { $ne: "onlyMe" } }, // Public or restricted visibility
+        { contributors: req.user.userId }, // User is a contributor
+      ];
+    }
+
+    // Sorting configuration
+    const sortQuery = isRecent ? { date_and_time: -1 } : {};
+
+    // Fetch documents
+    const documents = await DocumentModel.find(params).sort(sortQuery);
+
+    // Collect user IDs for enrichment
     const userIds = new Set();
     documents.forEach((doc) => {
       if (doc.published_by) userIds.add(doc.published_by.toString());
-      if (doc.contributors) {
-        doc.contributors.forEach((id) => userIds.add(id.toString()));
-      }
+      doc.contributors?.forEach((id) => userIds.add(id.toString()));
     });
 
-    const users = await UserModel.find({ _id: { $in: Array.from(userIds) } });
+    // Fetch user details and map by ID
+    const users = await UserModel.find({ _id: { $in: Array.from(userIds) } })
+      .populate("campus_id", "campus_name")
+      .lean(); // Use .lean() to improve performance
 
     const userMap = new Map(users.map((user) => [user._id.toString(), user]));
 
+    // Enrich document data
     const enrichedDocuments = documents.map((doc) => {
       const publishedByUser = userMap.get(doc.published_by?.toString());
       const contributorUsers = (doc.contributors || []).map((id) =>
@@ -201,16 +206,16 @@ const getAllDocuments = async (req, res) => {
       return {
         ...doc.toObject(),
         published_by:
-          publishedByUser && publishedByUser._id.toString() === req.user.userId
+          publishedByUser?.id?.toString() === req.user?.userId
             ? "You"
             : `${publishedByUser?.firstname || "Unknown"} ${
                 publishedByUser?.lastname || ""
               }`.trim(),
         contributors: contributorUsers.map((contributor) =>
-          contributor && contributor._id.toString() === req.user.userId
+          contributor?.id?.toString() === req.user?.userId
             ? "You"
-            : `${contributor.firstname || "Unknown"} ${
-                contributor.lastname || ""
+            : `${contributor?.firstname || "Unknown"} ${
+                contributor?.lastname || ""
               }`.trim()
         ),
       };

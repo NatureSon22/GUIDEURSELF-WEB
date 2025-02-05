@@ -47,6 +47,8 @@ const AllDocuments = () => {
     queryFn: getAllCampuses,
   });
 
+  
+
   const [open, setOpen] = useState(false);
 
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -55,6 +57,7 @@ const AllDocuments = () => {
     mutateAsync: handleDeleteDocument,
     isPending,
     isSuccess,
+    reset: resetDelete,
   } = useMutation({
     mutationFn: () => deleteDocument(selectedDocument),
     onSuccess: () => {
@@ -62,6 +65,7 @@ const AllDocuments = () => {
         setOpen(false);
         setSelectedDocument(null);
         queryClient.invalidateQueries(["all-documents"]);
+        resetDelete();
       }, 1000);
     },
     onError: () => {
@@ -72,6 +76,7 @@ const AllDocuments = () => {
       });
       setOpen(false);
       setSelectedDocument(null);
+      resetDelete();
     },
   });
 
@@ -120,7 +125,7 @@ const AllDocuments = () => {
           <ComboBox
             options={allCampuses || []}
             placeholder="select campus"
-            filter="campus_name"
+            filter="campus_id"
             setFilters={setFilters}
             reset={reset}
           />
@@ -195,10 +200,15 @@ const AllDocuments = () => {
         openDialog={open}
         style={{ width: isSuccess ? "sm:max-w-[350px]" : "sm:max-w-[400px]" }}
       >
-        {isSuccess ? (
+        {isSuccess ? ( // how t reset isSuccess
           <p className="text-[0.95rem] font-semibold">
             Document successfully removed!
           </p>
+        ) : isPending ? (
+          <div className="flex flex-col items-center gap-5">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">Removing document...</p>
+          </div>
         ) : (
           <div className="flex flex-col items-center gap-5">
             <FaCircleExclamation className="text-[2.5rem] text-base-200" />
