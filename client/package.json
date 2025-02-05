@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:prod": "vite build",
+    "build:preview": "vite build"
     "lint": "eslint .",
     "preview": "vite preview"
   },
