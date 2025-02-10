@@ -58,15 +58,15 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
       });
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
       const updatedProgram = {
         programtype: selectedType,
         programname: inputRef.current.value.trim(),
       };
-
+  
       const response = await fetch(
         `http://localhost:3000/api/campusprogramnames/${program._id}`,
         {
@@ -78,21 +78,21 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
           body: JSON.stringify(updatedProgram),
         }
       );
-
+  
       if (!response.ok) {
         throw new Error("Failed to update program");
       }
-
+  
       toast({
         title: "Success",
         description: "Program updated successfully.",
       });
-
+  
       // Invalidate queries to refresh data
       queryClient.invalidateQueries(["programnames"]);
-      queryClient.invalidateQueries(["programTypes"]); // Ensure dropdown updates
-
-      onClose(); // Close modal
+      queryClient.invalidateQueries(["programTypes"]);
+  
+      onClose();
     } catch (error) {
       toast({
         title: "Error",
@@ -103,6 +103,7 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
       setLoading(false);
     }
   };
+  
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

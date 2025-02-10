@@ -45,7 +45,7 @@ import {
   AssignRole,
   LegalContainer,
   TermsOfService,
-  PrivacyPolicy,
+  Policy,
   MediaLibrary
 } from "./routescomponents.jsx";
 import NetworkLayer from "./layer/NetworkLayer.jsx";
@@ -299,13 +299,12 @@ const routes = [
     element: <LegalContainer />,
     children: [
       {
-        path: "terms",
-        element: <TermsOfService />,
-        index: true,
+        path: "privacy",
+        element: <Policy />,
       },
       {
-        path: "privacy",
-        element: <PrivacyPolicy />,
+        path: "terms",
+        element: <TermsOfService />,
       },
     ],
   },

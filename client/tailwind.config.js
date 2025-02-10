@@ -27,6 +27,7 @@ export default {
         "accent-100": "rgba(239, 68, 68, 1)",
         "accent-150": "rgb(252, 205, 205)",
         "accent-200": "rgba(254, 226, 226, 1)",
+        "accent-250": "rgb(248, 111, 111)",
         "accent-300": "rgba(34, 197, 94, 1)",
         "accent-400": "rgba(220, 252, 231, 1)",
         "accent-500": "rgb(254, 226, 226, 1)",

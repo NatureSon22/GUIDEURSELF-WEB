@@ -3,11 +3,17 @@ import { config } from "dotenv";
 
 config();
 
+const publicRoutes = [/^\/api\/general\/\w+$/]; // Matches "/api/general/:id"
+
 const verifyToken = (req, res, next) => {
+  if (publicRoutes.some((route) => route.test(req.originalUrl))) {
+    return next(); // Skip authentication for this route
+  }
+
   const token = req.cookies?.authToken;
 
   if (!token) {
-    return res.status(401).json({ message: "Unathorized" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {

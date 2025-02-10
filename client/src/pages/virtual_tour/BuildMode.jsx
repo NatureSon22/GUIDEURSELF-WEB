@@ -10,6 +10,7 @@ import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 import { loggedInUser } from "@/api/auth";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -59,7 +60,8 @@ const BuildMode = () => {
     <div className="flex min-h-screen">
       {loadingVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-md shadow-md text-center">
+          <div className="bg-white p-6 flex flex-col justify-center w-[400px] gap-4 items-center rounded-md shadow-md text-center">
+            <Loading />
             <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
           </div>
         </div>

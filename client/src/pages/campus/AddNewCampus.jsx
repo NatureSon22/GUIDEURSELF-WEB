@@ -12,6 +12,7 @@ import Header from "@/components/Header";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Loading from "@/components/Loading";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -240,9 +241,10 @@ const handleRemoveProgram = (programType, index) => {
     <div className="w-full">
         {loadingVisible && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-md shadow-md text-center">
-                <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
-            </div>
+            <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
+            <Loading />
+            <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
+          </div>
             </div>
         )}
             <div className="w-[75%] flex flex-col justify-between">
@@ -393,7 +395,7 @@ const handleRemoveProgram = (programType, index) => {
                 name="campus_cover_photo"
                 type="file"
                 accept="image/*"
-                className="mt-2"
+                className="mt-2 py-1 cursor-pointer"
                 onChange={handleImageUpload}  
               />
             </div>
@@ -440,14 +442,16 @@ const handleRemoveProgram = (programType, index) => {
                             />
                           </button>
                         </div>
-                        <p className="ml-[20px] text-sm">Major in:</p>
-                        <ul>
-                          {program.majors.map((major, i) => (
-                            <li className="ml-[20px] text-l" key={i}>
-                              {major}
-                            </li>
-                          ))}
-                        </ul>
+                        {program.majors.length > 0 && (
+                          <>
+                            <p className="text-sm ml-4">Major in:</p>
+                            <ul className="list-disc ml-8">
+                              {program.majors.map((major, majorIndex) => (
+                                <li key={majorIndex} className="text-base list-none">{major}</li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>

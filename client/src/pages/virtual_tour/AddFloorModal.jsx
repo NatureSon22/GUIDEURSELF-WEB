@@ -38,11 +38,13 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
   const [errorMessage, setErrorMessage] = useState(""); 
   const [floorName, setFloorName] = useState("");
   const [file, setFile] = useState(null);
+  const [isLoading, isSetLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null); // State for image preview
 
-  const { mutate: addFloor, isLoading } = useMutation({
+  const { mutate: addFloor } = useMutation({
     mutationFn: (data) => uploadFloorImage(campusId, data),
     onSuccess: () => {
+      isSetLoading(true);
       refreshFloors();
       closeModal();
     },
@@ -53,6 +55,8 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    isSetLoading(true);
 
     const formData = new FormData();
     formData.append("floor_name", floorName);

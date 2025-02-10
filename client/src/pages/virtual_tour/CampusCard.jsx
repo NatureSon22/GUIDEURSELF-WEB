@@ -40,7 +40,7 @@ const CampusCard = ({ campus, onClose }) => {
     }, 0) || 0;
   
     return (
-      <div className="fixed inset-1 flex h-[550px] justify-end z-50 gap-4">
+      <div className="fixed inset-1 flex h-[550px] justify-end z-10 gap-4">
         <div className="bg-white p-4 rounded-md shadow-lg w-[22%] max-w-[600px] flex flex-col gap-3">
           <div className="flex w-[100%] justify-center gap-3">
             <div className="w-[20%] flex items-center justify-center">

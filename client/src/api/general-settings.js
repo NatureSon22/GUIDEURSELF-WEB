@@ -1,3 +1,18 @@
+const getGeneralData = async () => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/general/get-info`,
+      {
+        method: "get",
+      },
+    );
+    const { general } = await response.json();
+    return general ? general[0] : [];
+  } catch (error) {
+    throw new Error("Failed to load system data!");
+  }
+};
+
 const updateLogo = async (file) => {
   try {
     const formData = new FormData();
@@ -61,22 +76,6 @@ const updateConditions = async (conditions) => {
     });
   } catch (error) {
     throw new Error("Failed to update system about!");
-  }
-};
-
-const getGeneralData = async () => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/general/get-info`,
-      {
-        method: "get",
-        credentials: "include",
-      },
-    );
-    const { general } = await response.json();
-    return general ? general[0] : [];
-  } catch (error) {
-    throw new Error("Failed to load system data!");
   }
 };
 

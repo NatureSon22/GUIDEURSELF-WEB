@@ -55,29 +55,41 @@ campusProgramNameRouter.post("/", async (req, res) => {
 campusProgramNameRouter.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { programname: newProgramName } = req.body;
+    const { programname: newProgramName, programtype: newProgramType } = req.body;
 
-    // Find the old program name
+    // Find the old program details
     const oldProgram = await CampusProgramName.findById(id);
     if (!oldProgram) {
-      return res.status(404).json({ message: "Program name not found" });
+      return res.status(404).json({ message: "Program not found" });
     }
+
     const oldProgramName = oldProgram.programname;
+    const oldProgramType = oldProgram.programtype;
 
-    // Update the program name in CampusProgramName
-    const updatedProgramName = await CampusProgramName.findByIdAndUpdate(
+    // Update the program in CampusProgramName
+    const updatedProgram = await CampusProgramName.findByIdAndUpdate(
       id,
-      { programname: newProgramName },
-      { new: true } // This ensures the updated document is returned
+      { programname: newProgramName, programtype: newProgramType },
+      { new: true }
     );
 
-    // Update all related majors in CampusMajor
-    await CampusMajor.updateMany(
-      { programname: oldProgramName },
-      { programname: newProgramName }
-    );
+    // Update all related records in CampusMajor if the program name changed
+    if (oldProgramName !== newProgramName) {
+      await CampusMajor.updateMany(
+        { programname: oldProgramName },
+        { programname: newProgramName }
+      );
+    }
 
-    res.status(200).json(updatedProgramName);
+    // Optionally, if CampusMajor also stores programtype and it needs updating:
+    if (oldProgramType !== newProgramType) {
+      await CampusMajor.updateMany(
+        { programtype: oldProgramType },
+        { programtype: newProgramType }
+      );
+    }
+
+    res.status(200).json(updatedProgram);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

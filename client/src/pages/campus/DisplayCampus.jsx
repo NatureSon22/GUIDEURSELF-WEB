@@ -48,10 +48,12 @@ const DisplayCampus = () => {
     queryFn: getUniversityData,
   });
 
-  // Filter campuses based on search term
-  const filteredCampuses = campuses.filter((campus) =>
-    campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter and sort campuses alphabetically
+  const filteredCampuses = campuses
+    .filter((campus) =>
+      campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -82,7 +84,7 @@ const DisplayCampus = () => {
             <img className="h-[100%]" src={Search} alt="" />
           </div>
 
-          <FeaturePermission  module="Manage Campus" access="add campus">
+          <FeaturePermission module="Manage Campus" access="add campus">
             <Link to="/campus/add" className="w-[20%]">
               <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
                 <img
@@ -93,8 +95,7 @@ const DisplayCampus = () => {
                 Add Campus
               </button>
             </Link>
-            </FeaturePermission>
-           
+          </FeaturePermission>
 
           <Link to="/campus/edit" className="w-[10%]">
             <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
@@ -116,7 +117,7 @@ const DisplayCampus = () => {
               center={position}
               zoom={11}
               className="h-[530px] w-[100%] outline-none border border-gray-300"
-              zoomControl={false}
+              // zoomControl={false}
               attributionControl={false}
             >
               <TileLayer
@@ -167,7 +168,7 @@ const DisplayCampus = () => {
 
         <p className="text-sm">List of Campuses</p>
         <div className="border-t border-x">
-          {/* Render filtered campus names */}
+          {/* Render sorted and filtered campus names */}
           {filteredCampuses.map((campus, index) => (
             <div key={index} className="py-4 border-b border-gray-300">
               <p className="text-center">{campus.campus_name} Campus</p>

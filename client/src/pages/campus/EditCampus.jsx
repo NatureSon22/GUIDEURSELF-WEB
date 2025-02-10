@@ -14,6 +14,7 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Loading from "@/components/Loading";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -30,6 +31,7 @@ const EditCampus = () => {
     const [loadingVisible, setLoadingVisible] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const [campuses, setCampuses] = useState([]);
+    const [isLoading, isSetLoading] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
     const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
     const [campusImage, setCampusImage] = useState(null);
@@ -128,6 +130,8 @@ const EditCampus = () => {
 
             const handleSaveChanges = async (e) => {
                 e.preventDefault();  // Prevent form reload
+
+                isSetLoading(true);
                 
                 const formData = new FormData();
                 formData.append('campus_name', campusData.campus_name);
@@ -158,6 +162,7 @@ const EditCampus = () => {
                       setTimeout(() => {
                         setLoadingMessage("Campus has been successfully edited!");
                         setTimeout(() => {
+                          isSetLoading(false);
                           setLoadingVisible(false);
                           navigate("/campus/edit"); // Navigate back to campus list
                         }, 1500);
@@ -247,9 +252,10 @@ const EditCampus = () => {
     <div className="w-full">
         {loadingVisible && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-md shadow-md text-center">
+              <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
+                <Loading />
                 <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
-            </div>
+              </div>
             </div>
         )}
       <div className="w-full p-6 flex justify-between items-center">
@@ -390,7 +396,7 @@ const EditCampus = () => {
                 name="campus_cover_photo"
                 type="file"
                 accept="image/*"
-                className="mt-2"
+                className="mt-2 py-1 cursor-pointer"
                 onChange={handleImageUpload}  // Use existing handler
                 />
             </div>
@@ -421,24 +427,29 @@ const EditCampus = () => {
                     </h3>
                     <div className="flex flex-col gap-4 border rounded-md p-4">
                     {programType.programs.map((program, index) => (
-                        <div key={index} className="flex flex-col gap-2">
+                      <div key={index} className="flex flex-col gap-2">
                         <div className="flex justify-between items-center">
-                            <h4 className="text-lg font-medium">{program.program_name}</h4>
-                            <button
+                          <h4 className="text-lg font-medium">{program.program_name}</h4>
+                          <button
                             type="button"
                             className="text-red-500"
                             onClick={() => handleRemoveProgram(programType.program_type_id, index)}
-                            >
+                          >
                             <img src={CloseIcon} className="w-[20px] h-[20px]" alt="Remove Program" />
-                            </button>
+                          </button>
                         </div>
-                        <p className="text-sm ml-4">Major in:</p>
-                        <ul className="list-disc ml-8">
-                            {program.majors.map((major, majorIndex) => (
-                            <li key={majorIndex} className="text-base list-none">{major}</li>
-                            ))}
-                        </ul>
-                        </div>
+                        {/* Conditionally render "Major in:" only if there are majors */}
+                        {program.majors.length > 0 && (
+                          <>
+                            <p className="text-sm ml-4">Major in:</p>
+                            <ul className="list-disc ml-8">
+                              {program.majors.map((major, majorIndex) => (
+                                <li key={majorIndex} className="text-base list-none">{major}</li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                      </div>
                     ))}
                     </div>
                 </div>
@@ -466,6 +477,7 @@ const EditCampus = () => {
           <div className="p-6 flex justify-end gap-[10px]">
             <Button  
               type="button"
+              disabled={isLoading}
               onClick={secondHandleBack}
               className="text-base-200 bg-white shadow-none hover:bg-secondary-350 w-[100px] p-2 border-none"
             >
@@ -473,9 +485,10 @@ const EditCampus = () => {
             </Button>
             <Button
               type="submit"
+              disabled={isLoading}
               className="border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
               >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>

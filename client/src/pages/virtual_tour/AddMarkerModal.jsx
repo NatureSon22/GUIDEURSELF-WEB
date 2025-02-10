@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import PanoramicViewer from "./PanoramicViewer";
+import MediaPanoramicViewer from "./MediaPanoramicViewer";
 import { loggedInUser } from "@/api/auth";
 import { BsDoorOpenFill } from "react-icons/bs";
 import { PiOfficeChairFill } from "react-icons/pi";
@@ -13,6 +14,7 @@ import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
 import { HiSquaresPlus } from "react-icons/hi2";
 import { useToast } from "@/hooks/use-toast";
+import { IoAlertCircle } from "react-icons/io5";
 
 const addMarker = async (campusId, selectedFloor, formData) => {
   try {
@@ -66,6 +68,7 @@ const AddMarkerModal = ({
     campusId,
     updatedCampus
 }) => {
+  const modalRef = useRef(null);
   const [markerName, setMarkerName] = useState("");
   const [markerDescription, setMarkerDescription] = useState("");
   const [newImagePreview, setNewImagePreview] = useState(null); 
@@ -76,12 +79,39 @@ const AddMarkerModal = ({
   const [category, setCategory] = useState("");
   const queryClient = useQueryClient(); 
   const { toast } = useToast();
+  const [isPanorama, setIsPanorama] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: loggedInUser,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsPanorama(false); // Close when clicking outside
+      }
+    };
+
+    if (isPanorama) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isPanorama]);
+
+  const showPanorama = () => {
+    console.log("click");
+    setIsPanorama(true);
+  }
+
+  const unshowPanorama = () => {
+    setIsPanorama(false);
+  }
 
   const { mutate: addNewMarker } = useMutation({
     mutationFn: (data) => addMarker(campusId, selectedFloor, data),
@@ -127,10 +157,22 @@ const AddMarkerModal = ({
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
+    const maxSize = 10485760; // 10MB
+  
     if (file) {
+      // if (file.size > maxSize) {
+      //   setErrorMessage(`File size too large. Maximum is 10MB.`);
+        
+      //   setTimeout(() => {
+      //     setErrorMessage(""); // Clear the error message after 3 seconds
+      //   }, 3000);
+  
+      //   return; // Ensure the function stops execution here
+      // }
+  
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewImagePreview(reader.result); 
+        setNewImagePreview(reader.result);
         setImageFile(file);
       };
       reader.readAsDataURL(file);
@@ -150,23 +192,26 @@ const AddMarkerModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear previous errors
+  
+    const maxSize = 10485760; // 10MB
   
     if (!coordinates?.lat || !coordinates?.lng) {
-      return toast({
-        title: "Missing Location",
-        description: "Please drop a pin on the map to set the location.",
-        status: "error",
-        duration: 5000,
-      });
+      setErrorMessage("Please drop a pin on the map to set the location.");
+      setTimeout(() => setErrorMessage(""), 3000); // Clear error message after 3 seconds
+      return;
     }
   
     if (!markerName.trim()) {
-      return toast({
-        title: "Missing Name",
-        description: "Please enter a marker name.",
-        status: "error",
-        duration: 5000,
-      });
+      setErrorMessage("Marker name is required.");
+      setTimeout(() => setErrorMessage(""), 3000); // Clear error message after 3 seconds
+      return;
+    }
+  
+    if (imageFile && imageFile.size > maxSize) {
+      setErrorMessage("File size too large. Maximum is 10MB.");
+      setTimeout(() => setErrorMessage(""), 3000); // Clear error message after 3 seconds
+      return;
     }
   
     setIsMutating(true);
@@ -188,16 +233,24 @@ const AddMarkerModal = ({
       formData.append("marker_photo", imageFile);
     }
   
-    // Add logging data
+    // Logging data
     formData.append("updated_by", data?.username || "Unknown User");
     formData.append("activity", `Added new location ${markerName}`);
-    formData.append("campus_name", `${updatedCampus.campus_name} Campus` || "Unknown Campus"); // Assuming `selectedFloor` has `campus_name`
+    formData.append("campus_name", `${updatedCampus.campus_name} Campus` || "Unknown Campus");
   
-    addNewMarker(formData);
+    addNewMarker(formData, {
+      onError: (error) => {
+        console.error("Error adding marker:", error);
+        setIsMutating(false);
+        setErrorMessage(error.message || "Failed to add marker. Please try again.");
+        setTimeout(() => setErrorMessage(""), 3000); // Clear error message after 3 seconds
+      },
+    });
   };
+  
 
   return (
-    <div className="bg-secondary-500 h-100vh w-[35%] border-l overflow-y-auto z-1">
+    <div className="bg-secondary-500 h-100vh w-[37%] border-l overflow-y-auto z-1">
       <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[100%]">
         <div className="overflow-y-auto p-6 max-h-[calc(100vh-120px)]">
 
@@ -211,22 +264,25 @@ const AddMarkerModal = ({
             onChange={(e) => setMarkerName(e.target.value)}
             className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
             placeholder="Enter marker name"
-            required
             />
           </div>
 
           <div className="mt-4">
               <Label className="text-[16px]">Upload 360 Photo</Label>
               <div className="flex justify-between mt-2 w-[100%]">
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="bg-white w-[50%] cursor-pointer mb-4  py-1 px-0"
-              />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="bg-white w-[50%] cursor-pointer mb-4  py-1 px-0"
+                />
               </div>
               {newImagePreview ? (
               <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4">
+              <div className="z-50 fixed flex justify-center items-center bg-black w-[625px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
+                <Button type="button" onClick={showPanorama} className="text-white h-[40px]">Click to Preview</Button>
+              </div>
+
                 <PanoramicViewer 
                   imageUrl={newImagePreview} 
                 />
@@ -236,9 +292,7 @@ const AddMarkerModal = ({
               <Label className="text-[16px] text-secondary-200">Upload 360 Photo</Label>
               </div>
               )}
-              
-              
-            </div>
+          </div>
 
           {imageFile && (
             <div>
@@ -310,26 +364,44 @@ const AddMarkerModal = ({
             
 
           </div>
-          <div className="mt-6 flex justify-end p-6 gap-[10px]">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="text-base-200 w-[100px] p-2 border-none"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-base-200 text-white w-[100px] p-2 rounded-md"
-              disabled={isMutating}
-            >
-              {isMutating ? "Adding..." : "Add"}
-            </button>
+          <div className="mt-6 flex justify-between p-6 gap-[10px]">
+            {errorMessage && (
+              <div className="flex border rounded-md w-[1500px] border-accent-100 p-2 gap-2 items-center">
+                <IoAlertCircle className="text-accent-100 h-[25px] w-[25px]"/>
+                <p className="text-red-500 text-sm">{errorMessage}</p>
+              </div>
+            )}
+            <div className="w-[100%] flex gap-1 justify-end">
+              <Button
+                type="button"
+                onClick={closeModal}
+                className="text-base-200 bg-white shadow-none hover:bg-secondary-350 w-[100px] p-2 border-none"
+                disabled={isMutating}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
+                disabled={isMutating}
+              >
+                {isMutating ? "Adding..." : "Add"}
+              </Button>
+            </div>
           </div>
         </form>
         <div>
-                
-              </div>
+        {isPanorama && (
+          <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
+            <div ref={modalRef} className="relative">
+              <MediaPanoramicViewer imageUrl={newImagePreview} />
+            </div>
+          </div>
+        )}
+        </div>
+
+          
+
       </div>
   );
 };

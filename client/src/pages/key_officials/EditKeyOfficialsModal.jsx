@@ -126,7 +126,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
           {/* Image Upload */}
           <div className="mt-4">
             <Label className="block text-[17px] pb-2">Upload Image</Label>
-            <Input type="file" accept="image/*" onChange={handleImageUpload} />
+            <Input type="file" className="mt-2 pt-[5px] cursor-pointer" accept="image/*" onChange={handleImageUpload} />
           </div>
 
           {/* Image Preview */}

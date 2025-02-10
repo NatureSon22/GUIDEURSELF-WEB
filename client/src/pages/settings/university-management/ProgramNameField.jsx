@@ -8,6 +8,7 @@ import { BiSolidEdit } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import formatDateTime from "@/utils/formatDateTime";
 
 const ProgramNameField = () => {
   const queryClient = useQueryClient();
@@ -17,30 +18,29 @@ const ProgramNameField = () => {
     queryFn: getProgramNameData,
   });
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-  
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2);
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0'); 
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const hour12 = hours % 12 || 12; 
-  
-    return `${day}-${month}-${year} ${hour12}:${minutes} ${ampm}`;
-  };
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+
+  // Filter programs based on search term
+  const filteredPrograms = programs
+  ? programs.filter(
+      (program) =>
+        program.programname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        program.programtype.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
 
   const handleDeleteProgram = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/campusprogramnames/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/campusprogramnames/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete type");
@@ -66,7 +66,6 @@ const ProgramNameField = () => {
     setSelectedProgram(program);
     setIsEditModalOpen(true);
   };
-  
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
@@ -91,7 +90,11 @@ const ProgramNameField = () => {
           </p>
         </div>
         <div className="w-[100%] flex flex-row gap-2">
-          <Input placeholder="Search..."></Input>
+          <Input
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+          />
           <Button
             variant="outline"
             className="text-secondary-100-75"
@@ -101,7 +104,7 @@ const ProgramNameField = () => {
           </Button>
         </div>
 
-        <div  className="mt-4 h-[300px] overflow-y-auto">
+        <div className="mt-4 h-[300px] overflow-y-auto">
           {isLoading ? (
             <p>Loading program type...</p>
           ) : isError ? (
@@ -117,12 +120,16 @@ const ProgramNameField = () => {
                 </tr>
               </thead>
               <tbody>
-                {(programs || []).length > 0 ? (
-                  programs.map((program) => (
+                {filteredPrograms.length > 0 ? (
+                  filteredPrograms.map((program) => (
                     <tr key={program._id}>
                       <td className="p-2 border text-[0.9rem]">{program.programtype}</td>
-                      <td className="p-2 border text-center text-[0.9rem]">{program.programname}</td>
-                      <td className="p-2 border text-center text-[0.9rem]">{formatDate(program.date_added)}</td>
+                      <td className="p-2 border text-center text-[0.9rem]">
+                        {program.programname}
+                      </td>
+                      <td className="p-2 border text-center text-[0.9rem]">
+                        {formatDateTime(program.date_added)}
+                      </td>
                       <td className="p-2 border text-[0.9rem] flex gap-2">
                         <Button
                           variant="secondary"
@@ -144,8 +151,8 @@ const ProgramNameField = () => {
                   ))
                 ) : (
                   <tr>
-                    <td className="p-2 border" colSpan="3">
-                      No program name available
+                    <td className="p-2 border" colSpan="4">
+                      No matching program name found
                     </td>
                   </tr>
                 )}
@@ -155,14 +162,14 @@ const ProgramNameField = () => {
         </div>
       </div>
 
-
-       
       <EditProgramNameModal
         open={isEditModalOpen}
         onClose={handleCloseEditModal}
         program={selectedProgram}
-      />   
-      {isModalOpen && <AddProgramNameModal onClose={closeModal} queryClient={queryClient} />}
+      />
+      {isModalOpen && (
+        <AddProgramNameModal onClose={closeModal} queryClient={queryClient} />
+      )}
     </div>
   );
 };

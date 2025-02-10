@@ -530,25 +530,27 @@ router.post('/campuses/unarchive/:id', async (req, res) => {
   }
 });
 
-router.post('/archived-campuses', async (req, res) => {
+router.post("/archived-campuses", async (req, res) => {
+  const { campus_id } = req.body; // Ensure the frontend sends `campus_id`
+
   try {
-    // Add the current date as the date_added field
-    const archivedCampusData = {
-      ...req.body, // Copy all fields from the request body
-      date_added: new Date(), // Set the current date as the date_added field
-    };
+    // Find the campus by ID
+    const campus = await Campus.findById(campus_id);
+    if (!campus) {
+      return res.status(404).json({ message: "Campus not found" });
+    }
 
-    // Create a new archived campus document
-    const archivedCampus = new ArchivedCampus(archivedCampusData);
+    // Delete all archived items related to this campus
+    await ArchivedItem.deleteMany({ campus_id });
 
-    // Save the archived campus to the database
+    // Move the campus to the ArchivedCampus collection
+    const archivedCampus = new ArchivedCampus(campus.toObject());
     await archivedCampus.save();
 
-    // Send a success response
-    res.status(201).send(archivedCampus);
+    res.status(200).json({ message: "Campus archived successfully" });
   } catch (error) {
     console.error("Error archiving campus:", error);
-    res.status(400).send(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -623,6 +625,7 @@ router.post("/campuses/:campusId/floors/:floorId/archive", async (req, res) => {
       location_data: null, // Make sure this is null to prevent validation errors
       campus_id: campusId,
       date_archived: new Date(),
+      campus_name: campus.campus_name,
     });
 
     await archivedItem.save();
@@ -729,6 +732,7 @@ router.post("/campuses/:campusId/locations/:locationId/archive", async (req, res
       location_data: locationToArchive.toObject(), // Copy all fields from the location
       campus_id: campusId, // Reference to the original campus
       date_archived: new Date(), // Set the current date as the date_archived field
+      campus_name: campus.campus_name,
     });
 
     // Step 4: Save the archived item
@@ -754,31 +758,31 @@ router.post("/campuses/:campusId/locations/:locationId/archive", async (req, res
   }
 });
 
-router.post("/archive-item", async (req, res) => {
-  try {
-    const { type, floor_data, location_data, campus_id } = req.body;
+// router.post("/archive-item", async (req, res) => {
+//   try {
+//     const { type, floor_data, location_data, campus_id } = req.body;
 
-    // Create a new archived item
-    const archivedItem = new ArchivedItem({
-      type,
-      floor_data: type === "floor" ? floor_data : undefined,
-      location_data: type === "location" ? location_data : undefined,
-      campus_id,
-    });
+//     // Create a new archived item
+//     const archivedItem = new ArchivedItem({
+//       type,
+//       floor_data: type === "floor" ? floor_data : undefined,
+//       location_data: type === "location" ? location_data : undefined,
+//       campus_id,
+//     });
 
-    // Save the archived item
-    await archivedItem.save();
+//     // Save the archived item
+//     await archivedItem.save();
 
-    // Send a success response
-    res.status(201).json({
-      message: "Item archived successfully",
-      archivedItem,
-    });
-  } catch (error) {
-    console.error("Error archiving item:", error);
-    res.status(500).json({ message: "Failed to archive item" });
-  }
-});
+//     // Send a success response
+//     res.status(201).json({
+//       message: "Item archived successfully",
+//       archivedItem,
+//     });
+//   } catch (error) {
+//     console.error("Error archiving item:", error);
+//     res.status(500).json({ message: "Failed to archive item" });
+//   }
+// });
 
 router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", async (req, res) => {
   try {
@@ -810,6 +814,7 @@ router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", asy
       location_data: markerToArchive.toObject(), // Store marker details
       floor_id: floorId, // 🔹 Store floor ID to track its original location
       campus_id: campusId, // Store campus ID
+      campus_name: campus.campus_name, // Add campus_name to the archived item
       date_archived: new Date(),
     });
 
@@ -834,6 +839,5 @@ router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", asy
     res.status(500).json({ message: "Failed to archive marker" });
   }
 });
-
 
 export default router;

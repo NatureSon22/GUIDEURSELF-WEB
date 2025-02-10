@@ -1,5 +1,5 @@
-import { getGeneralData } from "@/api/general-settings";
 import { useQuery } from "@tanstack/react-query";
+import {getGeneralData} from "@/api/component-info.js"
 
 const TermsOfService = () => {
   const { data, isLoading } = useQuery({

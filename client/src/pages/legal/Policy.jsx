@@ -1,7 +1,7 @@
-import { getGeneralData } from "@/api/general-settings";
+import { getGeneralData } from "@/api/component-info";
 import { useQuery } from "@tanstack/react-query";
 
-const PrivacyPolicy = () => {
+const Policy = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["universitysettings"],
     queryFn: getGeneralData,
@@ -26,4 +26,4 @@ const PrivacyPolicy = () => {
   );
 };
 
-export default PrivacyPolicy;
+export default Policy;

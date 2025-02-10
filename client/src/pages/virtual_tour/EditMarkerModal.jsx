@@ -13,6 +13,8 @@ import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
 import { HiSquaresPlus } from "react-icons/hi2";
 import { loggedInUser } from "@/api/auth";
+import MediaPanoramicViewer from "./MediaPanoramicViewer";
+import { IoAlertCircle } from "react-icons/io5";
 
 const updateMarker = async (campusId, floorId, markerId, updatedData, imageFile) => {
   const formData = new FormData();
@@ -90,8 +92,34 @@ const EditMarkerModal =
   const [isMutating, setIsMutating] = useState(false);
   const [isShowed, setIsShowed] = useState(true);
   const [isAllowed, setIsAllowed] = useState(false);
+  const [isPanorama, setIsPanorama] = useState(false);
+  const modalRef = useRef(null);
+  const [errorMessage, setErrorMessage] = useState("");
   
   const queryClient = useQueryClient(); 
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsPanorama(false); // Close when clicking outside
+      }
+    };
+
+    if (isPanorama) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isPanorama]);
+
+  const showPanorama = () => {
+    console.log("click");
+    setIsPanorama(true);
+  };
+
+  const previewImage = newImagePreview || marker.marker_photo_url;
 
   const { data, isLoading } = useQuery({
     queryKey: ["user"],
@@ -112,15 +140,29 @@ const EditMarkerModal =
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
+    const maxSize = 10485760; // 10MB
+  
     if (file) {
+      if (file.size > maxSize) {
+        setErrorMessage(`File size too large. Maximum is 10MB.`);
+        
+        setTimeout(() => {
+          setErrorMessage(""); // Clear the error message after 3 seconds
+        }, 3000);
+  
+        return; // Ensure the function stops execution here
+      }
+  
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewImagePreview(reader.result); 
+        setNewImagePreview(reader.result);
         setImageFile(file);
       };
       reader.readAsDataURL(file);
     }
   };
+  
+  
 
   
   const selectedAcademic = () =>{
@@ -208,7 +250,7 @@ const EditMarkerModal =
   };
   
   return (
-    <div className="bg-secondary-500 h-100vh w-[35%] border-l overflow-y-auto">
+    <div className="bg-secondary-500 h-100vh w-[37%] border-l overflow-y-auto">
       <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[100%]">
         <div className="overflow-y-auto p-6 max-h-[calc(100vh-120px)]">
 
@@ -226,30 +268,31 @@ const EditMarkerModal =
                 />
               </div>
 
-          <div className="mt-4">
-              <Label className="text-[16px]">Upload 360 Photo</Label>
-              <div className="flex justify-between mt-2 w-[100%]">
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="bg-white w-[50%] cursor-pointer mb-4  py-1 px-0  "
-              />
-              </div>
-              {newImagePreview ? (
-              <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4">
-                <PanoramicViewer 
-                  imageUrl={newImagePreview} 
-                />
-              </div>
-              ) : (
-                <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4">
-                <PanoramicViewer 
-                  imageUrl={marker.marker_photo_url} 
-                />
+              <div className="mt-4">
+                <Label className="text-[16px]">Upload 360 Photo</Label>
+                <div className="flex justify-between mt-2 w-[100%]">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="bg-white w-[50%] cursor-pointer mb-4 py-1 px-0"
+                  />
                 </div>
-              )}
-            </div>
+                {previewImage ? (
+                  <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4 relative">
+                    <div className="z-50 fixed flex justify-center items-center bg-black w-[625px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
+                      <Button type="button" onClick={showPanorama} className="text-white h-[40px]">
+                        Click to Preview
+                      </Button>
+                    </div>
+                    <PanoramicViewer imageUrl={previewImage} />
+                  </div>
+                ) : (
+                  <div className="w-[100%] h-[250px] flex items-center justify-center border border-secondary-200 rounded-md border-dashed mb-4">
+                    <Label className="text-[16px] text-secondary-200">Upload 360 Photo</Label>
+                  </div>
+                )}
+              </div>
 
             {imageFile && (
                         <div>
@@ -320,25 +363,40 @@ const EditMarkerModal =
                       )}
 
             </div>
-              <div className="mt-6 flex justify-end p-6 gap-[10px]">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="text-base-200 w-[100px] p-2 border-none"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-base-200 text-white w-[100px] p-2 rounded-md"
-                  disabled={isMutating}
-                >
-                  {isMutating ? "Saving..." : "Save"}
-                </button>
+              <div className="mt-6 flex justify-between p-6 gap-[10px]">
+                {errorMessage && (
+                  <div className="flex border rounded-md w-[1500px] border-accent-100 p-2 gap-2 items-center">
+                    <IoAlertCircle className="text-accent-100 h-[25px] w-[25px]"/>
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                  </div>
+                )}
+                <div className="w-[100%] flex gap-1 justify-end">
+                  <Button
+                    type="button"
+                    onClick={onClose}
+                    className="text-base-200 bg-white shadow-none hover:bg-secondary-350 w-[100px] p-2 border-none"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
+                    disabled={isMutating}
+                  >
+                    {isMutating ? "Saving..." : "Save"}
+                  </Button>
               </div>
+            </div>
             </form>
           <div>   
         </div>
+        {isPanorama && (
+        <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
+          <div ref={modalRef} className="relative">
+            <MediaPanoramicViewer imageUrl={previewImage} />
+          </div>
+        </div>
+        )}
       </div>
   );
 };

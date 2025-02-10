@@ -6,6 +6,8 @@ import MediaPanoramicViewer from "./MediaPanoramicViewer";
 import { MdOutlinePermMedia } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import { FaListUl } from "react-icons/fa";
+import { Input } from "@/components/ui/input";
+import { CiSearch } from "react-icons/ci";
 
 const fetchMarkers = async () => {
   const response = await fetch("http://localhost:3000/api/markers", {
@@ -52,6 +54,7 @@ const fetchCampuses = async () => {
 const MediaLibrary = () => {
   const [selectedCampus, setSelectedCampus] = useState("");
   const [clickIcon, setClickIcon] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const showList = () => {
     setClickIcon(true);
@@ -96,7 +99,11 @@ const MediaLibrary = () => {
     ? filteredByAccess.filter((marker) => String(marker.campus_id) === String(selectedCampus))
     : filteredByAccess;
 
-  const finalMarkers = filteredMarkers.filter((marker) => marker.marker_photo_url);
+  const finalMarkers = filteredMarkers
+    .filter((marker) => marker.marker_photo_url)
+    .filter((marker) =>
+      marker.marker_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   return (
     <div className="w-full flex flex-col w-[100%]">
@@ -105,41 +112,53 @@ const MediaLibrary = () => {
           title={"Media Library"}
           subtitle={"See uploaded media files in the virtual tour."}
         />
-        <div className="flex justify-end mt-6 gap-4 pr-2">
-          {isMultiCampus && (
-            <select
-            name="campus"
-            id="campus-select"
-            className="border rounded p-2 outline-none"
-            value={selectedCampus}
-            onChange={(e) => setSelectedCampus(e.target.value)}
-          >
-            <option value="">All Campuses</option>
-            {campuses.map((campus) => (
-              <option key={campus._id} value={campus._id}>
-                {campus.campus_name}
-              </option>
-            ))}
-          </select>
-          )}
-          
-          {!clickIcon ? (
-            <button onClick={showList}>
-              <FaListUl />
-            </button>
-          ) : (
-            <button onClick={unshowList}>
-              <MdOutlinePermMedia />
-            </button>
-          )}
+        <div className="flex items-center justify-between mt-4">
+          <div className="w-[66%] h-[40px] flex flex-row justify-between items-center py-2 px-2 rounded-md border-gray-300 border">
+            <textarea
+              className="overflow-hidden w-[100%] bg-secondary-500 h-6 resize-none border-none shadow-none outline-none"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <CiSearch />
+          </div>
+          <div className="flex justify-end gap-4 pr-2">
+            {isMultiCampus && (
+              <select
+                name="campus"
+                id="campus-select"
+                className="border rounded p-2 outline-none"
+                value={selectedCampus}
+                onChange={(e) => setSelectedCampus(e.target.value)}
+              >
+                <option value="">All Campuses</option>
+                {campuses.map((campus) => (
+                  <option key={campus._id} value={campus._id}>
+                    {campus.campus_name}
+                  </option>
+                ))}
+              </select>
+            )}
+            
+            {!clickIcon ? (
+              <button onClick={showList}>
+                <FaListUl />
+              </button>
+            ) : (
+              <button onClick={unshowList}>
+                <MdOutlinePermMedia />
+              </button>
+            )}
+          </div>
         </div>
+        
         <hr className={`${clickIcon ? "mt-2" : "my-2"}`} />
         {!clickIcon ? (
           <div className="pb-3 grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
             {finalMarkers.map((marker) => (
               <div
                 key={marker._id}
-                className="border flex flex-col items-center w-[100%] h-[320px] border-gray-300 rounded-md shadow-md bg-white"
+                className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[320px] border-gray-300 rounded-md shadow-md bg-white"
               >
                 <MediaPanoramicViewer
                   className="h-[400px] rounded-t-md"

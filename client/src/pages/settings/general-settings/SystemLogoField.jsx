@@ -43,7 +43,11 @@ const SystemLogoField = ({ isLoading, generallogo }) => {
       setEditImg(URL.createObjectURL(selectedFile));  // Show preview
       setFile(selectedFile);
     } else {
-      alert("Please select a valid image file.");
+      toast({
+        title: "Error",
+        description: "Choose a proper image file",
+        type: "destructive",
+      });
     }
   };
 
@@ -57,7 +61,11 @@ const SystemLogoField = ({ isLoading, generallogo }) => {
         handleUpdateLogo(file)
         
     } else {
-      alert("No image selected!");
+      toast({
+        title: "Error",
+        description: "Please select an image file",
+        type: "de structive",
+      });
     }
   };
 
@@ -68,8 +76,8 @@ const SystemLogoField = ({ isLoading, generallogo }) => {
 
   return (
     <Layout
-      title={"University Official Logo"}
-      subtitle={"Update official logo of the university"}
+      title={"System Official Logo"}
+      subtitle={"Update the logo of the system"}
       toggleEditMode={setEdit}
     >
       {isLoading ? (
@@ -94,7 +102,7 @@ const SystemLogoField = ({ isLoading, generallogo }) => {
                   <img
                     src={editimg}
                     alt="Selected file preview"
-                    className="rounded-md object-cover"
+                    className="rounded-md  object-cover"
                   />
                 ) : (
                   <IoMdAdd className="text-[3rem] text-secondary-100/40" />

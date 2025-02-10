@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import FeaturePermission from "@/layer/FeaturePermission";
 import { loggedInUser } from "@/api/auth";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading";
 
 const EditDisplayCampus = () => {
   const [campusToDelete, setCampusToDelete] = useState(null);
@@ -56,28 +57,36 @@ const EditDisplayCampus = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const archiveCampus = async (campus) => {
+  const archiveCampus = async (campusId) => {
     try {
       const response = await fetch("http://localhost:3000/api/archived-campuses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(campus),
+        body: JSON.stringify({ campus_id: campusId }),
         credentials: "include",
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to archive campus");
       }
-
+  
       const data = await response.json();
       return data;
+      toast({
+        title: "Success",
+        description: `Campus successfully archived and deleted: ${campusToDelete.campus_name}`,
+        variant: "default",
+      });
     } catch (error) {
-      console.error("Error archiving campus:", error);
-      throw error;
+        toast({
+          title: "Error",
+          description: `Failed to delete campus: ${campusToDelete.campus_name}`,
+          variant: "destructive",
+        });
     }
-  };
+  };  
 
   const handleConfirmDelete = async () => {
     if (!campusToDelete) return;
@@ -153,20 +162,20 @@ const EditDisplayCampus = () => {
     }
   });
 
-  // Step 2: Apply the search filter
-  const filteredCampuses = filteredByAccess.filter((campus) =>
-    campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Step 2: Apply the search filter and sort alphabetically
+  const filteredCampuses = filteredByAccess
+    .filter((campus) =>
+      campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
   return (
     <div className="w-full">
       {loadingVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-md shadow-md text-center">
-            <p className="text-xl font-semibold text-gray-800">
-              {loadingMessage}
-            </p>
-          </div>
+            <div className="bg-white p-6 flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
+              <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
+            </div>
         </div>
       )}
       <div className="w-[75%] flex flex-col justify-between">

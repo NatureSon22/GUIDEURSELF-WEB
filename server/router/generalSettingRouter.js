@@ -32,7 +32,7 @@ generalSettingsRouter.get("/get-info", async (req, res) => {
 });
 
 // Route to fetch university by ID
-generalSettingsRouter.get("/:id", verifyToken, async (req, res) => {
+generalSettingsRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {

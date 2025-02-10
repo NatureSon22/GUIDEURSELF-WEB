@@ -31,6 +31,8 @@ import { ImManWoman } from "react-icons/im";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HiSquaresPlus } from "react-icons/hi2";
 import { loggedInUser } from "@/api/auth";
+import { useToast } from "@/hooks/use-toast";
+import Loading from "@/components/Loading";
 
 const categoryConfig = {
   "Academic Spaces": { color: "bg-yellow-500", padding: "pl-[1px]", icon: BsDoorOpenFill },
@@ -41,20 +43,18 @@ const categoryConfig = {
   "Others (Miscellaneous)": { color: "bg-blue-400", icon: HiSquaresPlus },
 };
 
-// Reusable Marker Component
 const MarkerIcon = ({ bgColor, IconComponent }) => (
   <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] ${bgColor}`}>
     <IconComponent color="white" size={25} className="" />
   </div>
 );
 
-const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={38} className="text-base-200" />);
+const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
 const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
 
-// Convert React component to Leaflet divIcon
 const createIcon = (category) => {
-  const { color, icon: IconComponent } = categoryConfig[category] || {}; // Get config or undefined
-  if (!IconComponent) return defaultIcon; // Return default if category not found
+  const { color, icon: IconComponent } = categoryConfig[category] || {}; 
+  if (!IconComponent) return defaultIcon; 
 
   const iconString = renderToString(<MarkerIcon bgColor={color} IconComponent={IconComponent} />);
 
@@ -62,20 +62,18 @@ const createIcon = (category) => {
     html: iconString,
     className: "custom-marker",
     iconSize: [35, 35],
-    iconAnchor: [25, 20], // Adjust for centering
+    iconAnchor: [25, 20], 
   });
 };
 
-// Generate only when needed
 const customIcons = new Proxy({}, {
   get: (target, category) => target[category] || (target[category] = createIcon(category))
 });
 
-// Default marker icon
 const defaultIcon = L.icon({
   iconUrl,
-  iconSize: [38, 39],
-  iconAnchor: [20, 20],
+  iconSize: [35, 45],
+  iconAnchor: [15, 40],
 });
 
 const fetchCampusData = async (campusId) => {
@@ -91,10 +89,9 @@ const fetchCampusData = async (campusId) => {
 
   const data = await response.json();
 
-  // Ensure each floor has a markers array initialized
   data.floors.forEach((floor) => {
     if (!floor.markers) {
-      floor.markers = []; // Initialize markers if not present
+      floor.markers = []; 
     }
   });
 
@@ -108,6 +105,8 @@ const queryClient = useQueryClient();
 
 const { campus } = location.state || {};
 
+const [draggedFloor, setDraggedFloor] = useState(null);
+const [dragOverFloor, setDragOverFloor] = useState(null);
 const [selectedFloor, setSelectedFloor] = useState(null);
 const [selectedMarker, setSelectedMarker] = useState(null);
 const [isModalOpen, setIsModalOpen] = useState(false);
@@ -125,6 +124,10 @@ const [expandedFloor, setExpandedFloor] = useState(null);
 const [isSliderOpen, setIsSliderOpen] = useState(true);
 const [searchQuery, setSearchQuery] = useState("");
 const [loadingMessage, setLoadingMessage] = useState("");
+
+
+const { toast } = useToast();
+
 const toggleSlider = () => {
   setIsSliderOpen(!isSliderOpen);
 };
@@ -223,7 +226,7 @@ const { data: university } = useQuery({
 const { data: updatedCampus } = useQuery({
   queryKey: ["campuses", campus?._id],
   queryFn: () => fetchCampusData(campus._id),
-  enabled: !!campus, // Ensure query runs only when campus exists
+  enabled: !!campus, 
   initialData: campus,
 });
 
@@ -270,6 +273,8 @@ const toggleEditMode = async () => {
 
       if (!response.ok) throw new Error("Failed to save floor data");
 
+      
+
       console.log("Floors updated successfully");
       refreshFloors();
     } catch (error) {
@@ -293,7 +298,6 @@ const handleCancelRemove = () => {
 const handleProceedRemove = async () => {
   if (floorToRemove) {
     try {
-      // Step 1: Find the floor to archive
       const floorToArchive = updatedCampus.floors.find(
         (floor) => floor._id === floorToRemove
       );
@@ -303,7 +307,6 @@ const handleProceedRemove = async () => {
         return;
       }
 
-      // Step 2: Call the backend route to archive the floor
       const response = await fetch(
         `http://localhost:3000/api/campuses/${campus._id}/floors/${floorToRemove}/archive`,
         {
@@ -311,16 +314,15 @@ const handleProceedRemove = async () => {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            type: "floor", // Set the type to "floor"
-            floor_data: floorToArchive, // Pass the floor data
-            campus_id: campus._id, // Pass the campus ID
+            type: "floor", 
+            floor_data: floorToArchive, 
+            campus_id: campus._id, 
           }),
         }
       );
 
       if (!response.ok) throw new Error("Failed to archive floor");
 
-      // Step 3: Update the UI to remove the archived floor
       const updatedFloors = updatedCampus.floors.filter(
         (floor) => floor._id !== floorToRemove
       );
@@ -354,7 +356,6 @@ const handleCancelRemoveMarker = () => {
 const handleProceedRemoveMarker = async () => {
   if (markerToRemove && selectedFloor) {
     try {
-      // Step 1: Call the backend route to archive the marker
       const response = await fetch(
         `http://localhost:3000/api/campuses/${campus._id}/floors/${selectedFloor._id}/markers/${markerToRemove._id}/archive`,
         {
@@ -362,16 +363,16 @@ const handleProceedRemoveMarker = async () => {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            type: "location", // Set the type to "location"
-            location_data: markerToRemove, // Pass the marker data
-            campus_id: campus._id, // Pass the campus ID
+            type: "location", 
+            location_data: markerToRemove, 
+            campus_id: campus._id, 
+            campus_name: campus.campus_name, // Add campus_name to the request body
           }),
         }
       );
 
       if (!response.ok) throw new Error("Failed to archive marker");
 
-      // Step 2: Log the archiving activity
       const logResponse = await fetch("http://localhost:3000/api/virtualtourlogs", {
         method: "POST",
         credentials: "include",
@@ -391,7 +392,6 @@ const handleProceedRemoveMarker = async () => {
 
       console.log(`Marker with ID ${markerToRemove._id} archived successfully.`);
 
-      // Step 3: Update the UI to remove the archived marker
       refreshFloors();
       refreshMarkers();
     } catch (error) {
@@ -410,13 +410,55 @@ const totalFloors = floors.length;
 const filteredFloors = floors?.filter((floor) =>
   floor.floor_name.toLowerCase().includes(searchQuery.toLowerCase())
 );
+
+const updateFloorsOrder = (newFloors) => {
+  queryClient.setQueryData(["campuses", campus._id], (oldData) => ({
+    ...oldData,
+    floors: newFloors,
+  }));
+};
+
+const handleDragStart = (e, floor) => {
+  setDraggedFloor(floor);
+  e.dataTransfer.effectAllowed = "move";
+};
+
+const handleDragOver = (e, floor) => {
+  e.preventDefault();
+  setDragOverFloor(floor);
+};
+
+const handleDragLeave = () => {
+  setDragOverFloor(null);
+};
+
+const handleDrop = (e, targetFloor) => {
+  e.preventDefault();
+
+  if (draggedFloor && targetFloor && draggedFloor._id !== targetFloor._id) {
+    const newFloors = [...floors];
+
+    const draggedIndex = newFloors.findIndex((f) => f._id === draggedFloor._id);
+    const targetIndex = newFloors.findIndex((f) => f._id === targetFloor._id);
+
+    const [removedFloor] = newFloors.splice(draggedIndex, 1);
+
+    newFloors.splice(targetIndex, 0, removedFloor);
+
+    updateFloorsOrder(newFloors);
+  }
+
+  setDraggedFloor(null);
+  setDragOverFloor(null);
+};
  
   return (
       <div className="flex bg-secondary-500">
 
         {loadingVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-md shadow-md text-center">
+          <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
+            <Loading />
             <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
           </div>
         </div>
@@ -435,7 +477,7 @@ const filteredFloors = floors?.filter((floor) =>
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-5" // Adjust padding for icon
+                className="w-full pr-5" 
               />
               <CiSearch className="absolute right-10 top-2 text-lg text-gray-500" />
             </div>
@@ -484,104 +526,115 @@ const filteredFloors = floors?.filter((floor) =>
 
           <div className="max-h-[360px] group w-[100%]">
             <div className={`max-h-[360px] pl-6 pr-6 overflow-y-auto ${isRemove ? "max-h-[460px]" : "max-h-[340px]"}`}>
-              {filteredFloors?.map((floor) => (
-                <div key={floor._id} className="flex flex-col justify-between w-[100%]">
-                    {isEditing ? (
-                      <>
-                        <div
+            {filteredFloors?.map((floor) => (
+              <div key={floor._id} className="flex flex-col justify-between w-[100%]">
+                {isEditing ? (
+                  <div
+                    key={floor._id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, floor)}
+                    onDragOver={(e) => handleDragOver(e, floor)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, floor)}
+                    onClick={() => {
+                      toggleFloor(floor._id);
+                      handleSelectFloor(floor);
+                    }}
+                    className={`px-5 pr-3 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
+                      selectedFloor && selectedFloor._id === floor._id
+                        ? "border-black text-black"
+                        : dragOverFloor && dragOverFloor._id === floor._id
+                        ? "border-blue-500"
+                        : "bg-none"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <RxDragHandleDots2 className="text-black h-[30px] w-[30px]" />
+                      <h3 className="font-semibold p-2">{floor.floor_name}</h3>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        confirmRemoveFloor(floor._id);
+                      }}
+                      className="h-[30px] w-[30px]"
+                    >
+                      <RiDeleteBin5Fill className="cursor-pointer h-[18px] w-[18px] text-accent-100" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div
+                      onClick={() => {
+                        toggleFloor(floor._id);
+                        handleSelectFloor(floor);
+                      }}
+                      className={`px-5 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
+                        selectedFloor && selectedFloor._id === floor._id
+                          ? "border-base-200 text-base-200"
+                          : "bg-none"
+                      }`}
+                    >
+                      <h3 className="font-semibold">{floor.floor_name}</h3>
+                      <button
                         onClick={() => {
                           toggleFloor(floor._id);
                           handleSelectFloor(floor);
-                        }} 
-                        className={`px-5 pr-3 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
-                            selectedFloor && selectedFloor._id === floor._id
-                              ? "border-black text-black"
-                              : "bg-none"
-                          }`}>
-                          <div className="flex items-center gap-2">
-                            <RxDragHandleDots2 className="text-black h-[30px] w-[30px]"/>
-                            <h3 className="font-semibold p-2">{floor.floor_name}</h3>
-                          </div>
-                          <button
-                            onClick={() => confirmRemoveFloor(floor._id)}
-                            className="h-[30px] w-[30px]"
-                          >
-                            <RiDeleteBin5Fill className="cursor-pointer h-[18px] w-[18px] text-accent-100" />
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div
-                          onClick={() => {
-                            toggleFloor(floor._id);
-                            handleSelectFloor(floor);
-                          }}
-                          className={`px-5 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
-                            selectedFloor && selectedFloor._id === floor._id
-                              ? "border-base-200 text-base-200"
-                              : "bg-none"
-                          }`}
-                        >
-                          <h3
-                            className="font-semibold"
-                          >
-                            {floor.floor_name}
-                          </h3>
-                          <button
-                            onClick={() => {
-                              toggleFloor(floor._id);
-                              handleSelectFloor(floor);
-                            }}
-                            className="text-md"
-                          >
-                            {expandedFloor === floor._id ? <TiArrowSortedUp className="text-base-200"/> : <TiArrowSortedDown className="text-secondary-200" />}
-                          </button>
-                        </div>
+                        }}
+                        className="text-md"
+                      >
+                        {expandedFloor === floor._id ? (
+                          <TiArrowSortedUp className="text-base-200" />
+                        ) : (
+                          <TiArrowSortedDown className="text-secondary-200" />
+                        )}
+                      </button>
+                    </div>
 
-                        <div
-                          className={`overflow-hidden transition-all duration-1000 ease-in-out ${
-                            expandedFloor === floor._id ? "max-h-[1000px]" : "max-h-0"
-                          }`}
-                        >
-                          <div className="pl-[50px]">
-                          {floor.markers?.map((marker) => (
-                            <div
-                              key={marker._id}
-                              className="relative flex-col h-[100%] flex pl-3 items-center group"
-                            >
-                              <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
-                                <p className="text-md flex items-center">{marker.marker_name}</p>
-                                <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
-                                  <FaPen onClick={() => handleMarkerClick(marker)} className="h-[16px] w-[16px] cursor-pointer" />
-                                  <RiDeleteBin5Fill
-                                    onClick={() => confirmRemoveMarker(marker)}
-                                    className="cursor-pointer h-[18px] w-[18px] text-accent-100"
-                                  />
-                                </div>
+                    <div
+                      className={`overflow-hidden transition-all duration-1000 ease-in-out ${
+                        expandedFloor === floor._id ? "max-h-[1000px]" : "max-h-0"
+                      }`}
+                    >
+                      <div className="pl-[50px]">
+                        {floor.markers?.map((marker) => (
+                          <div
+                            key={marker._id}
+                            className="relative flex-col h-[100%] flex pl-3 items-center group"
+                          >
+                            <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
+                              <p className="text-md flex items-center">{marker.marker_name}</p>
+                              <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
+                                <FaPen
+                                  onClick={() => handleMarkerClick(marker)}
+                                  className="h-[16px] w-[16px] cursor-pointer"
+                                />
+                                <RiDeleteBin5Fill
+                                  onClick={() => confirmRemoveMarker(marker)}
+                                  className="cursor-pointer h-[18px] w-[18px] text-accent-100"
+                                />
                               </div>
                             </div>
-                            
-                          ))}
                           </div>
-                            <button
-                                onClick={handleAddMarkerClick}
-                                className="pl-[60px] w-[100%] cursor-default"
-                            >
-                              <div className="px-3 hover:border-base-200 font-semibold border border-white h-[50px] text-base-200 cursor-pointer items-center flex w-[100%] gap-4 rounded-lg mb-3">
-                                <LuPlus  className="h-[30px] w-[30px]"/>
-                                <p>Add Location</p>
-                              </div>
-                            </button>
+                        ))}
+                      </div>
+                      <button
+                        onClick={handleAddMarkerClick}
+                        className="pl-[60px] w-[100%] cursor-default"
+                      >
+                        <div className="px-3 hover:border-base-200 font-semibold border border-white h-[50px] text-base-200 cursor-pointer items-center flex w-[100%] gap-4 rounded-lg mb-3">
+                          <LuPlus className="h-[30px] w-[30px]" />
+                          <p>Add Location</p>
                         </div>
-                      </>
-                    )}
-                  </div>
-              ))}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
               </div>
               </div>
 
-              {/* Add Floor Button only in non-editing mode */}
               {!isEditing && (
                 <div className="px-6 w-[100%] pt-4">
                 <button
@@ -614,7 +667,6 @@ const filteredFloors = floors?.filter((floor) =>
         </div>
       </div>
 
-      {/* Main Content */}
         <div
         className={`flex-grow transition-all duration-500 ${
           isSliderOpen ? "ml-[0%]" : "ml-[-30%]"
@@ -665,7 +717,6 @@ const filteredFloors = floors?.filter((floor) =>
                 />
                 
                 {currentMarkers.map((marker, index) => {
-                  // Get the icon based on the marker's category
                   const icon = customIcons[marker.category] || defaultIcon;
                   const categoryColor = categoryConfig[marker.category]?.color || "bg-green"; // Default to green if category not found
 
@@ -673,7 +724,7 @@ const filteredFloors = floors?.filter((floor) =>
                     <Marker
                       key={index}
                       position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
-                      icon={icon} // Assign the custom icon
+                      icon={icon} 
                     >
                       <Popup>
                         <div>

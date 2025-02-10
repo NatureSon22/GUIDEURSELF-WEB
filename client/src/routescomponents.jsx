@@ -98,8 +98,8 @@ const UserActivityReport = lazy(
 
 // Legal
 const LegalContainer = lazy(() => import("./pages/legal/LegalContainer.jsx"));
+const Policy = lazy(() => import("./pages/legal/Policy.jsx"));
 const TermsOfService = lazy(() => import("./pages/legal/TermsOfService.jsx"));
-const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy.jsx"));
 
 export {
   Dashboard,
@@ -145,6 +145,6 @@ export {
   UserActivityReport,
   LegalContainer,
   TermsOfService,
-  PrivacyPolicy,
+  Policy,
   MediaLibrary,
 };

@@ -21,17 +21,30 @@ const getAllCampuses = async () => {
   return allCampuses || [];
 };
 
+const fetchCampuses = async () => {
+    
+  const response = await fetch("http://localhost:3000/api/campuses", {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch campuses");
+  }
+  return response.json();
+};
+
 const getGeneralData = async () => {
   try {
     const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7",
     {
     method:"get",
-    credentials:"include"
     }
     );
     const data = await response.json();
     return(data); 
   } catch (error) {
+    console.log(data);
     console.log(error);
     throw new Error("Failed to load system logo!")
   }
@@ -171,4 +184,4 @@ const getAllStatus = async () => {
 };
 
 
-export { getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };
+export { fetchCampuses, getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };

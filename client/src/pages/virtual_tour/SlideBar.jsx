@@ -27,9 +27,6 @@ const fetchUserRole = async (roleType) => {
 const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  console.log("User Data:", userData);
-  console.log("Role Type:", userData.role_type);
-
   const { data: campuses = [], isLoading, isError } = useQuery({
     queryKey: ["campuses"],
     queryFn: fetchCampuses,
@@ -41,17 +38,13 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
   });
 
   const { data: userRole } = useQuery({
-    queryKey: ["userRole", userData.role_type], 
+    queryKey: ["userRole", userData.role_type],
     queryFn: () => fetchUserRole(userData.role_type),
     enabled: !!userData.role_type, // Only fetch if `role_type` is defined
   });
 
-  console.log("User Role Data:", userRole);
-
   // Use `isMultiCampus` from `userData` or fallback to `false`
   const isMultiCampus = userData.isMultiCampus ?? false;
-
-  console.log("Is MultiCampus:", isMultiCampus);
 
   const totalFloors = campuses.reduce(
     (sum, campus) => sum + (campus.floors?.length || 0),
@@ -59,9 +52,13 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
   );
 
   const totalMarkerPhotos = campuses.reduce(
-    (sum, campus) => sum + (campus.floors?.reduce(
-      (floorSum, floor) =>
-        floorSum + (floor.markers?.filter((marker) => marker.marker_photo_url)?.length || 0), 0) || 0),
+    (sum, campus) =>
+      sum +
+      (campus.floors?.reduce(
+        (floorSum, floor) =>
+          floorSum + (floor.markers?.filter((marker) => marker.marker_photo_url)?.length || 0),
+        0
+      ) || 0),
     0
   );
 
@@ -76,17 +73,19 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
     return total;
   }, 0);
 
+  // Filter and sort campuses alphabetically
   const filteredCampuses = campuses
     .filter((campus) => (isMultiCampus ? true : campus._id === userData.campus_id))
-    .filter((campus) => campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase()));
+    .filter((campus) => campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
   const handleCampusClick = (campus) => {
     onCampusSelect(campus);
   };
 
   return (
-    <div className="w-[40%] flex flex-col gap-3 p-6">
-      <div className="flex flex-col justify-between h-[100%]">  
+    <div className="w-[40%] flex flex-col gap-3 p-6 z-20">
+      <div className="flex flex-col justify-between h-[100%]">
         <div>
           <div className="flex flex-col gap-1">
             <div className="flex w-[100%] gap-3 justify-center">
@@ -104,21 +103,21 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
               <div>
                 <div className="flex flex-row items-center justify-center gap-3">
                   <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
-                  <TbMap2 className="text-4xl text-base-200 mb-2"/>
+                  <TbMap2 className="text-4xl text-base-200 mb-2" />
                 </div>
                 <p className="text-center text-sm">Featured Locations</p>
               </div>
               <div>
                 <div className="flex flex-row items-center justify-center gap-3">
                   <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
-                  <RiCameraLensLine className="text-4xl text-base-200 mb-2"/>
-                </div>  
+                  <RiCameraLensLine className="text-4xl text-base-200 mb-2" />
+                </div>
                 <p className="text-center text-sm">360° View Available</p>
               </div>
               <div>
                 <div className="flex flex-row items-center justify-center gap-3">
                   <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
-                  <MdTouchApp className="text-4xl text-base-200 mb-2"/>
+                  <MdTouchApp className="text-4xl text-base-200 mb-2" />
                 </div>
                 <p className="text-center text-sm">Interactive Hotspots</p>
               </div>
@@ -145,7 +144,7 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
             onClick={exitBuildMode}
             className="flex justify-center items-center bg-accent-150 text-accent-100 hover:bg-accent-100 hover:text-white h-[45px] gap-2 rounded-md px-[50px] w-[100%] cursor-pointer"
           >
-            <FaMapMarkerAlt/>
+            <FaMapMarkerAlt />
             <button>Exit Build Mode</button>
           </div>
         </div>

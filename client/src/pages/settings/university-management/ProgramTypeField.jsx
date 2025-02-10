@@ -8,6 +8,8 @@ import { BiSolidEdit } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import formatDateTime from "@/utils/formatDateTime";
+import AddProgramTypeModal from "./AddProgramTypeModal";
 
 const ProgramTypeField = () => {
   const queryClient = useQueryClient();
@@ -17,47 +19,17 @@ const ProgramTypeField = () => {
     queryFn: getProgramTypeData,
   });
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-  
-    const day = String(date.getDate()).padStart(2, '0'); // Day with leading zero
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month (0-based index, so add 1)
-    const year = String(date.getFullYear()).slice(-2); // Last two digits of the year
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0'); // Minutes with leading zero
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const hour12 = hours % 12 || 12; // Convert to 12-hour format
-  
-    return `${day}-${month}-${year} ${hour12}:${minutes} ${ampm}`;
-  };
-
-  const [newType, setNewType] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleAddType = async () => {
-    if (!newType.trim()) return;
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
 
-    try {
-      const response = await addType(newType);
-      queryClient.setQueryData(["programtypes"], (oldData) => [
-        ...(oldData || []),
-        response,
-      ]);
-
-      toast({
-        title: "Success",
-        description: "New program type successfully added",
-      });
-
-      setNewType("");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        type: "destructive",
-      });
-    }
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   const handleDeleteType = async (id) => {
@@ -87,20 +59,25 @@ const ProgramTypeField = () => {
   };
 
   const handleOpenEditModal = (type) => {
-    console.log("Selected Program Tyoe:", type); // Log the position
+    console.log("Selected Program Type:", type); // Log the position
     setSelectedType(type);
     setIsEditModalOpen(true);
   };
-  
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedType(null);
   };
 
-  const handleInputChange = (e) => {
-    setNewType(e.target.value);
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
+
+  const filteredTypes = types
+    ? types.filter((type) =>
+        type.program_type_name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   return (
     <div className="box-shadow-100 space-y-4 rounded-lg bg-white p-4">
@@ -111,76 +88,74 @@ const ProgramTypeField = () => {
             Define program type for university
           </p>
         </div>
-        <p className="text-[0.95rem ] font-semibold">New Program Type</p>
         <div className="w-[100%] flex flex-row gap-2">
           <Input
             type="text"
-            placeholder="Name of the position"
-            value={newType}
-            onChange={handleInputChange}
+            placeholder="Search"
+            value={searchTerm}
+            onChange={handleSearchChange}
           />
           <Button
             variant="outline"
             className="text-secondary-100-75"
-            onClick={handleAddType}
+            onClick={openModal}
           >
             Add Program Type
           </Button>
         </div>
 
-        <div  className="mt-4 h-[200px] overflow-y-auto">
+        <div className="mt-4 h-[200px] overflow-y-auto">
           {isLoading ? (
             <p>Loading program type...</p>
           ) : isError ? (
             <p>Error fetching program type.</p>
           ) : (
             <table className="w-full text-left border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 border text-center text-[0.9rem]">Program Type</th>
-                <th className="p-2 border text-center text-[0.9rem]">Date Added</th>
-                <th className="p-2 border text-center text-[0.9rem]">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(types || []).length > 0 ? (
-                types.map((type) => (
-                  <tr key={type._id}>
-                    <td className="p-2 border text-[0.9rem w-[702px]">
-                      {type.program_type_name}
-                    </td>
-                    <td className="p-2 border text-center text-[0.9rem]">
-                    {formatDate(type.date_added)} 
-                    </td>
-                    <td className="p-2 border text-[0.9rem] flex gap-2">
-                      <Button
-                        variant="secondary"
-                        className="bg-base-200/10 w-full text-base-200"
-                        onClick={() => handleOpenEditModal(type)}
-                      >
-                      <BiSolidEdit />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        className="p-1 bg-red-500 w-full text-white rounded-md"
-                        onClick={() => handleDeleteType(type._id)}
-                      >
-                     <MdDelete />
-                      </Button>
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 border text-center text-[0.9rem]">Program Type</th>
+                  <th className="p-2 border text-center text-[0.9rem]">Date Added</th>
+                  <th className="p-2 border text-center text-[0.9rem]">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTypes.length > 0 ? (
+                  filteredTypes.map((type) => (
+                    <tr key={type._id}>
+                      <td className="p-2 border text-[0.9rem w-[702px]">
+                        {type.program_type_name}
+                      </td>
+                      <td className="p-2 border text-center text-[0.9rem]">
+                        {formatDateTime(type.date_added)}
+                      </td>
+                      <td className="p-2 border text-[0.9rem] flex gap-2">
+                        <Button
+                          variant="secondary"
+                          className="bg-base-200/10 w-full text-base-200"
+                          onClick={() => handleOpenEditModal(type)}
+                        >
+                          <BiSolidEdit />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="p-1 bg-red-500 w-full text-white rounded-md"
+                          onClick={() => handleDeleteType(type._id)}
+                        >
+                          <MdDelete />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="p-2 border" colSpan="3">
+                      No program types available
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="p-2 border" colSpan="3">
-                    No positions available
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          
+                )}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
@@ -191,6 +166,9 @@ const ProgramTypeField = () => {
         type={selectedType}
       />
 
+      {isModalOpen && (
+        <AddProgramTypeModal onClose={closeModal} queryClient={queryClient} addType={addType} />
+      )}
     </div>
   );
 };

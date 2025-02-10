@@ -9,7 +9,7 @@ import { BiSolidEdit } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import AddPositionModal from "./AddPositionModal";
 
 const AdministrativeField = () => {
   const queryClient = useQueryClient();
@@ -33,33 +33,16 @@ const AdministrativeField = () => {
     return `${day}-${month}-${year} ${hour12}:${minutes} ${ampm}`;
   };
 
-  const [newPosition, setNewPosition] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAddPosition = async () => {
-    if (!newPosition.trim()) return;
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
 
-    try {
-      const response = await addPosition(newPosition);
-      queryClient.setQueryData(["universitypositions"], (oldData) => [
-        ...(oldData || []),
-        response,
-      ]);
-
-      toast({
-        title: "Success",
-        description: "New position successfully added",
-      });
-
-      setNewPosition("");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        type: "destructive",
-      });
-    }
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   const handleDeletePosition = async (id) => {
@@ -100,10 +83,6 @@ const AdministrativeField = () => {
     setSelectedPosition(null);
   };
 
-  const handleInputChange = (e) => {
-    setNewPosition(e.target.value);
-  };
-
   return (
     <div className="box-shadow-100 space-y-4 rounded-lg bg-white p-4">
       <div className="flex justify-between flex-col gap-4">
@@ -113,18 +92,15 @@ const AdministrativeField = () => {
             Define key administrative positions
           </p>
         </div>
-        <p className="text-[0.7] font-semibold">New Position</p>
         <div className="w-[100%] flex flex-row gap-2">
           <Input
             type="text"
-            placeholder="Name of the position"
-            value={newPosition}
-            onChange={handleInputChange}
+            placeholder="Search"
           />
           <Button
             variant="outline"
             className="text-secondary-100-75"
-            onClick={handleAddPosition}
+            onClick={openModal}
           >
             Add Position
           </Button>
@@ -191,6 +167,10 @@ const AdministrativeField = () => {
         onClose={handleCloseEditModal}
         position={selectedPosition}
       />
+
+      {isModalOpen && (
+        <AddPositionModal onClose={closeModal} queryClient={queryClient} addPosition={addPosition} />
+      )}
 
     </div>
   );

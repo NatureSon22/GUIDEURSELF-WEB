@@ -26,7 +26,7 @@ const MediaPanoramicViewer = ({ imageUrl }) => {
   }, [imageUrl]);
 
   return (
-    <div id="pano" className="h-[100%] relative w-[100%] rounded-t-md" ref={viewerRef}></div>
+    <div id="pano" className="h-[800px] relative w-[450px] rounded-md" ref={viewerRef}></div>
   );
 };
 

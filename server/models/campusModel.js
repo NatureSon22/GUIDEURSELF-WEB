@@ -61,6 +61,7 @@ const archivedItemSchema = new mongoose.Schema({
   }, 
   floor_id: { type: mongoose.Schema.Types.ObjectId, ref: "Campus.floors" }, // Add this!
   campus_id: { type: mongoose.Schema.Types.ObjectId, ref: "Campus", required: true },
+  campus_name: { type: String, trim: true, maxlength: 100 },
   date_archived: { type: Date, default: Date.now },
 });
 

@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import formatDateTime from "@/utils/formatDateTime";
 
 const fetchVirtualTourLogs = async () => {
-  const response = await fetch("http://localhost:3000/api/virtualtourlog", {
+  const response = await fetch("http://localhost:3000/api/virtualtourlogs", {
     method: "GET",
     credentials: "include",
   }); 
@@ -16,18 +17,6 @@ const VirtualTourLogTable = () => {
     queryKey: ['virtualTourLogs'], 
     queryFn: fetchVirtualTourLogs,
   });
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2);
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0'); 
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const hour12 = hours % 12 || 12; 
-    return `${day}-${month}-${year} ${hour12}:${minutes} ${ampm}`;
-  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -57,7 +46,7 @@ const VirtualTourLogTable = () => {
           {latestLogs.map((log) => (
             <tr key={log._id}>
               <td className="p-2 border text-[0.9rem]">{log.campus_name}</td>
-              <td className="p-2 border text-[0.9rem]">{formatDate(log.date_added)}</td>
+              <td className="p-2 border text-[0.9rem]">{formatDateTime(log.date_added)}</td>
               <td className="p-2 border text-[0.9rem]">{log.updated_by}</td>
               <td className="p-2 border text-[0.9rem]">{log.activity}</td>
             </tr>

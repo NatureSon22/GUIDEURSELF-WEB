@@ -8,19 +8,8 @@ import { MdTouchApp } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { loggedInUser } from "@/api/auth";
-
-const fetchCampuses = async () => {
-    
-    const response = await fetch("http://localhost:3000/api/campuses", {
-      method: "GET",
-      credentials: "include",
-    });
-  
-    if (!response.ok) {
-      throw new Error("Failed to fetch campuses");
-    }
-    return response.json();
-  };
+import Loading from "@/components/Loading";
+import {fetchCampuses} from "@/api/component-info.js"
 
 const VirtualTourInfo = () => {
     const [loadingVisible, setLoadingVisible] = useState(false);
@@ -42,12 +31,6 @@ const VirtualTourInfo = () => {
         queryKey: ["campuses"],
         queryFn: fetchCampuses,
     });
-    
-    const totalMarkers = campuses.reduce(
-        (sum, campus) => sum + (campus.floors?.reduce(
-          (floorSum, floor) => floorSum + (floor.markers?.length || 0), 0) || 0),
-        0
-      );
 
       const totalFloors = campuses.reduce(
         (sum, campus) => sum + (campus.floors?.length || 0),
@@ -87,7 +70,8 @@ const VirtualTourInfo = () => {
         <div className="w-[100%] flex gap-6 py-6">
       {loadingVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-md shadow-md text-center">
+          <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
+            <Loading />
             <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
           </div>
         </div>

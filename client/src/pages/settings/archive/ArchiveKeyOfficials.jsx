@@ -1,47 +1,61 @@
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { GrPowerReset } from "react-icons/gr";
-import ComboBox from "@/components/ComboBox";
+import BigComboBox from "@/components/BigComboBox";
 import DateRangePicker from "@/components/DateRangePicker";
+import { Input } from "@/components/ui/input";
+import { GrPowerReset } from "react-icons/gr";
 import DataTable from "@/components/DataTable";
 import keyOfficialsColumns from "@/components/columns/ArchiveKeyOfficials";
-import { useToast } from "@/hooks/use-toast"; // Import the useToast hook
+import { useToast } from "@/hooks/use-toast";
 
 const ArchiveKeyOfficials = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState([]);
   const [reset, setReset] = useState(false);
-  const [archivedOfficials, setArchivedOfficials] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-      const { toast } = useToast(); // Initialize the toast function
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch archived key officials
-  useEffect(() => {
-    const fetchArchivedOfficials = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/keyofficials/archived", {
-          method: "GET",
-          credentials: "include",
-        });
+  const { data: archivedOfficials, isLoading, isError, error } = useQuery({
+    queryKey: ["archivedOfficials"],
+    queryFn: async () => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/keyofficials/archived`, {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch archived key officials");
-        }
-
-        const data = await response.json();
-        setArchivedOfficials(data);
-        
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        const { message } = await response.json();
+        throw new Error(message || "Failed to fetch archived key officials");
       }
-    };
 
-    fetchArchivedOfficials();
-  }, []);
+      return response.json();
+    },
+  });
+
+  // Fetch positions and format them for ComboBox
+  const getPositions = async () => {
+    const response = await fetch("http://localhost:3000/api/administartiveposition", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch positions");
+    }
+
+    const data = await response.json();
+    return data.map((position) => ({
+      value: position._id,
+      label: position.position_name || position.administartive_position_name,
+    }));
+  };
+
+  const { data: allPositions } = useQuery({
+    queryKey: ["positions"],
+    queryFn: getPositions,
+  });
 
   // Handle unarchiving a key official
   const handleUnarchive = async (official) => {
@@ -53,14 +67,14 @@ const ArchiveKeyOfficials = () => {
           credentials: "include",
         }
       );
-  
+
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Key Official unarchive successfully.",
-          variant: "default", // Use a destructive variant for errors
-      }); 
-        setArchivedOfficials((prev) => prev.filter((o) => o._id !== official._id));
+          description: "Key Official unarchived successfully.",
+          variant: "default",
+        });
+        queryClient.invalidateQueries("archivedOfficials");
       } else {
         console.error("Failed to unarchive key official:", official.name);
       }
@@ -75,11 +89,17 @@ const ArchiveKeyOfficials = () => {
     setGlobalFilter("");
     setReset(!reset);
   };
-  
-  if (error) return <p>Error: {error.message}</p>;
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
-    <div className="space-y-5 flex flex-col">
+    <div className="flex flex-1 flex-col space-y-5">
       <Input
         type="text"
         placeholder="Search"
@@ -90,10 +110,10 @@ const ArchiveKeyOfficials = () => {
       <div className="flex items-center gap-5">
         <p>Filters:</p>
         <DateRangePicker />
-        <ComboBox
-          options={[]}
-          placeholder="select campus"
-          filter="campus_name"
+        <BigComboBox
+          options={allPositions || []}
+          placeholder="Select position"
+          filter="position_name"
           setFilters={setFilters}
           reset={reset}
         />
@@ -108,17 +128,16 @@ const ArchiveKeyOfficials = () => {
       </div>
 
       <div className="flex-1">
-      <DataTable
-        data={archivedOfficials}
-        columns={keyOfficialsColumns}
-        filters={filters}
-        setFilters={setFilters}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-        columnActions={{ handleUnarchive }}
-      />
+        <DataTable
+          data={archivedOfficials}
+          columns={keyOfficialsColumns}
+          filters={filters}
+          setFilters={setFilters}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          columnActions={{ handleUnarchive }}
+        />
       </div>
-
     </div>
   );
 };

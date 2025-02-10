@@ -8,6 +8,7 @@ import { BiSolidEdit } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import formatDateTime from "@/utils/formatDateTime";
 
 const MajorField = () => {
   const queryClient = useQueryClient();
@@ -17,30 +18,28 @@ const MajorField = () => {
     queryFn: getMajorData,
   });
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-  
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2);
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0'); 
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const hour12 = hours % 12 || 12; 
-  
-    return `${day}-${month}-${year} ${hour12}:${minutes} ${ampm}`;
-  };
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedMajor, setSelectedMajor] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); 
+
+  const filteredMajors = majors
+  ? majors.filter(
+      (major) =>
+        major.majorname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        major.programname.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
 
   const handleDeleteMajor = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/campusmajors/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/campusmajors/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete major");
@@ -62,11 +61,10 @@ const MajorField = () => {
   };
 
   const handleOpenEditModal = (major) => {
-    console.log("Selected Major:", major); // Log the position
+    console.log("Selected Major:", major);
     setSelectedMajor(major);
     setIsEditModalOpen(true);
   };
-  
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
@@ -74,11 +72,11 @@ const MajorField = () => {
   };
 
   const openModal = () => {
-    setIsModalOpen(true); // Open the modal
+    setIsModalOpen(true); 
   };
 
   const closeModal = () => {
-    setIsModalOpen(false); // Close the modal
+    setIsModalOpen(false); 
   };
 
   return (
@@ -91,7 +89,11 @@ const MajorField = () => {
           </p>
         </div>
         <div className="w-[100%] flex flex-row gap-2">
-          <Input placeholder="Search..."></Input>
+          <Input
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} 
+          />
           <Button
             variant="outline"
             className="text-secondary-100-75"
@@ -101,7 +103,7 @@ const MajorField = () => {
           </Button>
         </div>
 
-        <div  className="mt-4 h-[300px] overflow-y-auto">
+        <div className="mt-4 h-[300px] overflow-y-auto">
           {isLoading ? (
             <p>Loading all major...</p>
           ) : isError ? (
@@ -117,12 +119,16 @@ const MajorField = () => {
                 </tr>
               </thead>
               <tbody>
-                {(majors || []).length > 0 ? (
-                  majors.map((major) => (
+                {filteredMajors.length > 0 ? (
+                  filteredMajors.map((major) => (
                     <tr key={major._id}>
                       <td className="p-2 border text-[0.9rem]">{major.programname}</td>
-                      <td className="p-2 border text-center text-[0.9rem]">{major.majorname}</td>
-                      <td className="p-2 border text-center text-[0.9rem]">{formatDate(major.date_added)}</td>
+                      <td className="p-2 border text-center text-[0.9rem]">
+                        {major.majorname}
+                      </td>
+                      <td className="p-2 border text-center text-[0.9rem]">
+                        {formatDateTime(major.date_added)}
+                      </td>
                       <td className="p-2 border text-[0.9rem] flex gap-2">
                         <Button
                           variant="secondary"
@@ -144,8 +150,8 @@ const MajorField = () => {
                   ))
                 ) : (
                   <tr>
-                    <td className="p-2 border" colSpan="3">
-                      No program name available
+                    <td className="p-2 border" colSpan="4">
+                      No matching major found
                     </td>
                   </tr>
                 )}
@@ -155,13 +161,14 @@ const MajorField = () => {
         </div>
       </div>
 
-       
       <EditMajorModal
         open={isEditModalOpen}
         onClose={handleCloseEditModal}
         major={selectedMajor}
-      />  
-      {isModalOpen && <AddMajorModal onClose={closeModal} queryClient={queryClient} />}
+      />
+      {isModalOpen && (
+        <AddMajorModal onClose={closeModal} queryClient={queryClient} />
+      )}
     </div>
   );
 };

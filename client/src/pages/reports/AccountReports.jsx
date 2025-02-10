@@ -12,6 +12,8 @@ import DataTable from "@/components/DataTable";
 import columns from "@/components/columns/UserReport";
 import Loading from "@/components/Loading";
 import { LuDownload } from "react-icons/lu";
+import jsPDF from "jspdf";
+import "jspdf-autotable"; // For table formatting
 
 const AccountReports = () => {
   const [filters, setFilters] = useState([]);
@@ -40,8 +42,41 @@ const AccountReports = () => {
     setReset(!reset);
   };
 
+  // Function to generate PDF
+  const handleGeneratePDF = () => {
+    if (!allAccounts || allAccounts.length === 0) {
+      alert("No data available to generate PDF.");
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text("User Account Report", 14, 22);
+
+    // Extract table data
+    const tableData = allAccounts.map((account) => [
+      account.id,
+      account.name,
+      account.email,
+      account.role_type,
+      account.campus_name,
+      account.status,
+    ]);
+
+    // Add table using autoTable plugin
+    doc.autoTable({
+      head: [["ID", "Name", "Email", "Role", "Campus", "Status"]], // Table headers
+      body: tableData, // Table data
+      startY: 30, // Start table below the title
+    });
+
+    // Save the PDF
+    doc.save("user_account_report.pdf");
+  };
+
   return (
-    // ${isLoading ? "h-full" : ""}
     <div className={`flex flex-1 flex-col gap-5`}>
       <Header
         title={"User Account Report"}
@@ -87,7 +122,10 @@ const AccountReports = () => {
           <Button variant="ghost" className="text-base-200">
             File Preview
           </Button>
-          <Button className="border border-base-200 bg-base-200/10 text-base-200 shadow-none hover:bg-base-200 hover:text-white">
+          <Button
+            className="border border-base-200 bg-base-200/10 text-base-200 shadow-none hover:bg-base-200 hover:text-white"
+            onClick={handleGeneratePDF} // Attach PDF generation function
+          >
             <LuDownload />
             Download
           </Button>
