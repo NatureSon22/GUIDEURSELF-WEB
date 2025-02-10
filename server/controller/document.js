@@ -157,16 +157,20 @@ const createFolder = async (req, res) => {
 // Document Retrieval Operations
 const getAllDocuments = async (req, res) => {
   try {
-    const { type, draftsOnly, recent, is_deleted } = req.query;
+    const { type, draftsOnly, recent, is_deleted, all } = req.query;
     const isDraftOnly = draftsOnly === "true";
     const isDeleted = is_deleted === "true";
     const isRecent = recent === "true";
 
     // Build query parameters
-    const params = {
-      type: isDraftOnly ? "draft" : type || { $ne: "draft" },
+    let params = {
       is_deleted: isDeleted ? true : { $ne: true },
     };
+
+    // If `all` is false, apply the type filter
+    if (!all) {
+      params.type = isDraftOnly ? "draft" : type || { $ne: "draft" };
+    }
 
     // Ensure "onlyMe" documents are only accessible to contributors
     if (req.user?.userId) {
@@ -180,7 +184,9 @@ const getAllDocuments = async (req, res) => {
     const sortQuery = isRecent ? { date_and_time: -1 } : {};
 
     // Fetch documents
-    const documents = await DocumentModel.find(params).sort(sortQuery);
+    const documents = await DocumentModel.find(params)
+      .sort(sortQuery)
+      .populate("campus_id", "campus_name");
 
     // Collect user IDs for enrichment
     const userIds = new Set();
@@ -190,9 +196,7 @@ const getAllDocuments = async (req, res) => {
     });
 
     // Fetch user details and map by ID
-    const users = await UserModel.find({ _id: { $in: Array.from(userIds) } })
-      .populate("campus_id", "campus_name")
-      .lean(); // Use .lean() to improve performance
+    const users = await UserModel.find({ _id: { $in: Array.from(userIds) } });
 
     const userMap = new Map(users.map((user) => [user._id.toString(), user]));
 
@@ -223,7 +227,6 @@ const getAllDocuments = async (req, res) => {
 
     res.status(200).json({
       documents: enrichedDocuments,
-      total: enrichedDocuments.length,
     });
   } catch (error) {
     res.status(500).json({
@@ -278,18 +281,40 @@ const getDocument = async (req, res) => {
 };
 
 // Document Creation Operations
+// Document Creation Operations
 const createDocument = async (req, res) => {
   try {
-    const { name, content, visibility, documentId } = req.body;
+    const { name, content, visibility, documentId, isdraft } = req.body;
+    const isDraft = isdraft === "true" || isdraft === true;
 
-    // Ensure the required fields are provided
-    if (!name || !content || !visibility) {
-      return res.status(400).json({
-        message: "Missing required fields: name, content, or visibility",
+    // if (!name || !content || !visibility) {
+    //   return res.status(400).json({
+    //     message: "Missing required fields: name, content, or visibility",
+    //   });
+    // }
+
+    if (isDraft && documentId) {
+      const draftUpdate = await DocumentModel.updateOne(
+        { _id: documentId },
+        {
+          $set: {
+            date_last_modified: new Date(),
+            is_deleted: false,
+          },
+        }
+      );
+
+      if (!draftUpdate.modifiedCount) {
+        return res
+          .status(404)
+          .json({ message: "Draft document not found for update" });
+      }
+
+      return res.status(201).json({
+        message: "Document archived successfully",
       });
     }
 
-    // Fetch request to external service (CODY_URLS)
     const response = await fetch(CODY_URLS.CREATE_DOCUMENT(), {
       method: "POST",
       headers: HEADERS,
@@ -298,32 +323,32 @@ const createDocument = async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      return res
-        .status(response.status)
-        .json({ message: "Failed to create document", error: errorText });
+      return res.status(response.status).json({
+        message: "Failed to create document",
+        error: errorText,
+      });
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    //await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Parse the response JSON and handle the content_url and status
     let responseData;
     try {
       responseData = await response.json();
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Failed to parse response", error: error.message });
+      return res.status(500).json({
+        message: "Failed to parse response",
+        error: error.message,
+      });
     }
 
     const { content_url, status, id } = responseData.data || {};
 
     if (!content_url) {
-      return res
-        .status(500)
-        .json({ message: "Content URL is missing in the response" });
+      return res.status(500).json({
+        message: "Content URL is missing in the response",
+      });
     }
 
-    // If documentId is provided, update existing document
     if (documentId) {
       const updateResult = await DocumentModel.updateOne(
         { _id: documentId },
@@ -344,7 +369,6 @@ const createDocument = async (req, res) => {
           .json({ message: "Document not found for update" });
       }
     } else {
-      // Create a new document record in the database
       await DocumentModel.create({
         campus_id: req.user.campusId,
         file_name: `${name}.txt`,
@@ -358,6 +382,9 @@ const createDocument = async (req, res) => {
         status: "synced",
         type: "published",
         visibility,
+        metadata: {
+          content: content
+        }
       });
     }
 
@@ -365,9 +392,11 @@ const createDocument = async (req, res) => {
       message: "Document created successfully",
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+    console.error("Error in createDocument:", error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
@@ -469,7 +498,7 @@ const getContentURL = async (filename) => {
 // File Upload Operations
 const uploadFilesAndCreateDocuments = async (req, res) => {
   try {
-    const { folder_id, visibility } = req.body;
+    const { visibility } = req.body;
     const files = req.files;
     const userId = req.user.userId;
 
@@ -487,9 +516,6 @@ const uploadFilesAndCreateDocuments = async (req, res) => {
               `Uploadcare upload failed: ${uploadcareResponse.error}`
             );
           }
-
-          console.log("UPLOAD CARE");
-          console.log(file);
 
           // Get signed URL and upload to S3
           const { key, url } = await getSignedUploadURL(file);
@@ -607,70 +633,78 @@ const uploadFilesAndCreateDocuments = async (req, res) => {
 };
 
 const uploadDraftFilesAndCreateDocuments = async (req, res) => {
-  const { document_url, visibility, documentId } = req.body;
-
-  // Ensure that document_url and documentId are provided
-  if (!document_url || !documentId) {
-    return res.status(400).json({
-      message: "document_url and documentId are required.",
-    });
-  }
-
-  const metadata = {
-    url: document_url,
-    visibility,
-  };
-
   try {
-    const response = await fetch(CODY_URLS.UPLOAD_WEBPAGE(), {
-      method: "POST",
-      headers: HEADERS,
-      body: JSON.stringify({
-        folder_id: FOLDER_ID,
-        url: document_url, // Use the document_url provided
-      }),
-    });
+    const { document_url, visibility, documentId, isdraft } = req.body;
+    const isDraft = isdraft === "true" || isdraft === true;
+    const file = req.files?.[0];
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      return res.status(response.status).json({
-        message: "Failed to upload document. Please try again later.",
-        error: errorText,
+    if (!isDraft && !file) {
+      return res.status(400).json({ message: "No file provided for upload." });
+    }
+
+    // Ensure that document_url and documentId are provided
+    if ((!isDraft && !document_url) || !documentId) {
+      return res.status(400).json({
+        message: "document_url and documentId are required.",
       });
     }
 
-    const {
-      data: { content_url, name, id },
-    } = await response.json();
-
-    // Check if content_url is available
-    if (!content_url) {
-      return res.status(500).json({
-        message: "Content URL is missing in the response.",
+    if (!documentId) {
+      return res.status(400).json({
+        message: "document_url and documentId are required.",
       });
     }
 
-    if (documentId) {
-      const result = await DocumentModel.updateOne(
+    if (!isDraft && !document_url) {
+      return res.status(400).json({
+        message: "document_url is required.",
+      });
+    }
+
+    if (!isDraft) {
+      const { key, url } = await getSignedUploadURL(file);
+      await uploadFileToS3(url, file);
+
+      const document = await createCodyDocument(key);
+
+      const contentResponse = await documentParser(file.path, false);
+      if (!contentResponse?.length) {
+        throw new Error("Document parsing failed - no content extracted");
+      }
+
+      const content = contentResponse.map((item) => item.text).join("\n");
+
+      const metadata = {
+        url: document_url,
+        visibility,
+        content,
+      };
+
+      await DocumentModel.updateOne(
         { _id: documentId },
         {
           $set: {
-            file_name: name,
             metadata,
-            content_url,
-            document_id: id,
+            content_url: document.content_url,
+            document_id: document.id,
             status: "synced",
             type: "published",
             date_last_modified: new Date(),
+            is_deleted: false,
+            visibility,
           },
         }
       );
-
-      if (result.nModified === 0) {
-        return res
-          .status(404)
-          .json({ message: "Document not found or already up-to-date." });
-      }
+    } else {
+      await DocumentModel.updateOne(
+        { _id: documentId },
+        {
+          $set: {
+            date_last_modified: new Date(),
+            is_deleted: false,
+          },
+        }
+      );
     }
 
     return res.status(200).json({ message: "Document uploaded successfully." });
@@ -753,15 +787,43 @@ const saveAsDraftUploadDocuments = async (req, res) => {
 };
 
 const uploadWebPage = async (req, res) => {
-  const { url, visibility, documentId } = req.body;
-
-  const metadata = {
-    url,
-    visibility,
-  };
-
   try {
-    const response = await fetch(CODY_URLS.UPLOAD_WEBPAGE(), {
+    const { title, url, visibility, documentId, isdraft } = req.body;
+    const isDraft = isdraft === "true" || isdraft === true;
+
+    if (!url && !isDraft) {
+      return res
+        .status(400)
+        .json({ message: "URL is required for non-draft documents" });
+    }
+
+    if (isDraft) {
+      if (!documentId) {
+        return res
+          .status(400)
+          .json({ message: "Document ID is required for draft updates" });
+      }
+
+      const result = await DocumentModel.updateOne(
+        { _id: documentId },
+        {
+          $set: {
+            is_deleted: false,
+            date_last_modified: new Date(),
+          },
+        }
+      );
+
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ message: "Draft document not found" });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Document unarchived successfully" });
+    }
+
+    const uploadResponse = await fetch(CODY_URLS.UPLOAD_WEBPAGE(), {
       method: "POST",
       headers: HEADERS,
       body: JSON.stringify({
@@ -770,61 +832,60 @@ const uploadWebPage = async (req, res) => {
       }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      return res.status(response.status).json({
-        message:
-          "Failed to upload webpage, please check webpage address is valid",
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      return res.status(uploadResponse.status).json({
+        message: "Failed to upload webpage. Please try again later.",
         error: errorText,
       });
     }
 
     const {
-      data: { status, content_url, name, id },
-    } = await response.json();
+      data: { content_url, name, id },
+    } = await uploadResponse.json();
+
+    const metadata = {
+      url,
+      visibility,
+    };
+
+    const documentData = {
+      file_name: title || name,
+      metadata,
+      content_url,
+      document_id: id,
+      status: "synced",
+      type: "published",
+      date_last_modified: new Date(),
+      visibility,
+    };
 
     if (documentId) {
       const result = await DocumentModel.updateOne(
         { _id: documentId },
-        {
-          $set: {
-            file_name: name,
-            metadata,
-            content_url,
-            status: "synced",
-            type: "published",
-            date_last_modified: new Date(),
-          },
-        }
+        { $set: documentData }
       );
 
-      if (result.nModified === 0) {
-        return res.status(404).json({ message: "Document not found." });
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ message: "Document not found" });
       }
     } else {
       await DocumentModel.create({
+        ...documentData,
         campus_id: req.user.campusId,
-        file_name: name,
         published_by: req.user.userId,
         date_and_time: new Date(),
         contributors: [req.user.userId],
         document_type: "imported-web",
         document_url: url,
-        document_id: id,
-        content_url: content_url,
-        date_last_modified: new Date(),
-        status: "synced",
-        type: "published",
-        visibility,
-        metadata,
       });
     }
 
-    return res.status(200).json({ message: "Webpage uploaded successfully." });
+    return res.status(200).json({ message: "Webpage uploaded successfully" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: error.message || "Server error occurred." });
+    return res.status(500).json({
+      message: error.message || "Server error occurred",
+    });
   }
 };
 
@@ -887,6 +948,7 @@ const saveAsDraftUploadWebPage = async (req, res) => {
 const syncDocument = async (req, res) => {
   try {
     const { documentId } = req.params;
+    console.log(documentId);
 
     // Fetch the document from the database
     const existingDoc = await DocumentModel.findById(documentId);
@@ -971,6 +1033,8 @@ const deleteDocument = async (req, res) => {
     }
 
     doc.is_deleted = true;
+    doc.document_id = "";
+
     await doc.save();
 
     return res.status(200).json({

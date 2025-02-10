@@ -10,8 +10,11 @@ const column = () => [
       <Link
         to={`/documents/view/${row.original._id}`}
         className="hover:underline"
+        title={row.original.file_name}
       >
-        {row.original.file_name}
+        {row.original.file_name.length > 20
+          ? row.original.file_name.slice(0, 40) + "..."
+          : row.original.file_name}
       </Link>
     ),
   },

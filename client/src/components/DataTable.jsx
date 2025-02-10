@@ -68,6 +68,8 @@ const DataTable = ({
     initialState: {
       columnVisibility: {
         full_name: false,
+        "campus_id.campus_name": false,
+        document_type: false
       },
     },
     enableRowSelection: true,

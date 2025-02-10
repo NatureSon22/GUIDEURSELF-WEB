@@ -21,6 +21,7 @@ import { FaCircleExclamation } from "react-icons/fa6";
 import { useToast } from "@/hooks/use-toast";
 import { getAllCampuses } from "@/api/component-info";
 import documentStatus from "@/data/documentStatus";
+import documentTypes from "@/data/doc_types"
 
 const AllDocuments = () => {
   const { toast } = useToast();
@@ -47,8 +48,6 @@ const AllDocuments = () => {
     queryFn: getAllCampuses,
   });
 
-  
-
   const [open, setOpen] = useState(false);
 
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -62,9 +61,9 @@ const AllDocuments = () => {
     mutationFn: () => deleteDocument(selectedDocument),
     onSuccess: () => {
       setTimeout(() => {
+        queryClient.invalidateQueries(["all-documents"]);
         setOpen(false);
         setSelectedDocument(null);
-        queryClient.invalidateQueries(["all-documents"]);
         resetDelete();
       }, 1000);
     },
@@ -125,7 +124,14 @@ const AllDocuments = () => {
           <ComboBox
             options={allCampuses || []}
             placeholder="select campus"
-            filter="campus_id"
+            filter="campus_id.campus_name"
+            setFilters={setFilters}
+            reset={reset}
+          />
+          <ComboBox
+            options={documentTypes || []}
+            placeholder="select type"
+            filter="document_type"
             setFilters={setFilters}
             reset={reset}
           />

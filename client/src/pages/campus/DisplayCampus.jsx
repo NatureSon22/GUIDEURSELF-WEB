@@ -1,6 +1,6 @@
-import { Outlet, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import React, { useState } from "react";
+import { useState } from "react";
 import Pen from "../../assets/Pen.png";
 import addImage from "../../assets/add.png";
 import Search from "../../assets/Search.png";
@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import FeaturePermission from "@/layer/FeaturePermission";
 
-// Fix for default marker icon not showing  
+// Fix for default marker icon not showing
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -38,7 +38,11 @@ const DisplayCampus = () => {
   const [position] = useState([14.46644, 121.22608]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: campuses = [], isLoading, isError } = useQuery({
+  const {
+    data: campuses = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["campuses"],
     queryFn: fetchCampuses,
   });
@@ -50,7 +54,7 @@ const DisplayCampus = () => {
 
   // Filter campuses based on search term
   const filteredCampuses = campuses.filter((campus) =>
-    campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
+    campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   if (isLoading) {
@@ -62,19 +66,19 @@ const DisplayCampus = () => {
   }
 
   return (
-    <div className="w-full flex w-[100%]">
+    <div className="flex w-[100%] w-full">
       {/* Left Container */}
-      <div className="w-[75%] flex flex-col justify-between">
+      <div className="flex w-[75%] flex-col justify-between">
         <Header
           title={"Manage Campus"}
           subtitle={"See list of all campuses to manage and edit."}
         />
 
         {/* Search and Buttons */}
-        <div className="w-full pt-6 flex gap-4">
-          <div className="w-[90%] h-[40px] flex flex-row justify-between items-center py-1 px-2 rounded-md border-gray-300 border">
+        <div className="flex w-full gap-4 pt-6">
+          <div className="flex h-[40px] w-[90%] flex-row items-center justify-between rounded-md border border-gray-300 px-2 py-1">
             <textarea
-              className="overflow-hidden w-[100%] h-5 resize-none outline-none"
+              className="h-5 w-[100%] resize-none overflow-hidden outline-none"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -82,31 +86,34 @@ const DisplayCampus = () => {
             <img className="h-[100%]" src={Search} alt="" />
           </div>
 
-          <FeaturePermission  module="Manage Campus" access="add campus">
+          <FeaturePermission module="Manage Campus" access="add campus">
             <Link to="/campus/add" className="w-[20%]">
-              <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
+              <button className="text-md focus-none flex h-10 w-[100%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none transition duration-300 hover:bg-gray-200">
                 <img
-                  className="w-[30px] h-[30px]"
+                  className="h-[30px] w-[30px]"
                   src={addImage}
                   alt="Add Officials"
                 />
                 Add Campus
               </button>
             </Link>
-            </FeaturePermission>
-           
+          </FeaturePermission>
 
           <Link to="/campus/edit" className="w-[10%]">
-            <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
-              <img className="w-[17px] h-[17px]" src={Pen} alt="Add Officials" />
+            <button className="text-md focus-none flex h-10 w-[100%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none transition duration-300 hover:bg-gray-200">
+              <img
+                className="h-[17px] w-[17px]"
+                src={Pen}
+                alt="Add Officials"
+              />
               Edit
             </button>
           </Link>
         </div>
 
         {/* Map Section */}
-        <div className="h-[700px] py-6 flex flex-col gap-5">
-          <div className="border border-gray-300 rounded-md">
+        <div className="flex h-[700px] flex-col gap-5 py-6">
+          <div className="rounded-md border border-gray-300">
             <div className="p-4">
               <h2 className="font-bold italic">
                 University Of Rizal System - Campus Map
@@ -115,7 +122,7 @@ const DisplayCampus = () => {
             <MapContainer
               center={position}
               zoom={11}
-              className="h-[530px] w-[100%] outline-none border border-gray-300"
+              className="h-[530px] w-[100%] border border-gray-300 outline-none"
               zoomControl={false}
               attributionControl={false}
             >
@@ -130,7 +137,7 @@ const DisplayCampus = () => {
                     campus.latitude &&
                     campus.longitude &&
                     !isNaN(parseFloat(campus.latitude)) &&
-                    !isNaN(parseFloat(campus.longitude))
+                    !isNaN(parseFloat(campus.longitude)),
                 )
                 .map((campus, index) => (
                   <Marker
@@ -153,23 +160,31 @@ const DisplayCampus = () => {
       </div>
 
       {/* Right Container */}
-      <div className="w-[40%] pl-6  py-2 flex flex-col gap-4">
-        <div className="border px-2 w-[100%] h-[100px] flex justify-between rounded-md">
-          <div className="w-[30%] flex items-center justify-center">
-            <img className="h-[45%]" src={university?.university_vector_url} alt="" />
-            <img className="h-[45%]" src={university?.university_logo_url} alt="" />
+      <div className="flex w-[40%] flex-col gap-4 py-2 pl-6">
+        <div className="flex h-[100px] w-[100%] justify-between rounded-md border px-2">
+          <div className="flex w-[30%] items-center justify-center">
+            <img
+              className="h-[45%]"
+              src={university?.university_vector_url}
+              alt=""
+            />
+            <img
+              className="h-[45%]"
+              src={university?.university_logo_url}
+              alt=""
+            />
           </div>
-          <div className="w-[70%] flex flex-col justify-center">
-            <h2 className="font-bold text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>
-            <h3 className="text-sm">NURTURING TOMORROW'S NOBLEST</h3>
+          <div className="flex w-[70%] flex-col justify-center">
+            <h2 className="text-lg font-bold">UNIVERSITY OF RIZAL SYSTEM</h2>
+            <h3 className="text-sm">NURTURING TOMORROW&apos;S NOBLEST</h3>
           </div>
         </div>
 
         <p className="text-sm">List of Campuses</p>
-        <div className="border-t border-x">
+        <div className="border-x border-t">
           {/* Render filtered campus names */}
           {filteredCampuses.map((campus, index) => (
-            <div key={index} className="py-4 border-b border-gray-300">
+            <div key={index} className="border-b border-gray-300 py-4">
               <p className="text-center">{campus.campus_name} Campus</p>
             </div>
           ))}

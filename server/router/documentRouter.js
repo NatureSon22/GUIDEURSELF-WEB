@@ -73,7 +73,7 @@ documentRouter.post(
 );
 documentRouter.post(
   "/upload-draft-document",
-  upload.none(),
+  upload.array("document", 10),
   uploadDraftFilesAndCreateDocuments
 );
 documentRouter.post("/upload-web", upload.none(), uploadWebPage);

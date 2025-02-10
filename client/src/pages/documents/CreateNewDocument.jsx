@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,12 +10,15 @@ import { createDocument, saveAsDraft, getDocument } from "@/api/documents";
 import { Input } from "../../components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import TipTapEditor from "@/components/TextEditor";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useToast } from "@/hooks/use-toast";
+import TextEditor from "@/components/TextEditor";
+import Loading from "@/components/Loading";
+import DialogContainer from "@/components/DialogContainer";
 
+// Form validation schema
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title is too long"),
   content: z.string().min(1, "Content is required"),
@@ -29,8 +32,9 @@ const CreateNewDocument = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [action, setAction] = useState("");
-  const [editorContent, setEditorContent] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
 
+  // Initialize the form
   const {
     register,
     handleSubmit,
@@ -47,13 +51,16 @@ const CreateNewDocument = () => {
   });
 
   const visibility = watch("visibility");
+  const content = watch("content"); // To keep track of the content field
 
+  // Fetch document if editing
   const { data: documentData, isLoading } = useQuery({
     queryKey: ["document", documentId],
     queryFn: () => (documentId ? getDocument(documentId) : null),
     enabled: !!documentId,
   });
 
+  // Create Document Mutation
   const { mutateAsync: handleCreateDocument, isPending: isCreating } =
     useMutation({
       mutationFn: createDocument,
@@ -63,6 +70,7 @@ const CreateNewDocument = () => {
           description: data.message,
         });
         navigate(-1);
+        setOpenDialog(false);
       },
       onError: (error) => {
         toast({
@@ -70,9 +78,11 @@ const CreateNewDocument = () => {
           title: "Error",
           description: error.message,
         });
+        setOpenDialog(false);
       },
     });
 
+  // Save Draft Mutation
   const { mutateAsync: handleSaveAsDraft, isPending: isSaving } = useMutation({
     mutationFn: saveAsDraft,
     onSuccess: (data) => {
@@ -81,6 +91,7 @@ const CreateNewDocument = () => {
         description: data.message,
       });
       navigate(-1);
+      setOpenDialog(false);
     },
     onError: (error) => {
       toast({
@@ -88,36 +99,31 @@ const CreateNewDocument = () => {
         title: "Error",
         description: error.message,
       });
+      setOpenDialog(false);
     },
   });
 
+  // Populate fields if editing an existing document
   useEffect(() => {
     if (documentData?.metadata) {
       const { name, content, visibility } = documentData.metadata;
       setValue("title", name, { shouldValidate: true });
       setValue("content", content, { shouldValidate: true });
-      setEditorContent(content); // Set editor content separately
       setValue("visibility", visibility, { shouldValidate: true });
     }
   }, [documentData, setValue]);
-
-  const handleContentUpdate = useCallback((newContent) => {
-    setEditorContent(newContent);
-  }, []);
 
   const handleSetAction = (action) => {
     setAction(action);
   };
 
   const onSubmit = (data) => {
-    console.log("Editor Content Before setValue:", editorContent);
-    // setValue("content", editorContent, { shouldValidate: true });
-    console.log("Form Data After setValue:", data);
-
     const formData = new FormData();
     formData.append("name", data.title);
-    formData.append("content", editorContent);
+    formData.append("content", data.content);
     formData.append("visibility", data.visibility);
+
+    setOpenDialog(true);
 
     if (documentId) {
       formData.append("documentId", documentId);
@@ -135,14 +141,14 @@ const CreateNewDocument = () => {
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-1 flex-col gap-7"
     >
+      {/* Title Field */}
       <div className="space-y-1">
         <p className="font-medium">Title</p>
         <p className="text-[0.95rem]">
-          Enter a clear, descriptive title for the document. This will help in
-          organizing and retrieving documents.
+          Enter a clear, descriptive title for the document.
         </p>
         {isLoading ? (
-          <Skeleton className="w-full py-5"></Skeleton>
+          <Skeleton className="w-full py-5" />
         ) : (
           <>
             <Input
@@ -162,78 +168,64 @@ const CreateNewDocument = () => {
       <div className="grid gap-1">
         <p className="font-medium">Content</p>
         <p className="text-[0.95rem]">
-          Write the main content that the chatbot will use to respond to users.
-          Use simple, direct language for better understanding.
+          Write the main content that the chatbot will use.
         </p>
 
         {isLoading ? (
-          <Skeleton className="w-full py-40"></Skeleton>
+          <Skeleton className="w-full py-40" />
         ) : (
           <>
-            {/* <p>{editorContent}</p> */}
-            <TipTapEditor
-              documentContent={editorContent}
-              setDocumentContent={handleContentUpdate}
-            />
-            {errors.content && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.content.message}
-              </p>
-            )}
-            <p className="mt-1 text-[0.9rem] text-secondary-100-75">
-              Note: Ensure the content is concise and factual to make it easy
-              for the chatbot to communicate effectively. Use bullet points or
-              numbered lists when appropriate for better readability.
-            </p>
+            <div className="space-y-14">
+              <div className="min-h-[300px] items-center mt-1">
+                <TextEditor
+                  content={content}
+                  setContent={(value) =>
+                    setValue("content", value, { shouldValidate: true })
+                  }
+                />
+              </div>
+
+              {errors.content && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.content.message}
+                </p>
+              )}
+            </div>
           </>
         )}
       </div>
 
+      {/* Visibility Options */}
       <div className="grid gap-1">
         <p className="font-medium">Visibility</p>
-        <p className="text-[0.95rem]">
-          Define the visibility of this document. Decide who should be able to
-          edit this document.
-        </p>
-
-        {isLoading ? (
-          <div className="ml-5 mt-3 space-y-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <Skeleton key={index} className={"w-44 py-4"} />
-            ))}
+        <RadioGroup
+          className="ml-5 mt-3 space-y-3"
+          value={visibility}
+          onValueChange={(value) => setValue("visibility", value)}
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="onlyMe" id="r1" />
+            <Label className="text-secondary-100-75" htmlFor="r1">
+              Only me
+            </Label>
           </div>
-        ) : (
-          <>
-            <RadioGroup
-              className="ml-5 mt-3 space-y-3"
-              value={visibility}
-              onValueChange={(value) => setValue("visibility", value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="onlyMe" id="r1" />
-                <Label className="text-secondary-100-75" htmlFor="r1">
-                  Only me
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="viewOnly" id="r2" />
-                <Label className="text-secondary-100-75" htmlFor="r2">
-                  Allow others to View
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="viewAndEdit" id="r3" />
-                <Label className="text-secondary-100-75" htmlFor="r3">
-                  Allow others to View and Edit
-                </Label>
-              </div>
-            </RadioGroup>
-            {errors.visibility && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.visibility.message}
-              </p>
-            )}
-          </>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="viewOnly" id="r2" />
+            <Label className="text-secondary-100-75" htmlFor="r2">
+              Allow others to View
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="viewAndEdit" id="r3" />
+            <Label className="text-secondary-100-75" htmlFor="r3">
+              Allow others to View and Edit
+            </Label>
+          </div>
+        </RadioGroup>
+        {errors.visibility && (
+          <p className="mt-1 text-sm text-red-500">
+            {errors.visibility.message}
+          </p>
         )}
       </div>
 
@@ -259,6 +251,24 @@ const CreateNewDocument = () => {
           </Button>
         </div>
       )}
+
+      <DialogContainer openDialog={openDialog}>
+        {action === "draft" ? (
+          <div className="grid place-items-center gap-7 py-1">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">
+              Please wait while the document is being saved
+            </p>
+          </div>
+        ) : (
+          <div className="grid place-items-center gap-7 py-1">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">
+              Please wait while the document is being uploaded
+            </p>
+          </div>
+        )}
+      </DialogContainer>
     </form>
   );
 };

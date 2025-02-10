@@ -2,11 +2,18 @@ import formatDate from "@/utils/formatDate";
 import { Button } from "../ui/button";
 import { IoReturnUpForward } from "react-icons/io5";
 
-const columns = () => [
+const columns = ({ handleSetSelectedDocument }) => [
   {
     accessorKey: "file_name",
     header: "Filename",
     filterFn: "equalsString",
+    cell: ({ row }) => (
+      <p>
+        {row.original.file_name.length > 20
+          ? row.original.file_name.slice(0, 20) + "..."
+          : row.original.file_name}
+      </p>
+    ),
   },
   {
     accessorKey: "published_by",
@@ -41,9 +48,12 @@ const columns = () => [
   },
   {
     header: "Action",
-    cell: () => (
+    cell: ({ row }) => (
       <div className="grid place-items-center">
-        <Button className="rounded-full bg-accent-100/15 text-[0.85rem] text-accent-100 shadow-none hover:bg-accent-100 hover:text-white">
+        <Button
+          className="rounded-full bg-accent-100/15 text-[0.85rem] text-accent-100 shadow-none hover:bg-accent-100 hover:text-white"
+          onClick={() => handleSetSelectedDocument(row.original)}
+        >
           <IoReturnUpForward /> Unarchive
         </Button>
       </div>

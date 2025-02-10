@@ -29,6 +29,7 @@ const handleUploadFile = async (filePath) => {
       metadata: {
         subsystem: "js-client",
         description: "File uploaded via Uploadcare client",
+        filename: path.basename(resolvedPath),
       },
     });
 

@@ -19,7 +19,7 @@ import templateRouter from "../router/templateRouter.js";
 import statusRouter from "../router/statusRouter.js";
 import documentRouter from "../router/documentRouter.js";
 import testChatRouter from "../router/testchatRouter.js";
-import virtualTourLogRouter from '../router/virtualTourLogRouter.js';
+import virtualTourLogRouter from "../router/virtualTourLogRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -50,6 +50,7 @@ app.use("/api/virtualtourlogs", virtualTourLogRouter);
 
 (async () => {
   config();
+  console.log("this is running");
   app.listen(process.env.PORT || 3000, async () => {
     await connectDB();
     console.log("Server running on port 3000");

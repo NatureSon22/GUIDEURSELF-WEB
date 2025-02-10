@@ -36,6 +36,7 @@ const WebDocument = () => {
     handleSubmit,
     setValue,
     watch,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -57,26 +58,6 @@ const WebDocument = () => {
         title: "Success",
         description: data,
       });
-      client.invalidateQueries(["documents", "drafted-documents"]);
-      navigate(-1);
-    },
-    onError: (error) => {
-      const { message } = error;
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: message,
-      });
-    },
-  });
-
-  const { mutateAsync: handleSaveAsDraft, isPending: isSaving } = useMutation({
-    mutationFn: saveAsDraftWeb,
-    onSuccess: (data) => {
-      toast({
-        title: "Success",
-        description: data,
-      });
       client.invalidateQueries(["documents"]);
       navigate(-1);
     },
@@ -87,6 +68,32 @@ const WebDocument = () => {
         title: "Error",
         description: message,
       });
+    },
+    onSettled: () => {
+      setOpenDialog(false);
+    },
+  });
+
+  const { mutateAsync: handleSaveAsDraft, isPending: isSaving } = useMutation({
+    mutationFn: saveAsDraftWeb,
+    onSuccess: (data) => {
+      toast({
+        title: "Success",
+        description: data,
+      });
+      client.invalidateQueries(["drafted-documents"]);
+      navigate(-1);
+    },
+    onError: (error) => {
+      const { message } = error;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: message,
+      });
+    },
+    onSettled: () => {
+      setOpenDialog(false);
     },
   });
 
@@ -112,6 +119,15 @@ const WebDocument = () => {
   const onSubmit = (data) => {
     const formData = new FormData();
     formData.append("title", data.title);
+
+    if (action === "draft" && data.title.trim() === "") {
+      setError("title", {
+        type: "manual",
+        message: "Title is required for drafts.",
+      });
+      return;
+    }
+
     formData.append("visibility", data.visibility);
     formData.append("url", data.websiteURL);
     formData.append("author", data.author);
@@ -281,15 +297,17 @@ const WebDocument = () => {
         </div>
       )}
 
-      <DialogContainer openDialog={openDialog} >
-        {action === "draft" && (
+      <DialogContainer openDialog={openDialog}>
+        {
           <div className="grid place-items-center gap-7 py-1">
             <Loading />
             <p className="text-[0.9rem] font-semibold">
-              Please wait while the website is being saved
+              {action === "draft"
+                ? "Please wait while the website is being saved"
+                : "Please wait while the website is being published"}
             </p>
           </div>
-        )}
+        }
       </DialogContainer>
     </form>
   );

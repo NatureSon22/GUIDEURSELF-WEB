@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import ModulePermission from "@/layer/ModulePermission";
 import useUserStore from "@/context/useUserStore";
 import { getGeneralData } from "@/api/component-info";
-import {Skeleton} from "@/components/ui/skeleton"
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
 
 const SideBar = () => {
   const { pathname } = useLocation();
@@ -24,7 +24,11 @@ const SideBar = () => {
     }
   }, [location]);
 
-  const {data:general, isLoading, isError} = useQuery ({
+  const {
+    data: general,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["logo"],
     queryFn: getGeneralData,
   });
@@ -40,7 +44,17 @@ const SideBar = () => {
   return (
     <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
       <div className="grid place-items-center px-5">
-      {isLoading ? <Skeleton className="w-full py-10 mt-5 rounded-md"></Skeleton> : isError? <img src={logo}/> : <img className="object-cover h-[135px]" src={general.general_logo_url} alt={"GuideURSelf logo"} />}
+        {isLoading ? (
+          <Skeleton className="mt-5 w-full rounded-md py-10"></Skeleton>
+        ) : isError ? (
+          <img src={logo} />
+        ) : (
+          <img
+            className="h-[135px] object-cover"
+            src={general.general_logo_url}
+            alt={"GuideURSelf logo"}
+          />
+        )}
       </div>
 
       <div className="space-y-2">

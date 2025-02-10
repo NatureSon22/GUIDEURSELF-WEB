@@ -1,7 +1,7 @@
 import { Schema, model, Types } from "mongoose";
 
 const DocumentSchema = new Schema({
-  campus_id: { type: Types.ObjectId, required: true },
+  campus_id: { type: Types.ObjectId, required: true, ref: "Campus" },
   file_name: { type: String, required: true },
   published_by: { type: Types.ObjectId, required: true },
   date_and_time: { type: Date, default: Date.now },
