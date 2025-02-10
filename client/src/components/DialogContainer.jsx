@@ -3,7 +3,7 @@ import { Description, DialogTitle } from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import PropTypes from "prop-types";
 
-const DialogContainer = ({ openDialog, children, style = {} }) => {
+const DialogContainer = ({ openDialog, style = {}, children }) => {
   return (
     <Dialog open={openDialog}>
       <DialogContent

@@ -1,9 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -14,8 +14,6 @@ import { useToast } from "@/hooks/use-toast";
 import DocumentDialog from "./DocumentDialog";
 
 import { MdCloudUpload } from "react-icons/md";
-import { FaFile } from "react-icons/fa";
-import { FaCircleExclamation } from "react-icons/fa6";
 
 import DialogContainer from "@/components/DialogContainer";
 
@@ -26,7 +24,7 @@ import {
   uploadDraftDocument,
 } from "@/api/documents";
 import DocumentIcon from "./DocumentIcon";
-import { Dialog } from "@radix-ui/react-dialog";
+import Loading from "@/components/Loading";
 
 const ACCEPTED_FILE_TYPES = ["pdf", "doc", "pptx"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -66,6 +64,7 @@ const UploadDocument = () => {
   const [submitAction, setSubmitAction] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     handleSubmit,
@@ -96,6 +95,7 @@ const UploadDocument = () => {
         description: "Your document has been successfully published.",
       });
       navigate(-1);
+      queryClient.invalidateQueries(["documents"]);
     },
     onError: (error) => {
       toast({
@@ -115,6 +115,7 @@ const UploadDocument = () => {
         description: "Your document has been successfully published.",
       });
       navigate(-1);
+      queryClient.invalidateQueries(["documents"]);
     },
     onError: (error) => {
       toast({
@@ -123,6 +124,7 @@ const UploadDocument = () => {
         variant: "destructive",
       });
       setIsProcessing(false);
+      setOpenDialog(false);
     },
   });
 
@@ -134,6 +136,7 @@ const UploadDocument = () => {
         description: "Your document has been saved as a draft.",
       });
       navigate(-1);
+      queryClient.invalidateQueries(["drafted-documents"]);
     },
     onError: (error) => {
       toast({
@@ -144,6 +147,12 @@ const UploadDocument = () => {
       setIsProcessing(false);
     },
   });
+
+  useEffect(() => {
+    if (documentData) {
+      setValue("visibility", documentData.visibility);
+    }
+  }, [documentData, setValue]);
 
   const handleFileOperation = (fileList) => {
     if (isProcessing) return;
@@ -186,6 +195,31 @@ const UploadDocument = () => {
     }
   };
 
+  const downloadFile = async (document_url) => {
+    try {
+      const response = await fetch(document_url);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const fileName = document_url.split("/").pop() || "document.pdf";
+      const file = new File([blob], fileName, {
+        type: blob.type || "application/octet-stream",
+      });
+
+      return file;
+    } catch (e) {
+      console.error("Download Error:", e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to download the document",
+      });
+    }
+  };
+
   const handleSubmitForm = async (data) => {
     const formData = new FormData();
 
@@ -203,14 +237,14 @@ const UploadDocument = () => {
       }
       files.forEach((file) => formData.append("document", file));
     }
-
-    setIsProcessing(true);
-
     formData.append("visibility", data.visibility);
-
+    setIsProcessing(true);
+    setOpenDialog(true);
     try {
       if (submitAction === "publish") {
         if (documentData?.document_url) {
+          const file = await downloadFile(documentData.document_url);
+          formData.append("document", file);
           await handleUploadDocument(formData);
         } else {
           await handleCreateDocument(formData);
@@ -231,7 +265,7 @@ const UploadDocument = () => {
       onDragOver={handleDragEvents}
       onDragLeave={handleDragEvents}
       onDrop={handleDragEvents}
-      className={`grid w-full cursor-pointer place-items-center rounded-lg border-4 border-dashed ${isDragging ? "border-primary-500 bg-primary-100/50" : "border-secondary-100/30"} ${files.length > 0 ? "py-20" : "py-24"} ${isProcessing ? "cursor-not-allowed opacity-50" : ""}`}
+      className={`grid w-full cursor-pointer place-items-center rounded-lg border-4 border-dashed ${isDragging ? "border-primary-500 bg-primary-100/30" : "border-secondary-100/20"} ${files.length > 0 ? "py-20" : "py-24"} ${isProcessing ? "cursor-not-allowed opacity-50" : ""}`}
     >
       <div className="grid place-items-center gap-1 text-secondary-100/50">
         <MdCloudUpload
@@ -249,11 +283,28 @@ const UploadDocument = () => {
       {files.map((file, index) => (
         <div
           key={index}
-          className="flex items-center gap-3 rounded-md bg-secondary-200/40 px-5 py-3"
+          className="flex items-center gap-5 rounded-md border bg-secondary-200/20 px-5 py-3"
         >
-          <FaFile className="text-lg" />
+          {/* <FaFile className="text-lg" /> */}
           <p className="text-sm">{file.name}</p>
-          <Button
+
+          <div
+            className="cursor-pointer rounded-md bg-secondary-210/30 px-3 py-1 text-[0.95rem] font-bold hover:bg-secondary-100-75/20"
+            onClick={() => {
+              if (!isProcessing) {
+                setFiles((prev) => prev.filter((_, i) => i !== index));
+                setValue(
+                  "files",
+                  files.filter((_, i) => i !== index),
+                );
+              }
+            }}
+            disabled={isProcessing}
+          >
+            &#10005;
+          </div>
+
+          {/* <Button
             className="ml-2 px-3 text-sm font-semibold text-white"
             onClick={() => {
               if (!isProcessing) {
@@ -267,7 +318,7 @@ const UploadDocument = () => {
             disabled={isProcessing}
           >
             ×
-          </Button>
+          </Button> */}
         </div>
       ))}
     </div>
@@ -360,7 +411,9 @@ const UploadDocument = () => {
           type="submit"
           className="bg-base-200"
           disabled={isProcessing}
-          onClick={() => setSubmitAction("publish")}
+          onClick={() => {
+            setSubmitAction("publish");
+          }}
         >
           {isProcessing && submitAction === "publish"
             ? "Publishing..."
@@ -369,29 +422,21 @@ const UploadDocument = () => {
       </div>
 
       <DialogContainer openDialog={openDialog}>
-        <div className="flex flex-col items-center gap-5">
-          <FaCircleExclamation className="text-[2.5rem] text-base-200" />
-          <p className="text-[0.95rem] font-semibold">
-            Do you want to upload this document?
-          </p>
-          <div className="flex w-full gap-4">
-            <Button
-              variant="outline"
-              className="flex-1 border-secondary-200 py-1 text-secondary-100-75"
-              // onClick={handleClose}
-              // disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="hover:bg flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
-              // onClick={handleDeleteDocument}
-              // disabled={isPending}
-            >
-              Proceed
-            </Button>
+        {submitAction === "draft" ? (
+          <div className="grid place-items-center gap-7 py-1">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">
+              Please wait while the document is being saved
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="grid place-items-center gap-7 py-1">
+            <Loading />
+            <p className="text-[0.9rem] font-semibold">
+              Please wait while the document is being uploaded
+            </p>
+          </div>
+        )}
       </DialogContainer>
 
       <DocumentDialog

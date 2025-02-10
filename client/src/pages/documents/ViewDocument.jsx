@@ -22,10 +22,9 @@ const ViewDocument = () => {
   useEffect(() => {
     if (
       data?.document_type === "uploaded-document" &&
-      !data?.document_id &&
+      !data?.document_id ||
       !data?.content_url
     ) {
-      console.log("Syncing draft document...");
       syncDraftDocument(docId);
     }
   }, [data, docId]);

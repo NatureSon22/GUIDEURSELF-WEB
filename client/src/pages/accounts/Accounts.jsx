@@ -66,8 +66,6 @@ const Accounts = () => {
 
   const columnActions = { navigate, handleVerifyAccount };
 
-  console.log(filters);
-
   const handleReset = () => {
     setFilters([]);
     setGlobalFilter("");
@@ -125,7 +123,7 @@ const Accounts = () => {
           setFilters={setFilters}
           reset={reset}
         />
-        
+
         <MultiCampus>
           <ComboBox
             options={allCampuses}

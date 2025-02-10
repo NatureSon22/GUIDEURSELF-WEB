@@ -23,7 +23,7 @@ const CampusDocument = () => {
         {DocumentCreateFieldInfo.map((info, index) => {
           return (
             <div
-              key={`${info.path}-${index}`} 
+              key={`${info.path}-${index}`}
               role="button"
               tabIndex={0}
               className="group flex-1 cursor-pointer space-y-4 rounded-lg border border-x-secondary-200/90 bg-white px-7 pb-7 pt-10"
@@ -45,10 +45,13 @@ const CampusDocument = () => {
 
         <div className="flex flex-1 flex-col gap-4">
           <div
-            className="grid h-full place-items-center bg-base-200 rounded-lg cursor-pointer"
+            className="grid h-full cursor-pointer place-items-center rounded-lg bg-base-200"
             onClick={() => handleClick("/test-chat")}
           >
-            <HiChatBubbleLeftRight className="text-6xl text-white" />
+            <div className="grid place-items-center gap-2">
+              <HiChatBubbleLeftRight className="text-[40px] text-white" />
+              <p className="font-medium text-white">Test Chat</p>
+            </div>
           </div>
 
           <Button

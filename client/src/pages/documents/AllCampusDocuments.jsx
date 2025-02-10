@@ -8,7 +8,7 @@ import ursLogo from "@/assets/UrsLogo.png";
 const AllCampusDocuments = () => {
   const navigate = useNavigate();
   const {
-    data: campusDocuments,
+    data: campusDocuments = [],
     isLoading,
     isError,
     error,

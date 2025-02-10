@@ -19,6 +19,7 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => {
       accessorKey: "file_name",
       header: "Filename",
       filterFn: "equalsString",
+      size: 100,
     },
     {
       accessorKey: "published_by",
@@ -30,6 +31,16 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => {
       header: "Date and Time Created",
       filterFn: "equalsString",
       cell: ({ row }) => formatDateTime(row.original.date_and_time),
+    },
+    {
+      accessorKey: "campus_id.campus_name",
+      id: "campus_id.campus_name",
+      enableHiding: true,
+    },
+    {
+      accessorKey: "document_type",
+      id: "document_type",
+      enableHiding: true,
     },
     {
       header: "Action",

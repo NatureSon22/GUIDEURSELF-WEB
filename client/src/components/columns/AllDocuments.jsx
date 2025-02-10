@@ -22,8 +22,11 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
       <Link
         to={`/documents/view/${row.original._id}`}
         className="hover:underline"
+        title={row.original.file_name}
       >
-        {row.original.file_name}
+        {row.original.file_name.length > 20
+          ? row.original.file_name.slice(0, 20) + "..."
+          : row.original.file_name}
       </Link>
     ),
   },
@@ -47,6 +50,16 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
     accessorKey: "date_last_modified",
     header: "Date Last Modified",
     cell: ({ row }) => formatDateTime(row.original.date_last_modified),
+  },
+  {
+    accessorKey: "campus_id.campus_name",
+    id: "campus_id.campus_name",
+    enableHiding: true,
+  },
+  {
+    accessorKey: "document_type",
+    id: "document_type",
+    enableHiding: true,
   },
   {
     accessorKey: "status",

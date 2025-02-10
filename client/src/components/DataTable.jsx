@@ -49,36 +49,42 @@ const DataTable = forwardRef(
       [columnActions, columns],
     );
 
-    // Table instance
-    const table = useReactTable({
-      data: memoizedData,
-      columns: memoizedColumns,
-      filterFns: {
-        fuzzy: fuzzyFilter,
-        dateBetweenFilterFn,
+  const handlePageChange = (e) => {
+    const page = Number(e.target.value) - 1;
+    if (page >= 0 && page < table.getPageCount()) {
+      table.setPageIndex(page);
+    }
+  };
+   // Table instance
+  const table = useReactTable({
+    data: memoizedData,
+    columns: memoizedColumns,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+      dateBetweenFilterFn,
+    },
+    state: {
+      columnFilters: filters,
+      globalFilter,
+      pagination,
+      rowSelection,
+    },
+    initialState: {
+      columnVisibility: {
+        full_name: false,
       },
-      state: {
-        columnFilters: filters,
-        globalFilter,
-        pagination,
-        rowSelection,
-      },
-      initialState: {
-        columnVisibility: {
-          full_name: false,
-        },
-      },
-      enableRowSelection: true,
-      getRowId: (row) => row._id,
-      onRowSelectionChange: setRowSelection,
-      onColumnFiltersChange: setFilters,
-      onGlobalFilterChange: setGlobalFilter,
-      globalFilterFn: "fuzzy",
-      onPaginationChange: setPagination,
-      getCoreRowModel: getCoreRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-    });
+    },
+    enableRowSelection: true,
+    getRowId: (row) => row._id,
+    onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "fuzzy",
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
     // Expose filtered data to parent component
     useImperativeHandle(ref, () => ({

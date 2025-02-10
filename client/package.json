@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:prod": "vite build",
+    "build:preview": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -40,12 +42,14 @@
     "draft-js": "^0.11.7",
     "framer-motion": "^12.0.5",
     "global": "^4.4.0",
+    "jodit-react": "^5.2.5",
     "js-cookie": "^3.0.5",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",
     "marzipano": "^0.10.2",
+    "mime-types": "^2.1.35",
     "pannellum": "^2.5.6",
     "prop-types": "^15.8.1",
     "quill": "^2.0.3",
@@ -60,9 +64,10 @@
     "react-leaflet": "^4.2.1",
     "react-pannellum": "^0.2.16",
     "react-quill": "^2.0.0",
+    "react-quill-new": "^3.3.3",
+    "react-quilljs": "^2.0.5",
     "react-router-dom": "^7.0.2",
     "react-textarea-autosize": "^8.5.7",
-    "reactjs-tiptap-editor": "^0.1.13",
     "read-excel-file": "^5.8.6",
     "recharts": "^2.15.0",
     "setimmediate": "^1.0.5",
@@ -86,6 +91,7 @@
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
+    "rollup": "^4.34.2",
     "tailwindcss": "^3.4.16",
     "vite": "^6.0.1"
   }

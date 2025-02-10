@@ -19,9 +19,10 @@ const getAllDocuments = async (
   draftsOnly = false,
   recent = false,
   is_deleted = false,
+  all = ""
 ) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/documents/get-all-documents/${folder_id}?type=${type}&draftsOnly=${draftsOnly}&recent=${recent}&is_deleted=${is_deleted}`,
+    `${import.meta.env.VITE_API_URL}/documents/get-all-documents/${folder_id}?type=${type}&draftsOnly=${draftsOnly}&recent=${recent}&is_deleted=${is_deleted}&all=${all}`,
     {
       method: "GET",
       credentials: "include",

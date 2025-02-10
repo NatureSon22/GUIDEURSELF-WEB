@@ -96,7 +96,6 @@
 }
 
 @layer components {
-
   .reactjs-tiptap-editor > div {
     @apply outline-none !border !border-x-secondary-200/50 !shadow-sm
   }
@@ -131,7 +130,7 @@
     animation: prixClipFix 2s linear infinite;
   }
 
-  .ellipses {
+  /* .ellipses {
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -144,7 +143,7 @@
       30px 0 rgba(50, 50, 50, 0.1);
     box-sizing: border-box;
     animation: shadowPulse 2s linear infinite;
-  }
+  } */
 
   .chat-loader {
     width: 12px;
@@ -157,6 +156,68 @@
     box-sizing: border-box;
     animation: animloader 1s linear infinite alternate;
   }
+
+  .ellipses {
+    color: rgba(18, 165, 188, 1);
+    font-size: 15px;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    position: relative;
+    text-indent: -9999em;
+    animation: mulShdSpin 1.3s infinite linear;
+    transform: translateZ(0);
+  }
+  
+  @keyframes mulShdSpin {
+    0%,
+    100% {
+      box-shadow: 0 -3em 0 0.2em, 
+      2em -2em 0 0em, 3em 0 0 -1em, 
+      2em 2em 0 -1em, 0 3em 0 -1em, 
+      -2em 2em 0 -1em, -3em 0 0 -1em, 
+      -2em -2em 0 0;
+    }
+    12.5% {
+      box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 
+      3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, 
+      -2em 2em 0 -1em, -3em 0 0 -1em, 
+      -2em -2em 0 -1em;
+    }
+    25% {
+      box-shadow: 0 -3em 0 -0.5em, 
+      2em -2em 0 0, 3em 0 0 0.2em, 
+      2em 2em 0 0, 0 3em 0 -1em, 
+      -2em 2em 0 -1em, -3em 0 0 -1em, 
+      -2em -2em 0 -1em;
+    }
+    37.5% {
+      box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em,
+       3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, 
+       -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em;
+    }
+    50% {
+      box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em,
+       3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, 
+       -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em;
+    }
+    62.5% {
+      box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em,
+       3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, 
+       -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em;
+    }
+    75% {
+      box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 
+      3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, 
+      -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0;
+    }
+    87.5% {
+      box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 
+      3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, 
+      -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
+    }
+  }
+    
   
   @keyframes animloader {
     0% {
