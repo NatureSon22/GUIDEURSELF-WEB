@@ -3,8 +3,7 @@ import VirtualTourLog from '../models/VirtualTourLog.js'; // Adjust the import p
 import verifyToken from "../middleware/verifyToken.js"
 
 const router = express.Router();
-
-router.use(verifyToken)
+//router.use(verifyToken)
 
 // Create a new VirtualTourLog entry
 router.post('/', async (req, res) => {

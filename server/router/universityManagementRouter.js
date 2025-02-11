@@ -11,7 +11,7 @@ const upload = multer();
 const universityManagementRouter = express.Router();
 
 // Apply token verification middleware to all routes in this router
-universityManagementRouter.use(verifyToken);
+//universityManagementRouter.use(verifyToken);
 
 // Route to fetch university by ID
 universityManagementRouter.get("/:id", async (req, res) => {

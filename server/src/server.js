@@ -20,6 +20,8 @@ import statusRouter from "../router/statusRouter.js";
 import documentRouter from "../router/documentRouter.js";
 import testChatRouter from "../router/testchatRouter.js";
 import virtualTourLogRouter from "../router/virtualTourLogRouter.js";
+import conversationRouter from "../router/conversationRouter.js";
+import messageRouter from "../router/messageRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -31,6 +33,7 @@ app.use(
   })
 );
 
+// web
 app.use("/api/auth", authRouter);
 app.use("/api/messages", testChatRouter);
 app.use("/api/documents", documentRouter);
@@ -47,6 +50,16 @@ app.use("/api/campusmajors", campusMajorRouter);
 app.use("/api/university", universityManagementRouter);
 app.use("/api/general", generalSettingsRouter);
 app.use("/api/virtualtourlogs", virtualTourLogRouter);
+
+//mobile
+app.use("/api/conversation", conversationRouter);
+app.use("/api/message", messageRouter);
+
+app.get('/api/sample', (req, res) => {
+  res.status(200).json({ message: "hello" });
+});
+
+
 
 (async () => {
   config();

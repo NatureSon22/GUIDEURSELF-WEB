@@ -10,8 +10,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
-
-router.use(verifyToken)
+//router.use(verifyToken)
 
 // POST route to save key official data (including image upload)
 router.post('/', upload.single('image'), async (req, res) => {

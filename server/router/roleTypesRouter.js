@@ -9,7 +9,7 @@ import {
 import multer from "multer";
 
 const roleTypesRouter = Router();
-roleTypesRouter.use(verifyToken);
+//roleTypesRouter.use(verifyToken);
 
 const upload = multer();
 

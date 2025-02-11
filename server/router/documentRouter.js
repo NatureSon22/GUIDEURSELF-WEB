@@ -53,7 +53,7 @@ const checkTotalSize = (req, res, next) => {
 };
 
 const documentRouter = Router();
-documentRouter.use(verifyToken);
+//documentRouter.use(verifyToken);
 
 documentRouter.get("/", getAllFolders);
 documentRouter.get("/get-all-documents/:folderId?", getAllDocuments);

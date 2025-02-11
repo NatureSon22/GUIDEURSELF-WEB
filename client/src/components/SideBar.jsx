@@ -8,21 +8,17 @@ import useUserStore from "@/context/useUserStore";
 import { getGeneralData } from "@/api/component-info";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import useBreadCrumbStore from "@/context/useBreadCrumbStore";
 
 const SideBar = () => {
   const { pathname } = useLocation();
   const location = pathname.split("/")[1];
   const currentUser = useUserStore((state) => state.currentUser);
+  const { setPath } = useBreadCrumbStore();
 
   const [chosen, setSchosen] = useState(
     location ? `/${location}` : "/dashboard",
   );
-
-  useEffect(() => {
-    if (location) {
-      setSchosen(`/${location}`);
-    }
-  }, [location]);
 
   const {
     data: general,
@@ -32,6 +28,29 @@ const SideBar = () => {
     queryKey: ["logo"],
     queryFn: getGeneralData,
   });
+
+  useEffect(() => {
+    if (location) {
+      setSchosen(`/${location}`);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    const paths = pathname.split("/").filter(Boolean);
+
+    const processedPath = paths.map((path, index) => {
+      const fullPath = `/${paths.slice(0, index + 1).join("/")}`;
+      return {
+        label: path
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" "),
+        path: fullPath,
+      };
+    });
+
+    setPath(processedPath);
+  }, [pathname, setPath]);
 
   const userHasAccess = (modules) => {
     return modules.some((module) => {

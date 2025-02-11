@@ -7,6 +7,7 @@ const CODY_URLS = {
   UPDATE_FOLDER: (id) => `https://getcody.ai/api/v1/folders/${id}`,
   CREATE_DOCUMENT: () => "https://getcody.ai/api/v1/documents",
   CREATE_CONVERSATION: () => "https://getcody.ai/api/v1/conversations",
+  DELETE_CONVERSATION: (id) => `https://getcody.ai/api/v1/conversations/${id}`,
   GET_MESSAGE: () => `https://getcody.ai/api/v1/messages`,
   CREATE_MESSAGE: () => "https://getcody.ai/api/v1/messages",
   UPLOAD_DOCUMENT: () => "https://getcody.ai/api/v1/uploads/signed-url",

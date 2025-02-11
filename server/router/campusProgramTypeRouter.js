@@ -4,8 +4,7 @@ import verifyToken from "../middleware/verifyToken.js";
 import CampusProgramName from "../models/CampusProgramName.js";
 
 const campusProgramTypeRouter = express.Router();
-
-campusProgramTypeRouter.use(verifyToken);
+//campusProgramTypeRouter.use(verifyToken);
 
 // Get all program types
 campusProgramTypeRouter.get("/", async (req, res) => {
