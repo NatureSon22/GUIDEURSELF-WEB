@@ -55,7 +55,7 @@
     "quill": "^2.0.3",
     "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.5.1",
     "react-doc-viewer": "^0.1.14",
     "react-dom": "^18.3.1",
     "react-draft-wysiwyg": "^1.15.0",
@@ -74,6 +74,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "ua-parser-js": "^2.0.0",
+    "yarn": "^1.22.22",
     "zod": "^3.24.1",
     "zustand": "^5.0.2"
   },

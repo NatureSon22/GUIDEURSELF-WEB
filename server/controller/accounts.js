@@ -9,7 +9,7 @@ import sendPasswordResendEmail from "../service/reset-password.js";
 const getAllAccounts = async (req, res, next) => {
   try {
     // Create a $match stage based on isMultiCampus
-    console.log(req.user.isMultiCampus); // true or false
+    // console.log(req.user.isMultiCampus); // true or false
     const matchStage = req.user.isMultiCampus
       ? {
           $match: {

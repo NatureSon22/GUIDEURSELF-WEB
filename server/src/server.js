@@ -55,15 +55,9 @@ app.use("/api/virtualtourlogs", virtualTourLogRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
 
-app.get('/api/sample', (req, res) => {
-  res.status(200).json({ message: "hello" });
-});
-
-
 
 (async () => {
   config();
-  console.log("this is running");
   app.listen(process.env.PORT || 3000, async () => {
     await connectDB();
     console.log("Server running on port 3000");
