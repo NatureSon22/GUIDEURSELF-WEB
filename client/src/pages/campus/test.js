@@ -6,7 +6,7 @@ import { Readable } from "stream";
 import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
-router.use(verifyToken);
+// router.use(verifyToken);
 
 // Multer storage (temporary in-memory)
 const storage = multer.memoryStorage();

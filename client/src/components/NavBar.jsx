@@ -3,6 +3,7 @@ import { loggedInUser } from "@/api/auth";
 import { Skeleton } from "./ui/skeleton";
 import formatTitle from "@/utils/formatTitle";
 import ProfileTab from "./ProfileTab";
+import BreadCrumbNav from "./BreadCrumbNav";
 
 const NavBar = () => {
   const { data, isLoading } = useQuery({
@@ -12,7 +13,9 @@ const NavBar = () => {
   });
 
   return (
-    <div className="sticky top-0 flex border-b border-secondary-200-60 px-7 py-2">
+    <div className="sticky top-0 flex items-center border-b border-secondary-200-60 px-7 py-2">
+      <BreadCrumbNav />
+
       <ProfileTab />
 
       {isLoading ? (

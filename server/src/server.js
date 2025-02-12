@@ -20,7 +20,9 @@ import statusRouter from "../router/statusRouter.js";
 import documentRouter from "../router/documentRouter.js";
 import testChatRouter from "../router/testchatRouter.js";
 import virtualTourLogRouter from "../router/virtualTourLogRouter.js";
-import activityLogRouter from "../router/activityLogRouter.js"
+import conversationRouter from "../router/conversationRouter.js";
+import messageRouter from "../router/messageRouter.js";
+import activityLogRouter from "../router/activityLogRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -32,6 +34,7 @@ app.use(
   })
 );
 
+// web
 app.use("/api/auth", authRouter);
 app.use("/api/messages", testChatRouter);
 app.use("/api/documents", documentRouter);
@@ -49,10 +52,11 @@ app.use("/api/university", universityManagementRouter);
 app.use("/api/general", generalSettingsRouter);
 app.use("/api/virtualtourlogs", virtualTourLogRouter);
 app.use("/api/activitylogs", activityLogRouter);
+app.use("/api/conversation", conversationRouter);
+app.use("/api/message", messageRouter);
 
 (async () => {
   config();
-  console.log("this is running");
   app.listen(process.env.PORT || 3000, async () => {
     await connectDB();
     console.log("Server running on port 3000");

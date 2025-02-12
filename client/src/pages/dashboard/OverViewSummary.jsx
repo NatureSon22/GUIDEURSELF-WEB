@@ -7,6 +7,8 @@ import { IoIosArrowForward } from "react-icons/io";
 import { HiOutlineFolderAdd } from "react-icons/hi";
 import {fetchCampuses} from "@/api/component-info.js"
 import { useQuery } from "@tanstack/react-query";
+import { getAllAccounts } from "@/api/accounts";
+import { getAllDocuments } from "@/api/documents";
 
 const OverViewSummary = () => {
 
@@ -15,14 +17,26 @@ const OverViewSummary = () => {
     queryFn: fetchCampuses,
   });
 
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: getAllAccounts
+  });
+
+  const { data: allDocuments = [] } = useQuery({
+    queryKey: ["all-documents"],
+    queryFn: () => getAllDocuments(),
+  });
+
   const totalCampuses = campuses.length;
+  const totalAccounts = accounts.length;
+  const totalDocuments = allDocuments.length;
 
   return (
     <div className="flex gap-5">
       <div className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10">
         <div className="space-y-2">
           <p className="w-min text-[0.92rem]">Total Users</p>
-          <p className="text-3xl font-semibold">3,698</p>
+          <p className="text-3xl font-semibold">{totalAccounts}</p>
         </div>
 
         <div>
@@ -45,7 +59,7 @@ const OverViewSummary = () => {
           <p className="max-w-[8rem] text-[0.95rem]">
             Total Uploaded Documents
           </p>
-          <p className="text-3xl font-semibold">1,589</p>
+          <p className="text-3xl font-semibold">{totalDocuments}</p>
         </div>
         <div>
           <FaFolder className="text-5xl text-base-200" />

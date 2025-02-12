@@ -5,7 +5,7 @@ import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
+//router.use(verifyToken);
 
 // POST route to add a new administrative position
 router.post("/", async (req, res) => {

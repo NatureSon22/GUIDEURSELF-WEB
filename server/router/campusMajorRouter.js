@@ -3,8 +3,7 @@ import CampusMajor from "../models/CampusMajor.js";
 import verifyToken from "../middleware/verifyToken.js";
 
 const campusMajorRouter = express.Router();
-
-campusMajorRouter.use(verifyToken);
+//campusMajorRouter.use(verifyToken);
 
 // Get all majors
 // Get all program names

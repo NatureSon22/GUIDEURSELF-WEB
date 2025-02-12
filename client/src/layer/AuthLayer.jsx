@@ -19,7 +19,7 @@ const AuthLayer = ({ children }) => {
     );
   }
 
-  if (isAuthenticated === false) {
+  if (isAuthenticated === false && !isAuthenticatedLoading) {
     return <Navigate to="/login" />;
   }
 

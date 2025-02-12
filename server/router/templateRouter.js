@@ -38,7 +38,7 @@ const checkTotalSize = (req, res, next) => {
 
 const templateRouter = Router();
 
-templateRouter.use(verifyToken);
+//templateRouter.use(verifyToken);
 
 templateRouter.get("/", getTemplates);
 

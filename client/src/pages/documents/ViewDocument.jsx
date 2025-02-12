@@ -8,11 +8,12 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import DocumentDialog from "./DocumentDialog";
+import { BiSolidMessageAltError } from "react-icons/bi";
 
 const ViewDocument = () => {
   const { docId } = useParams();
   const navigate = useNavigate();
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["document", docId],
     queryFn: () => getDocument(docId),
   });
@@ -21,8 +22,7 @@ const ViewDocument = () => {
 
   useEffect(() => {
     if (
-      data?.document_type === "uploaded-document" &&
-      !data?.document_id ||
+      (data?.document_type === "uploaded-document" && !data?.document_id) ||
       !data?.content_url
     ) {
       syncDraftDocument(docId);
@@ -49,8 +49,14 @@ const ViewDocument = () => {
           title="View Document"
           subtitle="An error occurred while fetching the document. Please try again later."
         />
-        <div className="mt-4 text-center text-red-600">
-          <p>{error.message}</p>
+
+        <div className="mt-4 grid flex-1 place-items-center text-center">
+          <div className="grid place-items-center gap-2">
+            <BiSolidMessageAltError className="text-6xl text-secondary-100-75" />
+            <p className="text-center text-[0.95rem] text-secondary-100/60">
+              An error has occurred. Please try again.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -78,7 +84,7 @@ const ViewDocument = () => {
             <div
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(
-                  data?.content || data?.metadata?.content || ""
+                  data?.content || data?.metadata?.content || "",
                 ),
               }}
             ></div>
