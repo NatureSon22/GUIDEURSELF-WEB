@@ -50,7 +50,7 @@ const MissionField = () => {
   const handleClickUpdate = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/university/675cdd9756f690410f1473b8",
+        `${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`,
         {
           method: "PUT",
           headers: {

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 const uploadFloorImage = async (campusId, formData) => {
   console.log("Sending request to server...");
   try {
-    const response = await fetch(`http://localhost:3000/api/campuses/floors/${campusId}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses/floors/${campusId}`, {
       method: "PUT",
       credentials: "include",
       body: formData,

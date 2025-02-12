@@ -78,7 +78,7 @@ const defaultIcon = L.icon({
 
 const fetchCampusData = async (campusId) => {
 
-  const response = await fetch(`http://localhost:3000/api/campuses/${campusId}`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses/${campusId}`, {
     method: "GET",
     credentials: "include",
   });
@@ -176,7 +176,7 @@ const fetchMarkers = async () => {
   if (!selectedFloor) return [];
   try {
     const response = await fetch(
-      `http://localhost:3000/api/campuses/floors/${selectedFloor._id}/markers`,
+      `${import.meta.env.VITE_API_URL}/campuses/floors/${selectedFloor._id}/markers`,
       { credentials: "include" }
     );
     if (!response.ok) throw new Error("Failed to fetch markers.");
@@ -262,7 +262,7 @@ const toggleEditMode = async () => {
   if (isEditing) {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/campuses/${campus._id}/floors`,
+        `${import.meta.env.VITE_API_URL}/campuses/${campus._id}/floors`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -308,7 +308,7 @@ const handleProceedRemove = async () => {
       }
 
       const response = await fetch(
-        `http://localhost:3000/api/campuses/${campus._id}/floors/${floorToRemove}/archive`,
+        `${import.meta.env.VITE_API_URL}/campuses/${campus._id}/floors/${floorToRemove}/archive`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -357,7 +357,7 @@ const handleProceedRemoveMarker = async () => {
   if (markerToRemove && selectedFloor) {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/campuses/${campus._id}/floors/${selectedFloor._id}/markers/${markerToRemove._id}/archive`,
+        `${import.meta.env.VITE_API_URL}/campuses/${campus._id}/floors/${selectedFloor._id}/markers/${markerToRemove._id}/archive`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -373,7 +373,7 @@ const handleProceedRemoveMarker = async () => {
 
       if (!response.ok) throw new Error("Failed to archive marker");
 
-      const logResponse = await fetch("http://localhost:3000/api/virtualtourlogs", {
+      const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -734,7 +734,7 @@ const handleDrop = (e, targetFloor) => {
                     </Marker>
                   );
                 })}
-                <LocationMarker setCoordinates={setCoordinates} />
+                {!isSliderOpen && <LocationMarker setCoordinates={setCoordinates} />}
               </MapContainer>
               
             </div>

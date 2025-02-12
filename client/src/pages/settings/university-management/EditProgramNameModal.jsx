@@ -23,7 +23,7 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
   // Function to fetch program types
   const fetchProgramTypes = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/campusprogramtypes", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes`, {
         method: "GET",
         credentials: "include",
       });
@@ -68,7 +68,7 @@ const EditProgramNameModal = ({ open, onClose, program }) => {
       };
   
       const response = await fetch(
-        `http://localhost:3000/api/campusprogramnames/${program._id}`,
+        `${import.meta.env.VITE_API_URL}/campusprogramnames/${program._id}`,
         {
           method: "PUT",
           credentials: "include",

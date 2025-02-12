@@ -34,7 +34,7 @@ const MajorField = () => {
   const handleDeleteMajor = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/campusmajors/${id}`,
+        `${import.meta.env.VITE_API_URL}/campusmajors/${id}`,
         {
           method: "DELETE",
           credentials: "include",

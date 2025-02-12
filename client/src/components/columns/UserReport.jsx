@@ -35,7 +35,7 @@ const columns = () => [
   },
   {
     accessorKey: "campus_name",
-    id: "campus_name",
+    id: "campus_name", // This should match the `id` in the filter
     header: "Campus",
     filterFn: "equalsString",
   },

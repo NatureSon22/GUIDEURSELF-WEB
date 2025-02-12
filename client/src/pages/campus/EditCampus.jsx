@@ -73,7 +73,7 @@ const EditCampus = () => {
         useEffect(() => {
             const fetchCampuses = async () => {
               try {
-                const response = await fetch("http://localhost:3000/api/campuses", {method: "get", credentials:"include"});
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {method: "get", credentials:"include"});
                 const data = await response.json();
                 setCampuses(data); // Store fetched campuses
               } catch (error) {
@@ -92,7 +92,7 @@ const EditCampus = () => {
           useEffect(() => {
             const fetchCampus = async () => {
                 try {
-                const response = await fetch(`http://localhost:3000/api/campuses/${id}`, {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses/${id}`, {
                     method: "get",
                     credentials: "include",
                 });
@@ -149,7 +149,7 @@ const EditCampus = () => {
                 }
               
                 try {
-                    const response = await fetch(`http://localhost:3000/api/campuses/${id}`, {
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses/${id}`, {
                         method: 'PUT',
                         credentials: 'include',
                         body: formData,

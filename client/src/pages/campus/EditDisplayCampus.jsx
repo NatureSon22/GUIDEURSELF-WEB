@@ -38,7 +38,7 @@ const EditDisplayCampus = () => {
   useEffect(() => {
     const fetchCampuses = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/campuses", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
           method: "get",
           credentials: "include",
         });
@@ -59,7 +59,7 @@ const EditDisplayCampus = () => {
 
   const archiveCampus = async (campusId) => {
     try {
-      const response = await fetch("http://localhost:3000/api/archived-campuses", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/archived-campuses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +97,7 @@ const EditDisplayCampus = () => {
 
       // Step 2: Delete the campus from the active list
       const response = await fetch(
-        `http://localhost:3000/api/campuses/${campusToDelete._id}`,
+        `${import.meta.env.VITE_API_URL}/campuses/${campusToDelete._id}`,
         { method: "DELETE", credentials: "include" }
       );
 

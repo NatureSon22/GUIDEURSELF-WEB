@@ -29,7 +29,7 @@ const CoreValuesField = () => {
   useEffect(() => {
     const fetchCoreValues = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -56,7 +56,7 @@ const CoreValuesField = () => {
   const handleClickUpdate = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/university/675cdd9756f690410f1473b8", 
+        `${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, 
         {
           method: "PUT",
           headers: {

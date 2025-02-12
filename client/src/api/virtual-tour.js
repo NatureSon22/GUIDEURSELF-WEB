@@ -1,6 +1,6 @@
 const fetchMarkers = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/floors/${selectedFloor._id}/markers`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/floors/${selectedFloor._id}/markers`, {
         credentials: "include",
       });
   
@@ -17,7 +17,7 @@ const fetchMarkers = async () => {
   };
 
   const fetchCampusData = async (campusId) => {
-    const response = await fetch(`http://localhost:3000/api/campuses/${campusId}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses/${campusId}`, {
       method: "GET",
       credentials: "include",
     });

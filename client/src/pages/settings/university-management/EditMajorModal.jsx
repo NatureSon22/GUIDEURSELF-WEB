@@ -25,7 +25,7 @@ const EditMajorModal = ({ open, onClose, major }) => {
     const fetchProgramNames = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/campusprogramnames",
+          `${import.meta.env.VITE_API_URL}/campusprogramnames`,
           {
             credentials: "include",
           }
@@ -70,7 +70,7 @@ const EditMajorModal = ({ open, onClose, major }) => {
 
       // Make the API call to update the program
       const response = await fetch(
-        `http://localhost:3000/api/campusmajors/${major._id}`,
+        `${import.meta.env.VITE_API_URL}/campusmajors/${major._id}`,
         {
           method: "PUT",
           credentials: "include",

@@ -3,7 +3,7 @@ const updateUniversityLogo = async (file) => {
         const formData = new FormData();
         formData.append("university_logo_url", file);
 
-        const response = await fetch(`http://localhost:3000/api/university/675cdd9756f690410f1473b8`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
           method: "PUT",
           credentials: "include",
           body: formData,
@@ -18,7 +18,7 @@ const updateVectorLogo = async (file) => {
     const formData = new FormData();
     formData.append("university_vector_url", file);
 
-    const response = await fetch(`http://localhost:3000/api/university/675cdd9756f690410f1473b8`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
       method: "PUT",
       credentials: "include",
       body: formData,
@@ -30,7 +30,7 @@ const updateVectorLogo = async (file) => {
 
 const updateHistory = async (history) => {
     try {
-      const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const updateHistory = async (history) => {
 
 const updateVision = async (vision) => {
   try {
-    const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const updateVision = async (vision) => {
 
 const updateMission = async (mission) => {
   try {
-    const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -83,7 +83,7 @@ const updateMission = async (mission) => {
 };
 
 const deletePosition = async (id) => {
-  const response = await fetch(`http://localhost:3000/api/administartiveposition/${id}`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/administartiveposition/${id}`, {
     method: 'DELETE',
     credentials: "include",
   });
@@ -96,7 +96,7 @@ const deletePosition = async (id) => {
 };
 
 const updatePosition = async (id, updatedName) => {
-  const response = await fetch(`http://localhost:3000/api/administartiveposition/${id}`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/administartiveposition/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -113,7 +113,7 @@ const updatePosition = async (id, updatedName) => {
 };
 
 const updateType = async (id, updatedType) => {
-  const response = await fetch(`http://localhost:3000/api/campusprogramtypes/${id}`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -132,7 +132,7 @@ const updateType = async (id, updatedType) => {
 
 const updateCoreValues = async (corevalues) => {
   try {
-    const response = await fetch("http://localhost:3000/api/university/675cdd9756f690410f1473b8", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -149,7 +149,7 @@ const updateCoreValues = async (corevalues) => {
 };
 
 const addPosition = async (positionName) => {
-  const response = await fetch("http://localhost:3000/api/administartiveposition", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/administartiveposition`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -163,7 +163,7 @@ const addPosition = async (positionName) => {
 
 
 const addType= async (typeName) => {
-  const response = await fetch("http://localhost:3000/api/campusprogramtypes", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -177,7 +177,7 @@ const addType= async (typeName) => {
 
 const uploadFloorImage = async (campusId, formData) => {
   try {
-    const response = await fetch(`http://localhost:3000/api/campuses/${campusId}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses/${campusId}`, {
       method: "PUT", // Use PUT to update an existing campus (and floors)
       credentials: "include",
       body: formData, // Send the FormData object as the body
@@ -196,7 +196,7 @@ const uploadFloorImage = async (campusId, formData) => {
 };
 
 const addProgram= async (programName) => {
-  const response = await fetch("http://localhost:3000/api/campusprogramnames", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramnames`, {
     method: "POST",
     credentials: "include",
     headers: {

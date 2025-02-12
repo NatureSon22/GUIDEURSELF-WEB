@@ -29,7 +29,7 @@ const AboutField = ({ isLoading, systemabout}) => {
     useEffect(() => {
       const fetchSystemAbout = async () => {
         try {
-          const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7", {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -58,7 +58,7 @@ const AboutField = ({ isLoading, systemabout}) => {
   
     const handleClickUpdate = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

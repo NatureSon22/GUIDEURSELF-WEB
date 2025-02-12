@@ -9,5 +9,8 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    optimizeDeps: {
+      include: ["react-pdf", "pdfjs-dist"], // Explicitly include react-pdf in Vite's optimization
+    },
   },
 })

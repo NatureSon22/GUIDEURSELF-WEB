@@ -1,6 +1,6 @@
 const fetchKeyOfficials = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/keyofficials", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/keyofficials`, {
       method: "GET", // GET request to fetch data
       credentials: "include", // Include cookies if required
     });
@@ -18,7 +18,7 @@ const fetchKeyOfficials = async () => {
 
 const fetchArchivedKeyOfficials = async () => {
   try {
-  const res = await fetch("http://localhost:3000/api/keyofficials/archived", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/keyofficials/archived`, {
     method: "GET",
     credentials: "include",
   });

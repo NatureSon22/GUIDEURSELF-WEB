@@ -21,7 +21,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
   useEffect(() => {
     const fetchProgramTypes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/campusprogramtypes", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes`, {
           credentials: "include",
         });
         if (!response.ok) throw new Error("Failed to fetch program types");
@@ -42,7 +42,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
         if (!selectedType) return;
         console.log(selectedType);
         const response = await fetch(
-          `http://localhost:3000/api/campusprogramnames?programtype=${selectedType}`,
+          `${import.meta.env.VITE_API_URL}/campusprogramnames?programtype=${selectedType}`,
           { credentials: "include" }
         );
         if (!response.ok) throw new Error("Failed to fetch program names");
@@ -66,7 +66,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
         
         console.log(selectedProgram);
         const response = await fetch(
-          `http://localhost:3000/api/campusmajors?programname=${selectedProgram}`,
+          `${import.meta.env.VITE_API_URL}/campusmajors?programname=${selectedProgram}`,
           { credentials: "include" }
         );
         if (!response.ok) throw new Error("Failed to fetch majors");

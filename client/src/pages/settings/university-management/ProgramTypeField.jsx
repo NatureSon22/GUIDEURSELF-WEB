@@ -34,7 +34,7 @@ const ProgramTypeField = () => {
 
   const handleDeleteType = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/campusprogramtypes/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

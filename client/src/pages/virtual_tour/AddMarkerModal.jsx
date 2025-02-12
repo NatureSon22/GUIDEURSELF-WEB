@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import PanoramicViewer from "./PanoramicViewer";
-import MediaPanoramicViewer from "./MediaPanoramicViewer";
+import PreviewPanorama from "./PreviewPanorama";
 import { loggedInUser } from "@/api/auth";
 import { BsDoorOpenFill } from "react-icons/bs";
 import { PiOfficeChairFill } from "react-icons/pi";
@@ -20,7 +20,7 @@ const addMarker = async (campusId, selectedFloor, formData) => {
   try {
     // Add the marker
     const response = await fetch(
-      `http://localhost:3000/api/campuses/${campusId}/floors/${selectedFloor._id}/markers`,
+      `${import.meta.env.VITE_API_URL}/campuses/${campusId}/floors/${selectedFloor._id}/markers`,
       {
         method: "PUT",
         credentials: "include",
@@ -37,7 +37,7 @@ const addMarker = async (campusId, selectedFloor, formData) => {
     console.log("Server response:", data);
 
     // Log the activity
-    const logResponse = await fetch("http://localhost:3000/api/virtualtourlogs", {
+    const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -279,7 +279,7 @@ const AddMarkerModal = ({
               </div>
               {newImagePreview ? (
               <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4">
-              <div className="z-50 fixed flex justify-center items-center bg-black w-[625px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
+              <div className="z-50 fixed flex justify-center items-center bg-black w-[710px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
                 <Button type="button" onClick={showPanorama} className="text-white h-[40px]">Click to Preview</Button>
               </div>
 
@@ -394,7 +394,7 @@ const AddMarkerModal = ({
         {isPanorama && (
           <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
             <div ref={modalRef} className="relative">
-              <MediaPanoramicViewer imageUrl={newImagePreview} />
+              <PreviewPanorama imageUrl={newImagePreview} />
             </div>
           </div>
         )}

@@ -10,7 +10,7 @@ const useKeyOfficials = () => {
 
   const fetchOfficials = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/keyofficials", { credentials: "include" });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/keyofficials`, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch officials");
       const data = await res.json();
       setOfficials(data);
@@ -28,7 +28,7 @@ const useKeyOfficials = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/keyofficials/${officialToDelete._id}`,
+        `${import.meta.env.VITE_API_URL}/keyofficials/${officialToDelete._id}`,
         { method: "DELETE", credentials: "include" }
       );
       if (!res.ok) throw new Error("Failed to delete official");

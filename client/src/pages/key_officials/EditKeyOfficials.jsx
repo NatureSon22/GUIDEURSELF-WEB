@@ -14,6 +14,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
 import { useToast } from "@/hooks/use-toast"; 
 import FeaturePermission from "@/layer/FeaturePermission";
+import {loggedInUser} from "@/api/auth.js"
 
 const EditKeyOfficials = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,7 +69,7 @@ const EditKeyOfficials = () => {
   
   const { mutate: archiveOfficial } = useMutation({
     mutationFn: async (officialId) => {
-      const res = await fetch(`http://localhost:3000/api/keyofficials/archive/${officialId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/keyofficials/archive/${officialId}`, {
         method: "POST",
         credentials: "include",
       });
@@ -113,7 +114,7 @@ const EditKeyOfficials = () => {
     // Assuming you have a delete mutation setup
     try {
       // Perform delete request, replace with your API call
-      await fetch(`http://localhost:3000/api/keyofficials/delete/${officialToDelete._id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/keyofficials/delete/${officialToDelete._id}`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -7,7 +7,7 @@ import { MdTouchApp } from "react-icons/md";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
 const fetchCampuses = async () => {
-  const response = await fetch("http://localhost:3000/api/campuses", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
     method: "GET",
     credentials: "include",
   });
@@ -16,7 +16,7 @@ const fetchCampuses = async () => {
 };
 
 const fetchUserRole = async (roleType) => {
-  const response = await fetch(`http://localhost:3000/api/role-types?name=${roleType}`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types?name=${roleType}`, {
     method: "GET",
     credentials: "include",
   });

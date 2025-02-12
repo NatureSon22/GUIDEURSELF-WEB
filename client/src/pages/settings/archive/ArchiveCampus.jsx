@@ -1,77 +1,92 @@
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQueryClient
+import { useState, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import ComboBox from "@/components/ComboBox";
-import DateRangePicker from "@/components/DateRangePicker";
 import { Input } from "@/components/ui/input";
 import { GrPowerReset } from "react-icons/gr";
 import campusColumns from "@/components/columns/ArchiveCampus";
-import { useToast } from "@/hooks/use-toast"; // Import the useToast hook
+import { useToast } from "@/hooks/use-toast";
 import { getAllCampuses } from "@/api/component-info";
 
 const ArchiveCampus = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState([]);
   const [reset, setReset] = useState(false);
-  const { toast } = useToast(); // Initialize the toast function
-  const queryClient = useQueryClient(); // Initialize the query client
+  const [fromDate, setFromDate] = useState(""); // Date filter state
+  const [toDate, setToDate] = useState(""); // Date filter state
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
     queryFn: getAllCampuses,
   });
 
-  // Fetch archived campuses using useQuery
-  const {
-    data: archivedCampuses,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["archivedCampuses"], // Unique key for the query
+  // Fetch archived campuses
+  const { data: archivedCampuses, isLoading, isError, error } = useQuery({
+    queryKey: ["archivedCampuses"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:3000/api/archived-campuses", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/archived-campuses`, {
         method: "GET",
         credentials: "include",
       });
-      if (!response.ok) {
-        throw new Error("Failed to fetch archived campuses");
-      }
+      if (!response.ok) throw new Error("Failed to fetch archived campuses");
       return response.json();
     },
   });
 
+  // Fetch archived campuses for dropdown
   const getArchivedCampuses = async () => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/archived-campuses`, {
       method: "GET",
       credentials: "include",
     });
-  
+
     if (!response.ok) {
       const { message } = await response.json();
       throw new Error(message || "Failed to fetch archived campuses");
     }
-  
+
     const campuses = await response.json();
-  
     return campuses.map((campus) => ({
       value: campus._id,
       label: campus.campus_name,
     })) || [];
   };
-  
-  const { data: allArchivedCampuses, } = useQuery({
+
+  const { data: allArchivedCampuses } = useQuery({
     queryKey: ["getArchivedCampuses"],
     queryFn: getArchivedCampuses,
   });
-  
+
+  // Filter archived campuses based on date range and other filters
+  const filteredCampuses = useMemo(() => {
+    if (!archivedCampuses) return [];
+
+    return archivedCampuses.filter((campus) => {
+      const matchesFilters = filters.every((filter) => {
+        if (filter.value === "") return true;
+        return campus[filter.id]?.toLowerCase() === filter.value.toLowerCase();
+      });
+
+      const campusDate = new Date(campus.date_archived);
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+
+      const matchesDateRange =
+        (!from || campusDate >= from) &&
+        (!to || campusDate <= to);
+
+      return matchesFilters && matchesDateRange;
+    });
+  }, [archivedCampuses, filters, fromDate, toDate]);
 
   // Handle unarchiving a campus
   const handleUnarchive = async (campus) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/archived-campuses/unarchive/${campus._id}`,
+        `${import.meta.env.VITE_API_URL}/archived-campuses/unarchive/${campus._id}`,
         {
           method: "POST",
           credentials: "include",
@@ -84,8 +99,7 @@ const ArchiveCampus = () => {
           description: "Campus unarchived successfully.",
           variant: "default",
         });
-        // Invalidate the query to refetch the data
-        queryClient.invalidateQueries("archivedCampuses"); // Invalidate the query
+        queryClient.invalidateQueries(["archivedCampuses"]);
       } else {
         console.error("Failed to unarchive campus:", campus.campus_name);
       }
@@ -97,6 +111,8 @@ const ArchiveCampus = () => {
   const handleReset = () => {
     setFilters([]);
     setGlobalFilter("");
+    setFromDate("");
+    setToDate("");
     setReset(!reset);
   };
 
@@ -119,10 +135,11 @@ const ArchiveCampus = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker />
+        <Input type="date" className="w-[170px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <Input type="date" className="w-[170px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
         <ComboBox
           options={allArchivedCampuses || []}
-          placeholder="select campus"
+          placeholder="Select campus"
           filter="campus_name"
           setFilters={setFilters}
           reset={reset}
@@ -139,13 +156,13 @@ const ArchiveCampus = () => {
 
       <div className="flex-1">
         <DataTable
-          data={archivedCampuses} // Pass the fetched data
+          data={filteredCampuses} // Apply filtered data
           columns={campusColumns}
           filters={filters}
           setFilters={setFilters}
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
-          columnActions={{ handleUnarchive }} // Pass the handleUnarchive function
+          columnActions={{ handleUnarchive }}
         />
       </div>
     </div>

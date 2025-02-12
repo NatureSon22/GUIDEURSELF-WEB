@@ -13,7 +13,7 @@ import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
 import { HiSquaresPlus } from "react-icons/hi2";
 import { loggedInUser } from "@/api/auth";
-import MediaPanoramicViewer from "./MediaPanoramicViewer";
+import PreviewPanorama from "./PreviewPanorama";
 import { IoAlertCircle } from "react-icons/io5";
 
 const updateMarker = async (campusId, floorId, markerId, updatedData, imageFile) => {
@@ -34,7 +34,7 @@ const updateMarker = async (campusId, floorId, markerId, updatedData, imageFile)
   }
 
   const response = await fetch(
-    `http://localhost:3000/api/campuses/${campusId}/floors/${floorId}/markers/${markerId}`,
+    `${import.meta.env.VITE_API_URL}/campuses/${campusId}/floors/${floorId}/markers/${markerId}`,
     {
       method: "PUT",
       body: formData,
@@ -50,7 +50,7 @@ const updateMarker = async (campusId, floorId, markerId, updatedData, imageFile)
   const updatedMarker = await response.json();
 
   // Log the activity after successful update
-  const logResponse = await fetch("http://localhost:3000/api/virtualtourlogs", {
+  const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -280,7 +280,7 @@ const EditMarkerModal =
                 </div>
                 {previewImage ? (
                   <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4 relative">
-                    <div className="z-50 fixed flex justify-center items-center bg-black w-[625px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
+                    <div className="z-50 fixed flex justify-center items-center bg-black w-[710px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
                       <Button type="button" onClick={showPanorama} className="text-white h-[40px]">
                         Click to Preview
                       </Button>
@@ -393,7 +393,7 @@ const EditMarkerModal =
         {isPanorama && (
         <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
           <div ref={modalRef} className="relative">
-            <MediaPanoramicViewer imageUrl={previewImage} />
+            <PreviewPanorama imageUrl={previewImage} />
           </div>
         </div>
         )}

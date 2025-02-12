@@ -21,7 +21,7 @@ const AddMajorModal = ({ onClose, queryClient }) => {
     useEffect(() => {
       const fetchProgramName = async () => {
         try {
-          const response = await fetch("http://localhost:3000/api/campusprogramnames", {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramnames`, {
             credentials: "include",
           });
           if (!response.ok) throw new Error("Failed to fetch program names");
@@ -37,7 +37,7 @@ const AddMajorModal = ({ onClose, queryClient }) => {
   
     // Function to add program to the backend
     const addMajor = async (majorData) => {
-      const response = await fetch("http://localhost:3000/api/campusmajors", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/campusmajors`, {
         method: "POST",
         credentials: "include",
         headers: {

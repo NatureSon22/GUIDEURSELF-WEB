@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import BigComboBox from "@/components/BigComboBox";
-import DateRangePicker from "@/components/DateRangePicker";
 import { Input } from "@/components/ui/input";
 import { GrPowerReset } from "react-icons/gr";
 import DataTable from "@/components/DataTable";
@@ -13,6 +12,8 @@ const ArchiveKeyOfficials = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState([]);
   const [reset, setReset] = useState(false);
+  const [fromDate, setFromDate] = useState(""); // Date filter state
+  const [toDate, setToDate] = useState(""); // Date filter state
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -34,9 +35,9 @@ const ArchiveKeyOfficials = () => {
     },
   });
 
-  // Fetch positions and format them for ComboBox
+  // Fetch positions for filtering
   const getPositions = async () => {
-    const response = await fetch("http://localhost:3000/api/administartiveposition", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/administartiveposition`, {
       method: "GET",
       credentials: "include",
     });
@@ -57,11 +58,33 @@ const ArchiveKeyOfficials = () => {
     queryFn: getPositions,
   });
 
+  // Filter archived officials based on search, date range, and position
+  const filteredOfficials = useMemo(() => {
+    if (!archivedOfficials) return [];
+
+    return archivedOfficials.filter((official) => {
+      const matchesFilters = filters.every((filter) => {
+        if (!filter.value) return true;
+        return official[filter.id]?.toLowerCase() === filter.value.toLowerCase();
+      });
+
+      const officialDate = new Date(official.date_archived);
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+
+      const matchesDateRange =
+        (!from || officialDate >= from) &&
+        (!to || officialDate <= to);
+
+      return matchesFilters && matchesDateRange;
+    });
+  }, [archivedOfficials, filters, fromDate, toDate]);
+
   // Handle unarchiving a key official
   const handleUnarchive = async (official) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/keyofficials/unarchive/${official._id}`,
+        `${import.meta.env.VITE_API_URL}/keyofficials/unarchive/${official._id}`,
         {
           method: "POST",
           credentials: "include",
@@ -74,7 +97,7 @@ const ArchiveKeyOfficials = () => {
           description: "Key Official unarchived successfully.",
           variant: "default",
         });
-        queryClient.invalidateQueries("archivedOfficials");
+        queryClient.invalidateQueries(["archivedOfficials"]);
       } else {
         console.error("Failed to unarchive key official:", official.name);
       }
@@ -87,6 +110,8 @@ const ArchiveKeyOfficials = () => {
   const handleReset = () => {
     setFilters([]);
     setGlobalFilter("");
+    setFromDate("");
+    setToDate("");
     setReset(!reset);
   };
 
@@ -109,7 +134,8 @@ const ArchiveKeyOfficials = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker />
+        <Input type="date" className="w-[170px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <Input type="date" className="w-[170px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
         <BigComboBox
           options={allPositions || []}
           placeholder="Select position"
@@ -129,7 +155,7 @@ const ArchiveKeyOfficials = () => {
 
       <div className="flex-1">
         <DataTable
-          data={archivedOfficials}
+          data={filteredOfficials} // Apply filtered data
           columns={keyOfficialsColumns}
           filters={filters}
           setFilters={setFilters}

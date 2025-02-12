@@ -29,7 +29,7 @@ const PoliciesField = ({isLoading, systempolicy}) => {
   useEffect(() => {
     const fetchPrivacyPolicy = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -57,7 +57,7 @@ const PoliciesField = ({isLoading, systempolicy}) => {
 
   const handleClickUpdate = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

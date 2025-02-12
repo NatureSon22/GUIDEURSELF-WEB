@@ -23,7 +23,7 @@ const getAllCampuses = async () => {
 
 const fetchCampuses = async () => {
     
-  const response = await fetch("http://localhost:3000/api/campuses", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
     method: "GET",
     credentials: "include",
   });
@@ -36,7 +36,7 @@ const fetchCampuses = async () => {
 
 const getGeneralData = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/general/675cdd2056f690410f1473b7",
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`,
     {
     method:"get",
     }
@@ -52,7 +52,7 @@ const getGeneralData = async () => {
 
 const getProgramTypeData = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/campusprogramtypes",
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes`,
     {
     method:"get",
     credentials:"include"
@@ -69,7 +69,7 @@ const getProgramTypeData = async () => {
 
 const getProgramNameData = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/campusprogramnames",
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramnames`,
     {
     method:"get",
     credentials:"include"
@@ -86,7 +86,7 @@ const getProgramNameData = async () => {
 
 const getMajorData = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/campusmajors",
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campusmajors`,
     {
     method:"get",
     credentials:"include"
@@ -103,7 +103,7 @@ const getMajorData = async () => {
 const getUniversityData = async () => { 
   try {
     const response = await fetch(
-      "http://localhost:3000/api/university/675cdd9756f690410f1473b8",
+      `${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`,
       {
         method: "GET",
         credentials: "include",
@@ -123,7 +123,7 @@ const getUniversityData = async () => {
 const getPositions = async () => {
   try {
     const response = await fetch(
-      "http://localhost:3000/api/administartiveposition",
+      `${import.meta.env.VITE_API_URL}/administartiveposition`,
       {
         credentials: "include",
       }

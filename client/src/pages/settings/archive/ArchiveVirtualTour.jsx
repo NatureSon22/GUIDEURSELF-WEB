@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import DataTable from "@/components/DataTable";
 import ComboBox from "@/components/ComboBox";
-import DateRangePicker from "@/components/DateRangePicker";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import { Input } from "@/components/ui/input";
@@ -9,12 +8,13 @@ import virtualTourColumns from "@/components/columns/ArchiveVirtualTour";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCampuses } from "@/api/component-info";
-import { get } from "lodash";
 
 const ArchiveVirtualTour = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [filters, setFilters] = useState([]);
   const [reset, setReset] = useState(false);
+  const [fromDate, setFromDate] = useState(""); // Date filter state
+  const [toDate, setToDate] = useState(""); // Date filter state
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -44,6 +44,28 @@ const ArchiveVirtualTour = () => {
     },
   });
 
+  // Filter archived items based on search, date range, and campus
+  const filteredItems = useMemo(() => {
+    if (!archivedItems) return [];
+
+    return archivedItems.filter((item) => {
+      const matchesFilters = filters.every((filter) => {
+        if (!filter.value) return true;
+        return item[filter.id]?.toLowerCase() === filter.value.toLowerCase();
+      });
+
+      const itemDate = new Date(item.date_archived);
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+
+      const matchesDateRange =
+        (!from || itemDate >= from) &&
+        (!to || itemDate <= to);
+
+      return matchesFilters && matchesDateRange;
+    });
+  }, [archivedItems, filters, fromDate, toDate]);
+
   const handleUnarchiveItem = async (itemId) => {
     try {
       const response = await fetch(
@@ -59,7 +81,7 @@ const ArchiveVirtualTour = () => {
 
       if (!response.ok) throw new Error(result.message || "Failed to unarchive item");
 
-      queryClient.invalidateQueries("archivedItems");
+      queryClient.invalidateQueries(["archivedItems"]);
 
       toast({
         title: "Success",
@@ -68,8 +90,8 @@ const ArchiveVirtualTour = () => {
       });
     } catch (error) {
       toast({
-        title: "Unsuccessfull",
-        description: "Item parent is also in the archived. Retrieved it first!",
+        title: "Unsuccessful",
+        description: "Item parent is also archived. Retrieve it first!",
         variant: "destructive",
       });
     }
@@ -78,6 +100,8 @@ const ArchiveVirtualTour = () => {
   const handleReset = () => {
     setFilters([]);
     setGlobalFilter("");
+    setFromDate("");
+    setToDate("");
     setReset(!reset);
   };
 
@@ -104,14 +128,15 @@ const ArchiveVirtualTour = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker />
-                <ComboBox
-                  options={allCampuses || []}
-                  placeholder="select campus"
-                  filter="campus_name"
-                  setFilters={setFilters}
-                  reset={reset}
-                />
+        <Input type="date" className="w-[170px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+        <Input type="date" className="w-[170px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+        <ComboBox
+          options={allCampuses || []}
+          placeholder="Select campus"
+          filter="campus_name"
+          setFilters={setFilters}
+          reset={reset}
+        />
 
         <Button
           className="ml-auto text-secondary-100-75"
@@ -124,7 +149,7 @@ const ArchiveVirtualTour = () => {
 
       <div className="flex-1">
         <DataTable
-          data={archivedItems}
+          data={filteredItems} // Apply filtered data
           columns={virtualTourColumns}
           filters={filters}
           setFilters={setFilters}

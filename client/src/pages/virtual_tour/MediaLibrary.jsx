@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { CiSearch } from "react-icons/ci";
 
 const fetchMarkers = async () => {
-  const response = await fetch("http://localhost:3000/api/markers", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/markers`, {
     method: "GET",
     credentials: "include",
   });
@@ -30,7 +30,7 @@ const fetchMarkers = async () => {
 
 const fetchCampuses = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/campus", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campus`, {
       method: "GET",
       credentials: "include",
     });

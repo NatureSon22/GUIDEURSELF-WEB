@@ -21,7 +21,7 @@ const AddProgramNameModal = ({ onClose, queryClient }) => {
     useEffect(() => {
       const fetchProgramTypes = async () => {
         try {
-          const response = await fetch("http://localhost:3000/api/campusprogramtypes", {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes`, {
             credentials: "include",
           });
           if (!response.ok) throw new Error("Failed to fetch program types");
@@ -37,7 +37,7 @@ const AddProgramNameModal = ({ onClose, queryClient }) => {
   
     // Function to add program to the backend
     const addProgram = async (programData) => {
-      const response = await fetch("http://localhost:3000/api/campusprogramnames", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}v/campusprogramnames`, {
         method: "POST",
         credentials: "include",
         headers: {

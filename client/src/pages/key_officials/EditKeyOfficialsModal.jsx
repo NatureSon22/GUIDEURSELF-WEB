@@ -17,7 +17,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   const { data: positions = [], isLoading, error } = useQuery({
     queryKey: ["positions"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:3000/api/administartiveposition", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/administartiveposition`, {
         method: "GET",
         credentials: "include",
       });
@@ -29,7 +29,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   // Mutation for updating key official
   const mutation = useMutation({
     mutationFn: async ({ officialId, formData }) => {
-      const response = await fetch(`http://localhost:3000/api/keyofficials/${officialId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/keyofficials/${officialId}`, {
         method: "PUT",
         credentials: "include",
         body: formData,

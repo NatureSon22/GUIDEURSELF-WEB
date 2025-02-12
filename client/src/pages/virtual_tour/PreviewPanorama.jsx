@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Marzipano from 'marzipano'; 
 
-const MediaPanoramicViewer = ({ imageUrl }) => {
+const PreviewPanorama = ({ imageUrl }) => {
   const viewerRef = useRef(null);
   
   useEffect(() => {
@@ -26,8 +26,8 @@ const MediaPanoramicViewer = ({ imageUrl }) => {
   }, [imageUrl]);
 
   return (
-    <div id="pano" className="h-[800px] relative w-[100%] rounded-md" ref={viewerRef}></div>
+    <div id="pano" className="h-[800px] relative w-[450px] rounded-md" ref={viewerRef}></div>
   );
 };
 
-export default MediaPanoramicViewer;
+export default PreviewPanorama;

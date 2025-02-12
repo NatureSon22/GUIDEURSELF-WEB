@@ -20,6 +20,7 @@ import statusRouter from "../router/statusRouter.js";
 import documentRouter from "../router/documentRouter.js";
 import testChatRouter from "../router/testchatRouter.js";
 import virtualTourLogRouter from "../router/virtualTourLogRouter.js";
+import activityLogRouter from "../router/activityLogRouter.js"
 
 const app = express();
 app.use(express.json());
@@ -47,6 +48,7 @@ app.use("/api/campusmajors", campusMajorRouter);
 app.use("/api/university", universityManagementRouter);
 app.use("/api/general", generalSettingsRouter);
 app.use("/api/virtualtourlogs", virtualTourLogRouter);
+app.use("/api/activitylogs", activityLogRouter);
 
 (async () => {
   config();

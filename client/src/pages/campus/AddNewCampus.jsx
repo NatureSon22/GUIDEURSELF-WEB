@@ -45,7 +45,7 @@ const AddNewCampus = () => {
   useEffect(() => {
       const fetchCampuses = async () => {
         try {
-          const response = await fetch("http://localhost:3000/api/campuses", {method: "get", credentials:"include"});
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {method: "get", credentials:"include"});
           const data = await response.json();
           setCampuses(data);
         } catch (error) {
@@ -115,7 +115,7 @@ const handleSubmit = async (e) => {
   formData.append("campus_programs", JSON.stringify(formattedPrograms));
   
   try {
-    const response = await fetch("http://localhost:3000/api/campuses", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
       method: "POST",
       body: formData,
       credentials: "include",

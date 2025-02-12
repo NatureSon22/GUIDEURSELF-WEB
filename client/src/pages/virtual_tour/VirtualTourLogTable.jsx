@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import formatDateTime from "@/utils/formatDateTime";
 
 const fetchVirtualTourLogs = async () => {
-  const response = await fetch("http://localhost:3000/api/virtualtourlogs", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
     method: "GET",
     credentials: "include",
   }); 
