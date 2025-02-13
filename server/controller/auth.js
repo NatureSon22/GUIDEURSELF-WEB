@@ -104,7 +104,7 @@ const logout = async (req, res) => {
  */
 const validateToken = (req, res) => {
   try {
-    res.status(200).json({ message: "Token is valid" });
+    res.status(200).json({ message: "Token is valid", valid: true });
   } catch (error) {
     console.error("Token validation error:", error);
     res.status(500).json({ message: "Server error" });

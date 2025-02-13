@@ -3,6 +3,7 @@ import OverViewSummary from "./OverViewSummary";
 import ViewTourSummary from "./ViewTourSummary";
 import FeedbackSummary from "./FeedbackSummary";
 import UserSummary from "./UserSummary";
+import UsageTrends from "./UsageTrends";
 
 const Dashboard = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -34,6 +35,8 @@ const Dashboard = () => {
           <UserSummary />
         </div>
       </div>
+
+      <UsageTrends />
     </div>
   );
 };

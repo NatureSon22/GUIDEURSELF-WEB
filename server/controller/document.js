@@ -11,6 +11,7 @@ import { dirname } from "path";
 import { config } from "dotenv";
 import documentParser from "./documentParser.js";
 import { response } from "express";
+import activitylog from "./activitylog.js";
 
 config();
 
@@ -350,17 +351,22 @@ const createDocument = async (req, res) => {
     }
 
     if (documentId) {
+      const updateData = {
+        content_url,
+        date_last_modified: new Date(),
+        visibility,
+        type: "published",
+        status: "synced",
+      };
+
+      if (id) {
+        updateData.document_id = id;
+        updateData.is_deleted = false;
+      }
+
       const updateResult = await DocumentModel.updateOne(
         { _id: documentId },
-        {
-          $set: {
-            content_url,
-            date_last_modified: new Date(),
-            visibility,
-            type: "published",
-            status: "synced",
-          },
-        }
+        { $set: updateData }
       );
 
       if (!updateResult.modifiedCount) {
@@ -371,7 +377,7 @@ const createDocument = async (req, res) => {
     } else {
       await DocumentModel.create({
         campus_id: req.user.campusId,
-        file_name: `${name}.txt`,
+        file_name: `${name}`,
         published_by: req.user.userId,
         date_and_time: new Date(),
         contributors: [req.user.userId],
@@ -383,9 +389,11 @@ const createDocument = async (req, res) => {
         type: "published",
         visibility,
         metadata: {
-          content: content
-        }
+          content: content,
+        },
       });
+
+      activitylog(req.user.userId, "Created document");
     }
 
     return res.status(201).json({
@@ -588,7 +596,7 @@ const uploadFilesAndCreateDocuments = async (req, res) => {
               status: "synced",
               type: "published",
               visibility,
-              metadata: { content },
+              metadata: { content, file_name },
             })
         )
       );
@@ -634,7 +642,8 @@ const uploadFilesAndCreateDocuments = async (req, res) => {
 
 const uploadDraftFilesAndCreateDocuments = async (req, res) => {
   try {
-    const { document_url, visibility, documentId, isdraft } = req.body;
+    const { document_url, visibility, documentId, file_name, isdraft } =
+      req.body;
     const isDraft = isdraft === "true" || isdraft === true;
     const file = req.files?.[0];
 
@@ -678,6 +687,7 @@ const uploadDraftFilesAndCreateDocuments = async (req, res) => {
         url: document_url,
         visibility,
         content,
+        file_name: file.originalname,
       };
 
       await DocumentModel.updateOne(
@@ -832,7 +842,9 @@ const uploadWebPage = async (req, res) => {
       }),
     });
 
+    console.log("running")
     if (!uploadResponse.ok) {
+      console.log("error")
       const errorText = await uploadResponse.text();
       return res.status(uploadResponse.status).json({
         message: "Failed to upload webpage. Please try again later.",
@@ -995,9 +1007,11 @@ const deleteDocument = async (req, res) => {
     if (!isDraft && !docId) {
       try {
         const document = await getContentURL(doc.file_name);
-        if (document?.id) {
-          docId = document.id;
-        } else {
+        const metadataDocument = await getContentURL(doc.metadata?.file_name);
+
+        docId = document?.id || metadataDocument?.id;
+
+        if (!docId) {
           return res
             .status(400)
             .json({ message: "Failed to retrieve document ID" });
@@ -1034,7 +1048,6 @@ const deleteDocument = async (req, res) => {
 
     doc.is_deleted = true;
     doc.document_id = "";
-
     await doc.save();
 
     return res.status(200).json({

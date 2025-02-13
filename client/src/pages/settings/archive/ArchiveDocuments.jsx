@@ -72,7 +72,11 @@ const ArchiveDocuments = () => {
       handleMutationResponse(false, "Failed to unarchive document"),
   });
 
-  const { mutateAsync: unarchiveCreatedDocument } = useMutation({
+  const {
+    mutateAsync: unarchiveCreatedDocument,
+    isPending: isUnarchivingCreatedDocument,
+    isSuccess: isSuccessCreatedDocument,
+  } = useMutation({
     mutationFn: createDocument,
     onSuccess: () => {
       handleMutationResponse(true, "Document unarchived successfully");
@@ -101,7 +105,7 @@ const ArchiveDocuments = () => {
     });
   };
 
-  const downloadFile = async (document_url) => {
+  const downloadFile = async (file_name, document_url) => {
     try {
       const response = await fetch(document_url);
 
@@ -110,8 +114,7 @@ const ArchiveDocuments = () => {
       }
 
       const blob = await response.blob();
-      const fileName = document_url.split("/").pop() || "document.pdf";
-      const file = new File([blob], fileName, {
+      const file = new File([blob], file_name, {
         type: blob.type || "application/octet-stream",
       });
 
@@ -144,7 +147,7 @@ const ArchiveDocuments = () => {
 
     if (document_type === "uploaded-document" && type === "published") {
       formData.append("document_url", document_url);
-      const file = await downloadFile(document_url);
+      const file = await downloadFile(file_name, document_url);
 
       if (!file) {
         toast({
@@ -159,6 +162,7 @@ const ArchiveDocuments = () => {
       await unarchiveUploadedDocument(formData);
     } else if (document_type === "uploaded-document" && type === "draft") {
       formData.append("isdraft", true);
+      //formData.append("")
       await unarchiveUploadedDocument(formData);
     } else if (document_type === "imported-web" && type === "published") {
       formData.append("url", document_url);
@@ -181,7 +185,11 @@ const ArchiveDocuments = () => {
 
   // Dialog Content Components
   const DialogContent = () => {
-    if (isSuccessUploadedDocument || isSuccessImportedWebDocument) {
+    if (
+      isSuccessUploadedDocument ||
+      isSuccessImportedWebDocument ||
+      isSuccessCreatedDocument
+    ) {
       return (
         <p className="text-[0.95rem] font-semibold">
           Document successfully unarchived!
@@ -216,10 +224,14 @@ const ArchiveDocuments = () => {
             className="flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
             onClick={handleUnarchiveDocument}
             disabled={
-              isUnarchivingUploadedDocument || isUnarchivingImportedWebDocument
+              isUnarchivingUploadedDocument ||
+              isUnarchivingImportedWebDocument ||
+              isUnarchivingCreatedDocument
             }
           >
-            {isUnarchivingUploadedDocument || isUnarchivingImportedWebDocument
+            {isUnarchivingUploadedDocument ||
+            isUnarchivingImportedWebDocument ||
+            isUnarchivingCreatedDocument
               ? "Proceeding..."
               : "Proceed"}
           </Button>

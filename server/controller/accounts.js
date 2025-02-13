@@ -5,6 +5,7 @@ import generatePassword from "password-generator";
 import fs from "fs";
 import { Types } from "mongoose";
 import sendPasswordResendEmail from "../service/reset-password.js";
+import activitylog from "./activitylog.js";
 
 const getAllAccounts = async (req, res, next) => {
   try {
@@ -76,7 +77,6 @@ const getAllAccounts = async (req, res, next) => {
       },
     ]);
 
-    // Respond with the fetched users
     res.status(200).json({ users });
   } catch (error) {
     console.error("Error fetching accounts:", error);

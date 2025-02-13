@@ -49,12 +49,12 @@ const DataTable = forwardRef(
       [columnActions, columns],
     );
 
-  const handlePageChange = (e) => {
-    const page = Number(e.target.value) - 1;
-    if (page >= 0 && page < table.getPageCount()) {
-      table.setPageIndex(page);
-    }
-  };
+  // const handlePageChange = (e) => {
+  //   const page = Number(e.target.value) - 1;
+  //   if (page >= 0 && page < table.getPageCount()) {
+  //     table.setPageIndex(page);
+  //   }
+  // };
    // Table instance
   const table = useReactTable({
     data: memoizedData,
@@ -72,6 +72,7 @@ const DataTable = forwardRef(
     initialState: {
       columnVisibility: {
         full_name: false,
+        "campus_id.campus_name": false,
       },
     },
     enableRowSelection: true,
@@ -210,5 +211,7 @@ DataTable.propTypes = {
   setRowSelection: PropTypes.func,
   showFooter: PropTypes.bool,
 };
+
+DataTable.displayName = "DataTable";
 
 export default DataTable;
