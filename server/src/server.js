@@ -30,11 +30,12 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
+       "https://web-guideurself.netlify.app",
       "http://localhost:5173",
-      "https://web-guideurself.netlify.app",
     ],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
 
