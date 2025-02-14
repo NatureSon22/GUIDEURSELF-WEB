@@ -25,7 +25,7 @@ const DisplayingKeyOfficials = lazy(
 // Campus
 const Campus = lazy(() => import("./pages/campus/Campus.jsx"));
 const DisplayCampus = lazy(() => import("./pages/campus/DisplayCampus.jsx"));
-const AddNewCampus = lazy(() => import("./pages/Campus/AddNewCampus.jsx"));
+const AddNewCampus = lazy(() => import("./pages/campus/AddNewCampus.jsx"));
 const EditCampus = lazy(() => import("./pages/campus/EditCampus.jsx"));
 const EditDisplayCampus = lazy(
   () => import("./pages/campus/EditDisplayCampus.jsx"),
