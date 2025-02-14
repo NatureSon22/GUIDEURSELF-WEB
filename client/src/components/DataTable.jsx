@@ -72,7 +72,7 @@ const DataTable = forwardRef(
     initialState: {
       columnVisibility: {
         full_name: false,
-        "campus_id.campus_name": false,
+        // "campus_id.campus_name": false,
       },
     },
     enableRowSelection: true,

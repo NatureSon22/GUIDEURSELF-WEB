@@ -24,9 +24,9 @@ const Accounts = () => {
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [reset, setReset] = useState(false);
-  const [fromDate, setFromDate] = useState(""); 
-  const [toDate, setToDate] = useState(""); 
-  
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   const {
     data: allAccounts,
     isLoading,
@@ -59,6 +59,7 @@ const Accounts = () => {
     onError: () => setOpenDialog(false),
   });
 
+  console.log(filters);
   const filteredAccounts = useMemo(() => {
     if (!allAccounts) return [];
 
