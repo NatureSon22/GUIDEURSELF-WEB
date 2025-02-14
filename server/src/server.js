@@ -31,7 +31,8 @@ app.use(
   cors({
     origin: [
        "https://web-guideurself.netlify.app",
-      "http://localhost:5173",
+      "http://localhost:5173", 
+      "*"
     ],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
