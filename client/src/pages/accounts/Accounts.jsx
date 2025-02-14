@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RiAddLargeFill } from "react-icons/ri";
@@ -13,7 +13,6 @@ import { getAllAccounts, verifyAccount } from "@/api/accounts";
 import VerifyAccountDialog from "./VerifyAccountDialog";
 import accountStatus from "@/utils/accountStatus";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
-import DateRangePicker from "@/components/DateRangePicker";
 import Loading from "@/components/Loading";
 import { GrPowerReset } from "react-icons/gr";
 import FeaturePermission from "@/layer/FeaturePermission";
@@ -25,9 +24,9 @@ const Accounts = () => {
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [reset, setReset] = useState(false);
-
-  // 2024-12-19T07:29:04.437+00:00
-
+  const [fromDate, setFromDate] = useState(""); 
+  const [toDate, setToDate] = useState(""); 
+  
   const {
     data: allAccounts,
     isLoading,
@@ -60,6 +59,30 @@ const Accounts = () => {
     onError: () => setOpenDialog(false),
   });
 
+  const filteredAccounts = useMemo(() => {
+    if (!allAccounts) return [];
+
+    return allAccounts.filter((account) => {
+      const matchesFilters = filters.every((filter) => {
+        if (filter.value === "") return true;
+        const accountValue = account[filter.id];
+        return (
+          accountValue &&
+          accountValue.toLowerCase() === filter.value.toLowerCase()
+        );
+      });
+
+      const accountDate = new Date(account.date_created);
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+
+      const matchesDateRange =
+        (!from || accountDate >= from) && (!to || accountDate <= to);
+
+      return matchesFilters && matchesDateRange;
+    });
+  }, [allAccounts, filters, fromDate, toDate]);
+
   const handleNavigate = (path) => {
     navigate(path);
   };
@@ -70,6 +93,8 @@ const Accounts = () => {
     setFilters([]);
     setGlobalFilter("");
     setReset(!reset);
+    setFromDate("");
+    setToDate("");
   };
 
   return (
@@ -115,7 +140,22 @@ const Accounts = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker setFilters={setFilters} filterId="date_created" />
+
+        <div className="flex gap-2">
+          <Input
+            type="date"
+            className="w-[170px]"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
+          <Input
+            type="date"
+            className="w-[170px]"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
+
         <ComboBox
           options={allRoles}
           placeholder="select user type"
@@ -155,7 +195,7 @@ const Accounts = () => {
         <Loading />
       ) : (
         <DataTable
-          data={allAccounts}
+          data={filteredAccounts}
           columns={columns}
           filters={filters}
           setFilters={setFilters}

@@ -842,10 +842,9 @@ const uploadWebPage = async (req, res) => {
       }),
     });
 
-    console.log("running")
     if (!uploadResponse.ok) {
-      console.log("error")
       const errorText = await uploadResponse.text();
+
       return res.status(uploadResponse.status).json({
         message: "Failed to upload webpage. Please try again later.",
         error: errorText,
@@ -960,7 +959,7 @@ const saveAsDraftUploadWebPage = async (req, res) => {
 const syncDocument = async (req, res) => {
   try {
     const { documentId } = req.params;
-    console.log(documentId);
+    console.log("DocumentID " + documentId);
 
     // Fetch the document from the database
     const existingDoc = await DocumentModel.findById(documentId);

@@ -1,11 +1,10 @@
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import { FaCircleExclamation } from "react-icons/fa6";
 import ComboBox from "@/components/ComboBox";
-import DateRangePicker from "@/components/DateRangePicker";
 import DataTable from "@/components/DataTable";
 import DialogContainer from "@/components/DialogContainer";
 import Loading from "@/components/Loading";
@@ -22,6 +21,8 @@ import { useToast } from "@/hooks/use-toast";
 
 const ArchiveDocuments = () => {
   const { toast } = useToast();
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [searchState, setSearchState] = useState({
     globalFilter: "",
     filters: [],
@@ -85,6 +86,42 @@ const ArchiveDocuments = () => {
     onError: () =>
       handleMutationResponse(false, "Failed to unarchive document"),
   });
+
+  const filteredDocuments = useMemo(() => {
+    if (!allDocuments) return [];
+
+    const globalSearch = searchState.globalFilter?.toLowerCase() || "";
+
+    return allDocuments.filter((account) => {
+      // Column-specific filters
+      const matchesFilters = searchState.filters.every((filter) => {
+        if (filter.value === "") return true;
+        const accountValue = account[filter.id];
+        return (
+          accountValue &&
+          accountValue
+            .toString()
+            .toLowerCase()
+            .includes(filter.value.toLowerCase())
+        );
+      });
+
+      const matchesGlobalFilter =
+        globalSearch === "" ||
+        Object.values(account).some(
+          (value) =>
+            value && value.toString().toLowerCase().includes(globalSearch),
+        );
+
+      const accountDate = new Date(account.date_created);
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+      const matchesDateRange =
+        (!from || accountDate >= from) && (!to || accountDate <= to);
+
+      return matchesFilters && matchesGlobalFilter && matchesDateRange;
+    });
+  }, [allDocuments, searchState, fromDate, toDate]);
 
   // Handlers
   const handleMutationResponse = (success, message) => {
@@ -197,7 +234,11 @@ const ArchiveDocuments = () => {
       );
     }
 
-    if (isUnarchivingUploadedDocument || isUnarchivingImportedWebDocument) {
+    if (
+      isUnarchivingCreatedDocument ||
+      isUnarchivingUploadedDocument ||
+      isUnarchivingImportedWebDocument
+    ) {
       return (
         <div className="flex flex-col items-center gap-5">
           <Loading />
@@ -253,7 +294,21 @@ const ArchiveDocuments = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker />
+        <div className="flex gap-2">
+          <Input
+            type="date"
+            className="w-[170px]"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
+          <Input
+            type="date"
+            className="w-[170px]"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
+
         <ComboBox
           options={allCampuses || []}
           placeholder="select campus"
@@ -283,7 +338,7 @@ const ArchiveDocuments = () => {
 
       <div className="flex-1">
         <DataTable
-          data={allDocuments || []}
+          data={filteredDocuments || []}
           columns={documentColumns}
           filters={searchState.filters}
           setFilters={(filters) =>
