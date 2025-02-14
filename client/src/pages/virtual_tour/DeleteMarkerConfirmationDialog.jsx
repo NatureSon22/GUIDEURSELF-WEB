@@ -1,5 +1,3 @@
-import Bin from "@/assets/bin.png"; // Your bin icon
-
 const DeleteMarkerConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
   if (!isOpen) return null;
 

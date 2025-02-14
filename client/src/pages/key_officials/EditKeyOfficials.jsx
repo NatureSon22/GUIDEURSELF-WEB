@@ -6,7 +6,7 @@ import EditKeyOfficialsModal from "./EditKeyOfficialsModal";
 import { Input } from "@/components/ui/input";
 import Search from "../../assets/Search.png";
 import Pen from "../../assets/Pen.png";
-import Bin from "../../assets/Bin.png";
+import Bin from "../../assets/bin.png";
 import Check from "../../assets/Check.png";
 import Header from "@/components/Header";
 import { IoAlertCircle } from "react-icons/io5";
