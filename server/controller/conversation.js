@@ -22,13 +22,13 @@ const createConversation = async (req, res) => {
     }
 
     const {
-      data: { id },
+      data: { id, name: conversationName },
     } = await response.json();
 
     await ConversationModel.create({
       user_id: userId,
       conversation_id: id,
-      conversation_name: name,
+      conversation_name: conversationName,
     });
 
     res.status(201).json({ message: "Conversation created successfully", id });
