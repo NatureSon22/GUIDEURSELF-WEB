@@ -1,5 +1,4 @@
 [build]
-  base = "/" 
   command = "cd client && npm install && npm run build"
   publish = "client/dist"
   functions = "client/netlify/functions"
@@ -11,12 +10,16 @@
   command = "cd client && npm install && npm run build:preview"
 
 [build.environment]
-  NODE_VERSION = "20" 
+  NODE_VERSION = "20"
   NPM_FLAGS = "--no-optional"
 
 [[redirects]]
-from = "/api/*"
-to = "https://guideurself-web.onrender.com/api/:splat"
-status = 200
-force = true
+  from = "/api/*"
+  to = "https://guideurself-web.onrender.com/api/:splat"
+  status = 200
+  force = true
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
