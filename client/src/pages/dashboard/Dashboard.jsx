@@ -4,6 +4,7 @@ import ViewTourSummary from "./ViewTourSummary";
 import FeedbackSummary from "./FeedbackSummary";
 import UserSummary from "./UserSummary";
 import UsageTrends from "./UsageTrends";
+import AccountActivityList from "./AccountActivityList.jsx";
 
 const Dashboard = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -37,6 +38,8 @@ const Dashboard = () => {
       </div>
 
       <UsageTrends />
+
+      <AccountActivityList />
     </div>
   );
 };
