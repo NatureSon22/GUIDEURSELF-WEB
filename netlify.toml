@@ -4,10 +4,10 @@
   functions = "client/netlify/functions"
 
 [context.production]
-  command = "cd client && npm install && npm run build:prod"
+  command = "cd client && npm install && npm run build"
 
 [context.deploy-preview]
-  command = "cd client && npm install && npm run build:preview"
+  command = "cd client && npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
