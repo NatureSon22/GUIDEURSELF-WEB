@@ -354,10 +354,12 @@ const updateAccount = async (req, res) => {
       date_updated: new Date(),
     };
 
+    // Update date_assigned if role_id or campus_id is provided
     if (req.body.role_id || req.body.campus_id) {
       updatedData.date_assigned = new Date();
     }
 
+    // Allowed fields for update
     const allowedFields = [
       "role_id",
       "campus_id",
@@ -372,6 +374,7 @@ const updateAccount = async (req, res) => {
       "date_assigned",
     ];
 
+    // Filter out only allowed fields
     const filteredData = Object.keys(updatedData)
       .filter((key) => allowedFields.includes(key))
       .reduce((obj, key) => {
@@ -379,58 +382,23 @@ const updateAccount = async (req, res) => {
         return obj;
       }, {});
 
-    const updateAccount = async (req, res) => {
-      try {
-        const updatedData = {
-          ...req.body,
-          date_updated: new Date(),
-        };
+    // Update the user in the database
+    const account = await UserModel.findByIdAndUpdate(
+      req.body.accountId, // Assuming accountId is provided in the request body
+      { $set: filteredData },
+      { new: true } // Return the updated document
+    );
 
-        if (req.body.role_id || req.body.campus_id) {
-          updatedData.date_assigned = new Date();
-        }
-
-        const allowedFields = [
-          "role_id",
-          "campus_id",
-          "user_number",
-          "firstname",
-          "middlename",
-          "lastname",
-          "username",
-          "email",
-          "password",
-          "status",
-          "date_assigned",
-        ];
-
-        const filteredData = Object.keys(updatedData)
-          .filter((key) => allowedFields.includes(key))
-          .reduce((obj, key) => {
-            obj[key] = updatedData[key];
-            return obj;
-          }, {});
-
-        const account = await UserModel.findByIdAndUpdate(
-          req.body.accountId,
-          { $set: filteredData },
-          { new: true }
-        );
-
-        res.status(200).json({
-          message: "User updated successfully",
-          account,
-        });
-      } catch (error) {
-        res.status(500).json({ message: "Server error" });
-      }
-    };
+    if (!account) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     res.status(200).json({
       message: "User updated successfully",
       account,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
