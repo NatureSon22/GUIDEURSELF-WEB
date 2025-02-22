@@ -23,6 +23,7 @@ import virtualTourLogRouter from "../router/virtualTourLogRouter.js";
 import conversationRouter from "../router/conversationRouter.js";
 import messageRouter from "../router/messageRouter.js";
 import activityLogRouter from "../router/activityLogRouter.js";
+import feedbackRouter from "../router/feedbackRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -32,8 +33,8 @@ app.use(
     origin: [
       "https://web-guideurself.netlify.app",
       "https://guideurself-web.netlify.app",
-      "http://localhost:5173", 
-      "*"
+      "http://localhost:5173",
+      "*",
     ],
     credentials: true,
     // allowedHeaders: ["Content-Type", "Authorization"],
@@ -61,6 +62,7 @@ app.use("/api/virtualtourlogs", virtualTourLogRouter);
 app.use("/api/activitylogs", activityLogRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
+app.use("/api/feedback", feedbackRouter);
 
 (async () => {
   config();

@@ -1,5 +1,4 @@
 import { Router } from "express";
-import verifyToken from "../middleware/verifyToken.js";
 import {
   getAllRoleTypes,
   getRoleById,
@@ -9,7 +8,6 @@ import {
 import multer from "multer";
 
 const roleTypesRouter = Router();
-//roleTypesRouter.use(verifyToken);
 
 const upload = multer();
 
