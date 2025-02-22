@@ -384,7 +384,7 @@ const updateAccount = async (req, res) => {
 
    
     const account = await UserModel.findByIdAndUpdate(
-      req.user.userId, 
+      req.body.accountId, 
       { $set: filteredData },
       { new: true }
     );
