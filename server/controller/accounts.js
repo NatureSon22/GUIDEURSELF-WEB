@@ -381,7 +381,8 @@ const updateAccount = async (req, res) => {
 
     const account = await UserModel.updateOne(
       { _id: updatedData.accountId },
-      { $set: filteredData }
+      { $set: filteredData },
+      { new: true }
     );
 
     res.status(200).json({
