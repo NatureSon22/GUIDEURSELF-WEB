@@ -379,13 +379,14 @@ const updateAccount = async (req, res) => {
         return obj;
       }, {});
 
-    await UserModel.updateOne(
+    const account = await UserModel.updateOne(
       { _id: updatedData.accountId },
       { $set: filteredData }
     );
 
     res.status(200).json({
       message: "User updated successfully",
+      account,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
