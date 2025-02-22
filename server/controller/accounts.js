@@ -379,7 +379,7 @@ const updateAccount = async (req, res) => {
         return obj;
       }, {});
 
-    const account = await UserModel.updateOne(
+    const account = await UserModel.findByIdAndUpdate(
       { _id: updatedData.accountId },
       { $set: filteredData },
       { new: true }
