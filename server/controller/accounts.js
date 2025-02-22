@@ -374,7 +374,7 @@ const updateAccount = async (req, res) => {
       "date_assigned",
     ];
 
-    // Filter out only allowed fields
+    
     const filteredData = Object.keys(updatedData)
       .filter((key) => allowedFields.includes(key))
       .reduce((obj, key) => {
@@ -382,11 +382,11 @@ const updateAccount = async (req, res) => {
         return obj;
       }, {});
 
-    // Update the user in the database
+   
     const account = await UserModel.findByIdAndUpdate(
-      req.body.accountId, // Assuming accountId is provided in the request body
+      req.user.userId, 
       { $set: filteredData },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (!account) {
