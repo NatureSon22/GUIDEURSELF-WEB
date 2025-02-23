@@ -1,22 +1,22 @@
-import DataTable from "@/components/DataTable";
 import { useState } from "react";
-import UserLog from "@/components/columns/UserLogs.jsx";
+import DataTable from "@/components/DataTable";
+import Accounts from "@/components/columns/Accounts";
 
-const UserLogs = () => {
+const RecentAccounts = () => {
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
   return (
     <DataTable
       data={[]}
-      columns={UserLog}
+      columns={Accounts}
       filters={filters}
       setFilters={setFilters}
       globalFilter={globalFilter}
       setGlobalFilter={setGlobalFilter}
-      showFooter={false} 
+      showFooter={false}
     />
   );
 };
 
-export default UserLogs;
+export default RecentAccounts;
