@@ -219,9 +219,9 @@ const EditDisplayCampus = () => {
             className="pb-3 w-[360px] h-[370px] border border-gray-300 flex flex-col justify-center items-center rounded-md"
           >
             <div className="px-2 w-[100%] h-[100px] flex justify-between rounded-md">
-              <div className="w-[30%] flex items-center justify-center">
-                <img className="h-[45%]" src={university?.university_vector_url} alt="Vector" />
-                <img className="h-[45%]" src={university?.university_logo_url} alt="Logo" />
+              <div className="w-[30%] gap-2 pt-3 pb-4 flex items-center justify-center">
+                <img className="h-[50px]" src={university?.university_vector_url} alt="Vector" />
+                <img className="h-[50px]" src={university?.university_logo_url} alt="Logo" />
               </div>
               <div className="w-[70%] flex flex-col justify-center">
                 <h2 className="font-bold text-lg">{campus.campus_name} Campus</h2>

@@ -8,48 +8,54 @@ import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js"; 
 import "@/quillCustom.css";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQuery and useQueryClient
 
-const PoliciesField = ({isLoading, systempolicy}) => {
-    const modules = {
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          [{ indent: "-1" }, { indent: "+1" }],
-          [{ align: [] }],
-          ["link", "image"],
-          ["clean"],
-          [{ size: ["small", "large", "huge"] }] // Add font size option
-        ],
-      };
+const PoliciesField = ({ isLoading }) => {
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["clean"],
+      [{ size: ["small", "large", "huge"] }] // Add font size option
+    ],
+  };
   const { toast } = useToast();
   const [edit, setEdit] = useState(false);
-  const [policies, setPolicy] = useState(systempolicy);
 
-  useEffect(() => {
-    const fetchPrivacyPolicy = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+  // Use useQueryClient to invalidate and refetch data
+  const queryClient = useQueryClient();
 
-        if (response.ok) {
-          const data = await response.json();
-          setPolicy(data.privacy_policies); 
-        } else {
-          console.error("Failed to fetch terms and conditions");
-        }
-      } catch (error) {
-        console.error("Error fetching terms and conditions:", error);
+  // Fetch policy data using useQuery
+  const { data: policyData, isError } = useQuery({
+    queryKey: ["policy"],
+    queryFn: async () => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch policy data");
       }
-    };
+      return response.json();
+    },
+  });
 
-    fetchPrivacyPolicy();
-  }, []);
+  const [policies, setPolicy] = useState("");
+
+  // Sync the `policies` state with the fetched data
+  useEffect(() => {
+    if (policyData) {
+      setPolicy(policyData.privacy_policies);
+    }
+  }, [policyData]);
 
   const handleInputChange = (content) => {
     setPolicy(content); 
@@ -57,7 +63,7 @@ const PoliciesField = ({isLoading, systempolicy}) => {
 
   const handleClickUpdate = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/general/update/675cdd2056f690410f1473b7`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -71,19 +77,29 @@ const PoliciesField = ({isLoading, systempolicy}) => {
           title: "Success",
           description: "System privacy policy successfully updated",
         });
-        setEdit(false); 
+        setEdit(false);
+
+        // Invalidate and refetch the "policy" query to get the latest data
+        await queryClient.invalidateQueries(["policy"]);
       } else {
-        console.error("Failed to update terms and conditions");
-        alert("Failed to update the terms. Please try again.");
+        toast({
+          title: "Failed",
+          description: "System policies unsuccessfully updated",
+          variant: "error",
+        });
       }
     } catch (error) {
-      console.error("Error updating terms and conditions:", error);
-      alert("Error updating terms and conditions. Please try again.");
+      toast({
+        title: "Failed",
+        description: "System policies unsuccessfully updated",
+        variant: "error",
+      });
     }
   };
 
   const handleCancel = () => {
     setEdit(false);
+    setPolicy(policyData?.privacy_policies || ""); // Reset to the original value
   };
 
   return (
@@ -92,7 +108,7 @@ const PoliciesField = ({isLoading, systempolicy}) => {
       subtitle={"Adjust privacy settings to ensure compliance."}
       toggleEditMode={setEdit}
     >
-      {isLoading ? (
+      {isLoading || !policyData ? (
         <Skeleton className="w-[100%] h-[700px] rounded-md bg-secondary-200/40 py-24" />
       ) : (
         <div className="space-y-4">
@@ -129,7 +145,7 @@ const PoliciesField = ({isLoading, systempolicy}) => {
               <hr />
               <div className="ql-editor list-disc list-outside p-4">
                 <p
-                  dangerouslySetInnerHTML={{ __html: policies }}
+                  dangerouslySetInnerHTML={{ __html: policyData.privacy_policies }}
                   className="p-4 h-full w-full text-gray-700 text-justify whitespace-[20px] leading-relaxed"
                 ></p>
               </div>
@@ -143,7 +159,6 @@ const PoliciesField = ({isLoading, systempolicy}) => {
 
 PoliciesField.propTypes = {
   isLoading: PropTypes.bool,
-  systempolicy: PropTypes.string,
 };
 
 export default PoliciesField;

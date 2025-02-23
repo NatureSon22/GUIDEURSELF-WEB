@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
-import { Editor } from "@tinymce/tinymce-react"; 
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQuery and useQueryClient
 import { getUniversityData } from "@/api/component-info";
 import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
@@ -11,37 +11,38 @@ import "@/quillConfig.js";
 import "@/quillCustom.css";
 
 const MissionField = () => {
-  const modules = {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ indent: "-1" }, { indent: "+1" }],
-        [{ align: [] }],
-        ["link", "image"],
-        ["clean"],
-        [{ size: ["small", "large", "huge"] }] // Add font size option
-      ],
-    };
-  const [isLoading, setIsLoading] = useState(true);
-  const [edit, setEdit] = useState(false);
-  const [mission, setMission] = useState("");
   const { toast } = useToast();
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["clean"],
+      [{ size: ["small", "large", "huge"] }] // Add font size option
+    ],
+  };
+  const [edit, setEdit] = useState(false);
 
+  // Use useQueryClient to invalidate and refetch data
+  const queryClient = useQueryClient();
+
+  // Fetch university data using useQuery
+  const { data: university, isLoading, isError } = useQuery({
+    queryKey: ["universitysettings"],
+    queryFn: getUniversityData,
+  });
+
+  const [mission, setMission] = useState("");
+
+  // Sync the `mission` state with the fetched data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getUniversityData();
-        setMission(data.university_mission || "No mission available");
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching university data:", error);
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-  
+    if (university) {
+      setMission(university.university_mission);
+    }
+  }, [university]);
 
   const handleEditorChange = (content) => {
     setMission(content);
@@ -60,22 +61,32 @@ const MissionField = () => {
           body: JSON.stringify({ university_mission: mission }),
         }
       );
+
       if (response.ok) {
         toast({
           title: "Success",
           description: "University mission successfully updated",
         });
         setEdit(false);
+
+        // Invalidate and refetch the "universitysettings" query to get the latest data
+        await queryClient.invalidateQueries(["universitysettings"]);
       } else {
         console.error("Failed to update mission");
+        alert("Failed to update mission. Please try again.");
       }
     } catch (error) {
-      console.error("Error updating mission:", error);
+      toast({
+        title: "Failed",
+        description: "University mission unsuccessfully updated",
+        variant: "error",
+      });
     }
   };
 
   const handleCancel = () => {
     setEdit(false);
+    setMission(university?.university_mission || ""); // Reset to the original value
   };
 
   return (
@@ -84,7 +95,7 @@ const MissionField = () => {
       subtitle={"The official mission of the university"}
       toggleEditMode={setEdit}
     >
-      {isLoading ? (
+      {isLoading || !university ? (
         <div>Loading...</div>
       ) : (
         <div className="space-y-4">
@@ -116,7 +127,7 @@ const MissionField = () => {
           ) : (
             <div className="ql-editor w-[100%] h-full flex flex-col">
               <hr className="mb-[20px]" />
-              <div dangerouslySetInnerHTML={{ __html: mission }} />
+              <div dangerouslySetInnerHTML={{ __html: university.university_mission }} />
             </div>
           )}
         </div>

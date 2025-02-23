@@ -66,7 +66,7 @@ const DisplayCampus = () => {
   return (
     <div className="w-full flex w-[100%]">
       {/* Left Container */}
-      <div className="w-[75%] flex flex-col justify-between">
+      <div className="w-[75%] flex flex-col gap-6">
         <Header
           title={"Manage Campus"}
           subtitle={"See list of all campuses to manage and edit."}
@@ -106,7 +106,7 @@ const DisplayCampus = () => {
         </div>
 
         {/* Map Section */}
-        <div className="h-[700px] py-6 flex flex-col gap-5">
+        <div className="h-[700px] flex flex-col gap-5">
           <div className="border border-gray-300 rounded-md">
             <div className="p-4">
               <h2 className="font-bold italic">
@@ -156,9 +156,9 @@ const DisplayCampus = () => {
       {/* Right Container */}
       <div className="w-[40%] pl-6  py-2 flex flex-col gap-4">
         <div className="border px-2 w-[100%] h-[100px] flex justify-between rounded-md">
-          <div className="w-[30%] flex items-center justify-center">
-            <img className="h-[45%]" src={university?.university_vector_url} alt="" />
-            <img className="h-[45%]" src={university?.university_logo_url} alt="" />
+          <div className="w-[30%] gap-3 flex items-center justify-center">
+            <img className="h-[60px]" src={university?.university_vector_url} alt="" />
+            <img className="h-[60px]" src={university?.university_logo_url} alt="" />
           </div>
           <div className="w-[70%] flex flex-col justify-center">
             <h2 className="font-bold text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>

@@ -87,11 +87,11 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
     <div className="w-[40%] flex flex-col gap-3 p-6 z-20">
       <div className="flex flex-col justify-between h-[100%]">
         <div>
-          <div className="flex flex-col gap-1">
-            <div className="flex w-[100%] gap-3 justify-center">
-              <div className="flex w-[30%] justify-end items-center">
-                <img className="h-[40%]" src={university?.university_vector_url} alt="" />
-                <img className="h-[40%]" src={university?.university_logo_url} alt="" />
+          <div className="flex flex-col gap-1 justify-between">
+            <div className="flex w-[100%] gap-3 pb-6 justify-center">
+              <div className="flex w-[30%] gap-3 justify-end items-center">
+                <img className="h-[60px]" src={university?.university_vector_url} alt="" />
+                <img className="h-[60px]" src={university?.university_logo_url} alt="" />
               </div>
               <div className="flex flex-col w-[70%] justify-center">
                 <h2 className="font-bold text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>

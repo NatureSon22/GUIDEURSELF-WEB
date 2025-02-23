@@ -78,9 +78,9 @@ const VirtualTourInfo = () => {
       )}
             <div className="border p-6 w-[45%] h-[450px] flex flex-col justify-between rounded-md">
                 <div className="flex w-[100%]  justify-center gap-3">
-                    <div className="flex items-center justify-center">
-                        <img className="h-[55%]" src={university?.university_vector_url} alt="" />
-                        <img className="h-[55%]" src={university?.university_logo_url} alt="" />
+                    <div className="flex gap-3 items-center justify-center">
+                        <img className="h-[70px]" src={university?.university_vector_url} alt="" />
+                        <img className="h-[70px]" src={university?.university_logo_url} alt="" />
                     </div>
                     <div className="flex flex-col justify-center">
                         <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
@@ -128,9 +128,9 @@ const VirtualTourInfo = () => {
                 </div>
             </div>
             <div className="border px-2 w-[55%] h-[450px] flex flex-col rounded-md items-center justify-center gap-3">
-                <div className="w-[30%] flex items-center justify-center">
-                    <img className="h-[100%]" src={university?.university_vector_url} alt="" />
-                    <img className="h-[100%]" src={university?.university_logo_url} alt="" />
+                <div className="w-[30%] flex gap-3 items-center justify-center">
+                    <img className="h-[160px]" src={university?.university_vector_url} alt="" />
+                    <img className="h-[160px]" src={university?.university_logo_url} alt="" />
                 </div>
                 <div className="w-[70%] flex flex-col justify-center items-center justify-center">
                     <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>

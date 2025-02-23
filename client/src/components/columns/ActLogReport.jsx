@@ -1,5 +1,4 @@
 import formatDate from "@/utils/formatDate";
-import formatTitle from "@/utils/formatTitle";
 
 const columns = () => [
   {
@@ -13,15 +12,9 @@ const columns = () => [
     filterFn: "equalsString",
   },
   {
-    accessorKey: "email",
-    header: "Email",
-    filterFn: "equalsString",
-  },
-  {
     accessorKey: "firstname",
     header: "First Name",
   },
-
   {
     accessorKey: "lastname",
     header: "Last Name",
@@ -30,31 +23,27 @@ const columns = () => [
     accessorKey: "role_type",
     id: "role_type",
     header: "Role Type",
-    cell: ({ row }) => formatTitle(row.original.role_type),
     filterFn: "equalsString",
   },
   {
     accessorKey: "campus_name",
-    id: "campus_name", // This should match the `id` in the filter
+    id: "campus_name",
     header: "Campus",
     filterFn: "equalsString",
   },
   {
-    accessorKey: "date_created",
-    header: "Date Created",
-    cell: ({ row }) => formatDate(row.original.date_created),
-    filterFn: "equalsString",
+    accessorKey: "action",
+    header: "Action",
   },
   {
-    accessorKey: "status",
-    id: "status",
-    header: "Status",
-    filterFn: "equalsString",
+    accessorKey: "date_created",
+    header: "Date Created",
     cell: ({ row }) => (
-      <div className="w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
-        <p>{formatTitle(row.original.status)}</p>
+      <div className="py-[7px]">
+        <p>{formatDate(row.original.date_created)}</p>
       </div>
     ),
+    filterFn: "equalsString",
   },
 ];
 

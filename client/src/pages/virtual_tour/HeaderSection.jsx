@@ -33,10 +33,10 @@ import { MdTouchApp } from "react-icons/md";
 
   return (
     <div className="flex flex-col gap-1 px-6">
-      <div className="flex w-[100%] gap-3 justify-center">
-        <div className="flex w-[30%] justify-end items-center">
-          <img className="h-[40%]" src={university?.university_vector_url} alt="" />
-          <img className="h-[40%]" src={university?.university_logo_url} alt="" />
+      <div className="flex w-[100%] py-6 gap-3 justify-center">
+        <div className="flex gap-3 w-[30%] justify-end items-center">
+          <img className="h-[60px]" src={university?.university_vector_url} alt="" />
+          <img className="h-[60px]" src={university?.university_logo_url} alt="" />
         </div>
         <div className="flex flex-col w-[70%] justify-center  ">
           <h2 className="font-bold text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>

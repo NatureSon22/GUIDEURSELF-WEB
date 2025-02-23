@@ -10,7 +10,6 @@ import ProgramTypeField from "./ProgramTypeField";
 import ProgramNameField from "./ProgramNameField";
 import MajorField from "./MajorField";
 import { useQuery } from "@tanstack/react-query";
-import React, { useState, useEffect } from "react";
 import { getUniversityData } from "@/api/component-info";
 
 const UniversitySettings = () => {

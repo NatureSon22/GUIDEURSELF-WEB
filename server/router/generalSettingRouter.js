@@ -4,6 +4,7 @@ import multer from "multer";
 import cloudinary from "cloudinary";
 import { Readable } from "stream";
 import { Router } from "express";
+import activitylog from "../controller/activitylog.js"
 
 // Set up multer for handling image uploads
 const upload = multer({
@@ -17,6 +18,8 @@ const upload = multer({
 });
 
 const generalSettingsRouter = Router();
+
+generalSettingsRouter.use(verifyToken);
 
 generalSettingsRouter.get("/get-info", async (req, res) => {
   try {
@@ -48,12 +51,17 @@ generalSettingsRouter.get("/:id", async (req, res) => {
 });
 
 generalSettingsRouter.put(
-  "/:id",
-  verifyToken,
+  "/update/:id",
   upload.single("general_logo_url"),
   async (req, res) => {
     try {
       const { id } = req.params;
+      const userId = req.user?.userId; 
+      
+      if (!userId) {
+        console.warn("No user ID found in request.");
+      }
+
       const { general_about, privacy_policies, terms_conditions } = req.body;
 
       const updatedData = {
@@ -62,9 +70,16 @@ generalSettingsRouter.put(
         terms_conditions,
       };
 
+      // Fetch existing General Settings data
+      const existingGeneral = await GeneralSettings.findById(id);
+      if (!existingGeneral) {
+        return res.status(404).json({ message: "General Settings not found" });
+      }
+
+      let changes = [];
+
       // Check if a new logo is uploaded
       if (req.file) {
-        // Upload image to Cloudinary
         const cloudinaryResponse = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.v2.uploader.upload_stream(
             { resource_type: "image" },
@@ -74,16 +89,24 @@ generalSettingsRouter.put(
             }
           );
 
-          // Pipe the image buffer to Cloudinary
           const bufferStream = new Readable();
           bufferStream.push(req.file.buffer);
           bufferStream.push(null);
           bufferStream.pipe(uploadStream);
         });
 
-        // Add the new image URL to updatedData
         updatedData.general_logo_url = cloudinaryResponse.secure_url;
+        changes.push("general logo");
       }
+
+      // Compare text fields to detect changes
+      Object.keys(updatedData).forEach((key) => {
+        if (updatedData[key] && updatedData[key] !== existingGeneral[key]) {
+          changes.push(key.replace(/_/g, " ").replace(/ url/i, "")); // Clean field name
+        }
+      });
+
+      console.log("Detected Changes:", changes);
 
       // Update the GeneralSettings document in MongoDB
       const updatedGeneral = await GeneralSettings.findByIdAndUpdate(
@@ -94,6 +117,13 @@ generalSettingsRouter.put(
 
       if (!updatedGeneral) {
         return res.status(404).json({ message: "General Settings not found" });
+      }
+
+      // Log changes
+      if (userId && changes.length > 0) {
+        await activitylog(userId, `Updated the ${changes.join(", ")}`);
+      } else {
+        console.warn("User ID not found or no changes made, activity log not saved.");
       }
 
       res.status(200).json({

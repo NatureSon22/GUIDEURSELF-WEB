@@ -740,14 +740,14 @@ const handleDrop = (e, targetFloor) => {
             </div>
           ) : (
             <div className="flex min-h-screen flex-col gap-6 justify-center items-center">
-              <div className="w-[30%] flex items-center justify-center">
+              <div className="w-[30%] gap-3 flex items-center justify-center">
                 <img
-                  className="h-[100%]"
+                  className="h-[170px]"
                   src={university.university_vector_url || "/default-vector.png"}
                   alt="University vector"
                 />
                 <img
-                  className="h-[100%]"
+                  className="h-[170px]"
                   src={university.university_logo_url || "/default-logo.png"}
                   alt="University logo"
                 />

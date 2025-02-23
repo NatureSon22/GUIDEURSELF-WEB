@@ -15,12 +15,12 @@ const Policy = () => {
           <p>Effective Date: [November 1, 2023]</p>
         </div>
 
-        <div
-          className="text-[0.95rem]"
-          dangerouslySetInnerHTML={{
-            __html: isLoading ? "Loading..." : data?.privacy_policies || "",
-          }}
-        />
+        <div className="ql-editor list-disc list-outside p-4">
+        <p
+          dangerouslySetInnerHTML={{ __html: data?.privacy_policies }}
+          className="p-4 h-full w-full text-gray-700 text-justify whitespace-[20px] leading-relaxed"
+        ></p>
+        </div>
       </div>
     </div>
   );

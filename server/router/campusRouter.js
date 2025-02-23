@@ -4,9 +4,10 @@ import multer from "multer";
 import cloudinary from "cloudinary";
 import { Readable } from "stream";
 import verifyToken from "../middleware/verifyToken.js";
+import activitylog from "../controller/activitylog.js"
 
 const router = express.Router();
-//router.use(verifyToken);
+router.use(verifyToken);  
 
 // Multer storage (temporary in-memory)
 const storage = multer.memoryStorage();
@@ -29,6 +30,8 @@ router.post(
         latitude,
         longitude,
       } = req.body;
+
+      const userId = req.user?.userId; 
 
       // Check if the campus_programs field is provided and parse it
       let formattedPrograms = [];
@@ -84,6 +87,13 @@ router.post(
             longitude,
           });
 
+          
+          if (userId) {
+            await activitylog(userId, `Added new campus: ${campus_name}`);
+          } else {
+            console.warn("User ID not found, activity log not saved.");
+          }
+
           await newCampus.save();
           res.status(201).json({
             message: "Campus added successfully",
@@ -116,15 +126,6 @@ router.get("/campuses", async (req, res) => {
   }
 });
 
-router.get("/campus", async (req, res) => {
-  try {
-    const campuses = await Campus.find();
-    res.json({ success: true, campuses });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
 router.get("/campuses/:id", async (req, res) => {
   try {
     const campus = await Campus.findById(req.params.id);
@@ -140,6 +141,7 @@ router.get("/campuses/:id", async (req, res) => {
 router.put("/campuses/:id", upload.fields([{ name: "campus_cover_photo", maxCount: 1 }]), async (req, res) => {
   const { id } = req.params;
   const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, campus_about, campus_programs, latitude, longitude } = req.body;
+  const userId = req.user?.userId; 
 
   try {
     const existingCampus = await Campus.findById(id);
@@ -174,6 +176,12 @@ router.put("/campuses/:id", upload.fields([{ name: "campus_cover_photo", maxCoun
       existingCampus.campus_cover_photo_url = campusCoverPhotoUrl;
     }
 
+    if (userId) {
+      await activitylog(userId, `Edited existing campus: ${existingCampus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
     await existingCampus.save();
     res.status(200).json({ message: "Campus updated successfully", data: existingCampus });
 
@@ -186,6 +194,7 @@ router.put("/campuses/:id", upload.fields([{ name: "campus_cover_photo", maxCoun
 router.put("/campuses/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 10 }]), async (req, res) => {
   const { campusId } = req.params;
   const { floors } = req.body;
+  const userId = req.user?.userId; 
 
   try {
     const campus = await Campus.findById(campusId);
@@ -222,6 +231,13 @@ router.put("/campuses/floors/:campusId", upload.fields([{ name: "floor_photo", m
         });
       }
 
+      
+    if (userId) {
+      await activitylog(userId, `Added new floor for: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
       await campus.save();
       res.status(200).json({ message: "Floors updated successfully", data: campus });
     }
@@ -255,6 +271,7 @@ router.get("/campuses/:campusId/floors/:floorId/markers", async (req, res) => {
 router.put("/campuses/:campusId/floors/:floorId/markers", upload.fields([{ name: "marker_photo", maxCount: 1 }]), async (req, res) => {
   const { campusId, floorId } = req.params;
   const { latitude, longitude } = req.body;
+  const userId = req.user?.userId; 
 
   try {
     const campus = await Campus.findById(campusId);
@@ -279,6 +296,13 @@ router.put("/campuses/:campusId/floors/:floorId/markers", upload.fields([{ name:
     }
 
     floor.markers.push(newMarker);
+
+    if (userId) {
+      await activitylog(userId, `Added new marker: ${newMarker.marker_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
     await campus.save();
 
     res.status(200).json({ message: "Marker added/updated successfully", data: campus });
@@ -313,6 +337,7 @@ const uploadToCloudinary = (buffer, folder) => {
 router.put("/campuses/:id/floors", async (req, res) => {
   const { id } = req.params; // Campus ID
   const { floors } = req.body; // Updated floors array
+  const userId = req.user?.userId; 
 
   try {
     // Find the campus
@@ -325,6 +350,13 @@ router.put("/campuses/:id/floors", async (req, res) => {
     campus.floors = floors;
 
     // Save the updated campus
+
+    if (userId) {
+      await activitylog(userId, `Updated floor of campus: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
     await campus.save();
 
     res.status(200).json({
@@ -391,6 +423,7 @@ router.put(
   async (req, res) => {
     const { campusId, floorId, markerId } = req.params;
     const { marker_name, marker_description, category, latitude, longitude } = req.body;
+    const userId = req.user?.userId; 
 
     try {
       // Find the campus
@@ -411,14 +444,17 @@ router.put(
       marker.category = category || marker.category;
       marker.latitude = latitude ? parseFloat(latitude) : marker.latitude;
       marker.longitude = longitude ? parseFloat(longitude) : marker.longitude;
-
-      console.log("Received Data:", { marker_name, marker_description, latitude, longitude });
-
       // Handle image upload
       if (req.file) {
         const markerPhotoUrl = await uploadToCloudinary(req.file.buffer, "marker_photos");
         marker.marker_photo_url = markerPhotoUrl;
       }
+
+    if (userId) {
+      await activitylog(userId, `Updated existing marker of campus: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
 
       // Save the updated campus
       await campus.save();
@@ -510,6 +546,7 @@ router.put("/campuses/:campusId/update-floor-order", async (req, res) => {
 router.post('/campuses/unarchive/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.userId; 
 
     // Find the archived campus
     const archivedCampus = await ArchivedCampus.findById(id);
@@ -519,6 +556,13 @@ router.post('/campuses/unarchive/:id', async (req, res) => {
 
     // Create a new campus document in the active collection
     const newCampus = new Campus(archivedCampus.toObject());
+
+    if (userId) {
+      await activitylog(userId, `Retrieved campus: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
     await newCampus.save();
 
     // Delete the archived campus
@@ -532,6 +576,7 @@ router.post('/campuses/unarchive/:id', async (req, res) => {
 
 router.post("/archived-campuses", async (req, res) => {
   const { campus_id } = req.body; // Ensure the frontend sends `campus_id`
+  const userId = req.user?.userId; 
 
   try {
     // Find the campus by ID
@@ -545,6 +590,13 @@ router.post("/archived-campuses", async (req, res) => {
 
     // Move the campus to the ArchivedCampus collection
     const archivedCampus = new ArchivedCampus(campus.toObject());
+
+    if (userId) {
+      await activitylog(userId, `Archived a campus: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
     await archivedCampus.save();
 
     res.status(200).json({ message: "Campus archived successfully" });
@@ -570,6 +622,7 @@ router.get("/archived-campuses", async (req, res) => {
 router.post("/archived-campuses/unarchive/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.userId; 
 
     // Step 1: Find the archived campus
     const archivedCampus = await ArchivedCampus.findById(id);
@@ -584,6 +637,7 @@ router.post("/archived-campuses/unarchive/:id", async (req, res) => {
     };
 
     const newCampus = new Campus(newCampusData);
+
 
     // Step 3: Save the new campus to the active collection
     await newCampus.save();
@@ -605,6 +659,7 @@ router.post("/archived-campuses/unarchive/:id", async (req, res) => {
 router.post("/campuses/:campusId/floors/:floorId/archive", async (req, res) => {
   try {
     const { campusId, floorId } = req.params;
+    const userId = req.user?.userId; 
 
     // Step 1: Find the campus
     const campus = await Campus.findById(campusId);
@@ -627,6 +682,12 @@ router.post("/campuses/:campusId/floors/:floorId/archive", async (req, res) => {
       date_archived: new Date(),
       campus_name: campus.campus_name,
     });
+
+    if (userId) {
+       await activitylog(userId, `Archived floor from: ${campus.campus_name}`);
+     } else {
+       console.warn("User ID not found, activity log not saved.");
+     }
 
     await archivedItem.save();
 
@@ -663,6 +724,7 @@ router.get("/archived-items", async (req, res) => {
 router.post("/archived-items/:id/unarchive", async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.userId; 
 
     // Step 1: Find the archived item
     const archivedItem = await ArchivedItem.findById(id);
@@ -690,6 +752,13 @@ router.post("/archived-items/:id/unarchive", async (req, res) => {
       floor.markers.push(archivedItem.location_data);
     }
 
+    
+    if (userId) {
+      await activitylog(userId, `Retrieved an item from: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
     // Step 4: Save changes
     await campus.save();
 
@@ -709,6 +778,8 @@ router.post("/campuses/:campusId/locations/:locationId/archive", async (req, res
   try {
     const { campusId, locationId } = req.params;
     console.log(`Archiving location ${locationId} from campus ${campusId}`);
+    const userId = req.user?.userId; 
+
 
     // Step 1: Find the campus
     const campus = await Campus.findById(campusId);
@@ -742,6 +813,13 @@ router.post("/campuses/:campusId/locations/:locationId/archive", async (req, res
     campus.locations = campus.locations.filter(
       (location) => location._id.toString() !== locationId
     );
+
+    
+    if (userId) {
+      await activitylog(userId, `Archived location from: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
 
     // Step 6: Save the updated campus
     await campus.save();
@@ -787,6 +865,7 @@ router.post("/campuses/:campusId/locations/:locationId/archive", async (req, res
 router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", async (req, res) => {
   try {
     const { campusId, floorId, markerId } = req.params;
+    const userId = req.user?.userId; 
 
     // Step 1: Find the campus
     const campus = await Campus.findById(campusId);
@@ -825,6 +904,13 @@ router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", asy
     floor.markers = floor.markers.filter(
       (marker) => marker._id.toString() !== markerId
     );
+
+    
+   if (userId) {
+      await activitylog(userId, `Archived location from: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
 
     // Step 7: Save the updated campus
     await campus.save();

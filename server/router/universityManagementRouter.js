@@ -4,16 +4,14 @@ import University from "../models/university.js";
 import multer from "multer";
 import cloudinary from "cloudinary";
 import { Readable } from "stream";
+import activitylog from "../controller/activitylog.js"
 
-// Set up multer for handling image uploads
 const upload = multer();
 
 const universityManagementRouter = express.Router();
 
-// Apply token verification middleware to all routes in this router
-//universityManagementRouter.use(verifyToken);
+universityManagementRouter.use(verifyToken);
 
-// Route to fetch university by ID
 universityManagementRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -29,9 +27,9 @@ universityManagementRouter.get("/:id", async (req, res) => {
   }
 });
 
-// Route to update the university details (including logo and vector image)
 universityManagementRouter.put("/:id", upload.fields([{ name: "university_logo_url", maxCount: 1 }, { name: "university_vector_url", maxCount: 1 }]), async (req, res) => {
   const { id } = req.params;
+  const userId = req.user?.userId; 
   const { university_history, university_vision, university_mission, university_core_values } = req.body;
 
   const updatedData = {
@@ -42,7 +40,13 @@ universityManagementRouter.put("/:id", upload.fields([{ name: "university_logo_u
   };
 
   try {
-    // Check if a new logo image is uploaded
+    const existingUniversity = await University.findById(id);
+    if (!existingUniversity) {
+      return res.status(404).json({ message: "University not found" });
+    }
+
+    let changes = [];
+
     if (req.files && req.files.university_logo_url) {
       const cloudinaryLogoResponse = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
@@ -62,7 +66,6 @@ universityManagementRouter.put("/:id", upload.fields([{ name: "university_logo_u
       updatedData.university_logo_url = cloudinaryLogoResponse.secure_url;
     }
 
-    // Check if a new vector image is uploaded
     if (req.files && req.files.university_vector_url) {
       const cloudinaryVectorResponse = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
@@ -82,11 +85,23 @@ universityManagementRouter.put("/:id", upload.fields([{ name: "university_logo_u
       updatedData.university_vector_url = cloudinaryVectorResponse.secure_url;
     }
 
-    // Update the university document in MongoDB
+    Object.keys(updatedData).forEach((key) => {
+      if (updatedData[key] && updatedData[key] !== existingUniversity[key]) {
+        changes.push(key.replace(/_/g, " ").replace(/ url/i, "")); // Remove underscores & "url"
+      }
+    });
+
+
     const updatedUniversity = await University.findByIdAndUpdate(id, updatedData, { new: true });
 
     if (!updatedUniversity) {
       return res.status(404).json({ message: "University not found" });
+    }
+
+    if (userId && changes.length > 0) {
+      await activitylog(userId, `Updated the ${changes.join(", ")}`);
+    } else {
+      console.warn("User ID not found or no changes made, activity log not saved.");
     }
 
     res.status(200).json({
@@ -98,6 +113,5 @@ universityManagementRouter.put("/:id", upload.fields([{ name: "university_logo_u
     res.status(500).json({ message: "Failed to update university details", error });
   }
 });
-
 
 export default universityManagementRouter;

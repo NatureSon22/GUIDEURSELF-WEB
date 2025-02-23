@@ -183,5 +183,22 @@ const getAllStatus = async () => {
   return allStatus || [];
 };
 
+const getAllActLog = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, 
+      {
+        credentials: "include",
+      }
+    ); // Ensure this endpoint is correct
+    if (!response.ok) {
+      throw new Error("Failed to fetch activity logs");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching activity logs:", error);
+    throw error;
+  }
+};
 
-export { fetchCampuses, getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };
+
+export { getAllActLog, fetchCampuses, getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };

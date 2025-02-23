@@ -4,57 +4,64 @@ import multer from 'multer';
 import { Readable } from 'stream';
 import { KeyOfficial, ArchivedKeyOfficial } from "../models/KeyOfficial.js"; 
 import verifyToken from "../middleware/verifyToken.js"
+import activitylog from "../controller/activitylog.js"
 
 // Set up multer storage (using memory storage for file handling)
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
-//router.use(verifyToken)
+router.use(verifyToken)
 
 // POST route to save key official data (including image upload)
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    const { name, position, campus_id, position_name } = req.body;
+    const { name, position_name, campus_id } = req.body;
+    const userId = req.user?.userId; 
 
-    // Check if the image was uploaded
     if (!req.file) {
-      return res.status(400).json({ message: 'Image file is required' });
+      return res.status(400).json({ message: "Image file is required" });
     }
 
     // Upload image to Cloudinary
-    const cloudinaryResponse = await cloudinary.v2.uploader.upload_stream({ resource_type: 'image' }, async (error, result) => {
-      if (error) {
-        console.error('Error uploading image to Cloudinary:', error);
-        return res.status(500).send('Internal Server Error');
-      }
-
-      const imageUrl = result.secure_url; // Get the Cloudinary image URL
-
-      // Create a new KeyOfficial document with the image URL
-      const newOfficial = new KeyOfficial({
-        name,
-        position_name,
-        key_official_photo_url: imageUrl,
-        campus_id,
-        is_deleted: false, // Default to false
-      });
-
-      await newOfficial.save();
-      res.status(200).json({ message: 'Official saved successfully', data: newOfficial });
+    const cloudinaryResponse = await new Promise((resolve, reject) => {
+      const stream = cloudinary.v2.uploader.upload_stream(
+        { resource_type: "image" },
+        (error, result) => (error ? reject(error) : resolve(result))
+      );
+      const bufferStream = new Readable();
+      bufferStream.push(req.file.buffer);
+      bufferStream.push(null);
+      bufferStream.pipe(stream);
     });
 
-    // Create a readable stream for the image buffer (from multer's memory storage)
-    const bufferStream = new Readable();
-    bufferStream.push(req.file.buffer);
-    bufferStream.push(null); // End the stream
-    bufferStream.pipe(cloudinaryResponse);
+    const imageUrl = cloudinaryResponse.secure_url;
 
+    // Save the new KeyOfficial
+    const newOfficial = new KeyOfficial({
+      name,
+      position_name,
+      key_official_photo_url: imageUrl,
+      campus_id,
+      is_deleted: false,
+    });
+
+    await newOfficial.save();
+
+    // **Ensure activity log is properly saved**
+    if (userId) {
+      await activitylog(userId, `Added key official: ${name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
+    res.status(200).json({ message: "Official saved successfully", data: newOfficial });
   } catch (error) {
-    console.error('Error saving official:', error);
-    res.status(500).json({ message: 'Error saving official data' });
+    console.error("Error saving official:", error);
+    res.status(500).json({ message: "Error saving official data" });
   }
 });
+
 
 router.get("/", async (req, res) => {
   try {
@@ -72,6 +79,7 @@ router.get("/", async (req, res) => {
 
 router.post("/unarchive/:id", async (req, res) => {
   const { id } = req.params;
+  const userId = req.user?.userId; 
 
   try {
     // Step 1: Find the archived key official by ID
@@ -89,6 +97,13 @@ router.post("/unarchive/:id", async (req, res) => {
       campus_id: archivedOfficial.campus_id,
       date_added: new Date(),
     });
+
+    
+   if (userId) {
+    await activitylog(userId, `Retrieved key official: ${archivedOfficial.name}`);
+  } else {
+    console.warn("User ID not found, activity log not saved.");
+  }
 
     await newKeyOfficial.save();
 
@@ -134,34 +149,19 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Error fetching key official." });
   }
 });
-  
-  router.delete("/:id", async (req, res) => {
-    try {
-        const { id } = req.params; // Extract id from request params
-        const deletedOfficial = await KeyOfficial.findByIdAndDelete(id); // Delete by ID
-        if (!deletedOfficial) {
-            return res.status(404).json({ message: "Key Official not found." });
-        }
-        res.status(200).json({ message: "Key Official deleted successfully." });
-    } catch (error) {
-        console.error("Error deleting Key Official:", error);
-        res.status(500).json({ message: "Failed to delete Key Official.", error });
-    }
-});
 
-
-router.post('/archive/:id', async (req, res) => {
+router.post("/archive/:id", async (req, res) => {
   const officialId = req.params.id;
+  const userId = req.user?.userId; 
 
   try {
-    // Find the official to be archived by its ID
+    // Find the official to be archived
     const official = await KeyOfficial.findById(officialId);
-
     if (!official) {
-      return res.status(404).json({ message: 'Key Official not found' });
+      return res.status(404).json({ message: "Key Official not found" });
     }
 
-    // Archive the official by copying the data to ArchiveKeyOfficial
+    // Archive the official by copying data to ArchivedKeyOfficial
     const archivedOfficial = new ArchivedKeyOfficial({
       _id: official._id,
       position_name: official.position_name,
@@ -171,23 +171,28 @@ router.post('/archive/:id', async (req, res) => {
       date_added: new Date(),
     });
 
-    // Save the archived official
     await archivedOfficial.save();
-
-    // Optionally, you may delete the official from the original collection if needed
     await KeyOfficial.findByIdAndDelete(officialId);
 
-    res.status(200).json({ message: 'Key Official archived successfully' });
+    // **Ensure activity log is properly saved**
+    if (userId) {
+      await activitylog(userId, `Archived key official: ${official.name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
+    res.status(200).json({ message: "Key Official archived successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'An error occurred while archiving the key official' });
+    console.error("Error archiving key official:", error);
+    res.status(500).json({ message: "An error occurred while archiving the key official" });
   }
 });
 
 router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, position_name } = req.body;
+    const { name, position_name } = req.body;  
+    const userId = req.user?.userId; 
 
     // Prepare the update object
     const updatedData = { name, position_name };
@@ -208,6 +213,14 @@ router.put("/:id", upload.single("image"), async (req, res) => {
 
     // Update Key Official
     const updatedOfficial = await KeyOfficial.findByIdAndUpdate(id, updatedData, { new: true });
+
+    
+    // **Ensure activity log is properly saved**
+    if (userId) {
+      await activitylog(userId, `Updated key official: ${updatedData.name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
 
     if (!updatedOfficial) {
       return res.status(404).json({ message: "Key Official not found" });

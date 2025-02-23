@@ -7,56 +7,51 @@ import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js"; 
 import "@/quillCustom.css";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; 
+import { getUniversityData } from "@/api/component-info";
 
 const CoreValuesField = () => {
-  const modules = {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ indent: "-1" }, { indent: "+1" }],
-        [{ align: [] }],
-        ["link", "image"],
-        ["clean"],
-        [{ size: ["small", "normal" , "large", "huge"] }] // Add font size option
-      ],
-    };
-  const [edit, setEdit] = useState(false);
-  const [coreValues, setCoreValues] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["clean"],
+      [{ size: ["small", "normal", "large", "huge"] }] // Add font size option
+    ],
+  };
+  const [edit, setEdit] = useState(false);
 
+  // Use useQueryClient to invalidate and refetch data
+  const queryClient = useQueryClient();
+
+  // Fetch university data using useQuery
+  const { data: university, isLoading, isError } = useQuery({
+    queryKey: ["universitysettings"],
+    queryFn: getUniversityData,
+  });
+
+  const [coreValues, setCoreValues] = useState("");
+
+  // Sync the `coreValues` state with the fetched data
   useEffect(() => {
-    const fetchCoreValues = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+    if (university) {
+      setCoreValues(university.university_core_values);
+    }
+  }, [university]);
 
-        if (response.ok) {
-          const data = await response.json();
-          setCoreValues(data.university_core_values);
-        } else {
-          console.error("Failed to fetch core values");
-        }
-      } catch (error) {
-        console.error("Error fetching core values:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCoreValues();
-  }, []);
+  const handleEditorChange = (content) => {
+    setCoreValues(content);
+  };
 
   const handleClickUpdate = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`, 
+        `${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`,
         {
           method: "PUT",
           headers: {
@@ -66,26 +61,35 @@ const CoreValuesField = () => {
           body: JSON.stringify({ university_core_values: coreValues }),
         }
       );
+
       if (response.ok) {
         toast({
           title: "Success",
           description: "University core values successfully updated",
         });
         setEdit(false);
+
+        // Invalidate and refetch the "universitysettings" query to get the latest data
+        await queryClient.invalidateQueries(["universitysettings"]);
       } else {
-        console.error("Failed to update core values");
+        toast({
+          title: "Failed",
+          description: "University core values unsuccessfully updated",
+          variant: "error",
+        });
       }
     } catch (error) {
-      console.error("Error updating core values:", error);
+      toast({
+        title: "Failed",
+        description: "University core values unsuccessfully updated",
+        variant: "error",
+      });m
     }
   };
 
   const handleCancel = () => {
     setEdit(false);
-  };
-
-  const handleEditorChange = (content) => {
-    setCoreValues(content); 
+    setCoreValues(university?.university_core_values || ""); // Reset to the original value
   };
 
   return (
@@ -94,7 +98,7 @@ const CoreValuesField = () => {
       subtitle={"The core values of the university"}
       toggleEditMode={setEdit}
     >
-      {isLoading ? (
+      {isLoading || !university ? (
         <div>Loading...</div>
       ) : (
         <div className="space-y-4">
@@ -125,9 +129,9 @@ const CoreValuesField = () => {
             </div>
           ) : (
             <div className="p-2 h-full flex flex-col">
-             <hr></hr>
+              <hr />
               <div
-                dangerouslySetInnerHTML={{ __html: coreValues }}
+                dangerouslySetInnerHTML={{ __html: university.university_core_values }}
                 className="ql-editor list-disc list-outside p-4 text-gray-700 text-justify leading-relaxed"
               ></div>
             </div>

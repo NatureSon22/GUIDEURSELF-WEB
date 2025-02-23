@@ -23,13 +23,16 @@ import virtualTourLogRouter from "../router/virtualTourLogRouter.js";
 import conversationRouter from "../router/conversationRouter.js";
 import messageRouter from "../router/messageRouter.js";
 import activityLogRouter from "../router/activityLogRouter.js";
+import feedbackRouter from "../router/feedbackRouter.js";
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "*"],
+    origin: ["http://localhost:5173", "http://localhost:62685", "http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
@@ -52,6 +55,7 @@ app.use("/api/university", universityManagementRouter);
 app.use("/api/general", generalSettingsRouter);
 app.use("/api/virtualtourlogs", virtualTourLogRouter);
 app.use("/api/activitylogs", activityLogRouter);
+app.use("/api/feedbacks", feedbackRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
 

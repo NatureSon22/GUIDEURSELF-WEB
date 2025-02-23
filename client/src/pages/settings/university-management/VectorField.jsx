@@ -93,7 +93,7 @@ const VectorField = ({ isLoading, universityvector }) => {
                   <img
                     src={editimg}
                     alt="Selected file preview"
-                    className="rounded-md object-cover"
+                    className="rounded-md object-contain h-[240px] w-[240px]"
                   />
                 ) : (
                   <IoMdAdd className="text-[3rem] text-secondary-100/40" />
@@ -105,7 +105,7 @@ const VectorField = ({ isLoading, universityvector }) => {
               <img
                 src={universityvector}
                 alt="University Vector"
-                className="rounded-md object-cover"
+                className="rounded-md object-contain h-[240px] w-[240px]"
               />
             </div>
           )}

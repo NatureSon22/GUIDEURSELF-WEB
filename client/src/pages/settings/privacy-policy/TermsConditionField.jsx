@@ -8,57 +8,62 @@ import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js"; 
 import "@/quillCustom.css";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQuery and useQueryClient
 
-const TermsConditionsField = ({isLoading, systemconditions}) => {
-    const modules = {
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          [{ indent: "-1" }, { indent: "+1" }],
-          [{ align: [] }],
-          ["link", "image"],
-          ["clean"],
-          [{ size: ["small", "normal" , "large", "huge"] }] // Add font size option
-        ],
-      };
+const TermsConditionsField = ({ isLoading }) => {
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["clean"],
+      [{ size: ["small", "normal", "large", "huge"] }] // Add font size option
+    ],
+  };
   const { toast } = useToast();
   const [edit, setEdit] = useState(false);
-  const [conditions, setConditions] = useState(systemconditions);
 
+  // Use useQueryClient to invalidate and refetch data
+  const queryClient = useQueryClient();
+
+  // Fetch terms and conditions data using useQuery
+  const { data: termsData, isError } = useQuery({
+    queryKey: ["terms"],
+    queryFn: async () => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch terms and conditions");
+      }
+      return response.json();
+    },
+  });
+
+  const [conditions, setConditions] = useState("");
+
+  // Sync the `conditions` state with the fetched data
   useEffect(() => {
-    const fetchTermsConditions = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+    if (termsData) {
+      setConditions(termsData.terms_conditions);
+    }
+  }, [termsData]);
 
-        if (response.ok) {
-          const data = await response.json();
-          setConditions(data.terms_conditions); 
-        } else {
-          console.error("Failed to fetch terms and conditions");
-        }
-      } catch (error) {
-        console.error("Error fetching terms and conditions:", error);
-      } 
-    };
-
-    fetchTermsConditions();
-  }, []);
-
-  
   const handleInputChange = (content) => {
     setConditions(content); 
   };
 
   const handleClickUpdate = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/general/update/675cdd2056f690410f1473b7`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -73,19 +78,28 @@ const TermsConditionsField = ({isLoading, systemconditions}) => {
           description: "System terms of service successfully updated",
         });
         setEdit(false);
+
+        // Invalidate and refetch the "terms" query to get the latest data
+        await queryClient.invalidateQueries(["terms"]);
       } else {
-        console.error("Failed to update terms and conditions");
-        alert("Failed to update the terms. Please try again.");
+        toast({
+          title: "Failed",
+          description: "Terms and condition unsuccessfully updated",
+          variant: "error",
+        });
       }
     } catch (error) {
-      console.error("Error updating terms and conditions:", error);
-      alert("Error updating terms and conditions. Please try again.");
+      toast({
+        title: "Failed",
+        description: "Terms and condition unsuccessfully updated",
+        variant: "error",
+      });
     }
   };
 
-  
   const handleCancel = () => {
     setEdit(false);
+    setConditions(termsData?.terms_conditions || ""); // Reset to the original value
   };
 
   return (
@@ -94,7 +108,7 @@ const TermsConditionsField = ({isLoading, systemconditions}) => {
       subtitle={"Modify the terms users must agree to."}
       toggleEditMode={setEdit}
     >
-      {isLoading ? (
+      {isLoading || !termsData ? (
         <Skeleton className="w-[100%] h-[700px] rounded-md bg-secondary-200/40 py-24" />
       ) : (
         <div className="space-y-4">
@@ -130,7 +144,7 @@ const TermsConditionsField = ({isLoading, systemconditions}) => {
               <hr />
               <div className="ql-editor list-disc list-outside p-4">
                 <p
-                  dangerouslySetInnerHTML={{ __html: conditions }}
+                  dangerouslySetInnerHTML={{ __html: termsData.terms_conditions }}
                   className="p-4 h-full w-full text-gray-700 text-justify whitespace-[20px] leading-relaxed"
                 ></p>
               </div>
@@ -144,7 +158,6 @@ const TermsConditionsField = ({isLoading, systemconditions}) => {
 
 TermsConditionsField.propTypes = {
   isLoading: PropTypes.bool,
-  systemconditions: PropTypes.string
 };
 
 export default TermsConditionsField;

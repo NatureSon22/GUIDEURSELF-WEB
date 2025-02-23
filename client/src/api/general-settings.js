@@ -18,7 +18,7 @@ const updateLogo = async (file) => {
     const formData = new FormData();
     formData.append("general_logo_url", file);
 
-    await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/general/update/675cdd2056f690410f1473b7`, {
       method: "PUT",
       credentials: "include",
       body: formData,
@@ -30,7 +30,7 @@ const updateLogo = async (file) => {
 
 const updateAbout = async (about) => {
   try {
-    await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/general/update/675cdd2056f690410f1473b7`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -47,7 +47,7 @@ const updateAbout = async (about) => {
 
 const updatePrivacy = async (policies) => {
   try {
-    await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/general/update/675cdd2056f690410f1473b7`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const updatePrivacy = async (policies) => {
 
 const updateConditions = async (conditions) => {
   try {
-    await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/general/update/675cdd2056f690410f1473b7`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

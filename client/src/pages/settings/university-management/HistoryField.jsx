@@ -2,54 +2,48 @@ import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
-import { Editor } from "@tinymce/tinymce-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js"; 
 import "@/quillCustom.css";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQuery and useQueryClient
+import { getUniversityData } from "@/api/component-info";
 
 const HistoryField = () => {
-  const modules = {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ indent: "-1" }, { indent: "+1" }],
-        [{ align: [] }],
-        ["link", "image"],
-        ["clean"],
-        [{ size: ["small", "large", "huge"] }] // Add font size option
-      ],
-    };
-  const [isLoading, setIsLoading] = useState(true);
-  const [edit, setEdit] = useState(false);
-  const [history, setHistory] = useState("");
   const { toast } = useToast();
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["clean"],
+      [{ size: ["small", "large", "huge"] }] // Add font size option
+    ],
+  };
+  const [edit, setEdit] = useState(false);
 
+  // Use useQueryClient to invalidate and refetch data
+  const queryClient = useQueryClient();
+
+  // Fetch university data using useQuery
+  const { data: university, isLoading, isError } = useQuery({
+    queryKey: ["universitysettings"],
+    queryFn: getUniversityData,
+  });
+
+  const [history, setHistory] = useState("");
+
+  // Sync the `history` state with the fetched data
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-        if (!response.ok) {
-          throw new Error(`Error fetching data: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setHistory(data.university_history || ""); 
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching university history:", error);
-      }
-    };
-    fetchHistory();
-  }, []);
+    if (university) {
+      setHistory(university.university_history);
+    }
+  }, [university]);
 
   const handleEditorChange = (content) => {
     setHistory(content);
@@ -68,22 +62,29 @@ const HistoryField = () => {
           body: JSON.stringify({ university_history: history }),
         }
       );
+
       if (response.ok) {
         toast({
           title: "Success",
           description: "University history successfully updated",
         });
-        setEdit(false); 
+        setEdit(false);
+
+        // Invalidate and refetch the "universitysettings" query to get the latest data
+        await queryClient.invalidateQueries(["universitysettings"]);
       } else {
         console.error("Failed to update university history");
+        alert("Failed to update university history. Please try again.");
       }
     } catch (error) {
       console.error("Error updating university history:", error);
+      alert("Error updating university history. Please try again.");
     }
   };
 
   const handleCancel = () => {
     setEdit(false);
+    setHistory(university?.university_history || ""); // Reset to the original value
   };
 
   return (
@@ -92,7 +93,7 @@ const HistoryField = () => {
       subtitle={"Overview of the History of the university"}
       toggleEditMode={setEdit}
     >
-      {isLoading ? (
+      {isLoading || !university ? (
         <div className="space-y-4">
           <Skeleton className="w-[240px] h-[40px]" />
           <Skeleton className="w-[90%] h-[300px] mt-4" />
@@ -129,7 +130,7 @@ const HistoryField = () => {
               <hr />
               <div className="ql-editor list-disc list-outside p-4">
                 <div
-                  dangerouslySetInnerHTML={{ __html: history }}
+                  dangerouslySetInnerHTML={{ __html: university.university_history }}
                   className="p-4 h-full w-full text-gray-700 text-justify leading-relaxed"
                 ></div>
               </div>

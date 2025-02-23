@@ -16,7 +16,7 @@ const TermsOfService = () => {
         </div>
 
         <div
-          className="text-[0.95rem]"
+          className="text-[0.95rem] ql-editor list-disc list-outside p-4"
           dangerouslySetInnerHTML={{
             __html: isLoading ? "Loading..." : data?.terms_conditions || "",
           }}

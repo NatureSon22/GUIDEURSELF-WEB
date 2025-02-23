@@ -49,8 +49,8 @@ const DisplayingKeyOfficials = () => {
       </div>
 
       <div className="mt-8 flex w-full flex-row items-center justify-center">
-        <img src={university?.university_logo_url} alt="URS Logo" />
-        <img src={university?.university_vector_url} alt="URS Vector" />
+        <img className="h-[140px]" src={university?.university_logo_url} alt="URS Logo" />
+        <img className="h-[140px]" src={university?.university_vector_url} alt="URS Vector" />
       </div>
 
       <div className="mt-8 flex w-full flex-col items-center justify-center">
