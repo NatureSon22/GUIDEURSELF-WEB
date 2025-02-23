@@ -12,7 +12,7 @@ const createConversation = async (req, res) => {
     const response = await fetch(CODY_URLS.CREATE_CONVERSATION(), {
       method: "POST",
       headers: HEADERS,
-      body: JSON.stringify({ name: "sample", bot_id: process.env.CODY_BOT_ID }),
+      body: JSON.stringify({ name, bot_id: process.env.CODY_BOT_ID }),
     });
 
     if (!response.ok) {
@@ -22,16 +22,18 @@ const createConversation = async (req, res) => {
     }
 
     const {
-      data: { id },
+      data: { id, name: conversationName },
     } = await response.json();
 
-    await ConversationModel.create({
+    const newConversation = await ConversationModel.create({
       user_id: userId,
       conversation_id: id,
-      conversation_name: name,
+      conversation_name: conversationName,
     });
 
-    res.status(201).json({ message: "Conversation created successfully", id });
+    res
+      .status(201)
+      .json({ message: "Conversation created successfully", newConversation });
   } catch (error) {
     console.error("Request failed:", error.message);
     res.status(500).json({ message: "Failed to create conversation" });

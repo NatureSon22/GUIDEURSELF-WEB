@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import CreateUserType from "./CreateUserType";
 import TableUserType from "./TableUserType";
 
-const UserTypemanagement = () => {
+const UserTypeManagement = () => {
   return (
     <div>
       <div className="flex gap-4">
@@ -15,4 +15,4 @@ const UserTypemanagement = () => {
   );
 };
 
-export default UserTypemanagement;
+export default UserTypeManagement;

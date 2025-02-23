@@ -53,40 +53,62 @@ const checkTotalSize = (req, res, next) => {
 };
 
 const documentRouter = Router();
-//documentRouter.use(verifyToken);
 
-documentRouter.get("/", getAllFolders);
-documentRouter.get("/get-all-documents/:folderId?", getAllDocuments);
-documentRouter.get("/get-document/:documentId", getDocument);
-documentRouter.post("/create-document", upload.none(), createDocument);
+documentRouter.get("/", verifyToken, getAllFolders);
+documentRouter.get(
+  "/get-all-documents/:folderId?",
+  verifyToken,
+  getAllDocuments
+);
+documentRouter.get("/get-document/:documentId", verifyToken, getDocument);
+documentRouter.post(
+  "/create-document",
+  verifyToken,
+  upload.none(),
+  createDocument
+);
 documentRouter.post(
   "/upload-document",
+  verifyToken,
   upload.array("document", 10),
   checkTotalSize,
   uploadFilesAndCreateDocuments
 );
 documentRouter.post(
   "/create-draft-document",
+  verifyToken,
   upload.array("document", 10),
   checkTotalSize,
   saveAsDraftUploadDocuments
 );
 documentRouter.post(
   "/upload-draft-document",
+  verifyToken,
   upload.array("document", 10),
   uploadDraftFilesAndCreateDocuments
 );
-documentRouter.post("/upload-web", upload.none(), uploadWebPage);
-documentRouter.post("/create-draft", upload.none(), saveAsDraftCreatedDocument);
+documentRouter.post("/upload-web", verifyToken, upload.none(), uploadWebPage);
+documentRouter.post(
+  "/create-draft",
+  verifyToken,
+  upload.none(),
+  saveAsDraftCreatedDocument
+);
 documentRouter.post(
   "/create-draft-web",
+  verifyToken,
   upload.none(),
   saveAsDraftUploadWebPage
 );
-documentRouter.put("/sync-draft/:documentId", syncDocument);
-documentRouter.delete("/delete-document/:documentId", deleteDocument);
+documentRouter.put("/sync-draft/:documentId", verifyToken, syncDocument);
+documentRouter.delete(
+  "/delete-document/:documentId",
+  verifyToken,
+  deleteDocument
+);
 documentRouter.put(
   "/update-upload-document",
+  verifyToken,
   upload.none(),
   updateUploadDocument
 );

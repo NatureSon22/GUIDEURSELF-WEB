@@ -30,7 +30,7 @@ const ImportDialog = ({ openDialog, setOpenDialog, isPending }) => {
               : "Accounts have been successfully imported"}
           </p>
 
-          {isPending && (
+          {/* {isPending && (
             <Button
               variant="outline"
               className="mt-2 w-full border-secondary-100/50 text-secondary-100/50"
@@ -38,7 +38,7 @@ const ImportDialog = ({ openDialog, setOpenDialog, isPending }) => {
             >
               Cancel
             </Button>
-          )}
+          )} */}
         </div>
       </DialogContent>
     </Dialog>

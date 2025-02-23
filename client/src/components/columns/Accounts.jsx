@@ -13,7 +13,7 @@ const handleVerifyClick = async (accountId, verifyAccount) => {
   await verifyAccount(accountId);
 };
 
-const columns = ({ navigate, handleVerifyAccount }) => [
+const columns = ({ navigate, handleVerifyAccount, hasAction = false }) => [
   {
     accessorKey: "user_number",
     header: "User ID",
@@ -89,6 +89,7 @@ const columns = ({ navigate, handleVerifyAccount }) => [
   },
   {
     header: "Action",
+    enableHiding: true,
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-around gap-2">

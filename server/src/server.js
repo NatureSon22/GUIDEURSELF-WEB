@@ -30,10 +30,15 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:62685", "http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: [
+      "https://web-guideurself.netlify.app",
+      "https://guideurself-web.netlify.app",
+      "http://localhost:5173",
+      "*",
+    ],
     credentials: true,
+    // allowedHeaders: ["Content-Type", "Authorization"],
+    // methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
 
@@ -58,6 +63,7 @@ app.use("/api/activitylogs", activityLogRouter);
 app.use("/api/feedbacks", feedbackRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
+app.use("/api/feedback", feedbackRouter); 
 
 (async () => {
   config();

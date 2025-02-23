@@ -1,16 +1,17 @@
-import express from 'express';
-import Feedback from '../models/feedback.js'; // Adjust the path accordingly
+import { Router } from "express";
+import multer from "multer";
+import {
+  addFeedback,
+  getAllFeedback,
+  getFeedback,
+} from "../controller/feedback.js";
+import verifyToken from "../middleware/verifyToken.js";
 
-const feedbackRouter = express.Router();
+const router = Router();
+const upload = multer();
 
-// Get all activity logs
-feedbackRouter.get('/', async (req, res) => {
-  try {
-    const feedbacks = await Feedback.find({});
-    res.status(200).send(feedbacks);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
+router.get("/", verifyToken, getFeedback);
+router.get("/all-feedback", verifyToken, getAllFeedback);
+router.post("/add-feedback", verifyToken, upload.none(), addFeedback);
 
-export default feedbackRouter;
+export default router;

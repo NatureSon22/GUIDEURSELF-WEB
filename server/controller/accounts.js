@@ -5,6 +5,7 @@ import generatePassword from "password-generator";
 import fs from "fs";
 import { Types } from "mongoose";
 import sendPasswordResendEmail from "../service/reset-password.js";
+import activitylog from "./activitylog.js";
 
 const getAllAccounts = async (req, res, next) => {
   try {
@@ -76,7 +77,6 @@ const getAllAccounts = async (req, res, next) => {
       },
     ]);
 
-    // Respond with the fetched users
     res.status(200).json({ users });
   } catch (error) {
     console.error("Error fetching accounts:", error);
@@ -354,10 +354,12 @@ const updateAccount = async (req, res) => {
       date_updated: new Date(),
     };
 
+    // Update date_assigned if role_id or campus_id is provided
     if (req.body.role_id || req.body.campus_id) {
       updatedData.date_assigned = new Date();
     }
 
+    // Allowed fields for update
     const allowedFields = [
       "role_id",
       "campus_id",
@@ -372,6 +374,7 @@ const updateAccount = async (req, res) => {
       "date_assigned",
     ];
 
+    
     const filteredData = Object.keys(updatedData)
       .filter((key) => allowedFields.includes(key))
       .reduce((obj, key) => {
@@ -379,15 +382,23 @@ const updateAccount = async (req, res) => {
         return obj;
       }, {});
 
-    await UserModel.updateOne(
-      { _id: updatedData.accountId },
-      { $set: filteredData }
+   
+    const account = await UserModel.findByIdAndUpdate(
+      req.body.accountId, 
+      { $set: filteredData },
+      { new: true }
     );
+
+    if (!account) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     res.status(200).json({
       message: "User updated successfully",
+      account,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };

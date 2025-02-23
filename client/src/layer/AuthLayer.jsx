@@ -8,10 +8,11 @@ import SpinnerEllipse from "@/components/SpinnerEllipse";
 const AuthLayer = ({ children }) => {
   const { isAuthenticatedLoading } = useAuth();
   const { isUserLoading } = useUser();
-
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  if (isAuthenticatedLoading || isUserLoading) {
+  const isLoading = isAuthenticatedLoading || isUserLoading;
+
+  if (isLoading) {
     return (
       <div className="grid min-h-screen place-items-center">
         <SpinnerEllipse />
@@ -19,7 +20,7 @@ const AuthLayer = ({ children }) => {
     );
   }
 
-  if (isAuthenticated === false && !isAuthenticatedLoading) {
+  if (isAuthenticated === false) {
     return <Navigate to="/login" />;
   }
 

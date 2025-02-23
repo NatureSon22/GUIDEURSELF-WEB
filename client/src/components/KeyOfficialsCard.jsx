@@ -1,6 +1,6 @@
 import React from "react";
 import Pen from "@/assets/Pen.png";
-import Bin from "@/assets/Bin.png";
+import Bin from "@/assets/bin.png";
 
 const KeyOfficialsCard = ({ official, onEdit, onDelete }) => (
   <div className="p-4 border flex flex-col justify-between items-center w-[250px] h-[100%] border-gray-300 rounded-md shadow-md bg-white">

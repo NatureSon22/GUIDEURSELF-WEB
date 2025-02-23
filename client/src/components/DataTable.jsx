@@ -49,46 +49,48 @@ const DataTable = forwardRef(
       [columnActions, columns],
     );
 
-  const handlePageChange = (e) => {
-    const page = Number(e.target.value) - 1;
-    if (page >= 0 && page < table.getPageCount()) {
-      table.setPageIndex(page);
-    }
-  };
-   // Table instance
-  const table = useReactTable({
-    data: memoizedData,
-    columns: memoizedColumns,
-    filterFns: {
-      fuzzy: fuzzyFilter,
-      dateBetweenFilterFn,
-    },
-    state: {
-      columnFilters: filters,
-      globalFilter,
-      pagination,
-      rowSelection,
-    },
-    initialState: {
-      columnVisibility: {
-        full_name: false,
+    // const handlePageChange = (e) => {
+    //   const page = Number(e.target.value) - 1;
+    //   if (page >= 0 && page < table.getPageCount()) {
+    //     table.setPageIndex(page);
+    //   }
+    // };
+    // Table instance
+    const table = useReactTable({
+      data: memoizedData,
+      columns: memoizedColumns,
+      filterFns: {
+        fuzzy: fuzzyFilter,
+        dateBetweenFilterFn,
       },
-    },
-    enableRowSelection: true,
-    getRowId: (row) => row._id,
-    onRowSelectionChange: setRowSelection,
-    onColumnFiltersChange: setFilters,
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: "fuzzy",
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+      state: {
+        columnFilters: filters,
+        globalFilter,
+        pagination,
+        rowSelection,
+      },
+      initialState: {
+        columnVisibility: {
+          full_name: false,
+          // "campus_id.campus_name": false,
+        },
+      },
+      enableRowSelection: true,
+      getRowId: (row) => row._id,
+      onRowSelectionChange: setRowSelection,
+      onColumnFiltersChange: setFilters,
+      onGlobalFilterChange: setGlobalFilter,
+      globalFilterFn: "fuzzy",
+      onPaginationChange: setPagination,
+      getCoreRowModel: getCoreRowModel(),
+      getFilteredRowModel: getFilteredRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+    });
 
     // Expose filtered data to parent component
     useImperativeHandle(ref, () => ({
-      getFilteredData: () => table.getFilteredRowModel().rows.map((row) => row.original),
+      getFilteredData: () =>
+        table.getFilteredRowModel().rows.map((row) => row.original),
     }));
 
     // Render table body
@@ -210,5 +212,7 @@ DataTable.propTypes = {
   setRowSelection: PropTypes.func,
   showFooter: PropTypes.bool,
 };
+
+DataTable.displayName = "DataTable";
 
 export default DataTable;

@@ -1,15 +1,20 @@
 [build]
-  base = "/" 
   command = "cd client && npm install && npm run build"
   publish = "client/dist"
   functions = "client/netlify/functions"
 
 [context.production]
-  command = "cd client && npm install && npm run build:prod"
+  command = "cd client && npm install && npm run build"
 
 [context.deploy-preview]
-  command = "cd client && npm install && npm run build:preview"
+  command = "cd client && npm install && npm run build"
 
 [build.environment]
-  NODE_VERSION = "20" 
+  NODE_VERSION = "20"
   NPM_FLAGS = "--no-optional"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://guideurself-web.onrender.com/api/:splat"
+  status = 200
+  force = true

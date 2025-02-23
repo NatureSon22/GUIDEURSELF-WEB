@@ -204,7 +204,7 @@ const UploadDocument = () => {
       }
 
       const blob = await response.blob();
-      const fileName = document_url.split("/").pop() || "document.pdf";
+      const fileName = documentData.file_name;
       const file = new File([blob], fileName, {
         type: blob.type || "application/octet-stream",
       });

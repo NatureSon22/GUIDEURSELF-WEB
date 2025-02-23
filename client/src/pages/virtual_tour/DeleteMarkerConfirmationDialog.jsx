@@ -1,11 +1,11 @@
-import Bin from "@/assets/bin.png"; // Your bin icon
+import PropTypes from "prop-types";
 
 const DeleteMarkerConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] flex flex-col gap-3">
+      <div className="flex w-[400px] flex-col gap-3 rounded-lg bg-white p-6 shadow-lg">
         <div className="text-center">
           <h2 className="text-lg font-semibold">
             Do you want to remove this marker?
@@ -14,13 +14,13 @@ const DeleteMarkerConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
         <div className="flex justify-center gap-4">
           <button
             onClick={onCancel}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+            className="rounded-md bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400"
           >
             Cancel
           </button>
           <button
             onClick={onProceed}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+            className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600"
           >
             Proceed
           </button>
@@ -28,6 +28,12 @@ const DeleteMarkerConfirmationDialog = ({ isOpen, onCancel, onProceed }) => {
       </div>
     </div>
   );
+};
+
+DeleteMarkerConfirmationDialog.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onProceed: PropTypes.func.isRequired,
 };
 
 export default DeleteMarkerConfirmationDialog;

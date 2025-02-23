@@ -46,7 +46,8 @@ import {
   LegalContainer,
   TermsOfService,
   Policy,
-  MediaLibrary
+  MediaLibrary,
+  EditAssignRole
 } from "./routescomponents.jsx";
 import NetworkLayer from "./layer/NetworkLayer.jsx";
 import EditAssignRoleRefined from "./pages/roles/EditAssignRoleRefined.jsx";
@@ -192,10 +193,10 @@ const routes = [
             path: "",
             element: <Roles />,
           },
-          // {
-          //   path: "/roles-permissions/edit-assign-role/:accountId",
-          //   element: <EditAssignRole />,
-          // },
+          {
+            path: "/roles-permissions/edit-assign-role/:accountId",
+            element: <EditAssignRole />,
+          },
           {
             path: "/roles-permissions/edit-assign-role",
             element: <EditAssignRoleRefined />,

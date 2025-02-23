@@ -52,20 +52,19 @@ const ResendPassword = () => {
 
   const [open, setOpen] = useState(false);
 
-  const { mutateAsync: handleResetPassword, isLoading: isPending } =
-    useMutation({
-      mutationFn: resetPassword,
-      onSuccess: () => {
-        setTimeout(() => setOpen(false), 1000);
-      },
-      onError: () => {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Something went wrong. Please try again.",
-        });
-      },
-    });
+  const { mutateAsync: handleResetPassword, isPending } = useMutation({
+    mutationFn: resetPassword,
+    onSuccess: () => {
+      setTimeout(() => setOpen(false), 1000);
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+      });
+    },
+  });
 
   const handleOnSubmit = async (values) => {
     setOpen(true);

@@ -1,11 +1,10 @@
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import { FaCircleExclamation } from "react-icons/fa6";
 import ComboBox from "@/components/ComboBox";
-import DateRangePicker from "@/components/DateRangePicker";
 import DataTable from "@/components/DataTable";
 import DialogContainer from "@/components/DialogContainer";
 import Loading from "@/components/Loading";
@@ -22,6 +21,8 @@ import { useToast } from "@/hooks/use-toast";
 
 const ArchiveDocuments = () => {
   const { toast } = useToast();
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [searchState, setSearchState] = useState({
     globalFilter: "",
     filters: [],
@@ -72,7 +73,11 @@ const ArchiveDocuments = () => {
       handleMutationResponse(false, "Failed to unarchive document"),
   });
 
-  const { mutateAsync: unarchiveCreatedDocument } = useMutation({
+  const {
+    mutateAsync: unarchiveCreatedDocument,
+    isPending: isUnarchivingCreatedDocument,
+    isSuccess: isSuccessCreatedDocument,
+  } = useMutation({
     mutationFn: createDocument,
     onSuccess: () => {
       handleMutationResponse(true, "Document unarchived successfully");
@@ -81,6 +86,42 @@ const ArchiveDocuments = () => {
     onError: () =>
       handleMutationResponse(false, "Failed to unarchive document"),
   });
+
+  const filteredDocuments = useMemo(() => {
+    if (!allDocuments) return [];
+
+    const globalSearch = searchState.globalFilter?.toLowerCase() || "";
+
+    return allDocuments.filter((account) => {
+      // Column-specific filters
+      const matchesFilters = searchState.filters.every((filter) => {
+        if (filter.value === "") return true;
+        const accountValue = account[filter.id];
+        return (
+          accountValue &&
+          accountValue
+            .toString()
+            .toLowerCase()
+            .includes(filter.value.toLowerCase())
+        );
+      });
+
+      const matchesGlobalFilter =
+        globalSearch === "" ||
+        Object.values(account).some(
+          (value) =>
+            value && value.toString().toLowerCase().includes(globalSearch),
+        );
+
+      const accountDate = new Date(account.date_created);
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+      const matchesDateRange =
+        (!from || accountDate >= from) && (!to || accountDate <= to);
+
+      return matchesFilters && matchesGlobalFilter && matchesDateRange;
+    });
+  }, [allDocuments, searchState, fromDate, toDate]);
 
   // Handlers
   const handleMutationResponse = (success, message) => {
@@ -101,7 +142,7 @@ const ArchiveDocuments = () => {
     });
   };
 
-  const downloadFile = async (document_url) => {
+  const downloadFile = async (file_name, document_url) => {
     try {
       const response = await fetch(document_url);
 
@@ -110,8 +151,7 @@ const ArchiveDocuments = () => {
       }
 
       const blob = await response.blob();
-      const fileName = document_url.split("/").pop() || "document.pdf";
-      const file = new File([blob], fileName, {
+      const file = new File([blob], file_name, {
         type: blob.type || "application/octet-stream",
       });
 
@@ -144,7 +184,7 @@ const ArchiveDocuments = () => {
 
     if (document_type === "uploaded-document" && type === "published") {
       formData.append("document_url", document_url);
-      const file = await downloadFile(document_url);
+      const file = await downloadFile(file_name, document_url);
 
       if (!file) {
         toast({
@@ -159,6 +199,7 @@ const ArchiveDocuments = () => {
       await unarchiveUploadedDocument(formData);
     } else if (document_type === "uploaded-document" && type === "draft") {
       formData.append("isdraft", true);
+      //formData.append("")
       await unarchiveUploadedDocument(formData);
     } else if (document_type === "imported-web" && type === "published") {
       formData.append("url", document_url);
@@ -181,7 +222,11 @@ const ArchiveDocuments = () => {
 
   // Dialog Content Components
   const DialogContent = () => {
-    if (isSuccessUploadedDocument || isSuccessImportedWebDocument) {
+    if (
+      isSuccessUploadedDocument ||
+      isSuccessImportedWebDocument ||
+      isSuccessCreatedDocument
+    ) {
       return (
         <p className="text-[0.95rem] font-semibold">
           Document successfully unarchived!
@@ -189,7 +234,11 @@ const ArchiveDocuments = () => {
       );
     }
 
-    if (isUnarchivingUploadedDocument || isUnarchivingImportedWebDocument) {
+    if (
+      isUnarchivingCreatedDocument ||
+      isUnarchivingUploadedDocument ||
+      isUnarchivingImportedWebDocument
+    ) {
       return (
         <div className="flex flex-col items-center gap-5">
           <Loading />
@@ -216,10 +265,14 @@ const ArchiveDocuments = () => {
             className="flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
             onClick={handleUnarchiveDocument}
             disabled={
-              isUnarchivingUploadedDocument || isUnarchivingImportedWebDocument
+              isUnarchivingUploadedDocument ||
+              isUnarchivingImportedWebDocument ||
+              isUnarchivingCreatedDocument
             }
           >
-            {isUnarchivingUploadedDocument || isUnarchivingImportedWebDocument
+            {isUnarchivingUploadedDocument ||
+            isUnarchivingImportedWebDocument ||
+            isUnarchivingCreatedDocument
               ? "Proceeding..."
               : "Proceed"}
           </Button>
@@ -241,7 +294,21 @@ const ArchiveDocuments = () => {
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
-        <DateRangePicker />
+        <div className="flex gap-2">
+          <Input
+            type="date"
+            className="w-[170px]"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
+          <Input
+            type="date"
+            className="w-[170px]"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
+
         <ComboBox
           options={allCampuses || []}
           placeholder="select campus"
@@ -271,7 +338,7 @@ const ArchiveDocuments = () => {
 
       <div className="flex-1">
         <DataTable
-          data={allDocuments || []}
+          data={filteredDocuments || []}
           columns={documentColumns}
           filters={searchState.filters}
           setFilters={(filters) =>

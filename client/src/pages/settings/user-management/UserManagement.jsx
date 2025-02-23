@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import UserTypemanagement from "./UserTypeManagement";
+import UserTypeManagement from "./UserTypeManagement";
 import RoleManagement from "./RoleManagement";
 import Layout from "@/components/Layout";
 const UserManagement = () => {
@@ -26,7 +26,7 @@ const UserManagement = () => {
         subtitle="Define categories for system users"
         isEditable={false}
       >
-        <UserTypemanagement />
+        <UserTypeManagement />
       </Layout>
 
       <Layout
