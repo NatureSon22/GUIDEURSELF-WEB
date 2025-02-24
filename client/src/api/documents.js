@@ -19,7 +19,7 @@ const getAllDocuments = async (
   draftsOnly = false,
   recent = false,
   is_deleted = false,
-  all = ""
+  all = "",
 ) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/documents/get-all-documents/${folder_id}?type=${type}&draftsOnly=${draftsOnly}&recent=${recent}&is_deleted=${is_deleted}&all=${all}`,
@@ -217,6 +217,63 @@ const deleteDocument = async (documentId) => {
   return message;
 };
 
+const updateCreateDocument = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/edit-create-document`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+  return message;
+};
+
+const updateDocument = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/edit-upload-document`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+  return message;
+};
+
+const updateWebUpload = async (formData) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/documents/edit-upload-web`,
+    {
+      method: "PUT",
+      credentials: "include",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+  return message;
+};
+
 export {
   getAllFolders,
   getAllDocuments,
@@ -230,4 +287,7 @@ export {
   saveAsDraftDocument,
   syncDraftDocument,
   deleteDocument,
+  updateCreateDocument,
+  updateDocument,
+  updateWebUpload,
 };

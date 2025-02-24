@@ -16,7 +16,11 @@ import {
 } from "../controller/document.js";
 import multer from "multer";
 import storage from "../config/storage.js";
-import { updateUploadDocument } from "../controller/documentUpdate.js";
+import {
+  updateCreatedDocument,
+  updateUploadDocument,
+  updateWebUpload,
+} from "../controller/documentUpdate.js";
 
 const MAX_TOTAL_SIZE = 100 * 1024 * 1024;
 
@@ -111,6 +115,25 @@ documentRouter.put(
   verifyToken,
   upload.none(),
   updateUploadDocument
+);
+
+documentRouter.put(
+  "/edit-create-document",
+  verifyToken,
+  upload.none(),
+  updateCreatedDocument
+);
+documentRouter.put(
+  "/edit-upload-document",
+  verifyToken,
+  upload.none(),
+  updateUploadDocument
+);
+documentRouter.put(
+  "/edit-upload-web",
+  verifyToken,
+  upload.none(),
+  updateWebUpload
 );
 
 documentRouter.use((err, req, res, next) => {

@@ -10,7 +10,6 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { config } from "dotenv";
 import documentParser from "./documentParser.js";
-import { response } from "express";
 import activitylog from "./activitylog.js";
 
 config();

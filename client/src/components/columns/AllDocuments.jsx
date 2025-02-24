@@ -2,18 +2,20 @@ import formatDateTime from "@/utils/formatDateTime";
 import { Button } from "../ui/button";
 import { MdDelete } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { BiSolidEdit } from "react-icons/bi";
 
 const handleNavigate = (navigate, type, id) => {
-  const route =
-    type == "created-document"
-      ? `/documents/write-document/${id}`
-      : type == "imported-web"
-        ? `/documents/import-website/${id}`
-        : `/documents/upload-document/${id}`;
-  navigate(route);
+  const routes = {
+    "created-document": `/documents/write-document/${id}`,
+    "imported-web": `/documents/import-website/${id}`,
+  };
+
+  const route = routes[type] || `/documents/upload-document/${id}`;
+
+  navigate(route, { state: { isEditing: Boolean(true) } });
 };
 
-const column = ({ navigate, setOpen, setSelectedDocument }) => [
+const column = ({ navigate, setOpen, setSelectedDocument, currentUser }) => [
   {
     accessorKey: "file_name",
     header: "Filename",
@@ -54,11 +56,13 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
   {
     accessorKey: "campus_id.campus_name",
     id: "campus_id.campus_name",
+    header: "Campus",
     enableHiding: true,
   },
   {
     accessorKey: "document_type",
     id: "document_type",
+    header: "Document Type",
     enableHiding: true,
   },
   {
@@ -84,24 +88,32 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
   {
     header: "Action",
     cell: ({ row }) => {
+      const editable = row.original.visibility === "viewAndEdit";
+      const isOwner = row.original.published_by === "You";
+    
+      // console.log(`isOwner: ${isOwner}`);
+      // console.log(`published_by: ${row.original.published_by}`);
+
       return (
         <div className="flex items-center gap-5">
           <div className="ml-auto"></div>
 
-          {/* <Button
-            variant="secondary"
-            className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
-            onClick={() =>
-              handleNavigate(
-                navigate,
-                row.original.document_type,
-                row.original._id,
-              )
-            }
-          >
-            <BiSolidEdit />
-            Edit
-          </Button> */}
+          {(editable || isOwner)  && (
+            <Button
+              variant="secondary"
+              className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
+              onClick={() =>
+                handleNavigate(
+                  navigate,
+                  row.original.document_type,
+                  row.original._id,
+                )
+              }
+            >
+              <BiSolidEdit />
+              Edit
+            </Button>
+          )}
 
           <Button
             variant="destructive"

@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getAllCampuses } from "@/api/component-info";
 import documentStatus from "@/data/documentStatus";
 import documentTypes from "@/data/doc_types"
+import useUserStore from "@/context/useUserStore";
 
 const AllDocuments = () => {
   const { toast } = useToast();
@@ -31,6 +32,8 @@ const AllDocuments = () => {
   const [reset, setReset] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const currentUser = useUserStore((state) => state.currentUser);
+  console.log(currentUser);
 
   const { data: allDocuments, isLoading: isLoadingAllDocuments } = useQuery({
     queryKey: ["all-documents"],
@@ -165,7 +168,7 @@ const AllDocuments = () => {
             globalFilter={globalFilter}
             filters={filters}
             pageSize={8}
-            columnActions={{ navigate, setOpen, setSelectedDocument }}
+            columnActions={{ navigate, setOpen, setSelectedDocument, currentUser }}
           />
         )}
       </div>
