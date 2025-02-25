@@ -48,8 +48,7 @@ const updateCreatedDocument = async (req, res) => {
 
 const updateUploadDocument = async (req, res) => {
   try {
-    const { documentId } = req.params;
-    const { visibility } = req.body;
+    const { documentId, visibility } = req.body;
 
     const updatedDocument = await DocumentModel.findByIdAndUpdate(
       documentId,

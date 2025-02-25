@@ -5,7 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { createDocument, saveAsDraft, getDocument } from "@/api/documents";
+import {
+  createDocument,
+  saveAsDraft,
+  getDocument,
+  updateCreateDocument,
+} from "@/api/documents";
 
 import { Input } from "../../components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import TextEditor from "@/components/TextEditor";
 import Loading from "@/components/Loading";
 import DialogContainer from "@/components/DialogContainer";
+import { useLocation } from "react-router-dom";
 
 // Form validation schema
 const formSchema = z.object({
@@ -28,6 +34,8 @@ const formSchema = z.object({
 });
 
 const CreateNewDocument = () => {
+  const { state } = useLocation();
+  const isEditing = state?.isEditing ? true : false;
   const { documentId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -103,13 +111,39 @@ const CreateNewDocument = () => {
     },
   });
 
+  const { mutateAsync: handleUpdateDocument } = useMutation({
+    mutationFn: updateCreateDocument,
+    onSuccess: (data) => {
+      toast({
+        title: "Success",
+        description: data.message,
+      });
+      navigate(-1);
+      setOpenDialog(false);
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+      setOpenDialog(false);
+    },
+  });
+
   // Populate fields if editing an existing document
   useEffect(() => {
     if (documentData?.metadata) {
       const { name, content, visibility } = documentData.metadata;
-      setValue("title", name, { shouldValidate: true });
-      setValue("content", content, { shouldValidate: true });
-      setValue("visibility", visibility, { shouldValidate: true });
+      setValue("title", documentData.file_name || name, {
+        shouldValidate: true,
+      });
+      setValue("content", documentData.content || content, {
+        shouldValidate: true,
+      });
+      setValue("visibility", documentData.visibility || visibility, {
+        shouldValidate: true,
+      });
     }
   }, [documentData, setValue]);
 
@@ -124,6 +158,12 @@ const CreateNewDocument = () => {
     formData.append("visibility", data.visibility);
 
     setOpenDialog(true);
+
+    if (isEditing) {
+      formData.append("id", documentId);
+      formData.append("docId", documentData.document_id);
+      handleUpdateDocument(formData);
+    }
 
     if (documentId) {
       formData.append("documentId", documentId);
@@ -176,7 +216,7 @@ const CreateNewDocument = () => {
         ) : (
           <>
             <div className="space-y-14">
-              <div className="min-h-[300px] items-center mt-1">
+              <div className="mt-1 min-h-[300px] items-center">
                 <TextEditor
                   content={content}
                   setContent={(value) =>
@@ -231,15 +271,18 @@ const CreateNewDocument = () => {
 
       {!isLoading && (
         <div className="ml-auto flex gap-3">
-          <Button
-            type="submit"
-            variant="ghost"
-            className="text-base-200"
-            disabled={isCreating || isSaving}
-            onClick={() => handleSetAction("draft")}
-          >
-            Save as Draft
-          </Button>
+          {!isEditing && (
+            <Button
+              type="submit"
+              variant="ghost"
+              AAAAAAAAAAQQA
+              className="text-base-200"
+              disabled={isCreating || isSaving}
+              onClick={() => handleSetAction("draft")}
+            >
+              Save as Draft
+            </Button>
+          )}
 
           <Button
             type="submit"

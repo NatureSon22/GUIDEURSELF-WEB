@@ -7,7 +7,7 @@ import verifyToken from "../middleware/verifyToken.js";
 import activitylog from "../controller/activitylog.js"
 
 const router = express.Router();
-router.use(verifyToken);  
+//router.use(verifyToken);  
 
 // Multer storage (temporary in-memory)
 const storage = multer.memoryStorage();

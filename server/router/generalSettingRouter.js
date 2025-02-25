@@ -19,7 +19,7 @@ const upload = multer({
 
 const generalSettingsRouter = Router();
 
-generalSettingsRouter.use(verifyToken);
+//generalSettingsRouter.use(verifyToken);
 
 generalSettingsRouter.get("/get-info", async (req, res) => {
   try {

@@ -63,7 +63,7 @@ app.use("/api/activitylogs", activityLogRouter);
 app.use("/api/feedbacks", feedbackRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
-app.use("/api/feedback", feedbackRouter); 
+app.use("/api/feedback", feedbackRouter);
 
 (async () => {
   config();

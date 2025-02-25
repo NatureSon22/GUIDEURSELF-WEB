@@ -15,7 +15,7 @@ const handleNavigate = (navigate, type, id) => {
   navigate(route, { state: { isEditing: Boolean(true) } });
 };
 
-const column = ({ navigate, setOpen, setSelectedDocument, currentUser }) => [
+const column = ({ navigate, setOpen, setSelectedDocument }) => [
   {
     accessorKey: "file_name",
     header: "Filename",
@@ -90,15 +90,12 @@ const column = ({ navigate, setOpen, setSelectedDocument, currentUser }) => [
     cell: ({ row }) => {
       const editable = row.original.visibility === "viewAndEdit";
       const isOwner = row.original.published_by === "You";
-    
-      // console.log(`isOwner: ${isOwner}`);
-      // console.log(`published_by: ${row.original.published_by}`);
 
       return (
         <div className="flex items-center gap-5">
           <div className="ml-auto"></div>
 
-          {(editable || isOwner)  && (
+          {(editable || isOwner) && (
             <Button
               variant="secondary"
               className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
@@ -115,16 +112,18 @@ const column = ({ navigate, setOpen, setSelectedDocument, currentUser }) => [
             </Button>
           )}
 
-          <Button
-            variant="destructive"
-            className="group rounded-full bg-accent-100/10 px-[0.65rem]"
-            onClick={() => {
-              setOpen(true);
-              setSelectedDocument(row.original._id);
-            }}
-          >
-            <MdDelete className="text-accent-100 group-hover:text-white" />
-          </Button>
+          {isOwner && (
+            <Button
+              variant="destructive"
+              className="group rounded-full bg-accent-100/10 px-[0.65rem]"
+              onClick={() => {
+                setOpen(true);
+                setSelectedDocument(row.original._id);
+              }}
+            >
+              <MdDelete className="text-accent-100 group-hover:text-white" />
+            </Button>
+          )}
 
           <div className="mr-auto"></div>
         </div>

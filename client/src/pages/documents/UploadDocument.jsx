@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import {
   createFromUploadDocument,
   getDocument,
   saveAsDraftDocument,
+  updateDocument,
   uploadDraftDocument,
 } from "@/api/documents";
 import DocumentIcon from "./DocumentIcon";
@@ -53,6 +54,8 @@ const uploadSchema = z.object({
 });
 
 const UploadDocument = () => {
+  const { state } = useLocation();
+  const isEditing = state?.isEditing ? true : false;
   const navigate = useNavigate();
   const { documentId } = useParams();
   const inputRef = useRef(null);
@@ -148,6 +151,26 @@ const UploadDocument = () => {
     },
   });
 
+  const { mutateAsync: handleUpdateDocument } = useMutation({
+    mutationFn: updateDocument,
+    onSuccess: () => {
+      toast({
+        title: "Document Updated",
+        description: "Your document has been successfully updated.",
+      });
+      navigate(-1);
+      queryClient.invalidateQueries(["documents"]);
+    },
+    onError: (error) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update document",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+    },
+  });
+
   useEffect(() => {
     if (documentData) {
       setValue("visibility", documentData.visibility);
@@ -223,40 +246,95 @@ const UploadDocument = () => {
   const handleSubmitForm = async (data) => {
     const formData = new FormData();
 
-    if (documentData?.document_url) {
+    if (isEditing) {
+      formData.append("documentId", documentId);
+      formData.append("visibility", data.visibility);
+      await handleUpdateDocument(formData);
+      return;
+    }
+
+    const hasExistingDocument = documentData?.document_url;
+    if (hasExistingDocument) {
       formData.append("documentId", documentData._id);
       formData.append("document_url", documentData.document_url);
     } else {
       if (files.length === 0) {
-        toast({
+        return toast({
           title: "No Files Selected",
           description: "Please select at least one file to upload",
           variant: "destructive",
         });
-        return;
       }
       files.forEach((file) => formData.append("document", file));
     }
+
     formData.append("visibility", data.visibility);
     setIsProcessing(true);
     setOpenDialog(true);
+
     try {
       if (submitAction === "publish") {
-        if (documentData?.document_url) {
+        if (hasExistingDocument) {
           const file = await downloadFile(documentData.document_url);
           formData.append("document", file);
-          await handleUploadDocument(formData);
-        } else {
-          await handleCreateDocument(formData);
         }
+        await (hasExistingDocument
+          ? handleUploadDocument(formData)
+          : handleCreateDocument(formData));
       } else {
         await handleSaveDraft(formData);
       }
     } catch (error) {
       console.error("Form submission error:", error);
+    } finally {
       setIsProcessing(false);
     }
   };
+
+  // const handleSubmitForm = async (data) => {
+  //   const formData = new FormData();
+
+  //   if (isEditing) {
+  //     formData.append("documentId", documentId);
+  //     formData.append("visibility", data.visibility);
+  //     await handleUpdateDocument(formData);
+  //     return;
+  //   }
+
+  //   if (documentData?.document_url) {
+  //     formData.append("documentId", documentData._id);
+  //     formData.append("document_url", documentData.document_url);
+  //   } else {
+  //     if (files.length === 0) {
+  //       toast({
+  //         title: "No Files Selected",
+  //         description: "Please select at least one file to upload",
+  //         variant: "destructive",
+  //       });
+  //       return;
+  //     }
+  //     files.forEach((file) => formData.append("document", file));
+  //   }
+  //   formData.append("visibility", data.visibility);
+  //   setIsProcessing(true);
+  //   setOpenDialog(true);
+  //   try {
+  //     if (submitAction === "publish") {
+  //       if (documentData?.document_url) {
+  //         const file = await downloadFile(documentData.document_url);
+  //         formData.append("document", file);
+  //         await handleUploadDocument(formData);
+  //       } else {
+  //         await handleCreateDocument(formData);
+  //       }
+  //     } else {
+  //       await handleSaveDraft(formData);
+  //     }
+  //   } catch (error) {
+  //     console.error("Form submission error:", error);
+  //     setIsProcessing(false);
+  //   }
+  // };
 
   const renderDragDropArea = () => (
     <div
