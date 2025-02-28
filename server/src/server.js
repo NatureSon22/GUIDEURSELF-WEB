@@ -31,8 +31,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      "https://web-guideurself.netlify.app",
-      "https://guideurself-web.netlify.app",
+      "https://guide-urself.netlify.app",
       "http://localhost:5173",
       "*",
     ],
