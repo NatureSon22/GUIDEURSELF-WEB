@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Search from "../../assets/Search.png";
 import Pen from "../../assets/Pen.png";
-import Bin from "../../assets/Bin.png";
+import Bin from "../../assets/bin.png";
 import Check from "../../assets/Check.png";
 import addImage from "../../assets/add.png";
 import { IoAlertCircle } from "react-icons/io5";
@@ -12,7 +12,6 @@ import { useToast } from "@/hooks/use-toast";
 import FeaturePermission from "@/layer/FeaturePermission";
 import { loggedInUser } from "@/api/auth";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "@/components/Loading";
 
 const EditDisplayCampus = () => {
   const [campusToDelete, setCampusToDelete] = useState(null);
@@ -24,7 +23,11 @@ const EditDisplayCampus = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const { data: university, isLoading, isError } = useQuery({
+  const {
+    data: university,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["universitysettings"],
     queryFn: getUniversityData,
   });
@@ -38,10 +41,13 @@ const EditDisplayCampus = () => {
   useEffect(() => {
     const fetchCampuses = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
-          method: "get",
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/campuses`,
+          {
+            method: "get",
+            credentials: "include",
+          },
+        );
         const data = await response.json();
         setCampuses(data); // Store fetched campuses
       } catch (error) {
@@ -59,34 +65,32 @@ const EditDisplayCampus = () => {
 
   const archiveCampus = async (campusId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/archived-campuses`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/archived-campuses`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ campus_id: campusId }),
+          credentials: "include",
         },
-        body: JSON.stringify({ campus_id: campusId }),
-        credentials: "include",
-      });
-  
+      );
+
       if (!response.ok) {
         throw new Error("Failed to archive campus");
       }
-  
+
       const data = await response.json();
       return data;
-      toast({
-        title: "Success",
-        description: `Campus successfully archived and deleted: ${campusToDelete.campus_name}`,
-        variant: "default",
-      });
     } catch (error) {
-        toast({
-          title: "Error",
-          description: `Failed to delete campus: ${campusToDelete.campus_name}`,
-          variant: "destructive",
-        });
+      toast({
+        title: "Error",
+        description: `Failed to delete campus: ${campusToDelete.campus_name}`,
+        variant: "destructive",
+      });
     }
-  };  
+  };
 
   const handleConfirmDelete = async () => {
     if (!campusToDelete) return;
@@ -98,7 +102,7 @@ const EditDisplayCampus = () => {
       // Step 2: Delete the campus from the active list
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/campuses/${campusToDelete._id}`,
-        { method: "DELETE", credentials: "include" }
+        { method: "DELETE", credentials: "include" },
       );
 
       if (response.ok) {
@@ -108,7 +112,7 @@ const EditDisplayCampus = () => {
           variant: "default",
         });
         setCampuses((prevCampuses) =>
-          prevCampuses.filter((c) => c._id !== campusToDelete._id)
+          prevCampuses.filter((c) => c._id !== campusToDelete._id),
         );
       } else {
         toast({
@@ -124,7 +128,8 @@ const EditDisplayCampus = () => {
       console.error("Error deleting campus:", error);
       toast({
         title: "Error",
-        description: "An error occurred while archiving or deleting the campus.",
+        description:
+          "An error occurred while archiving or deleting the campus.",
         variant: "destructive",
       });
     }
@@ -165,29 +170,31 @@ const EditDisplayCampus = () => {
   // Step 2: Apply the search filter and sort alphabetically
   const filteredCampuses = filteredByAccess
     .filter((campus) =>
-      campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
+      campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
   return (
     <div className="w-full">
       {loadingVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
-              <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-md bg-white p-6 text-center shadow-md">
+            <p className="text-xl font-semibold text-gray-800">
+              {loadingMessage}
+            </p>
+          </div>
         </div>
       )}
-      <div className="w-[75%] flex flex-col justify-between">
+      <div className="flex w-[75%] flex-col justify-between">
         <Header
           title={"Manage Campus"}
           subtitle={"See list of all campuses to manage and edit."}
         />
       </div>
-      <div className="w-full pt-6 flex gap-4">
-        <div className="w-[100%] h-[40px] flex flex-row justify-between items-center py-1 px-2 rounded-md border-gray-300 border">
+      <div className="flex w-full gap-4 pt-6">
+        <div className="flex h-[40px] w-[100%] flex-row items-center justify-between rounded-md border border-gray-300 px-2 py-1">
           <textarea
-            className="overflow-hidden w-[95%] h-5 resize-none outline-none"
+            className="h-5 w-[95%] resize-none overflow-hidden outline-none"
             placeholder="Search"
             value={searchTerm}
             onChange={handleSearchChange}
@@ -197,46 +204,60 @@ const EditDisplayCampus = () => {
 
         <FeaturePermission module="Manage Campus" access="add campus">
           <Link className="w-[13%]" to="/campus/add">
-            <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 ">
-              <img className="w-[30px] h-[30px]" src={addImage} alt="Add Campus" />
+            <button className="text-md focus-none flex h-10 w-[100%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none hover:bg-gray-200">
+              <img
+                className="h-[30px] w-[30px]"
+                src={addImage}
+                alt="Add Campus"
+              />
               Add Campus
             </button>
           </Link>
         </FeaturePermission>
         <button
           onClick={handleBack}
-          className="w-[7%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-base-200 text-base-200"
+          className="text-md focus-none flex h-10 w-[7%] items-center justify-evenly rounded-md border-[1.5px] border-base-200 text-base-200 outline-none"
         >
-          <img className="w-[30px] h-[30px]" src={Check} alt="Save" />
+          <img className="h-[30px] w-[30px]" src={Check} alt="Save" />
           Save
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 py-6 rounded-md">
+      <div className="grid grid-cols-1 gap-2 rounded-md py-6 md:grid-cols-2 lg:grid-cols-4">
         {filteredCampuses.map((campus, index) => (
           <div
             key={index}
-            className="pb-3 w-[360px] h-[370px] border border-gray-300 flex flex-col justify-center items-center rounded-md"
+            className="flex h-[370px] w-[360px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3"
           >
-            <div className="px-2 w-[100%] h-[100px] flex justify-between rounded-md">
-              <div className="w-[30%] gap-2 pt-3 pb-4 flex items-center justify-center">
-                <img className="h-[50px]" src={university?.university_vector_url} alt="Vector" />
-                <img className="h-[50px]" src={university?.university_logo_url} alt="Logo" />
+            <div className="flex h-[100px] w-[100%] justify-between rounded-md px-2">
+              <div className="flex w-[30%] items-center justify-center gap-2 pb-4 pt-3">
+                <img
+                  className="h-[50px]"
+                  src={university?.university_vector_url}
+                  alt="Vector"
+                />
+                <img
+                  className="h-[50px]"
+                  src={university?.university_logo_url}
+                  alt="Logo"
+                />
               </div>
-              <div className="w-[70%] flex flex-col justify-center">
-                <h2 className="font-bold text-lg">{campus.campus_name} Campus</h2>
+              <div className="flex w-[70%] flex-col justify-center">
+                <h2 className="text-lg font-bold">
+                  {campus.campus_name} Campus
+                </h2>
                 <h3 className="text-[12px]">NURTURING TOMORROW'S NOBLEST</h3>
               </div>
             </div>
 
-            <div className="px-6 w-[100%] h-[100%]">
+            <div className="h-[100%] w-[100%] px-6">
               <img
-                className="object-cover h-[100%] rounded-md"
+                className="h-[100%] rounded-md object-cover"
                 src={campus.campus_cover_photo_url}
                 alt="Campus Cover"
               />
             </div>
-            <div className="px-6 flex w-[100%] h-[150px] pt-[10px] justify-end gap-[10px]">
+            <div className="flex h-[150px] w-[100%] justify-end gap-[10px] px-6 pt-[10px]">
               <Link
                 className="flex flex-col items-center justify-center"
                 to={`/campus/edit-campus/${campus._id}`}
@@ -251,22 +272,22 @@ const EditDisplayCampus = () => {
               </FeaturePermission>
 
               {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-[20%] flex items-center justify-center z-50">
-                  <div className="bg-white p-6 rounded-md shadow-md w-[500px] flex flex-col justify-center items-center  text-center">
-                    <IoAlertCircle className="text-[3rem] w-[100%] text-base-200" />
-                    <p className="text-gray-600 my-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-[20%]">
+                  <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-white p-6 text-center shadow-md">
+                    <IoAlertCircle className="w-[100%] text-[3rem] text-base-200" />
+                    <p className="my-4 text-gray-600">
                       Do you want to archive this campus?
                     </p>
-                    <div className="flex justify-center w-[100%] gap-4 mt-4">
+                    <div className="mt-4 flex w-[100%] justify-center gap-4">
                       <button
                         onClick={() => setIsDeleteModalOpen(false)}
-                        className="px-4 py-2 text-secondary-210 bg-secondary-300 w-[100%] border border-secondary-210 rounded-md"
+                        className="w-[100%] rounded-md border border-secondary-210 bg-secondary-300 px-4 py-2 text-secondary-210"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleConfirmDelete}
-                        className="px-4 text-base-200 py-2 bg-base-210 w-[100%] border border-base-200 rounded-md"
+                        className="w-[100%] rounded-md border border-base-200 bg-base-210 px-4 py-2 text-base-200"
                       >
                         Proceed
                       </button>

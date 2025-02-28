@@ -1,4 +1,3 @@
-import React from "react";
 import Pen from "@/assets/Pen.png";
 import Bin from "@/assets/bin.png";
 
