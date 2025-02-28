@@ -1,19 +1,48 @@
 import { useState } from "react";
 import DataTable from "@/components/DataTable";
 import Accounts from "@/components/columns/Accounts";
+import { useQuery } from "@tanstack/react-query";
+import { getAllAccounts } from "@/api/accounts";
+import Loading from "@/components/Loading";
 
 const RecentAccounts = () => {
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const {
+    data: allAccounts,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: getAllAccounts,
+    refetchOnWindowFocus: false,
+  });
+
+  if (isError) {
+    return (
+      <div className="grid h-52 place-items-center text-secondary-100-75">
+        <p>Failed to fetch activity logs</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="grid h-52 place-items-center">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <DataTable
-      data={[]}
+      data={allAccounts || []}
       columns={Accounts}
       filters={filters}
       setFilters={setFilters}
       globalFilter={globalFilter}
       setGlobalFilter={setGlobalFilter}
+      columnActions={{ hasAction: false }}
       showFooter={false}
     />
   );

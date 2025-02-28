@@ -1,15 +1,26 @@
 import { useState } from "react";
 import FeedbackSummaryChart from "./FeedbackSummaryChart";
 import FeedbackSummaryReviews from "./FeedbackSummaryReviews";
+import { useQuery } from "@tanstack/react-query";
+import { getTotalFeedback } from "@/api/feedback";
 
 const filters = ["All", "Student", "Faculty", "Staff", "Other"];
 
 const FeedbackSummary = () => {
   const [filterState, setFilterState] = useState("All");
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["feedbacks"],
+    queryFn: getTotalFeedback,
+  });
+
   const handleFilter = (filter) => {
     setFilterState(filter);
   };
+
+  if (isLoading) {
+    return <div></div>;
+  }
 
   return (
     <div className="space-y-5 rounded-xl border border-secondary-200/50 bg-white px-7 py-7">
@@ -31,8 +42,8 @@ const FeedbackSummary = () => {
         </div>
 
         <div className="flex items-center gap-8">
-          <FeedbackSummaryReviews />
-          <FeedbackSummaryChart />
+          <FeedbackSummaryReviews data={data} />
+          <FeedbackSummaryChart data={data} />
         </div>
       </div>
     </div>

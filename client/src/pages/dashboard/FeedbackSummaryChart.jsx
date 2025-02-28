@@ -5,30 +5,34 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "5", desktop: 1000 },
-  { month: "4", desktop: 550 },
-  { month: "3", desktop: 320 },
-  { month: "2", desktop: 120 },
-  { month: "1", desktop: 50 },
-];
+import PropTypes from "prop-types";
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "all",
     color: "hsl(var(--chart-1))",
   },
 };
 
-const FeedbackSummaryChart = () => {
+// FeedbackSummaryChart component
+const FeedbackSummaryChart = ({ data }) => {
+  const { total = {} } = data;
+
+  const chartData = Object.keys(total).map((key) => ({
+    rate: key,
+    desktop: total[key],
+  }));
+
   return (
     <Card className="flex-1 border-none shadow-none">
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px]">
           <BarChart
+          
             accessibilityLayer
             data={chartData}
             barSize={35}
+            defaultShowTooltip={false}
             barGap={0}
             layout="vertical"
             margin={{
@@ -37,14 +41,15 @@ const FeedbackSummaryChart = () => {
           >
             <XAxis type="number" dataKey="desktop" />
             <YAxis
-              dataKey="month"
+              dataKey="rate"
               type="category"
               color="black"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              domain={["auto", "auto"]}
             />
+
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
@@ -59,6 +64,12 @@ const FeedbackSummaryChart = () => {
       </CardContent>
     </Card>
   );
+};
+
+FeedbackSummaryChart.propTypes = {
+  data: PropTypes.shape({
+    total: PropTypes.objectOf(PropTypes.number).isRequired,
+  }).isRequired,
 };
 
 export default FeedbackSummaryChart;

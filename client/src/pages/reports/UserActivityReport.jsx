@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
 import { useState, useMemo, useEffect } from "react";
-import { getAllAccounts } from "@/api/accounts";
 import { getAllCampuses, getAllRoleTypes, getAllActLog } from "@/api/component-info";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";

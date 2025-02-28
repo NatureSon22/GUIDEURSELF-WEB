@@ -5,7 +5,7 @@ const columns = () => [
   {
     id: "select",
     header: ({ table }) => (
-      <Checkbox
+      <Checkbox className="border border-secondary-200"
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
@@ -15,7 +15,7 @@ const columns = () => [
       />
     ),
     cell: ({ row }) => (
-      <Checkbox
+      <Checkbox className="border border-secondary-200"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
