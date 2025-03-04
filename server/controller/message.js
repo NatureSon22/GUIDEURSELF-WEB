@@ -9,11 +9,11 @@ const sendMessage = async (req, res) => {
   try {
     const { content, conversation_id } = req.body;
 
-    if(!content) {
+    if (!content) {
       res.status(500).json({ message: "No content" });
     }
 
-    if(!conversation_id) {
+    if (!conversation_id) {
       res.status(500).json({ message: "No conversation_id" });
     }
 
@@ -79,7 +79,7 @@ const reviewMessage = async (req, res) => {
     res.status(200).json({ message: "Message updated successfully" });
   } catch (error) {
     console.error("Error sending message:", error);
-    res.status(500).json({ message: "Failed to send message" });
+    res.status(500).json({ message: "Failed to send a review", error });
   }
 };
 

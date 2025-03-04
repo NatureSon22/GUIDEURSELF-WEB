@@ -128,6 +128,7 @@ const addAccount = async (req, res) => {
     await user.save();
 
     res.status(200).json({
+      user,
       message: "User created successfully",
     });
   } catch (error) {
@@ -176,7 +177,7 @@ const bulkAddAccount = async (req, res) => {
 
       return res.status(200).json({
         message: `${result.length} users created successfully`,
-        existingUsers,
+        users: result,
       });
     }
 

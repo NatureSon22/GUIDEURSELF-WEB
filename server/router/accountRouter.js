@@ -58,7 +58,6 @@ accountRouter.post(
   bulkAddAccount
 );
 accountRouter.post("/add-account", verifyToken, upload.none(), addAccount);
-
 accountRouter.put("/update-account", verifyToken, upload.none(), updateAccount);
 accountRouter.put(
   "/update-profile",
