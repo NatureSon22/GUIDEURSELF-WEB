@@ -432,10 +432,10 @@ const updatePhoto = async (req, res) => {
       return res.status(400).json({ message: "Account ID is required" });
     }
 
-    const user = await UserModel.updateOne(
+    const user = await UserModel.findOneAndUpdate(
       { _id: accountId },
       { $set: { user_photo_url: photoUrl, date_updated: new Date() } },
-      { new: true }
+      { new: true, runValidators: true } // Ensure the updated user is returned
     );
 
     fs.unlinkSync(req.file.path);
