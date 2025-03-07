@@ -438,6 +438,7 @@ const saveAsDraftCreatedDocument = async (req, res) => {
         { _id: documentId },
         {
           $set: {
+            visibility,
             file_name: fileName,
             metadata,
             date_last_modified: new Date(),

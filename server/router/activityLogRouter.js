@@ -5,8 +5,9 @@ import { Campus } from "../models/campusModel.js"; // Ensure correct import
 
 const activityLogRouter = express.Router();
 
-// Get all activity logs
+// Get all activity logs (or recent ones)
 activityLogRouter.get("/", verifyToken, async (req, res) => {
+  const { recent } = req.query;
   const { isMultiCampus, campusId } = req.user;
 
   try {
@@ -17,7 +18,15 @@ activityLogRouter.get("/", verifyToken, async (req, res) => {
 
     const filter = isMultiCampus ? {} : { campus_name: campus.campus_name };
 
-    const activityLogs = await ActivityLog.find(filter);
+    // Build query with optional sorting & limit
+    let query = ActivityLog.find(filter).sort({ createdAt: -1 });
+
+    if (recent) {
+      const limit = parseInt(recent, 10);
+      query = query.limit(limit);
+    }
+
+    const activityLogs = await query.exec();
 
     res.status(200).json(activityLogs);
   } catch (error) {
