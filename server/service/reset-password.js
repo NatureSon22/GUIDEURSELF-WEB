@@ -1,17 +1,12 @@
-import fetch from "node-fetch";
-import { config } from "dotenv";
-
-config();
-
 const sendPasswordResendEmail = async (email, password, device) => {
-  const isMobile = device === "mobile";
-
   try {
     const loginUrl = `${
       process.env.CLIENT_URL
     }/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(
       password
     )}`;
+
+    const isMobile = device === "mobile";
 
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -32,7 +27,7 @@ const sendPasswordResendEmail = async (email, password, device) => {
           },
         ],
         subject: "Password Resend Request",
-        htmlContent: ```
+        htmlContent: `
         <body style="font-family: 'Poppins', sans-serif; background-color: #f4f7fc; margin: 0; padding: 30px; text-align: center; color: #333;">
           <div class="container" style="max-width: 500px; background: #ffffff; padding: 40px 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); margin: auto;">
             <div class="logo" style="margin-bottom: 40px;">
@@ -54,19 +49,12 @@ const sendPasswordResendEmail = async (email, password, device) => {
               </ul>
               
               ${
-                !isMobile && (
-                  <div style="text-align: center;">
-                    <a
-                      href="${loginUrl}"
-                      class="button"
-                      style="display: inline-block; padding: 14px 32px; margin: 25px 0; background: linear-gradient(135deg, rgba(18, 165, 188, 1), rgba(0, 123, 255, 1)); color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500; transition: 0.3s ease-in-out; box-shadow: 0 4px 12px rgba(18, 165, 188, 0.2);"
-                    >
-                      Login to Your Account
-                    </a>
-                  </div>
-                )
+                !isMobile
+                  ? `<div style="text-align: center;">
+                      <a href="${loginUrl}" class="button" style="display: inline-block; padding: 14px 32px; margin: 25px 0; background: linear-gradient(135deg, rgba(18, 165, 188, 1), rgba(0, 123, 255, 1)); color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500; transition: 0.3s ease-in-out; box-shadow: 0 4px 12px rgba(18, 165, 188, 0.2);">Login to Your Account</a>
+                    </div>`
+                  : ""
               }
-             
             </div>
             
             <div class="footer" style="font-size: 13px; color: #888; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
@@ -75,7 +63,7 @@ const sendPasswordResendEmail = async (email, password, device) => {
             </div>
           </div>
         </body>
-        ```,
+        `,
       }),
     });
 
@@ -92,5 +80,3 @@ const sendPasswordResendEmail = async (email, password, device) => {
     throw error;
   }
 };
-
-export default sendPasswordResendEmail;
