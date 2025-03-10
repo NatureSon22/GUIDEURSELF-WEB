@@ -25,6 +25,7 @@
     "nodemon": "^3.1.9",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "password-generator": "^2.3.2"
+    "password-generator": "^2.3.2",
+    "ua-parser-js": "^2.0.2"
   }
 }

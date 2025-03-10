@@ -75,6 +75,8 @@ const getAllAccounts = async (req, res, next) => {
       },
     ];
 
+    console.log(req.query);
+    
     if (recent) {
       aggregationPipeline.push({ $sort: { date_created: -1 } }); // Sort by newest first
       aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 }); // Limit results
@@ -519,7 +521,7 @@ const deleteAccounts = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { email, campusId } = req.body;
+    const { email, campusId, device = "web" } = req.body;
 
     const user = await UserModel.findOne({ email, campus_id: campusId });
 
@@ -541,7 +543,7 @@ const resetPassword = async (req, res) => {
       }
     );
 
-    await sendPasswordResendEmail(user.email, password);
+    await sendPasswordResendEmail(user.email, password, device);
 
     res.status(200).json({
       message: "If the account exists, a password reset has been initiated.",

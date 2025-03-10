@@ -24,6 +24,8 @@ import conversationRouter from "../router/conversationRouter.js";
 import messageRouter from "../router/messageRouter.js";
 import activityLogRouter from "../router/activityLogRouter.js";
 import feedbackRouter from "../router/feedbackRouter.js";
+import trendRouter from "../router/trendRouter.js";
+import sessionRouter from "../router/sessionRouter.js";
 
 const app = express();
 app.use(express.json());
@@ -59,6 +61,8 @@ app.use("/api/feedbacks", feedbackRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/feedback", feedbackRouter);
+app.use("/api/trend", trendRouter);
+app.use("/api/session", sessionRouter);
 
 (async () => {
   config();

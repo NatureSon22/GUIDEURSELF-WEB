@@ -47,8 +47,8 @@ accountRouter.use((err, req, res, next) => {
   return res.status(500).json({ error: "Internal Server Error" });
 });
 
-accountRouter.get("/logged-in-account", verifyToken, getLoggedInAccount);
 accountRouter.get("/", verifyToken, getAllAccounts);
+accountRouter.get("/logged-in-account", verifyToken, getLoggedInAccount);
 accountRouter.get("/:accountId", getAccount);
 
 accountRouter.post(
