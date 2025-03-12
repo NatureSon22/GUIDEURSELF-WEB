@@ -221,7 +221,7 @@ const updateCreateDocument = async (formData) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/documents/edit-create-document`,
     {
-      method: "POST",
+      method: "PUT",
       credentials: "include",
       body: formData,
     },

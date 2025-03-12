@@ -8,54 +8,54 @@ import {
 import PropTypes from "prop-types";
 
 const chartConfig = {
-  desktop: {
-    label: "all",
-    color: "hsl(var(--chart-1))",
-  },
+  // Add default configuration if necessary
 };
 
 // FeedbackSummaryChart component
 const FeedbackSummaryChart = ({ data }) => {
   const { total = {} } = data;
 
-  const chartData = Object.keys(total).map((key) => ({
-    rate: key,
-    desktop: total[key],
-  }));
+  // Ensure data is formatted correctly
+  const chartData =
+    Object.keys(total).length > 0
+      ? Object.keys(total).map((key) => ({
+          rate: key,
+          total: total[key], // Ensure the correct key is used
+        }))
+      : [];
 
   return (
     <Card className="flex-1 border-none shadow-none">
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px]">
           <BarChart
-          
             accessibilityLayer
             data={chartData}
             barSize={35}
             defaultShowTooltip={false}
             barGap={0}
             layout="vertical"
-            margin={{
-              left: -20,
-            }}
+            margin={{ left: -20 }}
           >
-            <XAxis type="number" dataKey="desktop" />
+            <XAxis
+              type="number"
+              dataKey="total"
+              allowDecimals={false} // Prevent decimal values
+            />
             <YAxis
               dataKey="rate"
               type="category"
-              color="black"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              domain={["auto", "auto"]}
+            
             />
-
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
             <Bar
-              dataKey="desktop"
+              dataKey="total"
               fill="rgba(18, 165, 188, 1)"
               radius={[0, 50, 50, 0]}
             />
@@ -68,8 +68,8 @@ const FeedbackSummaryChart = ({ data }) => {
 
 FeedbackSummaryChart.propTypes = {
   data: PropTypes.shape({
-    total: PropTypes.objectOf(PropTypes.number).isRequired,
-  }).isRequired,
+    total: PropTypes.objectOf(PropTypes.number),
+  }),
 };
 
 export default FeedbackSummaryChart;

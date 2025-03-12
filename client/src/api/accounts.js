@@ -1,5 +1,16 @@
-const getAllAccounts = async () => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/accounts`, {
+const getAllAccounts = async (recent = "") => {
+  if (typeof recent === "object") {
+    console.warn(
+      "Warning: recent should be a string or number, but got an object.",
+    );
+    recent = ""; // Prevent issues
+  }
+
+  const url = recent
+    ? `${import.meta.env.VITE_API_URL}/accounts?recent=${recent}`
+    : `${import.meta.env.VITE_API_URL}/accounts`;
+
+  const response = await fetch(url, {
     method: "GET",
     credentials: "include",
   });

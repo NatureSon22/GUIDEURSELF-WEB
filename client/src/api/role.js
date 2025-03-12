@@ -115,6 +115,66 @@ const updateRolePermissions = async (data) => {
   return response.json();
 };
 
+const updateRoleName = async (form) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/role-types/update-role-name`,
+    {
+      method: "PUT",
+      credentials: "include",
+      body: form,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+
+  return message;
+};
+
+const deleteRoleType = async (form) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/role-types/delete-role`,
+    {
+      method: "DELETE",
+      credentials: "include",
+      body: form,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+
+  return message;
+};
+
+const deleteRolePermission = async (form) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/role-types/delete-role-permission`,
+    {
+      method: "DELETE",
+      credentials: "include",
+      body: form,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+
+  return message;
+};
+
 export {
   getAllRoles,
   getRoleById,
@@ -122,4 +182,7 @@ export {
   getAllRolesWithPermissions,
   addRole,
   updateRolePermissions,
+  updateRoleName,
+  deleteRoleType,
+  deleteRolePermission,
 };

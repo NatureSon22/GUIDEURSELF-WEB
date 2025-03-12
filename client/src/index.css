@@ -150,15 +150,18 @@
   } */
 
   .chat-loader {
-    width: 12px;
-    height: 12px;
+    color: rgba(50, 50, 50, 1);
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     display: block;
     margin:15px auto;
     position: relative;
-    color: rgba(50, 50, 50, 1);
+    background: #FFF;
+    box-shadow: -24px 0 #FFF, 24px 0 #FFF;
     box-sizing: border-box;
-    animation: animloader 1s linear infinite alternate;
+    animation: shadowPulse 2s linear infinite;
+  
   }
 
   .ellipses {

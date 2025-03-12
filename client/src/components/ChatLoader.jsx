@@ -1,6 +1,6 @@
 const ChatLoader = () => {
   return (
-    <div className="w-[100px] py-3">
+    <div className="mt-4 w-[120px] rounded-full bg-secondary-100/5 px-10 py-2">
       <span className="chat-loader"></span>
     </div>
   );

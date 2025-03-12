@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
 const FeedbackSummaryReviews = ({ data }) => {
-  const { averageRating, totalFeedbacks } = data;
+  const { averageRating = 0 , totalFeedbacks = 0 } = data;
 
   const renderStars = () => {
     const stars = [];

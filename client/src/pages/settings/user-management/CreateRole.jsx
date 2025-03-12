@@ -160,8 +160,11 @@ const CreateRole = () => {
                 <Permissions
                   key={i}
                   module={module}
+                  roleaccess={permissions}
                   handleSetPermissions={handleSetPermissions}
-                  customizePermission={true}
+                  customizePermission={roleId ? true : false}
+                  newRole={true}
+                  disableToggle={!roleId ? true : false}
                 />
               ))}
             </div>

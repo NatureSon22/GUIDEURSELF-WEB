@@ -77,6 +77,7 @@ const SideBar = () => {
       </div>
 
       <div className="space-y-2">
+        
         {SideBarElements.map((section) => {
           return (
             userHasAccess(section.modules) && (

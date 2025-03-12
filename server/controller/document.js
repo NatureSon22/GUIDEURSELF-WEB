@@ -215,13 +215,13 @@ const getAllDocuments = async (req, res) => {
             : `${publishedByUser?.firstname || "Unknown"} ${
                 publishedByUser?.lastname || ""
               }`.trim(),
-        contributors: contributorUsers.map((contributor) =>
-          contributor?.id?.toString() === req.user?.userId
-            ? "You"
-            : `${contributor?.firstname || "Unknown"} ${
-                contributor?.lastname || ""
-              }`.trim()
-        ),
+        contributors: contributorUsers
+          .map((contributor) =>
+            contributor?.id?.toString() === req.user?.userId
+              ? "You"
+              : `${contributor?.lastname || ""}`.trim()
+          )
+          .join(", "),
       };
     });
 

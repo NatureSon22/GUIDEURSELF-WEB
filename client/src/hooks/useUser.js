@@ -8,12 +8,24 @@ const useUser = () => {
     queryKey: ["user"],
     queryFn: loggedInUser,
   });
+
   const setCurrentUser = useUserStore((state) => state.setCurrentUser);
 
   useEffect(() => {
-    if (data) {
-      setCurrentUser(data);
-    }
+    const fetchUser = async () => {
+      if (data) {
+        try {
+          //const user = await getUserById(data._id);
+          // console.log(user.data.id);
+          //setCurrentUser({ ...data, userid: user.data.id });
+          setCurrentUser({ ...data });
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+        }
+      }
+    };
+
+    fetchUser();
   }, [data, setCurrentUser]);
 
   return { isUserLoading };

@@ -13,8 +13,8 @@ const RecentAccounts = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["accounts"],
-    queryFn: getAllAccounts,
+    queryKey: ["recent-accounts"],
+    queryFn: () => getAllAccounts(10),
     refetchOnWindowFocus: false,
   });
 

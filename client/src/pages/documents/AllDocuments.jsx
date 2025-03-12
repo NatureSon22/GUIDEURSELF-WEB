@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -12,7 +12,6 @@ import DataTable from "@/components/DataTable";
 import AllDocumentsColumns from "@/components/columns/AllDocuments";
 import DraftDocumentsColumns from "@/components/columns/DraftsDocument";
 import ComboBox from "@/components/ComboBox";
-import DateRangePicker from "@/components/DateRangePicker";
 import Loading from "@/components/Loading";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,19 +20,21 @@ import { FaCircleExclamation } from "react-icons/fa6";
 import { useToast } from "@/hooks/use-toast";
 import { getAllCampuses } from "@/api/component-info";
 import documentStatus from "@/data/documentStatus";
-import documentTypes from "@/data/doc_types"
+import documentTypes from "@/data/doc_types";
 import useUserStore from "@/context/useUserStore";
+import formatDate from "@/utils/formatDate";
 
 const AllDocuments = () => {
   const { toast } = useToast();
   const [type, setType] = useState("all-documents");
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [reset, setReset] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentUser = useUserStore((state) => state.currentUser);
-  console.log(currentUser);
 
   const { data: allDocuments, isLoading: isLoadingAllDocuments } = useQuery({
     queryKey: ["all-documents"],
@@ -52,7 +53,6 @@ const AllDocuments = () => {
   });
 
   const [open, setOpen] = useState(false);
-
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   const {
@@ -82,6 +82,31 @@ const AllDocuments = () => {
     },
   });
 
+  const filteredDocuments = useMemo(() => {
+    const document = type === "drafts" ? draftedDocuments : allDocuments;
+    if (!document) return [];
+
+    return document.filter((account) => {
+      const matchesFilters = filters.every((filter) => {
+        if (filter.value === "") return true;
+        const accountValue = account[filter.id];
+        return (
+          accountValue &&
+          String(accountValue).toLowerCase() === filter.value.toLowerCase()
+        );
+      });
+
+      const accountDate = formatDate(account.date_and_time);
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+
+      const matchesDateRange =
+        (!from || accountDate >= from) && (!to || accountDate <= to);
+
+      return matchesFilters && matchesDateRange;
+    });
+  }, [filters, fromDate, toDate, type, draftedDocuments, allDocuments]);
+
   const handleTypeChange = (newType) => setType(newType);
 
   const handleNavigate = (path) => navigate(path);
@@ -90,7 +115,11 @@ const AllDocuments = () => {
     setFilters([]);
     setGlobalFilter("");
     setReset(!reset);
+    setFromDate("");
+    setToDate("");
   };
+
+  console.log(filters);
 
   const handleClose = () => setOpen(false);
 
@@ -123,7 +152,22 @@ const AllDocuments = () => {
 
         <div className="flex items-center gap-5">
           <p>Filters:</p>
-          <DateRangePicker />
+
+          <div className="flex gap-2">
+            <Input
+              type="date"
+              className="w-[170px]"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+            <Input
+              type="date"
+              className="w-[170px]"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
+
           <ComboBox
             options={allCampuses || []}
             placeholder="select campus"
@@ -131,6 +175,7 @@ const AllDocuments = () => {
             setFilters={setFilters}
             reset={reset}
           />
+
           <ComboBox
             options={documentTypes || []}
             placeholder="select type"
@@ -138,13 +183,16 @@ const AllDocuments = () => {
             setFilters={setFilters}
             reset={reset}
           />
-          <ComboBox
-            options={documentStatus || []}
-            placeholder="select status"
-            filter="status"
-            setFilters={setFilters}
-            reset={reset}
-          />
+
+          {type === "all-documents" && (
+            <ComboBox
+              options={documentStatus || []}
+              placeholder="select status"
+              filter="status"
+              setFilters={setFilters}
+              reset={reset}
+            />
+          )}
 
           <Button
             className="ml-auto text-secondary-100-75"
@@ -159,7 +207,7 @@ const AllDocuments = () => {
           <Loading />
         ) : (
           <DataTable
-            data={type === "drafts" ? draftedDocuments : allDocuments}
+            data={filteredDocuments}
             columns={
               type === "all-documents"
                 ? AllDocumentsColumns
@@ -167,8 +215,15 @@ const AllDocuments = () => {
             }
             globalFilter={globalFilter}
             filters={filters}
+            setFilters={setFilters}
+            setGlobalFilter={setGlobalFilter}
             pageSize={8}
-            columnActions={{ navigate, setOpen, setSelectedDocument, currentUser }}
+            columnActions={{
+              navigate,
+              setOpen,
+              setSelectedDocument,
+              currentUser,
+            }}
           />
         )}
       </div>

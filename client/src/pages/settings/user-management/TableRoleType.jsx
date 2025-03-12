@@ -14,7 +14,7 @@ const RoleTypeTable = () => {
   const [filters, setFilters] = useState([]);
 
   return isLoading ? (
-    <div className="py-12">
+    <div className="py-40">
       <Loading></Loading>
     </div>
   ) : (
@@ -25,7 +25,8 @@ const RoleTypeTable = () => {
       setFilters={setFilters}
       globalFilter={globalFilter}
       setGlobalFilter={setGlobalFilter}
-      showFooter={false}
+      pageSize={5}
+      showFooter={true}
     />
   );
 };

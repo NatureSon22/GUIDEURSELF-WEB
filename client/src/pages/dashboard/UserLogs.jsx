@@ -15,7 +15,7 @@ const UserLogs = () => {
     isError,
   } = useQuery({
     queryKey: ["activitylogs"],
-    queryFn: getAllActLog,
+    queryFn: () => getAllActLog(10),
   });
 
   if (isError) {

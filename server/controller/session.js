@@ -33,10 +33,13 @@ const createSession = async (req, res) => {
     let session = await SessionModel.findOne({
       userId: req.user.userId,
       device,
-      isActive: true,
     });
 
+
+
+    
     if (session) {
+      session.isActive = true;
       session.lastActive = new Date();
       await session.save();
     } else {
@@ -80,6 +83,21 @@ const logoutAll = async (req, res) => {
   }
 };
 
+const logoutSession = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const sessionId = req.params.sessionId;
+    await SessionModel.findOneAndUpdate(
+      { _id: sessionId, userId },
+      { isActive: false }
+    );
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 const trackActivity = async (req, res, next) => {
   const userId = req.user.userId;
   if (userId) {
@@ -89,4 +107,11 @@ const trackActivity = async (req, res, next) => {
   next();
 };
 
-export { getSessions, createSession, trackActivity, logout, logoutAll };
+export {
+  getSessions,
+  createSession,
+  trackActivity,
+  logout,
+  logoutAll,
+  logoutSession,
+};

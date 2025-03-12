@@ -113,10 +113,10 @@ const CreateNewDocument = () => {
 
   const { mutateAsync: handleUpdateDocument } = useMutation({
     mutationFn: updateCreateDocument,
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
-        title: "Success",
-        description: data.message,
+        title: "Document updated successfully",
+        description: "Operation completed successfully",
       });
       navigate(-1);
       setOpenDialog(false);
@@ -125,7 +125,7 @@ const CreateNewDocument = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: "Failed to update document",
       });
       setOpenDialog(false);
     },
