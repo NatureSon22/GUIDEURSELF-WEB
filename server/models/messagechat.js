@@ -4,7 +4,12 @@ const MessageChatSchema = new Schema({
   sender_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
   receiver_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
   content: { type: String, default: "" },
-  files: [{ type: Schema.Types.ObjectId, ref: "MessageFile" }],
+  files: [
+    {
+      url: { type: String },
+      type: { type: String, enum: ["img", "file"] },
+    },
+  ],
   status: {
     type: String,
     enum: ["sent", "delivered", "read"],

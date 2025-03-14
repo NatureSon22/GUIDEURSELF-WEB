@@ -75,6 +75,7 @@
     "read-excel-file": "^5.8.6",
     "recharts": "^2.15.0",
     "setimmediate": "^1.0.5",
+    "socket.io-client": "^4.8.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "ua-parser-js": "^2.0.0",

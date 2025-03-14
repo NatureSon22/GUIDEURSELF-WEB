@@ -78,7 +78,7 @@ const Login = () => {
             </div>
 
             {error ? (
-              <p className="rounded-md bg-accent-100/5 py-5 text-center text-[0.85rem] text-accent-100">
+              <p className="rounded-md bg-accent-100/5 py-5 text-center text-[0.85rem] text-accent-100 px-4">
                 {error}
               </p>
             ) : (

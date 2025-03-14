@@ -11,8 +11,8 @@ const FeedbackSummary = () => {
   const [filterState, setFilterState] = useState("All");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["feedbacks"],
-    queryFn: getTotalFeedback,
+    queryKey: ["feedbacks", filterState],
+    queryFn: () => getTotalFeedback(filterState),
   });
 
   const handleFilter = (filter) => {
@@ -40,13 +40,13 @@ const FeedbackSummary = () => {
 
         <div className="flex items-center gap-8">
           {isLoading ? (
-            <Skeleton className="h-[200px] flex-1"></Skeleton>
+            <Skeleton className="mt-5 h-[220px] max-w-[200px] flex-1"></Skeleton>
           ) : (
             <FeedbackSummaryReviews data={data} />
           )}
 
           {isLoading ? (
-            <Skeleton className="h-[200px] flex-1"></Skeleton>
+            <Skeleton className="mt-5 h-[220px] flex-1"></Skeleton>
           ) : (
             <FeedbackSummaryChart data={data} />
           )}

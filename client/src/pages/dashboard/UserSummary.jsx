@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/api/accounts";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const COLORS = [
   "rgba(14, 70, 163, 1)",
@@ -34,7 +35,7 @@ const chartConfig = {
 const UserSummary = () => {
   const [filter, setFilter] = useState([]);
   const [reset, setReset] = useState(false);
-  const { data: allAccounts = [] } = useQuery({
+  const { data: allAccounts = [], isLoading } = useQuery({
     queryKey: ["accounts"],
     queryFn: getAllAccounts,
   });
@@ -85,14 +86,14 @@ const UserSummary = () => {
   }, [chartData]);
 
   return (
-    <Card className="flex flex-col px-7 py-5 shadow-none">
+    <Card className="flex h-full flex-col justify-around px-7 py-5 shadow-none">
       <div className="flex items-center justify-between">
         <p className="font-medium">User Summary</p>
 
         <div className="flex items-center gap-3">
           <ComboBox
             options={user_summary}
-            placeholder="Select date"
+            placeholder="Select date filter"
             filter="date"
             setFilters={setFilter}
             reset={reset}
@@ -103,7 +104,7 @@ const UserSummary = () => {
             variant="outline"
             onClick={() => {
               setFilter([]);
-              setReset((prev) => !prev); 
+              setReset((prev) => !prev);
             }}
           >
             <GrPowerReset />
@@ -111,84 +112,99 @@ const UserSummary = () => {
         </div>
       </div>
 
-      <CardContent className="flex-1 pb-0">
-        {chartData.length > 0 ? (
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto aspect-square max-h-[420px]"
-          >
-            <PieChart>
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Pie
-                data={chartData}
-                dataKey="visitors"
-                nameKey="usertype"
-                innerRadius={100}
-                strokeWidth={5}
-              >
-                <Label
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          <tspan
+      {isLoading ? (
+        <div className="grid place-items-center py-14">
+          <Skeleton className="h-[320px] w-full max-w-[320px] rounded-full"></Skeleton>
+        </div>
+      ) : (
+        <CardContent className="pb-0">
+          {chartData.length > 0 ? (
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto aspect-square max-h-[420px]"
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie
+                  data={chartData}
+                  dataKey="visitors"
+                  nameKey="usertype"
+                  innerRadius={100}
+                  strokeWidth={5}
+                >
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        return (
+                          <text
                             x={viewBox.cx}
                             y={viewBox.cy}
-                            className="fill-foreground text-5xl font-semibold"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
                           >
-                            {totalVisitors.toLocaleString()}
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 40}
-                            className="fill-muted-foreground text-sm"
-                          >
-                            Total Users
-                          </tspan>
-                        </text>
-                      );
-                    }
-                  }}
-                />
-              </Pie>
-            </PieChart>
-          </ChartContainer>
-        ) : (
-          <div className="flex h-60 items-center justify-center">
-            <p className="text-lg text-muted-foreground">No Data Found</p>
-          </div>
-        )}
-      </CardContent>
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-5xl font-semibold"
+                            >
+                              {totalVisitors.toLocaleString()}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 40}
+                              className="fill-muted-foreground text-sm"
+                            >
+                              Total Users
+                            </tspan>
+                          </text>
+                        );
+                      }
+                    }}
+                  />
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex h-60 items-center justify-center">
+              <p className="text-lg text-muted-foreground">No Data Found</p>
+            </div>
+          )}
+        </CardContent>
+      )}
 
-      {chartData.length > 0 && (
-        <div className="grid grid-cols-2 gap-5">
-          {chartData.map((data, index) => {
-            const { usertype, visitors, fill } = data;
-            const label = usertype[0].toUpperCase() + usertype.slice(1);
-
-            return (
-              <div
-                className="mx-5 flex items-center justify-between"
-                key={index}
-              >
-                <div className="flex items-center gap-3">
-                  <GoDotFill style={{ color: fill }} className="text-2xl" />
-                  <div>{label}</div>
-                </div>
-
-                <p>{visitors}</p>
-              </div>
-            );
-          })}
+      {isLoading ? (
+        <div className="mb-5 w-full grid place-items-center gap-5 grid-cols-2">
+          <Skeleton className="w-full py-5"></Skeleton>
+          <Skeleton className="w-full py-5"></Skeleton>
+          <Skeleton className="w-full py-5"></Skeleton>
+          <Skeleton className="w-full py-5"></Skeleton>
         </div>
+      ) : (
+        chartData.length > 0 && (
+          <div className="mb-5 grid grid-cols-2 gap-5">
+            {chartData.map((data, index) => {
+              const { usertype, visitors, fill } = data;
+              const label = usertype[0].toUpperCase() + usertype.slice(1);
+
+              return (
+                <div
+                  className="mx-5 flex items-center justify-between"
+                  key={index}
+                >
+                  <div className="flex items-center gap-3">
+                    <GoDotFill style={{ color: fill }} className="text-2xl" />
+                    <div>{label}</div>
+                  </div>
+
+                  <p>{visitors}</p>
+                </div>
+              );
+            })}
+          </div>
+        )
       )}
     </Card>
   );

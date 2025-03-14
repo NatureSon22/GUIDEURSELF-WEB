@@ -38,8 +38,10 @@ const SideBar = () => {
   useEffect(() => {
     const paths = pathname.split("/").filter(Boolean);
 
-    const processedPath = paths.map((path, index) => {
-      const fullPath = `/${paths.slice(0, index + 1).join("/")}`;
+    const filteredPaths = paths.filter((path) => path !== "view");
+
+    const processedPath = filteredPaths.map((path, index) => {
+      const fullPath = `/${filteredPaths.slice(0, index + 1).join("/")}`;
       return {
         label: path
           .split("-")
@@ -77,7 +79,6 @@ const SideBar = () => {
       </div>
 
       <div className="space-y-2">
-        
         {SideBarElements.map((section) => {
           return (
             userHasAccess(section.modules) && (

@@ -50,8 +50,16 @@ const BreadCrumbNav = () => {
                 )}
 
                 <span
-                  className="cursor-pointer font-medium"
-                  onClick={() => handleBreadcrumbClick(crumb.path)}
+                  className={
+                    i == crumbs.length - 1
+                      ? "font-medium"
+                      : "cursor-pointer font-medium"
+                  }
+                  onClick={
+                    i == crumbs.length - 1
+                      ? () => {}
+                      : () => handleBreadcrumbClick(crumb.path)
+                  }
                 >
                   {crumb.label}
                 </span>

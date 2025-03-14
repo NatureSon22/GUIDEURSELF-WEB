@@ -5,10 +5,9 @@ import { AiOutlinePaperClip } from "react-icons/ai";
 import { MdClose } from "react-icons/md";
 import { FaFileAlt } from "react-icons/fa";
 import TextareaAutosize from "react-textarea-autosize";
-import { useMutation } from "@tanstack/react-query";
-import { sendMessage, uploadFile } from "@/api/chat";
 import useChatStore from "@/context/useChatStore";
 import useUserStore from "@/context/useUserStore";
+import useSocketStore from "@/context/useSocketStore";
 
 const MessageInput = () => {
   const { selectedChat } = useChatStore((state) => state);
@@ -17,10 +16,7 @@ const MessageInput = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [message, setMessage] = useState("");
   const [isMultiline, setIsMultiline] = useState(false);
-  const { mutateAsync: handleSendMessage } = useMutation({
-    mutationFn: ({ content, file_urls }) =>
-      sendMessage(currentUser.userid, selectedChat.id, content, file_urls),
-  });
+  const { sendMessage } = useSocketStore();
 
   useEffect(() => {
     return () => {
@@ -54,16 +50,24 @@ const MessageInput = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!message.trim() && files.length === 0) return; // Prevent empty messages
+    if (!message.trim() && files.length === 0) return;
 
-    let fileUrls = [];
-    if (files.length > 0) {
-      fileUrls = await Promise.all(files.map(uploadFile));
-    }
+    const filePromises = files.map((file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({ name: file.name, data: reader.result });
+      });
+    });
 
-    await handleSendMessage({
-      content: message.trim(), // Remove unnecessary spaces
-      file_urls: fileUrls.filter(Boolean),
+    const fileData = await Promise.all(filePromises);
+
+    sendMessage({
+      sender_id: currentUser._id,
+      receiver_id: selectedChat._id,
+      content: message,
+      files: fileData, // Now contains { name, data } format
+      timestamp: new Date(),
     });
 
     setMessage("");

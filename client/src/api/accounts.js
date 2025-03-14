@@ -1,4 +1,7 @@
 const getAllAccounts = async (recent = "") => {
+  console.trace("Received recent:", recent, "Type:", typeof recent); // Debugging
+
+
   if (typeof recent === "object") {
     console.warn(
       "Warning: recent should be a string or number, but got an object.",

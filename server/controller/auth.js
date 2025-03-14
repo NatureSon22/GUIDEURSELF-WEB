@@ -25,9 +25,24 @@ const login = async (req, res) => {
     }
 
     // Check account status
-    if (user.status !== "active") {
+    if (user.status === "pending") {
       return res.status(401).json({
-        message: "Account is not active. Please wait for verification.",
+        message:
+          "Your account is pending verification. Please check your email for a verification link.",
+      });
+    }
+
+    if (user.status === "inactive") {
+      return res.status(401).json({
+        message:
+          "Your account is inactive. Please contact support for assistance.",
+      });
+    }
+
+    if (user.status === "blocked") {
+      return res.status(403).json({
+        message:
+          "Your account has been blocked due to policy violations. Contact support for more details.",
       });
     }
 

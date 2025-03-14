@@ -35,41 +35,57 @@ const addFeedback = async (req, res) => {
 };
 
 const getTotalFeedback = async (req, res) => {
+  const { filter = "All" } = req.query; // Default to "All"
   const { isMultiCampus, campusId } = req.user;
+
+  console.log("filter:", filter);
 
   try {
     let pipeline = [];
 
-    // Adjust lookup to match the correct Mongoose model reference
+    // Filter by campus if not multi-campus
     if (!isMultiCampus) {
       pipeline.push(
+        { $match: { campus_id: campusId } },
         {
           $lookup: {
-            from: "User", // Match the Mongoose model reference
+            from: "users", // Ensure correct collection reference
             localField: "user_id",
             foreignField: "_id",
             as: "user",
           },
         },
-        { $unwind: "$user" },
-        { $match: { "user.campus_id": campusId } }
+        { $unwind: "$user" }
       );
     }
 
-    // Aggregation stage for ratings
+    // Apply role-based filtering
+    if (filter !== "All") {
+      if (filter === "Other") {
+        pipeline.push({
+          $match: {
+            "user.role_type": { $nin: [/student/i, /faculty/i, /staff/i] },
+          },
+        });
+      } else {
+        pipeline.push({ $match: { "user.role_type": filter } });
+      }
+    }
+
+    // Group by rating (ensure numeric values)
     pipeline.push({
       $group: {
-        _id: "$rating",
+        _id: { $toInt: "$rating" },
         count: { $sum: 1 },
       },
     });
 
     const response = await FeedbackModel.aggregate(pipeline);
 
-    // Initialize rating count object
+    // Initialize rating counts
     const total = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     response.forEach(({ _id, count }) => {
-      total[_id] = count;
+      total[_id] = count || 0;
     });
 
     // Compute total ratings and average
@@ -83,10 +99,9 @@ const getTotalFeedback = async (req, res) => {
     );
     const averageRating = totalFeedbacks ? totalRating / totalFeedbacks : 0;
 
-    const result = { total, totalRating, totalFeedbacks, averageRating };
-
-    console.log(result);
-    res.status(200).json({ result });
+    res
+      .status(200)
+      .json({ result: { total, totalRating, totalFeedbacks, averageRating } });
   } catch (error) {
     console.error("Error in getTotalFeedback:", error);
     res
