@@ -19,15 +19,19 @@ const sidebarElements = [
     path: "/user-management",
     access: "edit user management",
   },
-  // {
-  //   title: "Reports Template",
-  //   path: "/reports-template",
-  //   access: "edit reports template",
-  // },
   {
     title: "Privacy & Legal",
-    path: "/privacy-policy",
     access: "edit privacy policy",
+    children: [
+      {
+        title: "Web",
+        path: "/privacy-policy/web",
+      },
+      {
+        title: "Mobile",
+        path: "/privacy-policy/mobile",
+      },
+    ],
   },
   {
     title: "Archives",

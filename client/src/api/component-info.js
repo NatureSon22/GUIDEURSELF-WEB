@@ -200,5 +200,63 @@ const getAllActLog = async () => {
   }
 };
 
+const getAllFeedback = async () => {
+  try {
+    // Fetch feedback data
+    const feedbackResponse = await fetch(`${import.meta.env.VITE_API_URL}/feedback/every-feedback`, {
+      credentials: "include",
+    });
 
-export { getAllActLog, fetchCampuses, getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };
+    if (!feedbackResponse.ok) {
+      throw new Error("Failed to fetch feedback");
+    }
+
+    const feedbackData = await feedbackResponse.json();
+    console.log("Feedback Data:", feedbackData); // Log feedback data
+
+    // Fetch all campuses
+    const campusesResponse = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
+      credentials: "include",
+    });
+
+    if (!campusesResponse.ok) {
+      throw new Error("Failed to fetch campuses");
+    }
+
+    const campusesData = await campusesResponse.json();
+    console.log("Campuses Data:", campusesData); // Log campuses data
+
+    // Create a map of campus IDs to campus names
+    const campusMap = campusesData.reduce((map, campus) => {
+      map[campus._id] = campus.campus_name;
+      return map;
+    }, {});
+
+    console.log("Campus Map:", campusMap); // Log the campus map
+
+    // Map feedback data to include campus names
+    return feedbackData.map((feedback) => {
+      const campusId = feedback.user_id?.campus_id;
+      const campusName = campusMap[campusId] || "N/A"; // Get campus name from the map
+
+      return {
+        user_number: feedback.user_id?.user_number || "N/A",
+        username: feedback.user_id?.username || "N/A",
+        email: feedback.user_id?.email || "N/A",
+        firstname: feedback.user_id?.firstname || "N/A",
+        lastname: feedback.user_id?.lastname || "N/A",
+        role_type: feedback.user_id?.role_id?.role_type || "N/A",
+        campus_name: campusName, // Use the mapped campus name
+        rating: feedback.rating,
+        comments: feedback.feedback,
+        date_submitted: feedback.date,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching feedback:", error);
+    throw error;
+  }
+};
+
+
+export {getAllFeedback, getAllActLog, fetchCampuses, getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };

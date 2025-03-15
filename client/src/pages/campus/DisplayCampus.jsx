@@ -9,6 +9,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
+import { Skeleton } from "@/components/ui/skeleton";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
@@ -56,7 +57,8 @@ const DisplayCampus = () => {
     .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return 
+    <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />
   }
 
   if (isError) {
@@ -97,7 +99,7 @@ const DisplayCampus = () => {
             </Link>
           </FeaturePermission>
 
-          <Link to="/campus/edit" className="w-[10%]">
+          <Link to="/campus/edit-campus" className="w-[10%]">
             <button className="w-[100%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 transition duration-300">
               <img className="w-[17px] h-[17px]" src={Pen} alt="Add Officials" />
               Edit

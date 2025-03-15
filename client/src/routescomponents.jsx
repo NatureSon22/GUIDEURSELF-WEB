@@ -62,6 +62,12 @@ const UserManagement = lazy(
 const PrivacyPolicySetting = lazy(
   () => import("./pages/settings/privacy-policy/PrivacyPolicySetting.jsx"),
 );
+const PrivacyPolicyWebSetting = lazy(
+  () => import("./pages/settings/privacy-policy/PrivacyPolicyWebSetting.jsx"),
+);
+const PrivacyPolicyMobileSetting = lazy(
+  () => import("./pages/settings/privacy-policy/PrivacyPolicyMobileSetting.jsx"),
+);
 const ReportsTemplate = lazy(
   () => import("./pages/settings/reports-template/ReportsTemplate.jsx"),
 );
@@ -128,6 +134,8 @@ export {
   UniversityManagement,
   UserManagement,
   PrivacyPolicySetting,
+  PrivacyPolicyWebSetting,
+  PrivacyPolicyMobileSetting,
   ReportsTemplate,
   Archive,
   AllCampusDocuments,

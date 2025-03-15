@@ -30,6 +30,7 @@ import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
 import { renderToStaticMarkup } from "react-dom/server";
 import { HiSquaresPlus } from "react-icons/hi2";
+import { MdWidgets } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import { useToast } from "@/hooks/use-toast";
 import Loading from "@/components/Loading";
@@ -40,7 +41,7 @@ const categoryConfig = {
   "Student Services": { color: "bg-blue-500", icon: FaGraduationCap },
   "Campus Attraction": { color: "bg-green-500", icon: FaFlag },
   "Utility Areas": { color: "bg-pink-500", icon: ImManWoman },
-  "Others (Miscellaneous)": { color: "bg-blue-400", icon: HiSquaresPlus },
+  "Others (Miscellaneous)": { color: "bg-blue-400", icon: MdWidgets },
 };
 
 const MarkerIcon = ({ bgColor, IconComponent }) => (
@@ -105,6 +106,8 @@ const queryClient = useQueryClient();
 
 const { campus } = location.state || {};
 
+
+const bounds = [[14.480740, 121.184750], [14.488870, 121.192500]];
 const [draggedFloor, setDraggedFloor] = useState(null);
 const [dragOverFloor, setDragOverFloor] = useState(null);
 const [selectedFloor, setSelectedFloor] = useState(null);
@@ -692,11 +695,10 @@ const handleDrop = (e, targetFloor) => {
                 </div>
               )}
               <MapContainer
-                bounds={[
-                  [110, 110],
-                  [1000, 1000],
-                ]}
-                maxZoom={4}
+      center={[14.484750, 121.189000]}
+      zoom={18}
+      maxZoom={19}
+      minZoom={17}// Adjust max zoom level to match Flutter
                 style={{
                   height: "100vh",
                   width: "100%",
@@ -710,10 +712,7 @@ const handleDrop = (e, targetFloor) => {
                 <ImageOverlay
                   className="z-0"
                   url={selectedFloor.floor_photo_url}
-                  bounds={[
-                    [110, 110],
-                    [1000, 1000],
-                  ]}
+                  bounds={bounds}
                 />
                 
                 {currentMarkers.map((marker, index) => {

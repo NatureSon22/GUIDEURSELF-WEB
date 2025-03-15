@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
+import { useToast } from "@/hooks/use-toast";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -22,6 +23,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const AddNewCampus = () => {
+  const { toast } = useToast();
   const [position, setPosition] = useState([14.466440, 121.226080]); 
   const [loadingVisible, setLoadingVisible] = useState(false);
   const navigate = useNavigate();
@@ -56,106 +58,119 @@ const AddNewCampus = () => {
       fetchCampuses();
     }, []);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  setIsLoading(true);
-
-  const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, campus_about, campus_cover_photo } = campusData;
-
-  // Form validation
-  if (
-    !campus_name ||
-    !campus_code ||
-    !campus_phone_number ||
-    !campus_email ||
-    !campus_address ||
-    !campus_about ||
-    !coordinates.lat ||
-    !coordinates.lng
-  ) {
-    setLoadingMessage("Please fill out all required fields.");
-    setLoadingVisible(true);
-    setIsLoading(false);
-    setTimeout(() => {
-      setLoadingVisible(false);
-    }, 2000);
-    return;
-  }
-
-  if (!campus_cover_photo) {
-    setLoadingMessage("Please upload a campus cover photo.");
-    setLoadingVisible(true);
-    setIsLoading(false);
-    setTimeout(() => {
-      setLoadingVisible(false);
-    }, 2000);
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("campus_name", campusData.campus_name);
-  formData.append("campus_code", campusData.campus_code);
-  formData.append("campus_phone_number", campusData.campus_phone_number);
-  formData.append("campus_email", campusData.campus_email);
-  formData.append("campus_address", campusData.campus_address);
-  formData.append("campus_about", campusData.campus_about);
-  formData.append("latitude", coordinates.lat);
-  formData.append("longitude", coordinates.lng);
-  formData.append("campus_cover_photo", campusData.campus_cover_photo);
-
-  const formattedPrograms = Object.keys(programs).map((programType) => ({
-    program_type_id: programType,
-    programs: programs[programType].map((program) => ({
-      program_name: program.programName,
-      majors: program.majors,
-    })),
-  }));
-  
-  formData.append("campus_programs", JSON.stringify(formattedPrograms));
-  
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
-      method: "POST",
-      body: formData,
-      credentials: "include",
-    });
-
-    if (response.ok) {
-      
-      setIsLoading(false);
-      setLoadingMessage("Adding New Campus...");
-      setLoadingVisible(true);
-
-      setTimeout(() => {
-        setLoadingMessage("Campus has been successfully added!");
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+    
+      setIsLoading(true);
+    
+      const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, campus_about, campus_cover_photo } = campusData;
+    
+      // Email validation regex
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+      // Form validation
+      if (
+        !campus_name ||
+        !campus_code ||
+        !campus_phone_number ||
+        !campus_email ||
+        !campus_address ||
+        !campus_about ||
+        !coordinates.lat ||
+        !coordinates.lng
+      ) {
+        setLoadingMessage("Please fill out all required fields.");
+        setLoadingVisible(true);
+        setIsLoading(false);
         setTimeout(() => {
           setLoadingVisible(false);
-          navigate("/campus"); 
-        }, 1500);
-      }, 2000);
-    } else {
-      const errorData = await response.json();
-      console.error("Error adding campus:", errorData);
-
-      setLoadingMessage("Server Error, failed to add campus!");
-      setLoadingVisible(true);
-
-      setTimeout(() => {
-        setLoadingVisible(false);
-      }, 2000);
-    }
-  } catch (error) {
-    console.error("Error adding campus:", error);
-
-    setLoadingMessage("Server Error, failed to add campus!");
-    setLoadingVisible(true);
-
-    setTimeout(() => {
-      setLoadingVisible(false);
-    }, 2000);
-  }
-};
+        }, 2000);
+        return;
+      }
+    
+      // Email format validation
+      if (!emailRegex.test(campus_email)) {
+        setLoadingMessage("Please enter a valid email address.");
+        setLoadingVisible(true);
+        setIsLoading(false);
+        setTimeout(() => {
+          setLoadingVisible(false);
+        }, 2000);
+        return;
+      }
+    
+      if (!campus_cover_photo) {
+        setLoadingMessage("Please upload a campus cover photo.");
+        setLoadingVisible(true);
+        setIsLoading(false);
+        setTimeout(() => {
+          setLoadingVisible(false);
+        }, 2000);
+        return;
+      }
+    
+      const formData = new FormData();
+      formData.append("campus_name", campusData.campus_name);
+      formData.append("campus_code", campusData.campus_code);
+      formData.append("campus_phone_number", campusData.campus_phone_number);
+      formData.append("campus_email", campusData.campus_email);
+      formData.append("campus_address", campusData.campus_address);
+      formData.append("campus_about", campusData.campus_about);
+      formData.append("latitude", coordinates.lat);
+      formData.append("longitude", coordinates.lng);
+      formData.append("campus_cover_photo", campusData.campus_cover_photo);
+    
+      const formattedPrograms = Object.keys(programs).map((programType) => ({
+        program_type_id: programType,
+        programs: programs[programType].map((program) => ({
+          program_name: program.programName,
+          majors: program.majors,
+        })),
+      }));
+    
+      formData.append("campus_programs", JSON.stringify(formattedPrograms));
+    
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        });
+    
+        if (response.ok) {
+          setIsLoading(false);
+          setLoadingMessage("Adding New Campus...");
+          setLoadingVisible(true);
+    
+          setTimeout(() => {
+            setLoadingMessage("Campus has been successfully added!");
+            setTimeout(() => {
+              setLoadingVisible(false);
+              navigate("/campus/edit-campus");
+            }, 1500);
+          }, 2000);
+        } else {
+          const errorData = await response.json();
+          console.error("Error adding campus:", errorData);
+    
+          setLoadingMessage("Server Error, failed to add campus!");
+          setLoadingVisible(true);
+    
+          setTimeout(() => {
+            setLoadingVisible(false);
+          }, 2000);
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+    
+        setLoadingMessage("Network Error, failed to add campus!");
+        setLoadingVisible(true);
+    
+        setTimeout(() => {
+          setLoadingVisible(false);
+        }, 2000);
+      }
+    };
   
 const handleRemoveProgram = (programType, index) => {
   setPrograms((prevPrograms) => {
@@ -176,7 +191,7 @@ const handleRemoveProgram = (programType, index) => {
 };
 
   const secondHandleBack = () => {
-        navigate("/campus");  
+        navigate("/campus/edit-campus");  
   };
   
   const handleImageUpload = (e) => {
@@ -242,7 +257,7 @@ const handleRemoveProgram = (programType, index) => {
         {loadingVisible && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
-            <Loading />
+            
             <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
           </div>
             </div>
@@ -276,13 +291,18 @@ const handleRemoveProgram = (programType, index) => {
                 <h3 className="text-lg font-medium">Phone Number</h3>
                 <p>Input the contact number of the campus</p>
                 <Input
-                  name="campus_phone_number"
-                  value={campusData.campus_phone_number}
-                  onChange={(e) => setCampusData({...campusData, campus_phone_number: e.target.value})}
-                  placeholder="+63 2 123 4567"
-                  className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
-                  type="text"
-                />
+                name="campus_phone_number"
+                value={campusData.campus_phone_number}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\+?[0-9\s]*$/.test(value)) {
+                    setCampusData({ ...campusData, campus_phone_number: value });
+                  }
+                }}
+                placeholder="+63 2 123 4567"
+                className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
+                type="text"
+              />
               </div>
             </div>
             <div className="flex flex-col w-[50%] gap-6">
@@ -297,9 +317,12 @@ const handleRemoveProgram = (programType, index) => {
                     maxLength={3}
                     name="campus_code"
                     value={campusData.campus_code}
-                    onChange={(e) =>
-                      setCampusData({ ...campusData, campus_code: e.target.value.toUpperCase() })
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^[A-Za-z]*$/.test(value)) {
+                        setCampusData({ ...campusData, campus_code: value.toUpperCase() });
+                      }
+                    }}
                     placeholder="BIN"
                     className="w-[10%] h-[40px] outline-none text-center border border-gray-300 rounded-md"
                     type="text"
@@ -317,6 +340,7 @@ const handleRemoveProgram = (programType, index) => {
                   className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
                 />
+
               </div>
             </div>
           </div>

@@ -62,12 +62,20 @@ generalSettingsRouter.put(
         console.warn("No user ID found in request.");
       }
 
-      const { general_about, privacy_policies, terms_conditions } = req.body;
+      const { 
+        general_about, 
+        privacy_policies, 
+        terms_conditions, 
+        privacy_policies_mobile, 
+        terms_conditions_mobile, 
+      } = req.body;
 
       const updatedData = {
         general_about,
         privacy_policies,
         terms_conditions,
+        privacy_policies_mobile,
+        terms_conditions_mobile,
       };
 
       // Fetch existing General Settings data

@@ -5,6 +5,8 @@ const generalSettingsSchema = new mongoose.Schema({
   general_about: String,
   privacy_policies: String,
   terms_conditions: String,
+  privacy_policies_mobile: String,
+  terms_conditions_mobile: String,
   // Add other fields as necessary
 });
 

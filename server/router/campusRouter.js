@@ -1,10 +1,12 @@
 import express from "express";
+import  UserModel  from "../models/user.js"; // Import User model
 import { Campus, ArchivedCampus, ArchivedItem } from "../models/campusModel.js";
 import multer from "multer";
 import cloudinary from "cloudinary";
 import { Readable } from "stream";
 import verifyToken from "../middleware/verifyToken.js";
 import activitylog from "../controller/activitylog.js"
+import mongoose from "mongoose";
 
 const router = express.Router();
 router.use(verifyToken);  
@@ -125,6 +127,38 @@ router.get("/campuses", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get("/campuses/:campusId/dependencies", async (req, res) => {
+  try {
+    const { campusId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(campusId)) {
+      return res.status(400).json({ error: "Invalid Campus ID" });
+    }
+
+    // ❌ Do NOT populate markers because they're embedded
+    const campus = await Campus.findById(campusId).lean();
+
+    if (!campus) {
+      return res.status(404).json({ error: "Campus not found" });
+    }
+
+    // 🔹 Count users that reference this campusId
+    const userCount = await UserModel.countDocuments({ campus_id: campusId });
+
+    // ✅ Check if there are dependencies
+    const hasDependencies =
+      (campus.floors && campus.floors.length > 0) ||
+      (campus.campus_programs && campus.campus_programs.length > 0) ||
+      userCount > 0; // 🆕 Check users using the campus
+
+    res.json({ hasDependencies });
+  } catch (error) {
+    console.error("Error checking campus dependencies:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 router.get("/campuses/:id", async (req, res) => {
   try {

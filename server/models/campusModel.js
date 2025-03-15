@@ -70,3 +70,5 @@ const Campus = mongoose.model("Campus", campusSchema, "campus");
 const ArchivedCampus = mongoose.model('ArchivedCampus', campusSchema, 'archivedcampus');
 
 export {Campus, ArchivedCampus, ArchivedItem};
+
+

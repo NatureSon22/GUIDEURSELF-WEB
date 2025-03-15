@@ -7,6 +7,7 @@ import { GrPowerReset } from "react-icons/gr";
 import DataTable from "@/components/DataTable";
 import keyOfficialsColumns from "@/components/columns/ArchiveKeyOfficials";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ArchiveKeyOfficials = () => {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -116,7 +117,8 @@ const ArchiveKeyOfficials = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return 
+    <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />
   }
 
   if (isError) {

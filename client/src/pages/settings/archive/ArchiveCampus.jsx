@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { GrPowerReset } from "react-icons/gr";
 import campusColumns from "@/components/columns/ArchiveCampus";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getAllCampuses } from "@/api/component-info";
 
 const ArchiveCampus = () => {
@@ -117,7 +118,8 @@ const ArchiveCampus = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return 
+    <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />
   }
 
   if (isError) {

@@ -12,6 +12,7 @@ import { FaGraduationCap } from "react-icons/fa";
 import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
 import { HiSquaresPlus } from "react-icons/hi2";
+import { MdWidgets } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import PreviewPanorama from "./PreviewPanorama";
 import { IoAlertCircle } from "react-icons/io5";
@@ -280,7 +281,7 @@ const EditMarkerModal =
                 </div>
                 {previewImage ? (
                   <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4 relative">
-                    <div className="z-50 fixed flex justify-center items-center bg-black w-[710px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
+                    <div className="z-50 absolute flex justify-center items-center bg-black w-[710px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
                       <Button type="button" onClick={showPanorama} className="text-white h-[40px]">
                         Click to Preview
                       </Button>
@@ -341,7 +342,7 @@ const EditMarkerModal =
                               className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
                                 category === "Utility Areas" ? "text-base-200 border-base-200 border" : "text-black"
                                 }`}/>
-                              <HiSquaresPlus onClick={selectedOther} 
+                              <MdWidgets onClick={selectedOther} 
                               className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
                                 category === "Others (Miscellaneous)" ? "text-base-200 border-base-200 border" : "text-black"
                                 }`}/>

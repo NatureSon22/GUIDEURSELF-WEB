@@ -29,27 +29,16 @@ const fetchMarkers = async () => {
 };
 
 const fetchCampuses = async () => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/campus`, {
-      method: "GET",
-      credentials: "include",
-    });
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
+    method: "GET",
+    credentials: "include",
+  });
 
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.error || "Failed to fetch campuses.");
-    }
-
-    return data.campuses;
-  } catch (error) {
-    console.error("Error fetching campuses:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to fetch campuses");
   }
-};
+  return response.json();
+}
 
 const MediaLibrary = () => {
   const [selectedCampus, setSelectedCampus] = useState("");

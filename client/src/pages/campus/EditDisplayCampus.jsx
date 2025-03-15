@@ -90,26 +90,41 @@ const EditDisplayCampus = () => {
 
   const handleConfirmDelete = async () => {
     if (!campusToDelete) return;
-
+  
     try {
-      // Step 1: Archive the campus
-      await archiveCampus(campusToDelete);
-
-      // Step 2: Delete the campus from the active list
+      // Step 1: Check if the campus has related data
       const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/campuses/${campusToDelete._id}/dependencies`,
+        { method: "GET", credentials: "include" }
+      );
+  
+      const { hasDependencies } = await response.json();
+  
+      if (hasDependencies) {
+        toast({
+          title: "Error",
+          description: "The campus cannot be deleted because there is some data depending on it.",
+          variant: "destructive",
+        });
+        return; // STOP HERE, DO NOT DELETE CAMPUS
+      }
+  
+      // Step 2: Archive the campus
+      await archiveCampus(campusToDelete._id);
+  
+      // Step 3: Delete the campus
+      const deleteResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/campuses/${campusToDelete._id}`,
         { method: "DELETE", credentials: "include" }
       );
-
-      if (response.ok) {
+  
+      if (deleteResponse.ok) {
         toast({
           title: "Success",
           description: `Campus successfully archived and deleted: ${campusToDelete.campus_name}`,
           variant: "default",
         });
-        setCampuses((prevCampuses) =>
-          prevCampuses.filter((c) => c._id !== campusToDelete._id)
-        );
+        setCampuses((prev) => prev.filter((c) => c._id !== campusToDelete._id));
       } else {
         toast({
           title: "Error",
@@ -117,9 +132,9 @@ const EditDisplayCampus = () => {
           variant: "destructive",
         });
       }
-
+  
       setIsDeleteModalOpen(false);
-      setCampusToDelete(null); // Clear the selected campus
+      setCampusToDelete(null);
     } catch (error) {
       console.error("Error deleting campus:", error);
       toast({

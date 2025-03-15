@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
 import { useState, useMemo, useEffect } from "react";
-import { getAllAccounts } from "@/api/accounts";
 import { getAllCampuses, getAllRoleTypes, getAllActLog } from "@/api/component-info";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
@@ -146,25 +145,25 @@ const UserActivityReport = () => {
     doc.text(`Date Range: ${fromDate || today} - ${toDate || today} `, 0 + imgWidth + 0, 55);
   
     // Dynamically set campus filter
-    const campusFilter = filters.find((filter) => filter.id === "campus_name");
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60);
-    doc.text(`Campus: ${campusFilter ? campusFilter.value : "ALL"}`, 0 + imgWidth + 0, 60);
+    // const campusFilter = filters.find((filter) => filter.id === "campus_name");
+    // doc.setFontSize(10);
+    // doc.setFont("helvetica", "normal");
+    // doc.setTextColor(60);
+    // doc.text(`Campus: ${campusFilter ? campusFilter.value : "ALL"}`, 0 + imgWidth + 0, 60);
   
-    // Dynamically set status filter
-    const statusFilter = filters.find((filter) => filter.id === "status");
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60);
-    doc.text(`Status: ${statusFilter ? statusFilter.value : "ALL"}`, 0 + imgWidth + 0, 65);
+    // // Dynamically set status filter
+    // const statusFilter = filters.find((filter) => filter.id === "status");
+    // doc.setFontSize(10);
+    // doc.setFont("helvetica", "normal");
+    // doc.setTextColor(60);
+    // doc.text(`Status: ${statusFilter ? statusFilter.value : "ALL"}`, 0 + imgWidth + 0, 65);
   
-    // Dynamically set user type filter
-    const userTypeFilter = filters.find((filter) => filter.id === "role_type");
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60);
-    doc.text(`Users: ${userTypeFilter ? userTypeFilter.value : "ALL"}`, 0 + imgWidth + 0, 70);
+    // // Dynamically set user type filter
+    // const userTypeFilter = filters.find((filter) => filter.id === "role_type");
+    // doc.setFontSize(10);
+    // doc.setFont("helvetica", "normal");
+    // doc.setTextColor(60);
+    // doc.text(`Users: ${userTypeFilter ? userTypeFilter.value : "ALL"}`, 0 + imgWidth + 0, 70);
 
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
@@ -229,7 +228,7 @@ const UserActivityReport = () => {
 
   return (
     <div className="flex flex-1 flex-col gap-5">
-      <Header title="User Account Report" subtitle="Access, review, and generate reports on user account records" />
+      <Header title="User Acitivy Report" subtitle="Access, monitor, and generate reports on user activity logs" />
 
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-5">

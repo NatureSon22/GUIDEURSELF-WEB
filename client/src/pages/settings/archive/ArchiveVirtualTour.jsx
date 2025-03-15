@@ -8,6 +8,7 @@ import virtualTourColumns from "@/components/columns/ArchiveVirtualTour";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCampuses } from "@/api/component-info";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ArchiveVirtualTour = () => {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -110,7 +111,8 @@ const ArchiveVirtualTour = () => {
   }, [filters]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return 
+    <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />
   }
 
   if (isError) {

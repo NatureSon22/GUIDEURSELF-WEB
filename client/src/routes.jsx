@@ -40,6 +40,8 @@ import {
   UniversityManagement,
   UserManagement,
   PrivacyPolicySetting,
+  PrivacyPolicyWebSetting,
+  PrivacyPolicyMobileSetting,
   ReportsTemplate,
   Archive,
   AssignRole,
@@ -154,7 +156,7 @@ const routes = [
             element: <AddNewCampus />,
           },
           {
-            path: "edit",
+            path: "edit-campus",
             element: <EditDisplayCampus />,
           },
           {
@@ -255,7 +257,17 @@ const routes = [
               },
               {
                 path: "/settings/privacy-policy",
-                element: <PrivacyPolicySetting />,
+                element: <PrivacyPolicySetting />, // Parent component
+                children: [
+                  {
+                    path: "web",
+                    element: <PrivacyPolicyWebSetting />, // Web-specific component
+                  },
+                  {
+                    path: "mobile",
+                    element: <PrivacyPolicyMobileSetting />, // Mobile-specific component
+                  },
+                ],
               },
               {
                 path: "/settings/reports-template",
@@ -268,7 +280,8 @@ const routes = [
             ],
           },
         ],
-      },
+      }
+      
     ],
   },
   {

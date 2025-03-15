@@ -5,6 +5,7 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import L from "leaflet";
 import WorldMap from "./WorldMap";
 import CampusCard from "./CampusCard";
+import WelcomeCard from "./WelcomeCard"
 import SlideBar from "./SlideBar";
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
@@ -66,7 +67,7 @@ const BuildMode = () => {
           </div>
         </div>
       )}
-      {/* {isWelcomeCardOpen && <WelcomeCard onClose={closeWelcomeCard} />} */}
+      {isWelcomeCardOpen && <WelcomeCard onClose={closeWelcomeCard} />}
       <SlideBar userData={data} onCampusSelect={handleCampusSelect} exitBuildMode={handleExitBuildMode} />
       <WorldMap userData={data} />
       {selectedCampus && (

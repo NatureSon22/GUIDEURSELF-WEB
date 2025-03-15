@@ -131,25 +131,25 @@ const AccountReports = () => {
     doc.text(`Date Range: ${fromDate || today} - ${toDate || today} `, 0 + imgWidth + 0, 55);
   
     // Dynamically set campus filter
-    const campusFilter = filters.find((filter) => filter.id === "campus_name");
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60);
-    doc.text(`Campus: ${campusFilter ? campusFilter.value : "ALL"}`, 0 + imgWidth + 0, 60);
+    // const campusFilter = filters.find((filter) => filter.id === "campus_name");
+    // doc.setFontSize(10);
+    // doc.setFont("helvetica", "normal");
+    // doc.setTextColor(60);
+    // doc.text(`Campus: ${campusFilter ? campusFilter.value : "ALL"}`, 0 + imgWidth + 0, 60);
   
     // Dynamically set status filter
-    const statusFilter = filters.find((filter) => filter.id === "status");
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60);
-    doc.text(`Status: ${statusFilter ? statusFilter.value : "ALL"}`, 0 + imgWidth + 0, 65);
+    // const statusFilter = filters.find((filter) => filter.id === "status");
+    // doc.setFontSize(10);
+    // doc.setFont("helvetica", "normal");
+    // doc.setTextColor(60);
+    // doc.text(`Status: ${statusFilter ? statusFilter.value : "ALL"}`, 0 + imgWidth + 0, 65);
   
     // Dynamically set user type filter
-    const userTypeFilter = filters.find((filter) => filter.id === "role_type");
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60);
-    doc.text(`Users: ${userTypeFilter ? userTypeFilter.value : "ALL"}`, 0 + imgWidth + 0, 70);
+    // const userTypeFilter = filters.find((filter) => filter.id === "role_type");
+    // doc.setFontSize(10);
+    // doc.setFont("helvetica", "normal");
+    // doc.setTextColor(60);
+    // doc.text(`Users: ${userTypeFilter ? userTypeFilter.value : "ALL"}`, 0 + imgWidth + 0, 70);
 
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");

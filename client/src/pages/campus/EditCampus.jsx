@@ -47,7 +47,7 @@ const EditCampus = () => {
     });
     
     const secondHandleBack = () => {
-        navigate("/campus/edit");  
+        navigate("/campus/edit-campus");  
     };
 
     const toggleModal = () => {
@@ -164,7 +164,7 @@ const EditCampus = () => {
                         setTimeout(() => {
                           isSetLoading(false);
                           setLoadingVisible(false);
-                          navigate("/campus/edit"); // Navigate back to campus list
+                          navigate("/campus/edit-campus"); // Navigate back to campus list
                         }, 1500);
                       }, 2000);// Redirect to the campus list after update
                     } else {
@@ -287,7 +287,12 @@ const EditCampus = () => {
                 <Input
                   name="campus_phone_number"
                   value={campusData.campus_phone_number}
-                  onChange={(e) => setCampusData({...campusData, campus_phone_number: e.target.value})}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\+?[0-9\s]*$/.test(value)) {
+                      setCampusData({ ...campusData, campus_phone_number: value });
+                    }
+                  }}
                   placeholder="+63 2 123 4567"
                   className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
@@ -306,7 +311,12 @@ const EditCampus = () => {
                     name="campus_code"
                     maxLength={3}
                     value={campusData.campus_code}
-                    onChange={(e) => setCampusData({...campusData, campus_code: e.target.value.toUpperCase()})} 
+                    onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^[A-Za-z]*$/.test(value)) {
+                      setCampusData({ ...campusData, campus_code: value.toUpperCase() });
+                    }
+                  }}
                     placeholder="BIN"
                     className="w-[10%] h-[40px] outline-none text-center border border-gray-300 rounded-md"
                     type="text"
