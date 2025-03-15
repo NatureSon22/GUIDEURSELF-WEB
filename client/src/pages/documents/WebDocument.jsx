@@ -6,8 +6,13 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getDocument, saveAsDraftWeb, uploadFromWeb } from "@/api/documents";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  getDocument,
+  saveAsDraftWeb,
+  updateWebUpload,
+  uploadFromWeb,
+} from "@/api/documents";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -28,6 +33,8 @@ const formSchema = z.object({
 });
 
 const WebDocument = () => {
+  const { state } = useLocation();
+  const isEditing = state?.isEditing ? true : false;
   const { documentId } = useParams();
   const navigate = useNavigate();
   const client = useQueryClient();
@@ -107,12 +114,36 @@ const WebDocument = () => {
     },
   });
 
+  const { mutateAsync: handleUpdate, isPending: isUpdating } = useMutation({
+    mutationFn: updateWebUpload,
+    onSuccess: (data) => {
+      setOpenDialog(false);
+      toast({
+        title: "Success",
+        description: data,
+      });
+      client.invalidateQueries(["documents"]);
+      navigate(-1);
+    },
+    onError: (error) => {
+      const { message } = error;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: message,
+      });
+    },
+  });
+
   useEffect(() => {
     if (document && documentId) {
-      setValue("title", document.metadata.title);
+      setValue("title", document.file_name || document.metadata.title);
       setValue("websiteURL", document.metadata.url);
-      setValue("author", document.metadata.author);
-      setValue("visibility", document.metadata.visibility);
+      setValue("author", document.author || document.metadata.author);
+      setValue(
+        "visibility",
+        document.visibility || document.metadata.visibility,
+      );
     }
   }, [document, documentId, setValue]);
 
@@ -137,6 +168,11 @@ const WebDocument = () => {
     }
 
     setOpenDialog(true);
+    if (isEditing) {
+      formData.append("id", documentId);
+      handleUpdate(formData);
+      return;
+    }
 
     if (action === "publish") {
       handleUploadFromWeb(formData);
@@ -186,7 +222,8 @@ const WebDocument = () => {
             <Input
               {...register("websiteURL")}
               placeholder="Copy and paste your URL link here"
-              className="bg-white"
+              className={`bg-white ${isEditing ? "bg-gray-200 text-gray-800" : ""}`}
+              disabled={isEditing}
             />
             {errors.websiteURL && (
               <p className="mt-1 text-sm text-red-500">
@@ -277,19 +314,22 @@ const WebDocument = () => {
       {/* Action Buttons */}
       {!isDocumentLoading && (
         <div className="ml-auto flex gap-3">
-          <Button
-            type="submit"
-            variant="ghost"
-            className="text-base-200"
-            disabled={isPending || isSaving}
-            onClick={() => setAction("draft")}
-          >
-            Save as Draft
-          </Button>
+          {!isEditing && (
+            <Button
+              type="submit"
+              variant="ghost"
+              className="text-base-200"
+              disabled={isPending || isSaving || isUpdating}
+              onClick={() => setAction("draft")}
+            >
+              Save as Draft
+            </Button>
+          )}
+
           <Button
             type="submit"
             className="bg-base-200"
-            disabled={isPending || isSaving}
+            disabled={isPending || isSaving || isUpdating}
             onClick={() => setAction("publish")}
           >
             Publish

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import UserLogs from "./UserLogs";
+import RecentAccounts from "./RecentAccounts";
 
 const tabs = ["User Logs", "Accounts"];
 
@@ -27,7 +28,7 @@ const AccountActivityList = () => {
 
       <Card className="flex flex-col px-7 py-7 shadow-none">
         {selectedArchive === 0 && <UserLogs />}
-        {selectedArchive === 1 && <div>Accounts</div>}
+        {selectedArchive === 1 && <RecentAccounts />}
       </Card>
     </div>
   );

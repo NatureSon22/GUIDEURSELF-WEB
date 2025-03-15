@@ -23,7 +23,7 @@ const verifyToken = (req, res, next) => {
       userId: decoded.userId,
       roleId: decoded.roleId,
       campusId: decoded.campusId,
-      isMultiCampus: decoded.isMultiCampus
+      isMultiCampus: decoded.isMultiCampus,
     };
 
     next();

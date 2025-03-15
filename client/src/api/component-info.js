@@ -22,7 +22,6 @@ const getAllCampuses = async () => {
 };
 
 const fetchCampuses = async () => {
-    
   const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
     method: "GET",
     credentials: "include",
@@ -36,78 +35,79 @@ const fetchCampuses = async () => {
 
 const getGeneralData = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`,
-    {
-    method:"get",
-    }
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/general/675cdd2056f690410f1473b7`,
+      {
+        method: "get",
+      },
     );
     const data = await response.json();
-    return(data); 
+    return data;
   } catch (error) {
-    console.log(data);
     console.log(error);
-    throw new Error("Failed to load system logo!")
+    throw new Error("Failed to load system logo!");
   }
 };
 
 const getProgramTypeData = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes`,
-    {
-    method:"get",
-    credentials:"include"
-    }
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/campusprogramtypes`,
+      {
+        method: "get",
+        credentials: "include",
+      },
     );
     const data = await response.json();
-    return(data); 
+    return data;
   } catch (error) {
     console.log(error);
-    throw new Error("Failed to load program type!")
+    throw new Error("Failed to load program type!");
   }
 };
-
 
 const getProgramNameData = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramnames`,
-    {
-    method:"get",
-    credentials:"include"
-    }
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/campusprogramnames`,
+      {
+        method: "get",
+        credentials: "include",
+      },
     );
     const data = await response.json();
-    return(data); 
+    return data;
   } catch (error) {
     console.log(error);
-    throw new Error("Failed to load program name!")
+    throw new Error("Failed to load program name!");
   }
 };
-
 
 const getMajorData = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/campusmajors`,
-    {
-    method:"get",
-    credentials:"include"
-    }
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/campusmajors`,
+      {
+        method: "get",
+        credentials: "include",
+      },
     );
     const data = await response.json();
-    return(data); 
+    return data;
   } catch (error) {
     console.log(error);
-    throw new Error("Failed to load majors!")
+    throw new Error("Failed to load majors!");
   }
 };
 
-const getUniversityData = async () => { 
+const getUniversityData = async () => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/university/675cdd9756f690410f1473b8`,
       {
         method: "GET",
         credentials: "include",
-      }
+      },
     );
     if (!response.ok) {
       throw new Error(`Error fetching data: ${response.statusText}`);
@@ -126,7 +126,7 @@ const getPositions = async () => {
       `${import.meta.env.VITE_API_URL}/administartiveposition`,
       {
         credentials: "include",
-      }
+      },
     );
     if (!response.ok) {
       throw new Error("Failed to fetch position!");
@@ -183,12 +183,15 @@ const getAllStatus = async () => {
   return allStatus || [];
 };
 
-const getAllActLog = async () => {
+const getAllActLog = async (recent = "") => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, 
+    const response = await fetch(
+      recent
+        ? `${import.meta.env.VITE_API_URL}/activitylogs?recent=${recent}`
+        : `${import.meta.env.VITE_API_URL}/activitylogs`,
       {
         credentials: "include",
-      }
+      },
     ); // Ensure this endpoint is correct
     if (!response.ok) {
       throw new Error("Failed to fetch activity logs");

@@ -5,59 +5,57 @@ import generatePassword from "password-generator";
 import fs from "fs";
 import { Types } from "mongoose";
 import sendPasswordResendEmail from "../service/reset-password.js";
-import activitylog from "./activitylog.js";
 
 const getAllAccounts = async (req, res, next) => {
   try {
-    // Create a $match stage based on isMultiCampus
-    // console.log(req.user.isMultiCampus); // true or false
-    const matchStage = req.user.isMultiCampus
-      ? {
-          $match: {
-            _id: { $ne: new Types.ObjectId(req.user.userId) }, // Exclude the current user
-          },
-        }
-      : {
-          $match: {
-            _id: { $ne: new Types.ObjectId(req.user.userId) },
-            campus_id: { $eq: new Types.ObjectId(req.user.campusId) }, // Filter by campus
-          },
-        };
+    const { recent } = req.query; // Use query params for filtering
+    const userId = req.user?.userId;
+    const campusId = req.user?.campusId;
+    const isMultiCampus = req.user?.isMultiCampus;
 
-    const users = await UserModel.aggregate([
-      matchStage, // Apply the match condition
+    if (
+      !Types.ObjectId.isValid(userId) ||
+      (campusId && !Types.ObjectId.isValid(campusId))
+    ) {
+      return res.status(400).json({ message: "Invalid user or campus ID" });
+    }
+
+    // Define match stage based on campus restriction
+    const matchStage = {
+      $match: {
+        _id: { $ne: new Types.ObjectId(userId) }, // Exclude current user
+        ...(isMultiCampus ? {} : { campus_id: new Types.ObjectId(campusId) }), // Filter by campus if not multi-campus
+      },
+    };
+
+    const aggregationPipeline = [
+      matchStage,
       {
         $lookup: {
           from: "roles",
-          localField: "role_id",
-          foreignField: "_id",
+          let: { roleId: "$role_id" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$roleId"] } } },
+            { $project: { role_type: 1 } },
+          ],
           as: "role",
         },
       },
-      {
-        $unwind: { path: "$role", preserveNullAndEmptyArrays: true }, // Unwind roles array
-      },
-      {
-        $addFields: {
-          role_type: "$role.role_type", // Add role_type directly from role
-        },
-      },
+      { $unwind: { path: "$role", preserveNullAndEmptyArrays: true } },
+
       {
         $lookup: {
           from: "campus",
-          localField: "campus_id",
-          foreignField: "_id",
+          let: { campusId: "$campus_id" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$campusId"] } } },
+            { $project: { campus_name: 1 } },
+          ],
           as: "campus",
         },
       },
-      {
-        $unwind: { path: "$campus", preserveNullAndEmptyArrays: true }, // Unwind campus array
-      },
-      {
-        $addFields: {
-          campus_name: "$campus.campus_name", // Add campus_name directly from campus
-        },
-      },
+      { $unwind: { path: "$campus", preserveNullAndEmptyArrays: true } },
+
       {
         $project: {
           _id: 1,
@@ -67,15 +65,24 @@ const getAllAccounts = async (req, res, next) => {
           firstname: 1,
           middlename: 1,
           lastname: 1,
-          role_type: 1,
+          role_type: "$role.role_type",
           role_id: 1,
-          campus_name: 1,
+          campus_name: "$campus.campus_name",
           date_created: 1,
           date_assigned: 1,
           status: 1,
         },
       },
-    ]);
+    ];
+
+    console.log(req.query);
+    
+    if (recent) {
+      aggregationPipeline.push({ $sort: { date_created: -1 } }); // Sort by newest first
+      aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 }); // Limit results
+    }
+
+    const users = await UserModel.aggregate(aggregationPipeline);
 
     res.status(200).json({ users });
   } catch (error) {
@@ -128,6 +135,7 @@ const addAccount = async (req, res) => {
     await user.save();
 
     res.status(200).json({
+      user,
       message: "User created successfully",
     });
   } catch (error) {
@@ -176,7 +184,7 @@ const bulkAddAccount = async (req, res) => {
 
       return res.status(200).json({
         message: `${result.length} users created successfully`,
-        existingUsers,
+        users: result,
       });
     }
 
@@ -374,7 +382,6 @@ const updateAccount = async (req, res) => {
       "date_assigned",
     ];
 
-    
     const filteredData = Object.keys(updatedData)
       .filter((key) => allowedFields.includes(key))
       .reduce((obj, key) => {
@@ -382,9 +389,8 @@ const updateAccount = async (req, res) => {
         return obj;
       }, {});
 
-   
     const account = await UserModel.findByIdAndUpdate(
-      req.body.accountId, 
+      req.body.accountId,
       { $set: filteredData },
       { new: true }
     );
@@ -428,14 +434,15 @@ const updatePhoto = async (req, res) => {
       return res.status(400).json({ message: "Account ID is required" });
     }
 
-    await UserModel.updateOne(
+    const user = await UserModel.findOneAndUpdate(
       { _id: accountId },
-      { $set: { user_photo_url: photoUrl, date_updated: new Date() } }
+      { $set: { user_photo_url: photoUrl, date_updated: new Date() } },
+      { new: true, runValidators: true } // Ensure the updated user is returned
     );
 
     fs.unlinkSync(req.file.path);
 
-    res.status(200).json({ message: "Photo updated successfully" });
+    res.status(200).json({ message: "Photo updated successfully", user });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -514,7 +521,7 @@ const deleteAccounts = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { email, campusId } = req.body;
+    const { email, campusId, device = "web" } = req.body;
 
     const user = await UserModel.findOne({ email, campus_id: campusId });
 
@@ -536,7 +543,7 @@ const resetPassword = async (req, res) => {
       }
     );
 
-    await sendPasswordResendEmail(user.email, password);
+    await sendPasswordResendEmail(user.email, password, device);
 
     res.status(200).json({
       message: "If the account exists, a password reset has been initiated.",

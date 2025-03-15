@@ -22,7 +22,7 @@ const columns = () => [
       return (
         <div className="flex items-center gap-5">
           <div className="ml-auto"></div>
-          <EditDialog role_id={row.original._id}>
+          <EditDialog type="edit" role_id={row.original._id}>
             <Button
               variant="secondary"
               className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
@@ -32,12 +32,14 @@ const columns = () => [
             </Button>
           </EditDialog>
 
-          <Button
-            variant="destructive"
-            className="group rounded-full bg-accent-100/10 px-[0.65rem]"
-          >
-            <MdDelete className="text-accent-100 group-hover:text-white" />
-          </Button>
+          <EditDialog type="delete" role_id={row.original._id}>
+            <Button
+              variant="destructive"
+              className="group rounded-full bg-accent-100/10 px-[0.65rem]"
+            >
+              <MdDelete className="text-accent-100 group-hover:text-white" />
+            </Button>
+          </EditDialog>
           <div className="mr-auto"></div>
         </div>
       );

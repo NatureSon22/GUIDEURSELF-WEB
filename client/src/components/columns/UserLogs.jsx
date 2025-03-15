@@ -6,6 +6,7 @@ const column = () => [
     accessorKey: "user_number",
     header: "User ID",
     filterFn: "equalsString",
+    cell: ({ row }) => <p className="py-2">{row.original.user_number}</p>,
   },
   {
     accessorKey: "firstname",
@@ -29,14 +30,14 @@ const column = () => [
     filterFn: "equalsString",
   },
   {
-    accessorKey: "action_taken",
+    accessorKey: "action",
     header: "Action Taken",
     filterFn: "equalsString",
   },
   {
-    accessorKey: "date_added",
-    header: "Date Added",
-    cell: ({ row }) => formatDate(row.original.date_added),
+    accessorKey: "date_created",
+    header: "Date Created",
+    cell: ({ row }) => formatDate(row.original.date_created),
     filterFn: "equalsString",
   },
 ];

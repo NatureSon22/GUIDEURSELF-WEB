@@ -11,6 +11,7 @@ const Permissions = ({
   style = "",
   disableToggle = false,
   customizePermission = false,
+  newRole = false,
 }) => {
   const [checkAll, setCheckAll] = useState(false);
 
@@ -49,7 +50,12 @@ const Permissions = ({
 
       <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-4">
         {module.access.map((access) => {
-          const isChecked = roleaccess.includes(access);
+          let isChecked = roleaccess.includes(access); // Default for existing roles
+
+          if (newRole) {
+            const mod = roleaccess.find((mod) => mod.module === module.module);
+            isChecked = mod ? mod.access.includes(access) : false;
+          }
 
           return (
             <SwitchToggle
@@ -75,6 +81,7 @@ Permissions.propTypes = {
   style: PropTypes.string,
   disableToggle: PropTypes.bool,
   customizePermission: PropTypes.bool,
+  newRole: PropTypes.bool,
 };
 
 export default Permissions;

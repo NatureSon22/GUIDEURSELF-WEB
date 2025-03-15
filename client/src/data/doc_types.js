@@ -1,7 +1,7 @@
 const document_types = [
-  { value: "upload-document", label: "Uploaded" },
-  { value: "created-document", label: "Created" },
-  { value: "imported-web", label: "Imported" },
+  { label: "uploaded-document", value: "upload-document" },
+  { label: "created-document", value: "created-document" },
+  { label: "imported-web", value: "imported-web" },
 ];
 
 export default document_types;

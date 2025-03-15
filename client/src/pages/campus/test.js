@@ -3,7 +3,6 @@ import Campus from "../models/campusModel.js";
 import multer from "multer";
 import cloudinary from "cloudinary";
 import { Readable } from "stream";
-import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 // router.use(verifyToken);

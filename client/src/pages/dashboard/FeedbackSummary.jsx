@@ -1,11 +1,19 @@
 import { useState } from "react";
 import FeedbackSummaryChart from "./FeedbackSummaryChart";
 import FeedbackSummaryReviews from "./FeedbackSummaryReviews";
+import { useQuery } from "@tanstack/react-query";
+import { getTotalFeedback } from "@/api/feedback";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const filters = ["All", "Student", "Faculty", "Staff", "Other"];
 
 const FeedbackSummary = () => {
   const [filterState, setFilterState] = useState("All");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["feedbacks", filterState],
+    queryFn: () => getTotalFeedback(filterState),
+  });
 
   const handleFilter = (filter) => {
     setFilterState(filter);
@@ -31,8 +39,17 @@ const FeedbackSummary = () => {
         </div>
 
         <div className="flex items-center gap-8">
-          <FeedbackSummaryReviews />
-          <FeedbackSummaryChart />
+          {isLoading ? (
+            <Skeleton className="mt-5 h-[220px] max-w-[200px] flex-1"></Skeleton>
+          ) : (
+            <FeedbackSummaryReviews data={data} />
+          )}
+
+          {isLoading ? (
+            <Skeleton className="mt-5 h-[220px] flex-1"></Skeleton>
+          ) : (
+            <FeedbackSummaryChart data={data} />
+          )}
         </div>
       </div>
     </div>

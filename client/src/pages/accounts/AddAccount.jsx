@@ -51,6 +51,8 @@ const AddAccount = () => {
   const { mutate: handleAddAccount } = useMutation({
     mutationFn: addAccount,
     onSuccess: (data) => {
+      
+
       toast({
         title: "Success",
         description: data.message,

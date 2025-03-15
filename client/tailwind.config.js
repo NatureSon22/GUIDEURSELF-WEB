@@ -4,6 +4,10 @@ export default {
   content: ["./src/**/*.{js,jsx,ts,tsx,html}", "./public/index.html"],
   theme: {
     extend: {
+      fontFamily: {
+        "cizel-decor": ["Cinzel Decorative", "sans-serif"],
+        "cizel": ["Cinzel", "sans-serif"],
+      },
       colors: {
         "base-100": "rgba(14, 70, 163, 1)",
         "base-200": "rgba(18, 165, 188, 1)",

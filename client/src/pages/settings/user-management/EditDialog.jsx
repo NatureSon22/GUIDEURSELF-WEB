@@ -15,13 +15,19 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-import { getRoleById, updateRolePermissions } from "@/api/role";
+import {
+  deleteRolePermission,
+  getRoleById,
+  updateRolePermissions,
+} from "@/api/role";
 import PERMISSIONS from "@/data/permissions";
 import { useToast } from "@/hooks/use-toast";
+import { BiSolidEdit } from "react-icons/bi";
+import { MdDelete } from "react-icons/md";
 
 import Permissions from "@/components/Permissions";
 
-const EditDialog = ({ role_id, children }) => {
+const EditDialog = ({ type, role_id, children }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -49,15 +55,51 @@ const EditDialog = ({ role_id, children }) => {
 
   const { mutateAsync: updateRolePermission, isPending } = useMutation({
     mutationFn: updateRolePermissions,
-    onSuccess: (data) => {
+    onSuccess: () => {
       setIsOpen(false);
       queryClient.invalidateQueries([
         "rolesWithPermissions",
         "rolesWithoutPermissions",
       ]);
-      toast({ title: "Success", description: data.message });
+      toast({
+        title: "Permissions Updated",
+        description: "Role permissions updated successfully",
+      });
     },
-    onError: () => setIsOpen(false),
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update role permissions",
+      });
+    },
+    onSettled: () => {
+      setIsOpen(false);
+    },
+  });
+
+  const { mutateAsync: deleteRole, isPending: isDeleting } = useMutation({
+    mutationFn: deleteRolePermission,
+    onSuccess: () => {
+      queryClient.invalidateQueries([
+        "rolesWithPermissions",
+        "rolesWithoutPermissions",
+      ]);
+      toast({
+        title: "Permissions Deleted",
+        description: "Role permissions deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete role permissions",
+      });
+    },
+    onSettled: () => {
+      setIsOpen(false);
+    },
   });
 
   const handleCancel = () => setIsOpen(false);
@@ -87,6 +129,14 @@ const EditDialog = ({ role_id, children }) => {
 
   const handleSave = () => {
     const formData = new FormData();
+
+    if (type === "delete") {
+      formData.append("role_id", role_id);
+      deleteRole(formData);
+
+      return;
+    }
+
     formData.append("role_id", role_id);
     formData.append("isMultiCampus", enableAllCampus);
     formData.append("permissions", JSON.stringify(permissions));
@@ -107,9 +157,20 @@ const EditDialog = ({ role_id, children }) => {
   }
 
   if (isLoading) {
-    return (
-      <Button variant="secondary" disabled>
-        Loading...
+    return type === "delete" ? (
+      <Button
+        variant="destructive"
+        className="group rounded-full bg-accent-100/10 px-[0.65rem]"
+      >
+        <MdDelete className="text-accent-100 group-hover:text-white" />
+      </Button>
+    ) : (
+      <Button
+        variant="secondary"
+        className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
+      >
+        <BiSolidEdit />
+        Edit
       </Button>
     );
   }
@@ -119,15 +180,21 @@ const EditDialog = ({ role_id, children }) => {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="grid gap-4 md:max-w-[900px] [&>button]:hidden">
         <DialogHeader>
-          <DialogTitle>Edit Permissions</DialogTitle>
+          <DialogTitle>
+            {type === "delete"
+              ? "Delete Role Permissions"
+              : " Edit Permissions"}
+          </DialogTitle>
           <DialogDescription>
-            Control access and permissions for roles.
+            {type === "delete"
+              ? "Are you sure you want to delete this role? This action cannot be undone."
+              : "Edit permissions for this role"}
           </DialogDescription>
         </DialogHeader>
 
         {/* Role Type Display */}
         <div>
-          <p className="w-min rounded-md bg-secondary-100-75/50 px-4 py-2 text-white">
+          <p className="w-max rounded-md bg-secondary-100-75/50 px-4 py-2 text-white">
             {roleDetails?.role_type.toUpperCase()}
           </p>
         </div>
@@ -145,6 +212,7 @@ const EditDialog = ({ role_id, children }) => {
               className="ml-5 mt-5 space-y-2"
               value={String(enableAllCampus)}
               onValueChange={(value) => setEnableAllCampus(value === "true")}
+              disabled={type === "delete"}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="true" id="r1" />
@@ -180,7 +248,8 @@ const EditDialog = ({ role_id, children }) => {
                 module={module}
                 roleaccess={rolePermissions?.access}
                 handleSetPermissions={handleSetPermissions}
-                customizePermission={true}
+                customizePermission={type !== "delete"}
+                disableToggle={type === "delete"}
               />
             );
           })}
@@ -192,7 +261,7 @@ const EditDialog = ({ role_id, children }) => {
             className="text-base-200"
             variant="ghost"
             onClick={handleCancel}
-            disabled={isLoading || isPending}
+            disabled={isLoading || isPending || isDeleting}
           >
             Cancel
           </Button>
@@ -200,9 +269,9 @@ const EditDialog = ({ role_id, children }) => {
             className="bg-base-200"
             type="submit"
             onClick={handleSave}
-            disabled={isLoading || isPending}
+            disabled={isLoading || isPending || isDeleting}
           >
-            Save changes
+            {type === "delete" ? "Delete" : "Save Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -211,8 +280,9 @@ const EditDialog = ({ role_id, children }) => {
 };
 
 EditDialog.propTypes = {
-  role_id: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
+  role_id: PropTypes.string,
+  type: PropTypes.string,
 };
 
 export default EditDialog;

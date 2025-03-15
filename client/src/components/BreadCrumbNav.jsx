@@ -11,14 +11,16 @@ import { MdDashboard } from "react-icons/md";
 import { FaBuilding, FaFolder } from "react-icons/fa6";
 import { FaLocationDot } from "react-icons/fa6";
 import { BsGearFill, BsPersonCircle, BsPersonFillAdd } from "react-icons/bs";
-import { IoPerson } from "react-icons/io5";
 import { FaFileAlt } from "react-icons/fa";
+import { BiSolidMessage } from "react-icons/bi";
+import { IoPerson } from "react-icons/io5";
 
 const icons = {
   Dashboard: <MdDashboard />,
   Documents: <FaFolder />,
   "Virtual Tour": <FaLocationDot />,
   "Key Officials": <BsPersonCircle />,
+  Chats: <BiSolidMessage />,
   Campus: <FaBuilding />,
   Accounts: <IoPerson />,
   "Roles Permissions": <BsPersonFillAdd />,
@@ -48,8 +50,16 @@ const BreadCrumbNav = () => {
                 )}
 
                 <span
-                  className="cursor-pointer font-medium"
-                  onClick={() => handleBreadcrumbClick(crumb.path)}
+                  className={
+                    i == crumbs.length - 1
+                      ? "font-medium"
+                      : "cursor-pointer font-medium"
+                  }
+                  onClick={
+                    i == crumbs.length - 1
+                      ? () => {}
+                      : () => handleBreadcrumbClick(crumb.path)
+                  }
                 >
                   {crumb.label}
                 </span>

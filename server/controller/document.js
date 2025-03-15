@@ -10,7 +10,6 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { config } from "dotenv";
 import documentParser from "./documentParser.js";
-import { response } from "express";
 import activitylog from "./activitylog.js";
 
 config();
@@ -216,13 +215,13 @@ const getAllDocuments = async (req, res) => {
             : `${publishedByUser?.firstname || "Unknown"} ${
                 publishedByUser?.lastname || ""
               }`.trim(),
-        contributors: contributorUsers.map((contributor) =>
-          contributor?.id?.toString() === req.user?.userId
-            ? "You"
-            : `${contributor?.firstname || "Unknown"} ${
-                contributor?.lastname || ""
-              }`.trim()
-        ),
+        contributors: contributorUsers
+          .map((contributor) =>
+            contributor?.id?.toString() === req.user?.userId
+              ? "You"
+              : `${contributor?.lastname || ""}`.trim()
+          )
+          .join(", "),
       };
     });
 
@@ -439,6 +438,7 @@ const saveAsDraftCreatedDocument = async (req, res) => {
         { _id: documentId },
         {
           $set: {
+            visibility,
             file_name: fileName,
             metadata,
             date_last_modified: new Date(),

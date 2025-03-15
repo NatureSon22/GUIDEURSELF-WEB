@@ -5,22 +5,25 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "5", desktop: 1000 },
-  { month: "4", desktop: 550 },
-  { month: "3", desktop: 320 },
-  { month: "2", desktop: 120 },
-  { month: "1", desktop: 50 },
-];
+import PropTypes from "prop-types";
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
+  // Add default configuration if necessary
 };
 
-const FeedbackSummaryChart = () => {
+// FeedbackSummaryChart component
+const FeedbackSummaryChart = ({ data }) => {
+  const { total = {} } = data;
+
+  // Ensure data is formatted correctly
+  const chartData =
+    Object.keys(total).length > 0
+      ? Object.keys(total).map((key) => ({
+          rate: key,
+          total: total[key], // Ensure the correct key is used
+        }))
+      : [];
+
   return (
     <Card className="flex-1 border-none shadow-none">
       <CardContent>
@@ -29,28 +32,30 @@ const FeedbackSummaryChart = () => {
             accessibilityLayer
             data={chartData}
             barSize={35}
+            defaultShowTooltip={false}
             barGap={0}
             layout="vertical"
-            margin={{
-              left: -20,
-            }}
+            margin={{ left: -20 }}
           >
-            <XAxis type="number" dataKey="desktop" />
+            <XAxis
+              type="number"
+              dataKey="total"
+              allowDecimals={false} // Prevent decimal values
+            />
             <YAxis
-              dataKey="month"
+              dataKey="rate"
               type="category"
-              color="black"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+            
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
             <Bar
-              dataKey="desktop"
+              dataKey="total"
               fill="rgba(18, 165, 188, 1)"
               radius={[0, 50, 50, 0]}
             />
@@ -59,6 +64,12 @@ const FeedbackSummaryChart = () => {
       </CardContent>
     </Card>
   );
+};
+
+FeedbackSummaryChart.propTypes = {
+  data: PropTypes.shape({
+    total: PropTypes.objectOf(PropTypes.number),
+  }),
 };
 
 export default FeedbackSummaryChart;

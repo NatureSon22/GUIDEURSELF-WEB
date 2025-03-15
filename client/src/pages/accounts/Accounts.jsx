@@ -59,7 +59,6 @@ const Accounts = () => {
     onError: () => setOpenDialog(false),
   });
 
-  console.log(filters);
   const filteredAccounts = useMemo(() => {
     if (!allAccounts) return [];
 

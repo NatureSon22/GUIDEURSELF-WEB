@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import {getGeneralData} from "@/api/component-info.js"
+import { getGeneralData } from "@/api/component-info.js";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TermsOfService = () => {
   const { data, isLoading } = useQuery({
-    queryKey: ["universitysettings"],
+    queryKey: ["termsOfService"],
     queryFn: getGeneralData,
   });
 
@@ -12,15 +13,25 @@ const TermsOfService = () => {
       <div className="w-[85%] space-y-10 pb-16">
         <div className="space-y-1 text-center">
           <h1 className="text-2xl font-semibold">Terms of Service</h1>
-          <p>Effective Date: [November 1, 2023]</p>
+          <p>Effective Date: November 1, 2023</p>
         </div>
 
-        <div
-          className="text-[0.95rem] ql-editor list-disc list-outside p-4"
-          dangerouslySetInnerHTML={{
-            __html: isLoading ? "Loading..." : data?.terms_conditions || "",
-          }}
-        />
+        {isLoading ? (
+          <div className="space-y-5">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        ) : (
+          <div
+            className="ql-editor list-outside list-disc p-4 text-[0.95rem]"
+            dangerouslySetInnerHTML={{
+              __html: data?.terms_conditions || "",
+            }}
+          />
+        )}
       </div>
     </div>
   );

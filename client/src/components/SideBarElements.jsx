@@ -7,6 +7,7 @@ import { IoPerson } from "react-icons/io5";
 import { BsPersonFillAdd } from "react-icons/bs";
 import { FaFileAlt } from "react-icons/fa";
 import { BsGearFill } from "react-icons/bs";
+import { BiSolidMessage } from "react-icons/bi";
 
 const SideBarElements = [
   {
@@ -29,6 +30,12 @@ const SideBarElements = [
         path: "/virtual-tour",
         module: "Manage Virtual Tour",
         icon: <FaLocationDot />,
+      },
+      {
+        title: "Chats",
+        path: "/chats",
+        module: "Manage Chats",
+        icon: <BiSolidMessage />,
       },
     ],
   },

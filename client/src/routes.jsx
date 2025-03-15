@@ -49,7 +49,8 @@ import {
   TermsOfService,
   Policy,
   MediaLibrary,
-  EditAssignRole
+  EditAssignRole,
+  Chats,
 } from "./routescomponents.jsx";
 import NetworkLayer from "./layer/NetworkLayer.jsx";
 import EditAssignRoleRefined from "./pages/roles/EditAssignRoleRefined.jsx";
@@ -162,6 +163,16 @@ const routes = [
           {
             path: "edit-campus/:id",
             element: <EditCampus />,
+          },
+        ],
+      },
+      {
+        path: "/chats",
+        element: <Container />,
+        children: [
+          {
+            path: "",
+            element: <Chats />,
           },
         ],
       },

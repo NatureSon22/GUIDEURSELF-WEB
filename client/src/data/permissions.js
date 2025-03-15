@@ -35,6 +35,12 @@ const PERMISSIONS = [
     ],
   },
   {
+    module: "Manage Chats",
+    description:
+      "Check the permissions granted for managing chats on their assigned campus",
+    access: ["add chat", "edit chat", "archive chat"],
+  },
+  {
     module: "Manage Key Officials",
     description:
       "Check the permissions granted for managing university key officials",

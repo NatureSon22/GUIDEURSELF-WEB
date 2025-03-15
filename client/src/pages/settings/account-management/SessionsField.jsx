@@ -1,12 +1,63 @@
+import { getSessions } from "@/api/session";
 import Layout from "@/components/Layout";
+import { useQuery } from "@tanstack/react-query";
+import SessionDisplay from "./SessionDisplay";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const SessionsField = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["sessions"],
+    queryFn: getSessions,
+  });
+
   return (
-    <Layout
-      title="Current Active Sessions"
-      subtitle="View and manage all current login sessions"
-    >
-      <p>Sessions</p>
+    <Layout withHeader={false} isEditable={false}>
+      {/* Current Active Sessions */}
+      <div>
+        <p className="text-[0.95rem] font-semibold">Current Active Sessions</p>
+        <p className="text-[0.85rem] text-secondary-100/60">
+          View and manage all current login sessions
+        </p>
+
+        {isLoading ? (
+          <Skeleton className="mt-3 h-12 w-full" />
+        ) : data.activeSessions.length > 0 ? (
+          <div className="mt-3 space-y-3 px-4">
+            {data.activeSessions.map((session) => (
+              <SessionDisplay key={session._id} session={session} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 px-4 text-[0.85rem] text-secondary-100-75/60">
+            No inactive sessions
+          </p>
+        )}
+      </div>
+
+      {/* Logout All Other Sessions */}
+      <div className="pt-2">
+        <p className="text-[0.95rem] font-semibold">
+          Logout all other sessions
+        </p>
+        <p className="text-[0.85rem] text-secondary-100/60">
+          You&apos;re logged into these devices and aren&apos;t currently using
+          them
+        </p>
+
+        {isLoading ? (
+          <Skeleton className="mt-3 h-12 w-full" />
+        ) : data.inactiveSessions.length > 0 ? (
+          <div className="mt-3 space-y-3 px-4">
+            {data.inactiveSessions.map((session) => (
+              <SessionDisplay key={session._id} session={session} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 px-4 text-[0.85rem] text-secondary-100-75/60">
+            No inactive sessions
+          </p>
+        )}
+      </div>
     </Layout>
   );
 };

@@ -83,7 +83,7 @@ const CoreValuesField = () => {
         title: "Failed",
         description: "University core values unsuccessfully updated",
         variant: "error",
-      });m
+      });
     }
   };
 

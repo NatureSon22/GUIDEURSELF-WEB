@@ -1,16 +1,24 @@
 import formatDateTime from "@/utils/formatDateTime";
 import { Button } from "../ui/button";
 import { MdDelete } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { BiSolidEdit } from "react-icons/bi";
+import { FaEllipsis } from "react-icons/fa6";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { FaEye } from "react-icons/fa";
 
 const handleNavigate = (navigate, type, id) => {
-  const route =
-    type == "created-document"
-      ? `/documents/write-document/${id}`
-      : type == "imported-web"
-        ? `/documents/import-website/${id}`
-        : `/documents/upload-document/${id}`;
-  navigate(route);
+  const routes = {
+    "created-document": `/documents/write-document/${id}`,
+    "imported-web": `/documents/import-website/${id}`,
+  };
+
+  const route = routes[type] || `/documents/upload-document/${id}`;
+
+  navigate(route, { state: { isEditing: Boolean(true) } });
 };
 
 const column = ({ navigate, setOpen, setSelectedDocument }) => [
@@ -19,15 +27,11 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
     header: "Filename",
     filterFn: "equalsString",
     cell: ({ row }) => (
-      <Link
-        to={`/documents/view/${row.original._id}`}
-        className="hover:underline"
-        title={row.original.file_name}
-      >
+      <p>
         {row.original.file_name.length > 20
           ? row.original.file_name.slice(0, 20) + "..."
           : row.original.file_name}
-      </Link>
+      </p>
     ),
   },
   {
@@ -54,12 +58,14 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
   {
     accessorKey: "campus_id.campus_name",
     id: "campus_id.campus_name",
-    enableHiding: true,
+    header: "Campus",
+    filterFn: "equalsString",
   },
   {
     accessorKey: "document_type",
     id: "document_type",
-    enableHiding: true,
+    header: "Document Type",
+    filterFn: "equalsString",
   },
   {
     accessorKey: "status",
@@ -84,38 +90,62 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
   {
     header: "Action",
     cell: ({ row }) => {
+      const editable = row.original.visibility === "viewAndEdit";
+      const isOwner = row.original.published_by === "You";
+
       return (
-        <div className="flex items-center gap-5">
-          <div className="ml-auto"></div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="mx-4 py-1">
+              <FaEllipsis />
+            </Button>
+          </DropdownMenuTrigger>
 
-          {/* <Button
-            variant="secondary"
-            className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
-            onClick={() =>
-              handleNavigate(
-                navigate,
-                row.original.document_type,
-                row.original._id,
-              )
-            }
-          >
-            <BiSolidEdit />
-            Edit
-          </Button> */}
+          <DropdownMenuContent className="grid w-[135px] gap-1 rounded-md bg-white p-3 shadow-md">
+            <Button
+              variant="ghost"
+              className="w-full bg-secondary-200/10 text-[0.85rem] text-secondary-100-75"
+              onClick={() => {
+                navigate(`/documents/view/${row.original._id}`);
+              }}
+            >
+              <div className="w"></div>
+              <FaEye />
+              <p className="">View</p>
+            </Button>
 
-          <Button
-            variant="destructive"
-            className="group rounded-full bg-accent-100/10 px-[0.65rem]"
-            onClick={() => {
-              setOpen(true);
-              setSelectedDocument(row.original._id);
-            }}
-          >
-            <MdDelete className="text-accent-100 group-hover:text-white" />
-          </Button>
+            {(editable || isOwner) && (
+              <Button
+                variant="ghost"
+                className="w-full bg-secondary-200/10 text-[0.85rem] text-secondary-100-75"
+                onClick={() =>
+                  handleNavigate(
+                    navigate,
+                    row.original.document_type,
+                    row.original._id,
+                  )
+                }
+              >
+                <BiSolidEdit />
+                <p className="">Edit</p>
+              </Button>
+            )}
 
-          <div className="mr-auto"></div>
-        </div>
+            {isOwner && (
+              <Button
+                variant="destructive"
+                className="group bg-accent-100/10"
+                onClick={() => {
+                  setOpen(true);
+                  setSelectedDocument(row.original._id);
+                }}
+              >
+                <MdDelete className="text-accent-100 group-hover:text-white" />
+                <p className="text-accent-100 group-hover:text-white">Delete</p>
+              </Button>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },

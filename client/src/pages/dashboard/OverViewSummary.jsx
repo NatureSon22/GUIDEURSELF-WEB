@@ -19,7 +19,7 @@ const OverViewSummary = () => {
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["accounts"],
-    queryFn: getAllAccounts
+    queryFn: () => getAllAccounts()
   });
 
   const { data: allDocuments = [] } = useQuery({

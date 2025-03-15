@@ -40,6 +40,40 @@ const createConversation = async (req, res) => {
   }
 };
 
+const createConversationAsGuest = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    const response = await fetch(CODY_URLS.CREATE_CONVERSATION(), {
+      method: "POST",
+      headers: HEADERS,
+      body: JSON.stringify({ name, bot_id: process.env.CODY_BOT_ID }),
+    });
+
+    if (!response.ok) {
+      return res
+        .status(response.status)
+        .json({ message: "Failed to create conversation" });
+    }
+
+    const {
+      data: { id, name: conversationName },
+    } = await response.json();
+
+    const newConversation = {
+      conversation_id: id,
+      conversation_name: conversationName,
+    };
+
+    res
+      .status(201)
+      .json({ message: "Conversation created successfully", newConversation });
+  } catch (error) {
+    console.error("Request failed:", error.message);
+    res.status(500).json({ message: "Failed to create conversation" });
+  }
+};
+
 const getAllConversations = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -120,6 +154,7 @@ const deleteAll = async (req, res) => {
 
 export {
   createConversation,
+  createConversationAsGuest,
   getAllConversations,
   getConversation,
   deleteConversation,

@@ -2,6 +2,7 @@ import { Router } from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import {
   createConversation,
+  createConversationAsGuest,
   deleteAll,
   deleteConversation,
   getAllConversations,
@@ -24,6 +25,10 @@ conversationRouter.post(
   "/create-conversation",
   verifyToken,
   createConversation
+);
+conversationRouter.post(
+  "/create-conversation-as-guest",
+  createConversationAsGuest
 );
 conversationRouter.delete(
   "/delete-conversation/:id",

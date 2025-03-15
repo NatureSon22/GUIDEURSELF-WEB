@@ -94,6 +94,9 @@ const UploadDocument = lazy(
 const WebDocument = lazy(() => import("./pages/documents/WebDocument.jsx"));
 const TestChat = lazy(() => import("./pages/documents/TestChat.jsx"));
 
+// Chats
+const Chats = lazy(() => import("./pages/chats/Chats.jsx"));
+
 // Reports
 const Reports = lazy(() => import("./pages/reports/Reports.jsx"));
 const AccountReports = lazy(() => import("./pages/reports/AccountReports.jsx"));
@@ -155,4 +158,5 @@ export {
   TermsOfService,
   Policy,
   MediaLibrary,
+  Chats,
 };

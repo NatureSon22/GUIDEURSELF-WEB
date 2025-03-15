@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import RenderField from "@/components/RenderField";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FaEyeSlash } from "react-icons/fa";
+import { IoEyeSharp } from "react-icons/io5";
 
 const formSchema = z
   .object({
@@ -80,6 +82,10 @@ const PasswordField = ({ isLoading, _id, password }) => {
     setEdit(false);
     setShowConfirmPassword(false);
     setShowPassword(false);
+    form.reset({
+      password: password || "",
+      confirmPassword: "",
+    });
   };
 
   const passwordField = RenderField(
@@ -125,9 +131,10 @@ const PasswordField = ({ isLoading, _id, password }) => {
                   <Button
                     variant="ghost"
                     type="button"
+                    className="bg-base-300/10 text-secondary-100-75"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    Show
+                    {showPassword ? <IoEyeSharp /> : <FaEyeSlash />}
                   </Button>
                 )}
               </div>
@@ -140,9 +147,10 @@ const PasswordField = ({ isLoading, _id, password }) => {
                   <Button
                     variant="ghost"
                     type="button"
+                    className="bg-base-300/10 text-secondary-100-75"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    Show
+                    {showConfirmPassword ? <IoEyeSharp /> : <FaEyeSlash />}
                   </Button>
                 )}
               </div>
