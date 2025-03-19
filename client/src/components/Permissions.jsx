@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Label } from "@/components/ui/label";
 import SwitchToggle from "@/components/SwitchToggle";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Checkbox } from "./ui/checkbox";
 
 const Permissions = ({
@@ -15,6 +15,10 @@ const Permissions = ({
 }) => {
   const [checkAll, setCheckAll] = useState(false);
 
+  useEffect(() => {
+    setCheckAll(module.access.every((access) => roleaccess.includes(access)));
+  }, [module.access, roleaccess]);
+
   const toggleCheckAll = () => {
     const newCheckAll = !checkAll;
     setCheckAll(newCheckAll);
@@ -24,6 +28,10 @@ const Permissions = ({
       handleSetPermissions(module.module, access, newCheckAll);
     });
   };
+
+  const mod = newRole
+    ? roleaccess.find((mod) => mod.module === module.module)
+    : null;
 
   return (
     <div className={`bg-secondary-200/5 px-5 py-6 ${style}`}>
@@ -36,7 +44,7 @@ const Permissions = ({
               <Checkbox
                 className="border-secondary-200"
                 checked={checkAll}
-                onClick={toggleCheckAll}
+                onCheckedChange={toggleCheckAll}
               />
               <Label>Check All</Label>
             </>
@@ -53,7 +61,6 @@ const Permissions = ({
           let isChecked = roleaccess.includes(access); // Default for existing roles
 
           if (newRole) {
-            const mod = roleaccess.find((mod) => mod.module === module.module);
             isChecked = mod ? mod.access.includes(access) : false;
           }
 
@@ -75,7 +82,11 @@ const Permissions = ({
 };
 
 Permissions.propTypes = {
-  module: PropTypes.object.isRequired,
+  module: PropTypes.shape({
+    module: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    access: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }).isRequired,
   roleaccess: PropTypes.array,
   handleSetPermissions: PropTypes.func.isRequired,
   style: PropTypes.string,

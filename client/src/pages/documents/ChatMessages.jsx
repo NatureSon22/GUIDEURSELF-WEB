@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
-import DOMPurify from "dompurify";
 import ChatLoader from "@/components/ChatLoader";
 import { useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm"; // ✅ Enable GitHub-style Markdown (lists, tables, strikethrough)
 
 const ChatMessages = ({ messages = [], loading = false }) => {
   const messagesEndRef = useRef(null);
@@ -11,24 +12,24 @@ const ChatMessages = ({ messages = [], loading = false }) => {
   }, [messages]);
 
   return (
-    <div className="gap flex flex-1 flex-col place-content-start gap-4 overflow-y-auto px-4">
+    <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4">
       {messages.length > 0 ? (
         messages.map((message) => (
           <div
             key={message.id}
-            className={`max-w-[600px] rounded-xl px-4 py-3 text-[0.9rem] ${
+            className={`max-w-[600px] rounded-2xl px-5 py-4 text-[0.9rem] ${
               message.machine
-                ? "mr-auto bg-base-300/10"
+                ? "mr-auto bg-base-300/10 text-black"
                 : "ml-auto bg-base-200 text-white"
             }`}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(message.content),
-            }}
-          ></div>
+          >
+            {/* ✅ Support better Markdown rendering */}
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+          </div>
         ))
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <p className="text-center text-secondary-100-75">No messages yet</p>
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-secondary-100-75">No messages yet</p>
         </div>
       )}
 

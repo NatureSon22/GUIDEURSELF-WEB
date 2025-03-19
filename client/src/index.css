@@ -151,17 +151,16 @@
 
   .chat-loader {
     color: rgba(50, 50, 50, 1);
-    width: 16px;
-    height: 16px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     display: block;
-    margin:15px auto;
+    margin: 10px auto;
     position: relative;
     background: #FFF;
     box-shadow: -24px 0 #FFF, 24px 0 #FFF;
     box-sizing: border-box;
     animation: shadowPulse 2s linear infinite;
-  
   }
 
   .ellipses {
@@ -245,20 +244,20 @@
     33% {
       background: rgba(50, 50, 50, 0.1);
       box-shadow:
-        -30px 0 rgba(18, 165, 188, 1),
-        30px 0 rgba(50, 50, 50, 0.1);
+        -20px 0 rgba(18, 165, 188, 1),
+        20px 0 rgba(50, 50, 50, 0.1);
     }
     66% {
       background: rgba(18, 165, 188, 1);
       box-shadow:
-        -30px 0 rgba(50, 50, 50, 0.1),
-        30px rgba(50, 50, 50, 0.1);
+        -20px 0 rgba(50, 50, 50, 0.1),
+        20px rgba(50, 50, 50, 0.1);
     }
     100% {
       background: rgba(50, 50, 50, 0.1);
       box-shadow:
-        -30px 0 rgba(50, 50, 50, 0.1),
-        30px 0 rgba(18, 165, 188, 1);
+        -20px 0 rgba(50, 50, 50, 0.1),
+        20px 0 rgba(18, 165, 188, 1);
     }
   }
 

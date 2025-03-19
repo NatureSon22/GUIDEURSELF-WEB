@@ -41,7 +41,8 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => {
     {
       accessorKey: "campus_id.campus_name",
       id: "campus_id.campus_name",
-      enableHiding: true,
+      header: "Campus",
+      filterFn: "equalsString",
     },
     {
       accessorKey: "document_type",

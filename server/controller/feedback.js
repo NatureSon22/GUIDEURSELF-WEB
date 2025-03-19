@@ -23,7 +23,8 @@ const getEveryFeedback = async (req, res) => {
     const feedbacks = await FeedbackModel.find()
       .populate({
         path: "user_id",
-        select: "user_number username firstname lastname email role_id campus_id",
+        select:
+          "user_number username firstname lastname email role_id campus_id",
         populate: {
           path: "role_id",
           select: "role_type",
@@ -41,8 +42,6 @@ const getEveryFeedback = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch feedback" });
   }
 };
-
-
 
 const addFeedback = async (req, res) => {
   try {
@@ -64,25 +63,36 @@ const getTotalFeedback = async (req, res) => {
   const { filter = "All" } = req.query; // Default to "All"
   const { isMultiCampus, campusId } = req.user;
 
-  console.log("filter:", filter);
-
   try {
-    let pipeline = [];
+    let pipeline = [
+      // First lookup - get user information
+      {
+        $lookup: {
+          from: "users",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+
+      // Second lookup - get role information
+      {
+        $lookup: {
+          from: "roles", // Adjust this to your actual roles collection name
+          localField: "user.role_id",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      { $unwind: "$role" }, // Assuming each user has exactly one role
+    ];
 
     // Filter by campus if not multi-campus
     if (!isMultiCampus) {
-      pipeline.push(
-        { $match: { campus_id: campusId } },
-        {
-          $lookup: {
-            from: "users", // Ensure correct collection reference
-            localField: "user_id",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        { $unwind: "$user" }
-      );
+      pipeline.push({
+        $match: { "user.campus_id": campusId },
+      });
     }
 
     // Apply role-based filtering
@@ -90,23 +100,42 @@ const getTotalFeedback = async (req, res) => {
       if (filter === "Other") {
         pipeline.push({
           $match: {
-            "user.role_type": { $nin: [/student/i, /faculty/i, /staff/i] },
+            "role.role_type": {
+              // Assuming role has a "name" field, adjust if different
+              $not: { $regex: "^(student|faculty|staff)$", $options: "i" },
+            },
           },
         });
       } else {
-        pipeline.push({ $match: { "user.role_type": filter } });
+        pipeline.push({
+          $match: {
+            "role.role_type": {
+              // Adjust this field name if your role type is stored in a different field
+              $regex: filter.trim(),
+              $options: "i",
+            },
+          },
+        });
       }
     }
 
-    // Group by rating (ensure numeric values)
+    // Ensure ratings are valid numbers
+    pipeline.push({
+      $match: {
+        rating: { $in: [1, 2, 3, 4, 5] },
+      },
+    });
+
+    // Group by rating
     pipeline.push({
       $group: {
-        _id: { $toInt: "$rating" },
+        _id: "$rating",
         count: { $sum: 1 },
       },
     });
 
     const response = await FeedbackModel.aggregate(pipeline);
+    console.log("Filtered Result:", response);
 
     // Initialize rating counts
     const total = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -120,20 +149,32 @@ const getTotalFeedback = async (req, res) => {
       0
     );
     const totalRating = Object.entries(total).reduce(
-      (sum, [score, count]) => sum + score * count,
+      (sum, [score, count]) => sum + Number(score) * count,
       0
     );
     const averageRating = totalFeedbacks ? totalRating / totalFeedbacks : 0;
 
-    res
-      .status(200)
-      .json({ result: { total, totalRating, totalFeedbacks, averageRating } });
+    res.status(200).json({
+      result: {
+        total,
+        totalRating,
+        totalFeedbacks,
+        averageRating: parseFloat(averageRating.toFixed(2)),
+      },
+    });
   } catch (error) {
     console.error("Error in getTotalFeedback:", error);
-    res
-      .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
-export { getEveryFeedback, getTotalFeedback, getFeedback, getAllFeedback, addFeedback };
+export {
+  getEveryFeedback,
+  getTotalFeedback,
+  getFeedback,
+  getAllFeedback,
+  addFeedback,
+};
