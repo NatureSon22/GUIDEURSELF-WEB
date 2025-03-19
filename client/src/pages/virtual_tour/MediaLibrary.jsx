@@ -173,8 +173,8 @@ const MediaLibrary = () => {
                 className="border-b-2 flex flex-col items-center w-[100%] h-[40px] border-gray-300"
               >
                 <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
-                  <p className="marker-name text-sm">{marker.marker_name}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="marker-name text-md">{marker.marker_name}</p>
+                  <p className="text-md text-gray-500">
                     {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
                       "about ",
                       ""

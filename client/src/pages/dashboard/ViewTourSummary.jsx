@@ -60,7 +60,7 @@ const ViewTourSummary = () => {
             <p className="text-3xl font-semibold">{totalCategories}</p>
             <MdTouchApp className="text-4xl text-base-200" />
           </div>
-          <p className="text-[0.9rem]">Total Interactive Hotspots</p>
+          <p className="text-[0.9rem]">Total Hotspots</p>
         </div>
       </div>
     </div>

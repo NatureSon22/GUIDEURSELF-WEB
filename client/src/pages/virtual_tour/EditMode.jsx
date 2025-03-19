@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import AddFloorModal from "./AddFloorModal";
 import HeaderSection from "./HeaderSection";
+import { Button } from "@/components/ui/button";
 import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
 import { useState, useEffect } from "react";
 import L from "leaflet"; 
@@ -106,7 +107,6 @@ const queryClient = useQueryClient();
 
 const { campus } = location.state || {};
 
-
 const bounds = [[14.480740, 121.184750], [14.488870, 121.192500]];
 const [draggedFloor, setDraggedFloor] = useState(null);
 const [dragOverFloor, setDragOverFloor] = useState(null);
@@ -127,9 +127,6 @@ const [expandedFloor, setExpandedFloor] = useState(null);
 const [isSliderOpen, setIsSliderOpen] = useState(true);
 const [searchQuery, setSearchQuery] = useState("");
 const [loadingMessage, setLoadingMessage] = useState("");
-
-
-const { toast } = useToast();
 
 const toggleSlider = () => {
   setIsSliderOpen(!isSliderOpen);
@@ -482,7 +479,6 @@ const handleDrop = (e, targetFloor) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pr-5" 
               />
-              <CiSearch className="absolute right-10 top-2 text-lg text-gray-500" />
             </div>
             <div className="flex justify-between items-center pl-6">
               <p className="text-sm">List of Floors</p>
@@ -656,7 +652,7 @@ const handleDrop = (e, targetFloor) => {
         <div className="py-5 flex gap-2 px-6">
           <Link
             className="flex justify-center items-center h-[45px] rounded-md px-[50px] w-[50%] text-base-200 hover:bg-secondary-350"
-            to="/virtual-tour/build-mode"
+            to="/virtual-tour/build-mode-Ii"
           >
             <button>Return View</button>
           </Link>
@@ -695,46 +691,36 @@ const handleDrop = (e, targetFloor) => {
                 </div>
               )}
               <MapContainer
-      center={[14.484750, 121.189000]}
-      zoom={18}
-      maxZoom={19}
-      minZoom={17}// Adjust max zoom level to match Flutter
+                center={[14.484750, 121.189000]}
+                zoom={18}
+                maxZoom={19}
+                minZoom={17}
                 style={{
                   height: "100vh",
                   width: "100%",
                   backgroundColor: "white",
                   zIndex: 0,
+                  cursor: "crosshair"
                 }}
                 crs={L.CRS.Simple}
-                zoomControl={false}
-                attributionControl={false}
+                scrollWheelZoom={false}
               >
-                <ImageOverlay
-                  className="z-0"
-                  url={selectedFloor.floor_photo_url}
-                  bounds={bounds}
-                />
-                
+                <ImageOverlay className="z-0" url={selectedFloor.floor_photo_url} bounds={bounds} />
+
                 {currentMarkers.map((marker, index) => {
                   const icon = customIcons[marker.category] || defaultIcon;
-                  const categoryColor = categoryConfig[marker.category]?.color || "bg-green"; // Default to green if category not found
-
                   return (
                     <Marker
                       key={index}
                       position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
-                      icon={icon} 
-                    >
-                      <Popup>
-                        <div>
-                          <strong>{marker.marker_name}</strong>
-                        </div>
-                      </Popup>
-                    </Marker>
+                      icon={icon}
+                    />
                   );
                 })}
+
                 {!isSliderOpen && <LocationMarker setCoordinates={setCoordinates} />}
               </MapContainer>
+
               
             </div>
           ) : (
@@ -752,8 +738,8 @@ const handleDrop = (e, targetFloor) => {
                 />
               </div>
               <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
-                <h3 className="text-md">NURTURING TOMORROW'S NOBLEST</h3>
+                <h2 className="font-bold font-cizel-decor text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
+                <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
               </div>
               { (totalFloors == 0) ? (
                 <div className="flex gap-3 p-4 items-center bg-white shadow-md rounded-md">

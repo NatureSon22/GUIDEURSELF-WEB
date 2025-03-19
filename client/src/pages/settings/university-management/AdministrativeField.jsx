@@ -19,32 +19,29 @@ const AdministrativeField = () => {
     queryFn: getPositions,
   });
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-  
-    const day = String(date.getDate()).padStart(2, '0'); // Day with leading zero
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month (0-based index, so add 1)
-    const year = String(date.getFullYear()).slice(-2); // Last two digits of the year
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0'); // Minutes with leading zero
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const hour12 = hours % 12 || 12; // Convert to 12-hour format
-  
-    return `${day}-${month}-${year} ${hour12}:${minutes} ${ampm}`;
-  };
-
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = () => {
-    setIsModalOpen(true);
+  // Format date function
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear()).slice(-2);
+    const hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const hour12 = hours % 12 || 12;
+    return `${day}-${month}-${year} ${hour12}:${minutes} ${ampm}`;
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  // Open and close modals
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
+  // Handle delete position
   const handleDeletePosition = async (id) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/administartiveposition/${id}`, {
@@ -52,36 +49,33 @@ const AdministrativeField = () => {
         credentials: "include",
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete position");
-      }
+      if (!response.ok) throw new Error("Failed to delete position");
 
       queryClient.invalidateQueries(["universitypositions"]);
-
-      toast({
-        title: "Success",
-        description: "Position deleted successfully",
-      });
+      toast({ title: "Success", description: "Position deleted successfully" });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        type: "destructive",
-      });
+      toast({ title: "Error", description: error.message, type: "destructive" });
     }
   };
 
+  // Open edit modal
   const handleOpenEditModal = (position) => {
-    console.log("Selected Position:", position); // Log the position
     setSelectedPosition(position);
     setIsEditModalOpen(true);
   };
-  
 
+  // Close edit modal
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedPosition(null);
   };
+
+  // Filter positions based on search term
+  const filteredPositions = positions
+    ? positions.filter((position) =>
+        position.position_name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   return (
     <div className="box-shadow-100 space-y-4 rounded-lg bg-white p-4">
@@ -93,15 +87,14 @@ const AdministrativeField = () => {
           </p>
         </div>
         <div className="w-[100%] flex flex-row gap-2">
+          {/* Search Input */}
           <Input
             type="text"
-            placeholder="Search"
+            placeholder="Search by position name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} // Update search term
           />
-          <Button
-            variant="outline"
-            className="text-secondary-100-75"
-            onClick={openModal}
-          >
+          <Button variant="outline" className="text-secondary-100-75" onClick={openModal}>
             Add Position
           </Button>
         </div>
@@ -121,8 +114,8 @@ const AdministrativeField = () => {
                 </tr>
               </thead>
               <tbody>
-                {(positions || []).length > 0 ? (
-                  positions.map((position) => (
+                {filteredPositions.length > 0 ? (
+                  filteredPositions.map((position) => (
                     <tr key={position._id}>
                       <td className="p-2 border text-[0.9rem] w-[702px]">
                         {position.position_name}
@@ -133,7 +126,7 @@ const AdministrativeField = () => {
                       <td className="p-2 border text-[0.9rem] flex gap-2">
                         <Button
                           variant="secondary"
-                          className="bg-base-200/10 text-base-200"
+                          className="bg-base-200/10 w-full text-base-200"
                           onClick={() => handleOpenEditModal(position)}
                         >
                           <BiSolidEdit />
@@ -152,7 +145,7 @@ const AdministrativeField = () => {
                 ) : (
                   <tr>
                     <td className="p-2 border text-center" colSpan="3">
-                      No positions available
+                      No positions found
                     </td>
                   </tr>
                 )}
@@ -162,16 +155,17 @@ const AdministrativeField = () => {
         </div>
       </div>
 
+      {/* Edit Position Modal */}
       <EditPositionModal
         open={isEditModalOpen}
         onClose={handleCloseEditModal}
         position={selectedPosition}
       />
 
+      {/* Add Position Modal */}
       {isModalOpen && (
         <AddPositionModal onClose={closeModal} queryClient={queryClient} addPosition={addPosition} />
       )}
-
     </div>
   );
 };

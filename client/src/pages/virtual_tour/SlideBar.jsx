@@ -94,8 +94,8 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
                 <img className="h-[60px]" src={university?.university_logo_url} alt="" />
               </div>
               <div className="flex flex-col w-[70%] justify-center">
-                <h2 className="font-bold text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>
-                <h3 className="text-sm">NURTURING TOMORROW'S NOBLEST</h3>
+                <h2 className="font-bold font-cizel-decor text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>
+                <h3 className="text-sm font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
               </div>
             </div>
             <hr className="pb-5" />
@@ -119,7 +119,7 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
                   <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
                   <MdTouchApp className="text-4xl text-base-200 mb-2" />
                 </div>
-                <p className="text-center text-sm">Interactive Hotspots</p>
+                <p className="text-center text-sm">Hotspots</p>
               </div>
             </div>
             <hr />

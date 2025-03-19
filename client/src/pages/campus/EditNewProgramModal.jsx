@@ -1,50 +1,38 @@
 import { useState, useEffect } from "react";
-import addImage from "../../assets/add.png";
-import CloseIcon from "../../assets/CloseIcon.png";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import addImage from "../../assets/add.png";
+import CloseIcon from "../../assets/CloseIcon.png";
 
-const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) => {
-  const [programTypes, setProgramTypes] = useState([]);
-  const [selectedType, setSelectedType] = useState("");
-  const [programNames, setProgramNames] = useState([]);
-  const [selectedProgram, setSelectedProgram] = useState("");
-  const [majorNames, setMajorNames] = useState([]);
-  const [selectedMajor, setSelectedMajor] = useState("");
+const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => {
+  const [programNames, setProgramNames] = useState([]); // All program names
+  const [currentProgram, setCurrentProgram] = useState(program.programName);
+  const [selectedProgram, setSelectedProgram] = useState(""); // Selected program name
+  const [majorNames, setMajorNames] = useState([]); // Majors for the selected program
+  const [selectedMajor, setSelectedMajor] = useState(""); // Selected major
+  const [majors, setMajors] = useState([]); // List of added majors
   const { toast } = useToast();
 
-  const [majors, setMajors] = useState([]);
-
-  console.log("Existing: ", existingPrograms);
-
-  // Fetch program types when the modal opens
   useEffect(() => {
-    const fetchProgramTypes = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramtypes`, {
-          credentials: "include",
-        });
-        if (!response.ok) throw new Error("Failed to fetch program types");
-        const data = await response.json();
-        setProgramTypes(data);
-      } catch (error) {
-        console.error("Error fetching program types:", error);
-      }
-    };
+    if (program) {
+      setSelectedProgram(program.programName || ""); // Set the current program name
+      setMajors(program.majors || []); // Set the current majors
+    }
+  }, [program]);
 
-    if (isOpen) fetchProgramTypes();
-  }, [isOpen]);
-
-  // Fetch program names based on selected program type
+  // Fetch program names based on the program type when the modal opens or program type changes
   useEffect(() => {
     const fetchProgramNames = async () => {
       try {
-        if (!selectedType) return;
+        if (!programtype) return; // Do not fetch if program type is not set
+
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/campusprogramnames?programtype=${selectedType}`,
-          { credentials: "include" }
+          `${import.meta.env.VITE_API_URL}/campusprogramnames?programtype=${programtype}`,
+          {
+            credentials: "include",
+          }
         );
         if (!response.ok) throw new Error("Failed to fetch program names");
         const data = await response.json();
@@ -54,24 +42,25 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
           .map((programname) => data.find((program) => program.programname === programname));
 
         setProgramNames(uniqueProgramNames);
-        setSelectedProgram(""); // Reset program selection
-        setMajors([]); // Clear added majors when program type changes
       } catch (error) {
         console.error("Error fetching program names:", error);
       }
     };
 
-    fetchProgramNames();
-  }, [selectedType]);
+    if (isOpen) fetchProgramNames();
+  }, [isOpen, programtype]); // Fetch when modal opens or program type changes
 
-  // Fetch majors based on selected program name
+  // Fetch majors based on the selected program name
   useEffect(() => {
     const fetchMajors = async () => {
       try {
-        if (!selectedProgram) return;
+        if (!selectedProgram) return; // Do not fetch if no program is selected
+
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/campusmajors?programname=${selectedProgram}`,
-          { credentials: "include" }
+          {
+            credentials: "include",
+          }
         );
         if (!response.ok) throw new Error("Failed to fetch majors");
         const data = await response.json();
@@ -81,34 +70,15 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
           .map((majorname) => data.find((major) => major.majorname === majorname));
 
         setMajorNames(uniqueMajors);
-        setSelectedMajor(""); // Reset major selection
-        setMajors([]); // Clear added majors when program name changes
       } catch (error) {
         console.error("Error fetching majors:", error);
       }
     };
 
-    fetchMajors();
-  }, [selectedProgram]);
+    if (isOpen && selectedProgram) fetchMajors();
+  }, [isOpen, selectedProgram]); // Fetch when modal opens or selected program changes
 
-  // Reset all form data
-  const resetForm = () => {
-    setSelectedType("");
-    setSelectedProgram("");
-    setSelectedMajor("");
-    setMajors([]);
-    setProgramNames([]);
-    setMajorNames([]);
-  };
-
-  // Handle cancel button click
-  const handleCancel = () => {
-    resetForm(); // Reset all form data
-    onClose(); // Close the modal
-  };
-
-  if (!isOpen) return null;
-
+  // Handle adding a major
   const handleAddMajor = () => {
     if (selectedMajor.trim() === "") return; // Do not add empty majors
 
@@ -122,101 +92,68 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
       return;
     }
 
-    // Add the new major to the list
     setMajors([...majors, selectedMajor]);
     setSelectedMajor(""); // Clear the selected major
   };
 
+  // Handle removing a major
   const handleRemoveMajor = (index) => {
     const updatedMajors = majors.filter((_, i) => i !== index);
     setMajors(updatedMajors);
   };
 
-
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-  
-    if (!Array.isArray(existingPrograms)) {
-      console.error("existingPrograms is not an array:", existingPrograms);
-      return;
-    }
-  
-    // Flatten the list of all existing program names across all program types
-    const allExistingPrograms = existingPrograms.flatMap((type) => type.programs.map((p) => p.program_name));
-  
-    // Check if the selected program already exists
-    const isProgramExisting = allExistingPrograms.includes(selectedProgram);
-  
-    if (isProgramExisting) {
-      toast({
-        title: "Adding Program Failed",
-        description: "Program already exists!",
-        variant: "destructive",
-      });
-      return;
-    }
-  
-    const newProgram = {
-      program_name: selectedProgram,
+
+    const updatedProgram = {
+      programName: currentProgram,
       majors,
     };
-  
-    const formattedProgram = {
-      program_type_id: selectedType,
-      programs: [newProgram],
-    };
-  
-    onAddProgram(formattedProgram); // Send structured data back to parent
-    resetForm(); // Reset all form data after submission
+
+    onSave(updatedProgram); // Pass the updated program data back to the parent
     onClose(); // Close the modal
   };
-  
-  
 
-  // Disable the "Add" button if Program Type or Program Name is not selected
-  const isAddButtonDisabled = !selectedType || !selectedProgram;
+  // Handle cancel button click
+  const handleCancel = () => {
+    onClose(); // Close the modal
+  };
+
+  if (!isOpen || !program) return null; // Only render if the modal is open and program data is available
 
   return (
-    <div className="fixed inset-0 flex justify-center z-1000 items-center bg-[#000000cc] z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc] z-50">
       <div className="bg-white p-6 rounded-md w-1/3">
         <div className="flex flex-col gap-4">
-          {/* Program Type Select */}
+          {/* Program Type (Non-editable) */}
           <div className="flex flex-col gap-2">
             <Label className="text-lg font-medium">Program Type</Label>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
+            <Input
+              value={programtype}
+              disabled
               className="w-full h-10 border border-gray-300 rounded-md p-2"
-              required
-            >
-              <option value="" disabled hidden>
-                Select Program Type
-              </option>
-              {programTypes.map((type) => (
-                <option key={type._id} value={type.program_type_name}>
-                  {type.program_type_name}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
-          {/* Program Name Select */}
+          {/* Program Name (Editable dropdown) */}
           <div className="flex flex-col gap-2">
             <Label className="text-lg font-medium">Program Name</Label>
             <select
               value={selectedProgram}
               onChange={(e) => setSelectedProgram(e.target.value)}
               className="w-full h-10 border border-gray-300 rounded-md p-2"
-              disabled={!selectedType} // Disable if no program type is selected
             >
-              <option value="" disabled hidden>
-                Select Program Name
-              </option>
-              {programNames.map((program) => (
-                <option key={program._id} value={program.programname}>
-                  {program.programname}
-                </option>
-              ))}
+              {/* Default option: Selected program name */}
+              <option value={selectedProgram}>{selectedProgram}</option>
+              {/* Other program names */}
+              {programNames
+                .filter((program) => program.programname !== selectedProgram) // Exclude the selected program
+                .map((program) => (
+                  <option key={program._id} value={program.programname}>
+                    {program.programname}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -227,7 +164,6 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
                 value={selectedMajor}
                 onChange={(e) => setSelectedMajor(e.target.value)}
                 className="w-full h-10 border border-gray-300 rounded-md p-2"
-                disabled={!selectedProgram} // Disable if no program name is selected
               >
                 <option value="">SELECT MAJOR NAME</option>
                 {majorNames.map((major) => (
@@ -268,7 +204,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
           <div className="flex justify-end gap-2 mt-4">
             <Button
               type="button"
-              onClick={handleCancel} // Use handleCancel instead of onClose
+              onClick={handleCancel}
               className="text-base-200 bg-white shadow-none hover:bg-secondary-350 w-[100px] p-2 border-none"
             >
               Cancel
@@ -277,9 +213,8 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
               type="button"
               onClick={handleSubmit}
               className="border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
-              disabled={isAddButtonDisabled} // Disable the button if conditions are not met
             >
-              Add
+              Save
             </Button>
           </div>
         </div>
@@ -288,4 +223,4 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
   );
 };
 
-export default AddProgramModal;
+export default EditProgramModal;

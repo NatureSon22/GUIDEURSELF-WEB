@@ -13,11 +13,8 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
   const [selectedProgram, setSelectedProgram] = useState("");
   const [majorNames, setMajorNames] = useState([]);
   const [selectedMajor, setSelectedMajor] = useState("");
-  const { toast } = useToast();
-
   const [majors, setMajors] = useState([]);
-
-  console.log("Existing: ", existingPrograms);
+  const { toast } = useToast();
 
   // Fetch program types when the modal opens
   useEffect(() => {
@@ -107,8 +104,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
     onClose(); // Close the modal
   };
 
-  if (!isOpen) return null;
-
+  // Handle adding a major
   const handleAddMajor = () => {
     if (selectedMajor.trim() === "") return; // Do not add empty majors
 
@@ -127,26 +123,22 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
     setSelectedMajor(""); // Clear the selected major
   };
 
+  // Handle removing a major
   const handleRemoveMajor = (index) => {
     const updatedMajors = majors.filter((_, i) => i !== index);
     setMajors(updatedMajors);
   };
 
-
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-  
-    if (!Array.isArray(existingPrograms)) {
-      console.error("existingPrograms is not an array:", existingPrograms);
-      return;
-    }
-  
-    // Flatten the list of all existing program names across all program types
-    const allExistingPrograms = existingPrograms.flatMap((type) => type.programs.map((p) => p.program_name));
-  
-    // Check if the selected program already exists
-    const isProgramExisting = allExistingPrograms.includes(selectedProgram);
-  
+
+    // Check if the program already exists in the existing programs list
+    const isProgramExisting = existingPrograms[selectedType]?.some(
+      (program) => program.programName === selectedProgram
+    );
+
+
     if (isProgramExisting) {
       toast({
         title: "Adding Program Failed",
@@ -155,26 +147,27 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
       });
       return;
     }
-  
+
+    // If the program doesn't exist, proceed to add it
     const newProgram = {
       program_name: selectedProgram,
       majors,
     };
-  
+
     const formattedProgram = {
       program_type_id: selectedType,
       programs: [newProgram],
     };
-  
+
     onAddProgram(formattedProgram); // Send structured data back to parent
     resetForm(); // Reset all form data after submission
     onClose(); // Close the modal
   };
-  
-  
 
   // Disable the "Add" button if Program Type or Program Name is not selected
   const isAddButtonDisabled = !selectedType || !selectedProgram;
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex justify-center z-1000 items-center bg-[#000000cc] z-50">

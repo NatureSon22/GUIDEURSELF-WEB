@@ -4,7 +4,7 @@ import {
   addFeedback,
   getAllFeedback,
   getFeedback,
-  getEveryFeedback
+  getEveryFeedback,
   getTotalFeedback,
 } from "../controller/feedback.js";
 import verifyToken from "../middleware/verifyToken.js";

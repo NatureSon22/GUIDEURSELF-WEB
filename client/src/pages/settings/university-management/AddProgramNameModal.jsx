@@ -37,7 +37,7 @@ const AddProgramNameModal = ({ onClose, queryClient }) => {
   
     // Function to add program to the backend
     const addProgram = async (programData) => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}v/campusprogramnames`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/campusprogramnames`, {
         method: "POST",
         credentials: "include",
         headers: {

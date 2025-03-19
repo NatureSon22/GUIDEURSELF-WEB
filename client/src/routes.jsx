@@ -9,6 +9,7 @@ import {
   VirtualTour,
   VirtualTourDashboard,
   BuildMode,
+  BuildModeII,
   EditMode,
   KeyOfficials,
   EditKeyOfficials,
@@ -300,6 +301,14 @@ const routes = [
     element: (
       <AuthLayer>
         <BuildMode />
+      </AuthLayer>
+    ),
+  },
+  {
+    path: "/virtual-tour/build-mode-II",
+    element: (
+      <AuthLayer>
+        <BuildModeII />
       </AuthLayer>
     ),
   },

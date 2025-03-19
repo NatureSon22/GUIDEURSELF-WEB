@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
-import DateRangePicker from "@/components/DateRangePicker";
 import DataTable from "@/components/DataTable";
 import columns from "@/components/columns/FeedbackReport";
 import Loading from "@/components/Loading";
@@ -135,7 +134,7 @@ const FeedbackReport = () => {
       doc.setFontSize(13);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(60);
-      doc.text("User Feedback Report", 95 + imgWidth + 10, 83);
+      doc.text("User Feedback Report", 104   + imgWidth + 8, 83);
     };
 
     const addFooter = (pageNumber) => {
@@ -239,11 +238,10 @@ const FeedbackReport = () => {
           pageSize={11}
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
-          columnActions={{}}
         />
       )}
 
-      {pdfPreviewUrl && <PdfPreviewModal pdfUrl={pdfPreviewUrl} onClose={() => setPdfPreviewUrl(null)} />}
+      {pdfPreviewUrl && <PdfPreviewModal  pdfUrl={pdfPreviewUrl} onClose={() => setPdfPreviewUrl(null)} />}
     </div>
   );
 };

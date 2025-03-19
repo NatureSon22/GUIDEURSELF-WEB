@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
 import SearchBox from "@/components/SearchBox";
 import OfficialCard from "@/components/OfficialCard";
@@ -8,8 +8,13 @@ import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import Header from "@/components/Header";
 import FeaturePermission from "@/layer/FeaturePermission";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FaPen } from "react-icons/fa6";
 
 const DisplayingKeyOfficials = () => {
+  
+    const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const {
     data: university,
@@ -19,6 +24,11 @@ const DisplayingKeyOfficials = () => {
     queryKey: ["universitysettings"],
     queryFn: getUniversityData,
   });
+
+  
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
 
   const {
     data: officials,
@@ -51,12 +61,13 @@ const DisplayingKeyOfficials = () => {
           module="Manage Key Officials"
           access="edit key official"
         >
-          <Link className="w-[7%]" to="/key-officials/edit">
-            <button className="text-md focus-none flex h-10 w-[100%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none transition duration-300 hover:bg-gray-200">
-              <img src={Pen} alt="Edit" />
-              Edit
-            </button>
-          </Link>
+            <Button
+              variant="outline"
+              className="text-secondary-100-75"
+              onClick={() => handleNavigate("/key-officials/edit")}
+            >
+                <FaPen /> Edit
+            </Button>
         </FeaturePermission>
       </div>
 

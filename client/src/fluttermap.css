@@ -1,0 +1,7 @@
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    width: 40px !important;
+    height: 40px !important;
+    padding-top: 7px;
+    font-size: 25px !important;
+}

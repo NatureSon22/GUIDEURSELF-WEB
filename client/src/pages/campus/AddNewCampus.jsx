@@ -5,15 +5,16 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import addImage from "../../assets/add.png";
 import CloseIcon from "../../assets/CloseIcon.png";
-import AddProgramModal from "./AddProgramModal";
+import AddProgramModal from "./AddNewProgramModal";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import Header from "@/components/Header";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Loading from "@/components/Loading";
 import { useToast } from "@/hooks/use-toast";
+import "@/fluttermap.css";
+import { FaPen } from "react-icons/fa6";
+import EditProgramModal from "./EditNewProgramModal";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -32,6 +33,10 @@ const AddNewCampus = () => {
   const [campuses, setCampuses] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [programs, setPrograms] = useState({});
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [selectedProgramTypeId, setSelectedProgramTypeId] = useState(null);
+  const [selectedProgramIndex, setSelectedProgramIndex] = useState(null);
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [campusImage, setCampusImage] = useState(null);
   const [campusData, setCampusData] = useState({
@@ -172,68 +177,105 @@ const AddNewCampus = () => {
       }
     };
   
-const handleRemoveProgram = (programType, index) => {
-  setPrograms((prevPrograms) => {
-    const updatedPrograms = { ...prevPrograms };
-
-    // Remove the specific program
-    updatedPrograms[programType] = updatedPrograms[programType].filter(
-      (_, i) => i !== index
-    );
-
-    // If the programType has no programs left, delete the key
-    if (updatedPrograms[programType].length === 0) {
-      delete updatedPrograms[programType];
-    }
-
-    return updatedPrograms;
-  });
-};
-
-  const secondHandleBack = () => {
-        navigate("/campus/edit-campus");  
-  };
-  
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setCampusData((prev) => ({
-        ...prev,
-        campus_cover_photo: file,  
-      }));
-  
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCampusImage(reader.result); 
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
-
-  const toggleModal = () => {
-    setModalOpen(!isModalOpen);
-  };
-
-  const handleAddProgram = (newProgram) => {
-    setPrograms((prev) => {
-      const updatedPrograms = { ...prev };
-      const { program_type_id, programs } = newProgram;
-  
-      const formattedPrograms = programs.map((p) => ({
-        programName: p.program_name,
-        majors: p.majors,
-      }));
-  
-      if (updatedPrograms[program_type_id]) {
-        updatedPrograms[program_type_id].push(...formattedPrograms);
+    const handleEditProgram = (programTypeId, programIndex) => {
+      const programType = programs[programTypeId]; // Access the programs for this programTypeId
+    
+      if (programType && programType[programIndex]) {
+        const program = programType[programIndex]; // Get the program at the specified index
+        setSelectedProgram(program);
+        setSelectedProgramTypeId(programTypeId);
+        setSelectedProgramIndex(programIndex);
+        setEditModalOpen(true);
       } else {
-        updatedPrograms[program_type_id] = formattedPrograms;
+        console.error("Program not found or index is out of bounds.");
       }
+    };
   
-      return updatedPrograms;
-    });
-  };
+    const handleSaveEditedProgram = (editedProgram) => {
+      setPrograms((prev) => {
+        const updatedPrograms = { ...prev };
+        const programType = updatedPrograms[selectedProgramTypeId];
+  
+        if (programType && selectedProgramIndex >= 0 && selectedProgramIndex < programType.length) {
+          programType[selectedProgramIndex] = editedProgram; // Update the program
+        } else {
+          console.error("Invalid program index.");
+        }
+  
+        return updatedPrograms;
+      });
+  
+      handleCloseEditModal(); // Close the modal
+    };
+  
+    const handleCloseEditModal = () => {
+      setEditModalOpen(false);
+      setSelectedProgram(null);
+      setSelectedProgramTypeId(null);
+      setSelectedProgramIndex(null);
+    };
+  
+    const handleRemoveProgram = (programType, index) => {
+      setPrograms((prev) => {
+        const updatedPrograms = { ...prev };
+        const programCurrentType = updatedPrograms[programType]; // Access the programs for this programTypeId
+    
+        if (programCurrentType) {
+          updatedPrograms[programType] = programCurrentType.filter((_, i) => i !== index); // Remove the program
+    
+          // If the program type has no programs left, delete the key
+          if (updatedPrograms[programType].length === 0) {
+            delete updatedPrograms[programType];
+          }
+        }
+    
+        return updatedPrograms;
+      });
+    };
+  
+    const secondHandleBack = () => {
+      navigate("/campus/edit-campus");
+    };
+  
+    const toggleModal = () => {
+      setModalOpen(!isModalOpen);
+    };
+  
+    const handleAddProgram = (newProgram) => {
+      setPrograms((prev) => {
+        const updatedPrograms = { ...prev };
+        const { program_type_id, programs: newPrograms } = newProgram;
+  
+        const formattedPrograms = newPrograms.map((p) => ({
+          programName: p.program_name,
+          majors: p.majors || [], // Ensure majors is always an array
+        }));
+  
+        if (updatedPrograms[program_type_id]) {
+          updatedPrograms[program_type_id] = [...updatedPrograms[program_type_id], ...formattedPrograms];
+        } else {
+          updatedPrograms[program_type_id] = formattedPrograms;
+        }
+  
+        return updatedPrograms;
+      });
+    };
+
+    const handleImageUpload = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setCampusData((prev) => ({
+          ...prev,
+          campus_cover_photo: file,  
+        }));
+    
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setCampusImage(reader.result);  
+        };
+        reader.readAsDataURL(file);
+      }
+    };
   
   const LocationMarker = () => {
     const map = useMapEvents({
@@ -282,7 +324,7 @@ const handleRemoveProgram = (programType, index) => {
                   name="campus_name"
                   value={campusData.campus_name}
                   onChange={(e) => setCampusData({...campusData, campus_name: e.target.value})}
-                  placeholder="Binangonan"
+                  placeholder="Campus Name"
                   className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
                 />
@@ -323,7 +365,7 @@ const handleRemoveProgram = (programType, index) => {
                         setCampusData({ ...campusData, campus_code: value.toUpperCase() });
                       }
                     }}
-                    placeholder="BIN"
+                    placeholder="ABC"
                     className="w-[10%] h-[40px] outline-none text-center border border-gray-300 rounded-md"
                     type="text"
                   />
@@ -349,27 +391,29 @@ const handleRemoveProgram = (programType, index) => {
             <div>
               <h3 className="text-lg font-medium">Address</h3>
               <p>Enter the complete address including street, city, province, and postal code</p>
-            </div>
-            <div className="border border-gray-300 rounded-md">
-              <div className="p-4">
-                <Input
+              <Input
                   name="campus_address"
                   value={campusData.campus_address}
                   onChange={(e) => setCampusData({...campusData, campus_address: e.target.value})}
-                  placeholder="F5MQ+62W, Manila E Rd, Binangonan, 1940 Rizal"
-                  className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
+                  placeholder="Campus Address"
+                  className="w-[100%] mt-3 h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
                 />
+            </div>
+            <div className="border border-gray-300 rounded-md">
+              <div className="p-4">
+              <h2 className="font-bold text-lg font-medium">
+                PIN CAMPUS LOCATION
+              </h2>
                 </div>
                 <MapContainer
                 center={position}
                 zoom={11}
-                className="h-[530px] w-[100%] outline-none border border-gray-300"
+                className="h-[530px] w-[100%] z-[10] outline-none border border-gray-300"
                 style={{ cursor: "crosshair" }}
-                zoomControl={false}
-                attributionControl={false}
+                scrollWheelZoom={false}
               >
-                            <TileLayer url={`https://{s}.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}.png?apikey=c5319e635a224bbe8fd69f82a629bd97`} />
+                            <TileLayer url={`https://tile.openstreetmap.org/{z}/{x}/{y}.png`} />
 
                 {campuses
                               .filter(campus => 
@@ -399,14 +443,14 @@ const handleRemoveProgram = (programType, index) => {
             </div>
           </div>
 
-          <div className="py-6 flex flex-col">
+          <div className="py-6 mt-[40px] flex flex-col">
             <h3 className="text-lg font-medium">About</h3>
             <p>Provide a brief description of the campus, including any key features or services</p>
-            <Textarea
+            <textarea
             name="campus_about"
             value={campusData.campus_about}
             onChange={(e) => setCampusData({...campusData, campus_about: e.target.value})}
-            className="mt-2 p-2 h-[300px] resize-none outline-none border border-gray-300 rounded-md"
+            className="mt-2 p-2 h-[300px] resize-none text-justify outline-none text-md border border-gray-300 rounded-md"
             placeholder="Enter here the history and campus overview of the campus"
             />
           </div>
@@ -455,16 +499,22 @@ const handleRemoveProgram = (programType, index) => {
                       >
                         <div className="flex flex-row justify-between w-[100%] pr-[10px]">
                           <h3 className="text-lg">{program.programName}</h3>
-                          <button
-                            onClick={() => handleRemoveProgram(programType, index)}
-                            className="text-red-500 mt-2 self-start"
-                          >
-                            <img
-                              src={CloseIcon}
-                              className="w-[20px] h-[20px]"
-                              alt="Remove Program"
-                            />
-                          </button>
+                          <div className="flex gap-4">
+                            <button
+                              type="button"
+                              className="text-base-200-70"
+                              onClick={() => handleEditProgram(programType, index)}
+                            >
+                              <FaPen className="w-[18px] h-[18px] text-secondary-200-70" alt="Edit Program" />
+                            </button>
+                            <button
+                              type="button"
+                              className="text-red-500"
+                              onClick={() => handleRemoveProgram(programType, index)}
+                            >
+                              <img src={CloseIcon} className="w-[20px] h-[20px]" alt="Remove Program" />
+                            </button>
+                          </div>
                         </div>
                         {program.majors.length > 0 && (
                           <>
@@ -498,7 +548,20 @@ const handleRemoveProgram = (programType, index) => {
             </div>
           </div>
 
-          <AddProgramModal isOpen={isModalOpen} onClose={toggleModal} onAddProgram={handleAddProgram} />
+        {selectedProgram && (
+            <EditProgramModal
+              isOpen={isEditModalOpen}
+              onClose={handleCloseEditModal}
+              program={selectedProgram}
+              onSave={handleSaveEditedProgram}
+              programtype={selectedProgramTypeId}
+            />
+          )}
+          <AddProgramModal 
+            isOpen={isModalOpen} 
+            onClose={toggleModal} 
+            onAddProgram={handleAddProgram} 
+            existingPrograms={programs}  />
           <div className="">  
             <p className="text-justify">
             Note: All contents, instructions, and details provided in the Add Campus Form are hereby deemed legitimate and accurate, ensuring that administrators can rely on this information for correctly managing campus data in the GuideURSelf system. The form’s fields and their instructions have been structured to capture essential and relevant campus information, aligning with system requirements for virtual tours and campus management.

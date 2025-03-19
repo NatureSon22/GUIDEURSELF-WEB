@@ -1,17 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useState, useEffect } from "react";
-import Search from "../../assets/Search.png";
 import Pen from "../../assets/Pen.png";
 import Bin from "../../assets/bin.png";
-import Check from "../../assets/Check.png";
-import addImage from "../../assets/add.png";
 import { IoAlertCircle } from "react-icons/io5";
 import { getUniversityData } from "@/api/component-info";
 import { useToast } from "@/hooks/use-toast";
 import FeaturePermission from "@/layer/FeaturePermission";
 import { loggedInUser } from "@/api/auth";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FaPen } from "react-icons/fa6";
+import { FaCheck } from "react-icons/fa6";
+import { RiAddLargeFill } from "react-icons/ri";
 
 const EditDisplayCampus = () => {
   const [campusToDelete, setCampusToDelete] = useState(null);
@@ -22,6 +24,10 @@ const EditDisplayCampus = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
 
   const {
     data: university,
@@ -207,86 +213,95 @@ const EditDisplayCampus = () => {
         />
       </div>
       <div className="flex w-full gap-4 pt-6">
-        <div className="flex h-[40px] w-[100%] flex-row items-center justify-between rounded-md border border-gray-300 px-2 py-1">
-          <textarea
-            className="h-5 w-[95%] resize-none overflow-hidden outline-none"
+        
+          <Input
+            type="text"
             placeholder="Search"
             value={searchTerm}
             onChange={handleSearchChange}
+
+            
           />
-          <img className="h-[100%]" src={Search} alt="Search" />
-        </div>
 
         <FeaturePermission module="Manage Campus" access="add campus">
-          <Link className="w-[13%]" to="/campus/add">
-            <button className="text-md focus-none flex h-10 w-[100%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none hover:bg-gray-200">
-              <img
-                className="h-[30px] w-[30px]"
-                src={addImage}
-                alt="Add Campus"
-              />
+            <Button 
+            variant="outline"
+            className="text-secondary-100-75"
+            onClick={() => handleNavigate("/campus/add")}
+              >
+              <RiAddLargeFill /> 
               Add Campus
-            </button>
-          </Link>
+            </Button>
         </FeaturePermission>
-        <button
+        <Button
           onClick={handleBack}
-          className="text-md focus-none flex h-10 w-[7%] items-center justify-evenly rounded-md border-[1.5px] border-base-200 text-base-200 outline-none"
-        >
-          <img className="h-[30px] w-[30px]" src={Check} alt="Save" />
+          variant="outline"
+          className="border-base-200 text-base-200 hover:text-base-200"
+          >
+          <FaCheck />
           Save
-        </button>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 rounded-md py-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 rounded-md py-6 md:grid-cols-2 lg:grid-cols-4">
         {filteredCampuses.map((campus, index) => (
           <div
             key={index}
-            className="flex h-[370px] w-[360px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3"
+            className="flex h-[370px] w-full max-w-[360px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3"
           >
-            <div className="flex h-[100px] w-[100%] justify-between rounded-md px-2">
-              <div className="flex w-[30%] items-center justify-center gap-2 pb-4 pt-3">
+            {/* Header Section */}
+            <div className="flex h-[100px] w-full items-center justify-between rounded-md px-2">
+              {/* Logo and Vector */}
+              <div className="flex w-[30%] items-center justify-center gap-2">
                 <img
-                  className="h-[50px]"
+                  className="h-[50px] w-auto"
                   src={university?.university_vector_url}
-                  alt="Vector"
+                  alt="University Vector"
                 />
                 <img
-                  className="h-[50px]"
+                  className="h-[50px] w-auto"
                   src={university?.university_logo_url}
-                  alt="Logo"
+                  alt="University Logo"
                 />
               </div>
+
+              {/* Campus Name and Tagline */}
               <div className="flex w-[70%] flex-col justify-center">
-                <h2 className="text-lg font-bold">
+                <h2 className="text-lg font-bold font-cizel-decor">
                   {campus.campus_name} Campus
                 </h2>
-                <h3 className="text-[12px]">NURTURING TOMORROW'S NOBLEST</h3>
+                <h3 className="text-[12px] font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
               </div>
             </div>
 
-            <div className="h-[100%] w-[100%] px-6">
+            {/* Campus Cover Photo */}
+            <div className="h-[200px] w-full px-4">
               <img
-                className="h-[100%] rounded-md object-cover"
+                className="h-full w-full rounded-md object-cover"
                 src={campus.campus_cover_photo_url}
                 alt="Campus Cover"
               />
             </div>
-            <div className="flex h-[150px] w-[100%] justify-end gap-[10px] px-6 pt-[10px]">
+
+            {/* Action Buttons */}
+            <div className="flex h-[50px] w-full items-center justify-end gap-2 px-4 pt-2">
               <Link
-                className="flex flex-col items-center justify-center"
+                className="flex items-center justify-center"
                 to={`/campus/edit-campus/${campus._id}`}
               >
-                <img className="h-[18px]" src={Pen} alt="Edit" />
+                <img className="h-[18px] w-auto" src={Pen} alt="Edit" />
               </Link>
 
               <FeaturePermission module="Manage Campus" access="archive campus">
                 <button onClick={() => handleDeleteClick(campus)}>
-                  <img className="h-[25px]" src={Bin} alt="" />
+                  <img className="h-[25px] w-auto" src={Bin} alt="Delete" />
                 </button>
               </FeaturePermission>
-
-              {isDeleteModalOpen && (
+            </div>
+          </div>
+        ))}
+      </div>
+      {isDeleteModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-[20%]">
                   <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-white p-6 text-center shadow-md">
                     <IoAlertCircle className="w-[100%] text-[3rem] text-base-200" />
@@ -310,10 +325,6 @@ const EditDisplayCampus = () => {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

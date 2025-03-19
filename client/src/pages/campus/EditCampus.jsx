@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
+import { FaPen } from "react-icons/fa6";
+import EditProgramModal from "./EditProgramModal";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -35,6 +37,10 @@ const EditCampus = () => {
     const [isModalOpen, setModalOpen] = useState(false);
     const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
     const [campusImage, setCampusImage] = useState(null);
+    const [isEditModalOpen, setEditModalOpen] = useState(false);
+    const [selectedProgram, setSelectedProgram] = useState(null);
+    const [selectedProgramTypeId, setSelectedProgramTypeId] = useState(null);
+    const [selectedProgramIndex, setSelectedProgramIndex] = useState(null);
     const [campusData, setCampusData] = useState({
       campus_name: "",
       campus_code: "",
@@ -83,11 +89,6 @@ const EditCampus = () => {
         
             fetchCampuses();
           }, []);
-
-          console.log(id);
-          console.log("Submitting campus data:", campusData);
-          console.log("Coordinates:", coordinates);
-
 
           useEffect(() => {
             const fetchCampus = async () => {
@@ -248,6 +249,47 @@ const EditCampus = () => {
       ) : null;
     };
 
+    const handleEditProgram = (programTypeId, programIndex) => {
+      const programType = campusData.campus_programs.find(
+        (type) => type.program_type_id === programTypeId
+      );
+      if (programType && programType.programs[programIndex]) {
+        const program = programType.programs[programIndex];
+        setSelectedProgram(program);
+        setSelectedProgramTypeId(programTypeId);
+        setSelectedProgramIndex(programIndex);
+        setEditModalOpen(true);
+      } else {
+        console.error("Program not found");
+      }
+    };
+    
+    const handleSaveEditedProgram = (editedProgram) => {
+      const updatedPrograms = campusData.campus_programs.map((programType) => {
+        if (programType.program_type_id === selectedProgramTypeId) {
+          const updatedProgramsList = [...programType.programs];
+          updatedProgramsList[selectedProgramIndex] = editedProgram;
+          return {
+            ...programType,
+            programs: updatedProgramsList,
+          };
+        }
+        return programType;
+      });
+    
+      setCampusData((prev) => ({
+        ...prev,
+        campus_programs: updatedPrograms,
+      }));
+    };
+    
+    const handleCloseEditModal = () => {
+      setEditModalOpen(false);
+      setSelectedProgram(null);
+      setSelectedProgramTypeId(null);
+      setSelectedProgramIndex(null);
+    };
+
   return (
     <div className="w-full">
         {loadingVisible && (
@@ -342,30 +384,31 @@ const EditCampus = () => {
             <div>
               <h3 className="text-lg font-medium">Address</h3>
               <p>Enter the complete address including street, city, province, and postal code</p>
-            </div>
-            <div className="border border-gray-300 rounded-md">
-              <div className="p-4">
                 <Input
                   name="campus_address"
                   value={campusData.campus_address}
                   onChange={(e) => setCampusData({...campusData, campus_address: e.target.value})}
                   placeholder="F5MQ+62W, Manila E Rd, Binangonan, 1940 Rizal"
-                  className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
+                  className="w-[100%] mt-3 h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
                 />
-                </div>
+            </div>
+            <div className="border border-gray-300 rounded-md">
+              <div className="p-4">
+              <h2 className="font-bold text-lg font-medium">
+                PIN CAMPUS LOCATION
+              </h2>
+              </div>
                 <MapContainer
                 center={coordinates.lat ? [coordinates.lat, coordinates.lng] : position}
                 zoom={11}
                 className="h-[530px] w-[100%] outline-none border border-gray-300"
                 style={{ cursor: "crosshair" }}
-                zoomControl={false}
-                attributionControl={false}
+                scrollWheelZoom={false}
                 >
                 <TileLayer
-                    url={`https://{s}.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}.png?apikey=c5319e635a224bbe8fd69f82a629bd97`}
+                    url={`https://tile.openstreetmap.org/{z}/{x}/{y}.png`}
                 />
-
                     {campuses.map((campus, index) => (
                         <Marker
                         key={index}
@@ -386,14 +429,14 @@ const EditCampus = () => {
             </div>
           </div>
 
-          <div className="p-6 flex flex-col">
+          <div className="p-6 mt-[40px]  flex flex-col">
             <h3 className="text-lg font-medium">About</h3>
             <p>Provide a brief description of the campus, including any key features or services</p>
-            <Textarea
+            <textarea
             name="campus_about"
             value={campusData.campus_about}
             onChange={(e) => setCampusData({...campusData, campus_about: e.target.value})}
-            className="mt-2 p-2 h-[300px] resize-none outline-none border border-gray-300 rounded-md"
+           className="mt-2 p-2 h-[300px] resize-none text-justify outline-none text-md border border-gray-300 rounded-md"
             placeholder="Enter here the history and campus overview of the campus"
             />
           </div>
@@ -440,13 +483,23 @@ const EditCampus = () => {
                       <div key={index} className="flex flex-col gap-2">
                         <div className="flex justify-between items-center">
                           <h4 className="text-lg font-medium">{program.program_name}</h4>
+                        <div className="flex gap-4">
                           <button
                             type="button"
-                            className="text-red-500"
-                            onClick={() => handleRemoveProgram(programType.program_type_id, index)}
+                            className="text-base-200-70"
+                            onClick={() => handleEditProgram(programType.program_type_id, index)}
                           >
-                            <img src={CloseIcon} className="w-[20px] h-[20px]" alt="Remove Program" />
+                            <FaPen className="w-[18px] h-[18px] text-secondary-200-70" alt="Edit Program" />
                           </button>
+                          <button
+                              type="button"
+                              className="text-red-500"
+                              onClick={() => handleRemoveProgram(programType.program_type_id, index)}
+                            >
+                              <img src={CloseIcon} className="w-[20px] h-[20px]" alt="Remove Program" />
+                            </button>
+                        </div>
+                          
                         </div>
                         {/* Conditionally render "Major in:" only if there are majors */}
                         {program.majors.length > 0 && (
@@ -482,7 +535,21 @@ const EditCampus = () => {
                 
             </div>
 
-            <AddProgramModal isOpen={isModalOpen} onClose={toggleModal} onAddProgram={handleAddProgram} />
+            {selectedProgram && (
+              <EditProgramModal
+                isOpen={isEditModalOpen}
+                onClose={handleCloseEditModal}
+                program={selectedProgram}
+                programtype={selectedProgramTypeId}
+                onSave={handleSaveEditedProgram}
+              />
+            )}
+            <AddProgramModal 
+              isOpen={isModalOpen} 
+              onClose={toggleModal} 
+              onAddProgram={handleAddProgram} 
+              existingPrograms={campusData.campus_programs}  
+              campusId={campusData._id}  />
 
           <div className="p-6 flex justify-end gap-[10px]">
             <Button  

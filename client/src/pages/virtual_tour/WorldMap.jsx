@@ -6,6 +6,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useQuery } from "@tanstack/react-query";
+import "@/fluttermap.css";
+
  
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -43,11 +45,11 @@ return (
     <MapContainer
     center={position}
     zoom={11}
+    scrollWheelZoom={false}
     className="h-[100vh] w-[100%] z-[10] outline-none border border-gray-300"
-    attributionControl={false}
   >
     <TileLayer
-      url={`https://{s}.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}.png?apikey=c5319e635a224bbe8fd69f82a629bd97`}
+      url={`https://tile.openstreetmap.org/{z}/{x}/{y}.png`}
     />
 
     {/* Render filtered markers */}

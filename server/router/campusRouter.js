@@ -317,6 +317,7 @@ router.put("/campuses/:campusId/floors/:floorId/markers", upload.fields([{ name:
     const newMarker = {
       marker_name: req.body.marker_name || "",
       marker_description: req.body.marker_description || "", 
+      sub_info: req.body.sub_info || "", 
       category: req.body.category || "", 
       latitude: latitude ? parseFloat(latitude) : null,
       longitude: longitude ? parseFloat(longitude) : null, 
@@ -451,44 +452,70 @@ router.get("/campuses/floors/:floorId/markers", async (req, res) => {
   }
 });
 
+router.get("/campuses/campusmajors", async (req, res) => {
+  const { programname, campusId } = req.query;
+
+  try {
+    const campus = await Campus.findById(campusId);
+    if (!campus) return res.status(404).json({ error: "Campus not found" });
+
+    const program = campus.campusPrograms.find(p => p.programName === programname);
+    if (!program) return res.status(404).json({ error: "Program not found in this campus" });
+
+    res.json(program.majors); // Return the list of existing majors
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 router.put(
   "/campuses/:campusId/floors/:floorId/markers/:markerId",
-  upload.single("marker_photo"), // Single file upload for the marker photo
+  upload.single("marker_photo"),
   async (req, res) => {
     const { campusId, floorId, markerId } = req.params;
-    const { marker_name, marker_description, category, latitude, longitude } = req.body;
-    const userId = req.user?.userId; 
+    const { marker_name, marker_description, sub_info, category, latitude, longitude } = req.body;
+    const userId = req.user?.userId;
+
+    console.log("Request body:", req.body); // Debugging: Log the entire request body
+    console.log("Received sub_info:", sub_info); // Debugging: Log sub_info
 
     try {
-      // Find the campus
       const campus = await Campus.findById(campusId);
       if (!campus) return res.status(404).json({ message: "Campus not found" });
 
-      // Find the floor
       const floor = campus.floors.id(floorId);
       if (!floor) return res.status(404).json({ message: "Floor not found" });
 
-      // Find the marker
       const marker = floor.markers.id(markerId);
       if (!marker) return res.status(404).json({ message: "Marker not found" });
 
       // Update the marker details
-      marker.marker_name = marker_name || marker.marker_name;
-      marker.marker_description = marker_description || marker.marker_description;
-      marker.category = category || marker.category;
-      marker.latitude = latitude ? parseFloat(latitude) : marker.latitude;
-      marker.longitude = longitude ? parseFloat(longitude) : marker.longitude;
+      if (marker_name !== undefined) marker.marker_name = marker_name;
+      if (marker_description !== undefined) marker.marker_description = marker_description;
+      if (sub_info !== undefined) {
+        marker.sub_info = sub_info; // Ensure sub_info is updated
+        console.log("Updated sub_info:", marker.sub_info); // Debugging: Log updated sub_info
+      }
+      if (category !== undefined) marker.category = category;
+      if (latitude !== undefined) marker.latitude = parseFloat(latitude);
+      if (longitude !== undefined) marker.longitude = parseFloat(longitude);
+
+      console.log("Updated marker:", marker); // Debugging: Log the updated marker
+
       // Handle image upload
       if (req.file) {
         const markerPhotoUrl = await uploadToCloudinary(req.file.buffer, "marker_photos");
         marker.marker_photo_url = markerPhotoUrl;
       }
 
-    if (userId) {
-      await activitylog(userId, `Updated existing marker of campus: ${campus.campus_name}`);
-    } else {
-      console.warn("User ID not found, activity log not saved.");
-    }
+      // Log activity
+      if (userId) {
+        await activitylog(userId, `Updated existing marker of campus: ${campus.campus_name}`);
+      } else {
+        console.warn("User ID not found, activity log not saved.");
+      }
 
       // Save the updated campus
       await campus.save();

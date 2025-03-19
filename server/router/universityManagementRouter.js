@@ -12,7 +12,7 @@ const universityManagementRouter = express.Router();
 
 //universityManagementRouter.use(verifyToken);
 
-universityManagementRouter.get("/:id", verifyToken, async (req, res) => {
+universityManagementRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {

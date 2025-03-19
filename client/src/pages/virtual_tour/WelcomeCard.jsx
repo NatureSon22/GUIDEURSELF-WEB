@@ -28,7 +28,7 @@ import {
                 campus map. 
                 </li>
                 <li className="my-2">
-                3. <strong>Enhance User Expercience:</strong> Create interactive hotspots, and media, and integrate accessibility
+                3. <strong>Enhance User Expercience:</strong> Create hotspots, and media, and integrate accessibility
                 features to make tours engaging and inclusive.
                 </li>
                 <li className="my-2">

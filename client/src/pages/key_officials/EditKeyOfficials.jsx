@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import addImage from "../../assets/add.png";
 import Modal from "./AddKeyOfficialsModal";
 import EditKeyOfficialsModal from "./EditKeyOfficialsModal";
-import Search from "../../assets/Search.png";
+import { RiAddLargeFill } from "react-icons/ri";
 import Pen from "../../assets/Pen.png";
 import Bin from "../../assets/bin.png";
 import Check from "../../assets/Check.png";
@@ -13,8 +13,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
 import { useToast } from "@/hooks/use-toast";
 import FeaturePermission from "@/layer/FeaturePermission";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FaPen } from "react-icons/fa6";
+import { FaCheck } from "react-icons/fa6";
 
 const EditKeyOfficials = () => {
+  
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOfficial, setSelectedOfficial] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -30,8 +36,6 @@ const EditKeyOfficials = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { toast } = useToast();
-
-  const navigate = useNavigate();
 
   const {
     data: officials,
@@ -173,42 +177,38 @@ const EditKeyOfficials = () => {
       </div>
 
       <div className="mt-6 flex items-center gap-2">
-        <div className="flex h-[40px] w-[90%] flex-row items-center justify-between rounded-md border border-gray-300 px-2 py-1">
-          <input
-            className="h-5 w-[100%] border-none shadow-none outline-none"
+        
+          <Input
+          type="text"
             placeholder="Search for an official..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <img className="h-[100%]" src={Search} alt="" />
-        </div>
 
         {/* Add Official Button */}
         <FeaturePermission
           module="Manage Key Officials"
           access="add key official"
         >
-          <button
+          <Button
             onClick={() => setIsModalOpen(true)}
-            className="text-md focus-none flex h-10 w-[15%] items-center justify-evenly rounded-md border-[1.5px] border-gray-400 text-gray-800 outline-none transition duration-300 hover:bg-gray-200"
-          >
-            <img
-              className="h-[30px] w-[30px]"
-              src={addImage}
-              alt="Add Officials"
-            />
+            variant="outline"
+            className="text-secondary-100-75"
+            >
+            <RiAddLargeFill /> 
             Add Official
-          </button>
+          </Button>
         </FeaturePermission>
 
         {/* Back Button */}
-        <button
+        <Button
           onClick={handleBack}
-          className="text-md focus-none flex h-10 w-[10%] items-center justify-evenly rounded-md border-[1.5px] border-base-200 text-base-200 outline-none"
-        >
-          <img className="h-[30px] w-[30px]" src={Check} alt="Save Changes" />
+          variant="outline"
+          className="border-base-200 text-base-200 hover:text-base-200"
+          >
+          <FaCheck />
           Save
-        </button>
+        </Button>
       </div>
 
       {/* Officials Grid */}
@@ -230,10 +230,10 @@ const EditKeyOfficials = () => {
                     alt={official.name}
                     className="h-[200px] w-[200px] rounded-md object-cover"
                   />
-                  <h3 className="text-md mt-4 text-center font-bold text-gray-800">
+                  <h3 className="text-md font-cizel-decor mt-4 text-center font-bold text-gray-800">
                     {official.name}
                   </h3>
-                  <p className="mt-2 text-center text-gray-600">
+                  <p className="mt-2 font-cizel text-center text-gray-600">
                     {official.position_name}
                   </p>
                 </div>

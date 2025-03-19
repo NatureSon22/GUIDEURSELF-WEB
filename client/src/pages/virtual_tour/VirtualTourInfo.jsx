@@ -83,8 +83,8 @@ const VirtualTourInfo = () => {
                         <img className="h-[70px]" src={university?.university_logo_url} alt="" />
                     </div>
                     <div className="flex flex-col justify-center">
-                        <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
-                        <h3 className="text-md">NURTURING TOMORROW'S NOBLEST</h3>
+                        <h2 className="font-bold font-cizel-decor text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
+                        <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
                     </div>
                 </div>
                 <hr />
@@ -108,7 +108,7 @@ const VirtualTourInfo = () => {
                             <p className="text-[2rem] font-bold text-base-200">{totalCategories}</p>
                             <MdTouchApp className="text-4xl text-base-200 mb-2"/>
                         </div>
-                        <p>Interactive Hotspots</p>
+                        <p>Hotspots</p>
                     </div>
                 </div>
                 <hr />
@@ -133,8 +133,8 @@ const VirtualTourInfo = () => {
                     <img className="h-[160px]" src={university?.university_logo_url} alt="" />
                 </div>
                 <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                    <h2 className="font-bold text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
-                    <h3 className="text-md">NURTURING TOMORROW'S NOBLEST</h3>
+                    <h2 className="font-bold font-cizel-decor text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
+                    <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
                 </div>
             </div>
         </div>

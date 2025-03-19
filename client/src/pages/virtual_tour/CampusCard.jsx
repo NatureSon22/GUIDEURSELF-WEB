@@ -40,7 +40,7 @@ const CampusCard = ({ campus, onClose }) => {
     }, 0) || 0;
   
     return (
-      <div className="fixed inset-1 flex h-[550px] justify-end z-10 gap-4">
+      <div className="fixed inset-3 flex h-[550px] justify-end z-10 gap-4">
         <div className="bg-white p-4 rounded-md shadow-lg w-[22%] max-w-[600px] flex flex-col gap-3">
           <div className="flex w-[100%] justify-center gap-3">
             <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
@@ -48,8 +48,8 @@ const CampusCard = ({ campus, onClose }) => {
               <img className="h-[60px]" src={university?.university_logo_url} alt="" />
             </div>
             <div className="flex flex-col justify-center">
-              <h2 className="font-bold text-lg">{campus.campus_name} Campus</h2>
-              <h3 className="text-sm">NURTURING TOMORROW'S NOBLEST</h3>
+              <h2 className="font-bold  font-cizel-decor text-lg">{campus.campus_name} Campus</h2>
+              <h3 className="text-sm  font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
             </div>
           </div>
           <div className="h-[200px]">
@@ -78,7 +78,7 @@ const CampusCard = ({ campus, onClose }) => {
                 <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
                 <MdTouchApp className="text-4xl text-base-200 mb-2"/>
               </div>
-              <p className="text-center text-sm mt-2">Interactive Hotspots</p>
+              <p className="text-center text-sm mt-2">Hotspots</p>
             </div>
           </div>
           <hr />

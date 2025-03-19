@@ -21,6 +21,7 @@ const updateMarker = async (campusId, floorId, markerId, updatedData, imageFile)
   const formData = new FormData();
   formData.append("marker_name", updatedData.marker_name);
   formData.append("marker_description", updatedData.marker_description);
+  formData.append("sub_info", updatedData.sub_info);
   formData.append("category", updatedData.category);
   
   if (updatedData.latitude !== null && !isNaN(updatedData.latitude)) {
@@ -96,6 +97,7 @@ const EditMarkerModal =
   const [isPanorama, setIsPanorama] = useState(false);
   const modalRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [markerSubInfo, setMarkerSubInfo] = useState(marker.sub_info || "");
   
   const queryClient = useQueryClient(); 
 
@@ -116,7 +118,6 @@ const EditMarkerModal =
   }, [isPanorama]);
 
   const showPanorama = () => {
-    console.log("click");
     setIsPanorama(true);
   };
 
@@ -127,17 +128,6 @@ const EditMarkerModal =
     queryFn: loggedInUser,
     refetchOnWindowFocus: false,
   });
-
-  const showPreview = () => {
-    setIsAllowed(true);
-    setIsShowed(false);
-  }
-
-  
-  const unshowPreview = () => {
-    setIsAllowed(false);
-    setIsShowed(true);
-  }
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -162,9 +152,6 @@ const EditMarkerModal =
       reader.readAsDataURL(file);
     }
   };
-  
-  
-
   
   const selectedAcademic = () =>{
     setCategory("Academic Spaces");
@@ -216,11 +203,12 @@ const EditMarkerModal =
         {
           marker_name: markerName,
           marker_description: markerDescription.trim() ? markerDescription : "",
+          sub_info: markerSubInfo, // Ensure sub_info is passed correctly
           category: category.trim() ? category : "",
           latitude: coordinates.lat !== null ? parseFloat(coordinates.lat) : null,
           longitude: coordinates.lng !== null ? parseFloat(coordinates.lng) : null,
-          campus_name: updatedCampus.campus_name,  // Add the campus name here
-          updated_by: data?.username || "Unknown User",  // Add the user data here
+          campus_name: updatedCampus.campus_name, // Add the campus name here
+          updated_by: data?.username || "Unknown User", // Add the user data here
         },
         imageFile
       );
@@ -234,6 +222,17 @@ const EditMarkerModal =
       toast({
         title: "Success",
         description: "Marker updated successfully",
+      });
+
+      console.log({
+        marker_name: markerName,
+        marker_description: markerDescription.trim() ? markerDescription : "",
+        sub_info: markerSubInfo,
+        category: category.trim() ? category : "",
+        latitude: coordinates.lat !== null ? parseFloat(coordinates.lat) : null,
+        longitude: coordinates.lng !== null ? parseFloat(coordinates.lng) : null,
+        campus_name: updatedCampus.campus_name,
+        updated_by: data?.username || "Unknown User",
       });
   
       onClose();
@@ -258,13 +257,13 @@ const EditMarkerModal =
           <Label className="text-lg">Configure this Location</Label>
 
           <div className="mt-4">
-                <Label className="text-[16px]">location</Label>
+                <Label className="text-[16px]">location Name</Label>
                 <Input
                   type="text"
                   value={markerName}
                   onChange={(e) => setMarkerName(e.target.value)}
                   className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
-                  placeholder="Enter marker name"
+                  placeholder="Enter location name"
                   required
                 />
               </div>
@@ -295,22 +294,7 @@ const EditMarkerModal =
                 )}
               </div>
 
-            {imageFile && (
                         <div>
-                          {isShowed ? (
-                            <div className="flex justify-end items-center gap-4">
-                            <Button type="button" className="text-base-200 bg-base-250 cursor-pointer hover:bg-base-250 hover:border hover:border-base-200" onClick={showPreview}>
-                              <p>Edit Hotspot</p>
-                            </Button>
-                            </div>
-                          ) : (
-                            <div className="flex justify-end items-center gap-4">
-                            <Button type="button" variant="destructive" onClick={unshowPreview}>
-                            Remove Hotspot
-                            </Button>
-                            </div>
-                          )}
-                          {isAllowed && (
                           <div>
                             <div className="mt-4">
                             <Label className="text-[16px]">Area Categories</Label>
@@ -348,6 +332,18 @@ const EditMarkerModal =
                                 }`}/>
                             </div>
                           </div>
+                          
+
+                  
+                        <div className="mt-4">
+                          <Label className="text-[16px]">Sub Info</Label>
+                          <Input
+                            placeholder="Type your marker sub info here. (Optional)"
+                            className="bg-white mt-2"
+                            value={markerSubInfo}
+                            onChange={(e) => setMarkerSubInfo(e.target.value)}
+                          />
+                        </div>                          
             
                           <div className="mt-4">
                             <Label className="text-[16px]">Description</Label>
@@ -359,9 +355,7 @@ const EditMarkerModal =
                             />
                           </div>
                         </div>
-                        )}
                         </div>
-                      )}
 
             </div>
               <div className="mt-6 flex justify-between p-6 gap-[10px]">

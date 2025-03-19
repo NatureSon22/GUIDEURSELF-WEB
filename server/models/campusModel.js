@@ -6,6 +6,7 @@ const markerSchema = new mongoose.Schema({
   longitude: { type: Number, required: true },
   marker_description: { type: String, trim: true, default: ""  },
   category: { type: String, trim: true, default: "" },
+  sub_info: { type: mongoose.Schema.Types.Mixed },
   marker_photo_url: { type: String, default: "" },
   date_added: { type: Date, default: Date.now },
 });
