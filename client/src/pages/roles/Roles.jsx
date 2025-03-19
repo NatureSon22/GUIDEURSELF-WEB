@@ -22,7 +22,7 @@ const Roles = () => {
 
   const { data: accountRoles, isLoading } = useQuery({
     queryKey: ["accountRoles"],
-    queryFn: getAllAccounts,
+    queryFn: () => getAllAccounts(),
   });
   const { data: allStatus } = useQuery({
     queryKey: ["allStatus"],

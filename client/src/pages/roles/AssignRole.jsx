@@ -24,6 +24,7 @@ const AssignRole = () => {
   };
 
   const handleAssignRoleClick = () => {
+
     const selectedAccountIds = Object.keys(rowSelection);
 
     navigate("/roles-permissions/edit-assign-role", {
@@ -69,7 +70,7 @@ const AssignRole = () => {
         <Button variant="ghost" onClick={handleCancel}>
           Cancel
         </Button>
-        <Button className="bg-base-200" onClick={handleAssignRoleClick}>
+        <Button className="bg-base-200" onClick={handleAssignRoleClick} disabled={Object.keys(rowSelection).length === 0} >
           Next
         </Button>
       </div>
