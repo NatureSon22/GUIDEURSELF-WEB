@@ -113,7 +113,11 @@ const ImportAddAccount = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" className="bg-base-200" disabled={isPending}>
+            <Button
+              type="submit"
+              className="bg-base-200"
+              disabled={!importedUsers.length || isPending}
+            >
               Import
             </Button>
           </div>

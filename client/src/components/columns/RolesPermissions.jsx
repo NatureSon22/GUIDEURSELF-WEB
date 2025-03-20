@@ -60,11 +60,26 @@ const columns = ({ navigate }) => [
     id: "status",
     header: "Status",
     filterFn: "equalsString",
-    cell: ({ row }) => (
-      <div className="mx-auto w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
-        <p>{formatTitle(row.original.status)}</p>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const status = row.original.status.toLowerCase();
+
+      const statusColors = {
+        active: "bg-green-200/80  text-accent-300",
+        inactive: "bg-gray-200/80 text-gray-500",
+        pending: "bg-yellow-200/80 text-yellow-500",
+        blocked: "bg-red-200/80 text-red-500",
+      };
+
+      return (
+        <div
+          className={`mx-auto w-24 rounded-full py-[7px] text-center text-[0.8rem] font-medium ${
+            statusColors[status] || "bg-gray-200 text-gray-700"
+          }`}
+        >
+          <p>{formatTitle(row.original.status)}</p>
+        </div>
+      );
+    },
   },
   {
     accessorFn: (row) => {

@@ -17,6 +17,7 @@ const TextEditor = ({ content, setContent }) => {
       askBeforePasteFromWord: false,
       link: { processVideoLink: false },
       image: { upload: false },
+      
     }),
     [],
   );

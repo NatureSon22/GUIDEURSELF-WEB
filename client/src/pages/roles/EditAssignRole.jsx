@@ -16,11 +16,11 @@ import PermissionSkeleton from "./PermissionSkeleton";
 
 const EditAssignRole = () => {
   const { accountId } = useParams();
-  const { state } = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [roleType, setRoleType] = useState(state?.roleId ?? "");
+  const [roleType, setRoleType] = useState(location.state?.roleId || "");
   const [groundPermissions, setGroundPermissions] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [grantedPermissions, setGrantedPermissions] = useState([]);
@@ -39,13 +39,11 @@ const EditAssignRole = () => {
   } = useQuery({
     queryKey: ["roleDetails", roleType, accountId],
     queryFn: () => getRoleById(roleType),
-    enabled: !!roleType && !!accountId,
   });
 
   const { data: accountDetails, isLoading: accountLoading } = useQuery({
     queryKey: ["userDetails", accountId],
     queryFn: () => getAccount(accountId),
-    enabled: !!accountId,
   });
 
   const { mutateAsync: updateRolePermission, isLoading: isUpdating } =
@@ -74,7 +72,6 @@ const EditAssignRole = () => {
   useEffect(() => {
     if (roleDetails?.permissions) {
       setGroundPermissions(roleDetails.permissions);
-      setPermissions(roleDetails.permissions);
     }
   }, [roleDetails]);
 
@@ -88,143 +85,60 @@ const EditAssignRole = () => {
   }, [accountLoading, accountDetails]);
 
   //Update permissions when ground permissions, granted, or revoked permissions change
+
   useEffect(() => {
-    if (groundPermissions.length === 0 && grantedPermissions.length === 0)
-      return;
+    if (!groundPermissions.length) return;
 
-    // Step 1: Initialize `allModules` from `groundPermissions` or `grantedPermissions`
-    let allModules = [...groundPermissions];
+    let updatedPermissions = groundPermissions.map((module) => {
+      const modulePermissions = { ...module };
+      const moduleLower = module.module.toLowerCase();
 
-    // Step 2: Add granted permissions (only if they are NOT in `groundPermissions`)
+      // ✅ Add granted permissions if they exist
+      const grantedForModule = grantedPermissions.find(
+        (p) => p.module.toLowerCase() === moduleLower,
+      );
+      if (grantedForModule) {
+        modulePermissions.access = Array.from(
+          new Set([...modulePermissions.access, ...grantedForModule.access]),
+        );
+      }
+
+      // ✅ Remove revoked permissions
+      const revokedForModule = revokedPermissions.find(
+        (p) => p.module.toLowerCase() === moduleLower,
+      );
+      if (revokedForModule) {
+        modulePermissions.access = modulePermissions.access.filter(
+          (access) => !revokedForModule.access.includes(access),
+        );
+      }
+
+      return modulePermissions;
+    });
+
+    // ✅ Step 2: Add new granted modules (not in `groundPermissions`)
     grantedPermissions.forEach((grantedModule) => {
-      const existingModule = allModules.find(
+      const exists = updatedPermissions.some(
         (p) => p.module.toLowerCase() === grantedModule.module.toLowerCase(),
       );
-      console.log(existingModule);
 
-      if (!existingModule) {
-        // ✅ If the module is not in `groundPermissions`, add it with granted permissions
-        allModules.push({
-          module: grantedModule.module, // ✅ Ensure structure is maintained
-          access: [...grantedModule.access],
+      if (!exists) {
+        updatedPermissions.push({
+          module: grantedModule.module,
+          access: [...grantedModule.access], // ✅ Add newly granted module
         });
-      } else {
-        // ✅ If the module exists, merge new granted permissions
-        existingModule.access = [
-          ...new Set([...existingModule.access, ...grantedModule.access]),
-        ];
       }
     });
 
-    // Step 3: Remove specific revoked permissions instead of entire module
-    allModules = allModules.map((module) => {
-      const revokedForModule = revokedPermissions.find(
-        (revoked) =>
-          revoked.module.toLowerCase() === module.module.toLowerCase(),
-      );
+    console.log(updatedPermissions);
 
-      if (revokedForModule) {
-        return {
-          module: module.module,
-          access: module.access.filter(
-            (access) => !revokedForModule.access.includes(access),
-          ), // ✅ Only remove specific permissions, not the whole module
-        };
-      }
+    // ✅ Step 3: Ensure revoked modules are fully removed if no permissions remain
+    updatedPermissions = updatedPermissions.filter(
+      (module) => module.access.length > 0,
+    );
 
-      return module;
-    });
-
-    setPermissions(allModules);
+    setPermissions(updatedPermissions);
   }, [groundPermissions, grantedPermissions, revokedPermissions]);
-
-  // const handleSetPermissions = (module, access, checked) => {
-  //   if (!customize) return;
-
-  //   const isGroundPermission = groundPermissions.some(
-  //     (p) =>
-  //       p.module.toLowerCase() === module.toLowerCase() &&
-  //       p.access.includes(access),
-  //   );
-
-  //   if (checked) {
-  //     if (isGroundPermission) {
-  //       // Remove from revoked if it was previously revoked
-  //       setRevokedPermissions((prev) =>
-  //         prev
-  //           .map((p) => {
-  //             if (p.module.toLowerCase() === module.toLowerCase()) {
-  //               return {
-  //                 ...p,
-  //                 access: p.access.filter((a) => a !== access),
-  //               };
-  //             }
-  //             return p;
-  //           })
-  //           .filter((p) => p.access.length > 0),
-  //       );
-  //     } else {
-  //       // Add to granted
-  //       setGrantedPermissions((prev) => {
-  //         const moduleExists = prev.find(
-  //           (p) => p.module.toLowerCase() === module.toLowerCase(),
-  //         );
-
-  //         if (moduleExists) {
-  //           return prev.map((p) => {
-  //             if (p.module.toLowerCase() === module.toLowerCase()) {
-  //               return {
-  //                 ...p,
-  //                 access: [...new Set([...p.access, access])],
-  //               };
-  //             }
-  //             return p;
-  //           });
-  //         }
-
-  //         return [...prev, { module, access: [access] }];
-  //       });
-  //     }
-  //   } else {
-  //     if (isGroundPermission) {
-  //       // Add to revoked
-  //       setRevokedPermissions((prev) => {
-  //         const moduleExists = prev.find(
-  //           (p) => p.module.toLowerCase() === module.toLowerCase(),
-  //         );
-
-  //         if (moduleExists) {
-  //           return prev.map((p) => {
-  //             if (p.module.toLowerCase() === module.toLowerCase()) {
-  //               return {
-  //                 ...p,
-  //                 access: [...new Set([...p.access, access])],
-  //               };
-  //             }
-  //             return p;
-  //           });
-  //         }
-
-  //         return [...prev, { module, access: [access] }];
-  //       });
-  //     } else {
-  //       // Remove from granted if it was previously granted
-  //       setGrantedPermissions((prev) =>
-  //         prev
-  //           .map((p) => {
-  //             if (p.module.toLowerCase() === module.toLowerCase()) {
-  //               return {
-  //                 ...p,
-  //                 access: p.access.filter((a) => a !== access),
-  //               };
-  //             }
-  //             return p;
-  //           })
-  //           .filter((p) => p.access.length > 0),
-  //       );
-  //     }
-  //   }
-  // };
 
   const handleSetPermissions = (module, access, checked) => {
     if (!customize) return;
@@ -370,11 +284,6 @@ const EditAssignRole = () => {
                     permission.module.toLowerCase() ===
                     module.module.toLowerCase(),
                 ) || { access: [] };
-
-                if (rolePermissions.access.length > 0) {
-                  console.log(rolePermissions.module);
-                  console.log(rolePermissions.access);
-                }
 
                 return (
                   <Permissions

@@ -10,8 +10,13 @@ import DataTable from "@/components/DataTable";
 import columns from "@/components/columns/RolesPermissions";
 import { useNavigate } from "react-router-dom";
 import Loading from "@/components/Loading";
-import { getAllRoleTypes, getAllStatus } from "@/api/component-info";
+import {
+  getAllCampuses,
+  getAllRoleTypes,
+  getAllStatus,
+} from "@/api/component-info";
 import { GrPowerReset } from "react-icons/gr";
+import MultiCampus from "@/layer/MultiCampus";
 
 const Roles = () => {
   const [filters, setFilters] = useState([]);
@@ -20,6 +25,10 @@ const Roles = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
+  const { data: allCampuses } = useQuery({
+    queryKey: ["allCampuses"],
+    queryFn: getAllCampuses,
+  });
   const { data: accountRoles, isLoading } = useQuery({
     queryKey: ["accountRoles"],
     queryFn: () => getAllAccounts(),
@@ -114,6 +123,17 @@ const Roles = () => {
             onChange={(e) => setToDate(e.target.value)}
           />
         </div>
+
+        <MultiCampus>
+          <ComboBox
+            options={allCampuses || []}
+            placeholder="select campus"
+            filter="campus_name"
+            setFilters={setFilters}
+            reset={reset}
+          />
+        </MultiCampus>
+
         <ComboBox
           options={allRoles}
           placeholder="select role"

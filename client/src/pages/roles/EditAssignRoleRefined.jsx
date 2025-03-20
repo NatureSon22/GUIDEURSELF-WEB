@@ -90,11 +90,11 @@ const EditAssignRole = () => {
   useEffect(() => {
     if (!groundPermissions.length) return;
 
-    const updatedPermissions = groundPermissions.map((module) => {
+    let updatedPermissions = groundPermissions.map((module) => {
       const modulePermissions = { ...module };
       const moduleLower = module.module.toLowerCase();
 
-      // Add granted permissions
+      // ✅ Add granted permissions if they exist
       const grantedForModule = grantedPermissions.find(
         (p) => p.module.toLowerCase() === moduleLower,
       );
@@ -104,7 +104,7 @@ const EditAssignRole = () => {
         );
       }
 
-      // Remove revoked permissions
+      // ✅ Remove revoked permissions
       const revokedForModule = revokedPermissions.find(
         (p) => p.module.toLowerCase() === moduleLower,
       );
@@ -117,8 +117,27 @@ const EditAssignRole = () => {
       return modulePermissions;
     });
 
+    // ✅ Step 2: Add new granted modules (not in `groundPermissions`)
+    grantedPermissions.forEach((grantedModule) => {
+      const exists = updatedPermissions.some(
+        (p) => p.module.toLowerCase() === grantedModule.module.toLowerCase(),
+      );
+
+      if (!exists) {
+        updatedPermissions.push({
+          module: grantedModule.module,
+          access: [...grantedModule.access], // ✅ Add newly granted module
+        });
+      }
+    });
+
+    // ✅ Step 3: Ensure revoked modules are fully removed if no permissions remain
+    updatedPermissions = updatedPermissions.filter(
+      (module) => module.access.length > 0,
+    );
+
     setPermissions(updatedPermissions);
-  }, [groundPermissions, grantedPermissions, revokedPermissions]);
+  }, [groundPermissions, grantedPermissions, revokedPermissions])
 
   const handleSetPermissions = (module, access, checked) => {
     if (!customize) return;
@@ -238,7 +257,7 @@ const EditAssignRole = () => {
               className="border-secondary-200"
               checked={customize}
               onCheckedChange={setCustomize}
-              disabled={ !roleType }
+              disabled={!roleType}
             />
             <Label>Customize permissions</Label>
           </div>

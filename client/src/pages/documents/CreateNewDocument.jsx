@@ -121,7 +121,7 @@ const CreateNewDocument = () => {
       navigate(-1);
       setOpenDialog(false);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         variant: "destructive",
         title: "Error",
@@ -275,7 +275,6 @@ const CreateNewDocument = () => {
             <Button
               type="submit"
               variant="ghost"
-              AAAAAAAAAAQQA
               className="text-base-200"
               disabled={isCreating || isSaving}
               onClick={() => handleSetAction("draft")}

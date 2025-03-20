@@ -23,6 +23,7 @@ import documentStatus from "@/data/documentStatus";
 import documentTypes from "@/data/doc_types";
 import useUserStore from "@/context/useUserStore";
 import formatDate from "@/utils/formatDate";
+import MultiCampus from "@/layer/MultiCampus";
 
 const AllDocuments = () => {
   const { toast } = useToast();
@@ -168,13 +169,15 @@ const AllDocuments = () => {
             />
           </div>
 
-          <ComboBox
-            options={allCampuses || []}
-            placeholder="select campus"
-            filter="campus_id.campus_name"
-            setFilters={setFilters}
-            reset={reset}
-          />
+          <MultiCampus>
+            <ComboBox
+              options={allCampuses || []}
+              placeholder="select campus"
+              filter="campus_id.campus_name"
+              setFilters={setFilters}
+              reset={reset}
+            />
+          </MultiCampus>
 
           <ComboBox
             options={documentTypes || []}

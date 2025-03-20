@@ -38,7 +38,7 @@ const PERMISSIONS = [
     module: "Manage Chats",
     description:
       "Check the permissions granted for managing chats on their assigned campus",
-    access: ["add chat", "edit chat", "archive chat"],
+    access: ["access chats"],
   },
   {
     module: "Manage Key Officials",

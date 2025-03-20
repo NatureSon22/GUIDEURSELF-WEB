@@ -1,10 +1,10 @@
-import formatTitle from "@/utils/formatTitle";
 import formatDate from "@/utils/formatDate";
 
 const column = () => [
   {
     accessorKey: "user_number",
     header: "User ID",
+    cell: ({ row }) => <p className="py-2">{row.original.user_number}</p>,
   },
   {
     accessorKey: "username",
@@ -37,6 +37,15 @@ const column = () => [
   {
     accessorKey: "comments",
     header: "Comments",
+    cell: ({ row }) => {
+      const comment =
+        row.original.comments.length > 40
+          ? row.original.comments[0].toUpperCase() +
+            row.original.comments.substr(1, 40) +
+            "..."
+          : row.original.comments;
+      return <p className="py-2">{comment}</p>;
+    },
   },
   {
     accessorKey: "date_submitted",
@@ -44,6 +53,5 @@ const column = () => [
     cell: ({ row }) => formatDate(row.original.date_submitted),
   },
 ];
-
 
 export default column;
