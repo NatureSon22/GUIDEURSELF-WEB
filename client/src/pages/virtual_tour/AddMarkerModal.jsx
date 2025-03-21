@@ -240,7 +240,7 @@ const AddMarkerModal = ({
         setIsMutating(false);
         setErrorMessage(error.message || "Failed to add marker. Please try again.");
         setTimeout(() => setErrorMessage(""), 3000);
-      },
+      }, 
     });
   };
 

@@ -36,6 +36,7 @@ import { MdWidgets } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import { useToast } from "@/hooks/use-toast";
 import Loading from "@/components/Loading";
+import "@/fluttermap.css";
 
 const categoryConfig = {
   "Academic Spaces": { color: "bg-yellow-500", padding: "pl-[1px]", icon: BsDoorOpenFill },
@@ -726,7 +727,16 @@ const handleDrop = (e, targetFloor) => {
                       key={index}
                       position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
                       icon={icon}
-                    />
+                      
+                    >
+                      <Popup className="custom-popup" closeButton={false}>
+                      <div className={`p-6 h-[50px] rounded-md flex justify-center items-center ${categoryConfig[marker.category]?.color || "bg-base-200"}`}>
+                        <p className="text-[16px] font-bold">
+                              {marker.marker_name}
+                        </p>
+                        </div>
+                        </Popup>
+                      </Marker>
                   );
                 })}
 
