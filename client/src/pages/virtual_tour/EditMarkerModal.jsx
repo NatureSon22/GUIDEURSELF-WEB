@@ -248,6 +248,19 @@ const EditMarkerModal =
     }
     exitModal();
   };
+
+  
+  const showPreview = () => {
+    setIsAllowed(true);
+    setIsShowed(false);
+  };
+
+  const unshowPreview = () => {
+    setIsAllowed(false);
+    setIsShowed(true);
+    setCategory("");
+    setMarkerDescription("");
+  };
   
   return (
     <div className="bg-secondary-500 h-100vh w-[37%] border-l overflow-y-auto">
@@ -295,6 +308,20 @@ const EditMarkerModal =
               </div>
 
                         <div>
+                          {isShowed ? (
+                            <div className="flex justify-end items-center gap-4">
+                            <Button type="button" className="text-base-200 bg-base-250 cursor-pointer hover:bg-base-250 hover:border hover:border-base-200" onClick={showPreview}>
+                              <p>Edit Hotspot</p>
+                            </Button>
+                            </div>
+                          ) : (
+                            <div className="flex justify-end items-center gap-4">
+                            <Button type="button" variant="destructive" onClick={unshowPreview}>
+                            Remove Hotspot
+                            </Button>
+                            </div>
+                          )}
+                          {isAllowed && (
                           <div>
                             <div className="mt-4">
                             <Label className="text-[16px]">Area Categories</Label>
@@ -332,18 +359,6 @@ const EditMarkerModal =
                                 }`}/>
                             </div>
                           </div>
-                          
-
-                  
-                        <div className="mt-4">
-                          <Label className="text-[16px]">Sub Info</Label>
-                          <Input
-                            placeholder="Type your marker sub info here. (Optional)"
-                            className="bg-white mt-2"
-                            value={markerSubInfo}
-                            onChange={(e) => setMarkerSubInfo(e.target.value)}
-                          />
-                        </div>                          
             
                           <div className="mt-4">
                             <Label className="text-[16px]">Description</Label>
@@ -355,6 +370,7 @@ const EditMarkerModal =
                             />
                           </div>
                         </div>
+                        )}
                         </div>
 
             </div>

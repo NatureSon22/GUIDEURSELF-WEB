@@ -65,6 +65,7 @@ const AddMarkerModal = ({
   selectedFloor,
   coordinates,
   campusId,
+  hideMarkers,
   updatedCampus,
 }) => {
   const modalRef = useRef(null);
@@ -131,6 +132,19 @@ const AddMarkerModal = ({
     },
   });
 
+  const showPreview = () => {
+    setIsAllowed(true);
+    setIsShowed(false);
+  };
+
+  const unshowPreview = () => {
+    setIsAllowed(false);
+    setIsShowed(true);
+    setCategory("");
+    setMarkerDescription("");
+  };
+
+
   const selectedAcademic = () => {
     setCategory("Academic Spaces");
   };
@@ -174,6 +188,7 @@ const AddMarkerModal = ({
     setErrorMessage("");
 
     const maxSize = 10485760; // 10MB
+    
 
     if (!coordinates?.lat || !coordinates?.lng) {
       setErrorMessage("Please drop a pin on the map to set the location.");
@@ -182,19 +197,7 @@ const AddMarkerModal = ({
     }
 
     if (!markerName.trim()) {
-      setErrorMessage("Marker name is required.");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-    
-    if (!markerDescription.trim()) {
-      setErrorMessage("Marker description is required.");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-
-    if (!category.trim()) {
-      setErrorMessage("Marker category is required.");
+      setErrorMessage("Location name is required.");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
@@ -224,6 +227,8 @@ const AddMarkerModal = ({
     if (imageFile) {
       formData.append("marker_photo", imageFile);
     }
+
+    hideMarkers();
 
     formData.append("updated_by", data?.username || "Unknown User");
     formData.append("activity", `Added new location ${markerName}`);
@@ -293,6 +298,22 @@ const AddMarkerModal = ({
           </div>
 
             <div>
+              {isShowed ? (
+                <div className="flex justify-end items-center gap-4">
+                <Button type="button" className="text-base-200 bg-base-250 cursor-pointer hover:bg-base-250 hover:border hover:border-base-200" onClick={showPreview}>
+                  <p>Add Hotspot</p>
+                </Button>
+                </div>
+              ) : (
+                <div className="flex justify-end items-center gap-4">
+                <Button type="button" variant="destructive" onClick={unshowPreview}>
+                Remove Hotspot
+                </Button>
+                </div>
+              )}
+              
+              {isAllowed && (
+              <div>
                 <div>
                   <div className="mt-4">
                     <Label className="text-[16px]">Area Categories</Label>
@@ -356,18 +377,6 @@ const AddMarkerModal = ({
                     </div>
                   </div>
 
-                  
-                  <div className="mt-4">
-                    <Label className="text-[16px]">Sub Info</Label>
-                    <Input
-                      placeholder="Type your marker sub info here. (Optional)"
-                      className="bg-white mt-2"
-                      value={markerSubInfo}
-                      onChange={(e) => setMarkerSubInfo(e.target.value)}
-                      disabled={!isMarkerPositioned} // Disable if marker not positioned
-                    />
-                  </div>
-
                   <div className="mt-4">
                     <Label className="text-[16px]">Description</Label>
                     <Textarea
@@ -379,10 +388,11 @@ const AddMarkerModal = ({
                     />
                   </div>
                 </div>
+            </div>)}
             </div>
-        </div>
+            
 
-        <div className="mt-6 flex justify-between p-6 gap-[10px]">
+        <div className="mt-6 flex justify-between pt-6 gap-[10px]">
           {errorMessage && (
             <div className="flex border rounded-md w-[1500px] border-accent-100 p-2 gap-2 items-center">
               <IoAlertCircle className="text-accent-100 h-[25px] w-[25px]" />
@@ -406,6 +416,7 @@ const AddMarkerModal = ({
               {isMutating ? "Adding..." : "Add"}
             </Button>
           </div>
+        </div>
         </div>
       </form>
 

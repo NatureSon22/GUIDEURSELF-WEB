@@ -6,10 +6,11 @@ import {
     DialogHeader,
     DialogTitle,
   } from "@/components/ui/dialog";
+  import "@/fluttermap.css";  
   
   const WelcomeCard = ({ onClose }) => { // Destructure onClose properly
     return (
-      <Dialog className="w-[900px] outline-none" open={true} onOpenChange={onClose}> {/* Use onOpenChange for closing */}
+      <Dialog style={{ borderRadius: "15px !important" }} className="w-[900px] custom-dialog outline-none" open={true} onOpenChange={onClose}> {/* Use onOpenChange for closing */}
         <DialogContent className="w-[900px]">
           <DialogHeader>
             <DialogTitle className="my-[30px] text-center">Welcome to Build Mode!</DialogTitle>

@@ -13,6 +13,7 @@ import ConfirmationDialog from "./ConfirmationDialog";
 import DeleteMarkerConfirmationDialog from "./DeleteMarkerConfirmationDialog"
 import EditMarkerModal from "./EditMarkerModal";
 import { GoAlert } from "react-icons/go";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { LuPlus } from "react-icons/lu";
@@ -107,6 +108,7 @@ const queryClient = useQueryClient();
 
 const { campus } = location.state || {};
 
+const [hideMarkers, setHideMarkers] = useState(false);
 const bounds = [[14.480740, 121.184750], [14.488870, 121.192500]];
 const [draggedFloor, setDraggedFloor] = useState(null);
 const [dragOverFloor, setDragOverFloor] = useState(null);
@@ -289,6 +291,10 @@ const confirmRemoveFloor = (floorId) => {
   setFloorToRemove(floorId);
   setIsDialogOpen(true);
 };
+
+const revertMarkers = () => {
+  setHideMarkers(false);
+}
 
 const handleCancelRemove = () => {
   setIsDialogOpen(false);
@@ -690,6 +696,12 @@ const handleDrop = (e, targetFloor) => {
                   </button>
                 </div>
               )}
+              <div  className={`absolute flex w-[80px] top-0 left-[60%] z-50 p-4 pl-6 mb-4 h-[90px]transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
+              <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
+                {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
+              </button>
+              </div>
+
               <MapContainer
                 center={[14.484750, 121.189000]}
                 zoom={18}
@@ -707,7 +719,7 @@ const handleDrop = (e, targetFloor) => {
               >
                 <ImageOverlay className="z-0" url={selectedFloor.floor_photo_url} bounds={bounds} />
 
-                {currentMarkers.map((marker, index) => {
+                {!hideMarkers && currentMarkers.map((marker, index) => {
                   const icon = customIcons[marker.category] || defaultIcon;
                   return (
                     <Marker
@@ -795,6 +807,7 @@ const handleDrop = (e, targetFloor) => {
                 selectedFloor={selectedFloor}
                 campusId={campus._id}
                 closeModal={handleCloseModal}
+                hideMarkers={revertMarkers}
                 updatedCampus={updatedCampus}
               />
             )}

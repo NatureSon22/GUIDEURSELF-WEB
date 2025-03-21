@@ -32,7 +32,7 @@ const ArchiveVirtualTour = () => {
   } = useQuery({
     queryKey: ["archivedItems"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:3000/api/archived-items", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/archived-items`, {
         method: "GET",
         credentials: "include",
       });

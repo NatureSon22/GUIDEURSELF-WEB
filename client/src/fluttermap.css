@@ -5,3 +5,12 @@
     padding-top: 7px;
     font-size: 25px !important;
 }
+
+.custom-dialog {
+    border-radius: 15px !important;
+  }
+
+  :root {
+    --radius: 15px !important;
+  }
+  

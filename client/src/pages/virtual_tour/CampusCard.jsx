@@ -41,7 +41,8 @@ const CampusCard = ({ campus, onClose }) => {
   
     return (
       <div className="fixed inset-3 flex h-[550px] justify-end z-10 gap-4">
-        <div className="bg-white p-4 rounded-md shadow-lg w-[22%] max-w-[600px] flex flex-col gap-3">
+        <div className="bg-white p-4 rounded-md shadow-lg w-full sm:w-[90%] md:w-[70%] lg:w-[22%] min-w-[250px] flex flex-col gap-3">
+
           <div className="flex w-[100%] justify-center gap-3">
             <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
               <img className="h-[60px]" src={university?.university_vector_url} alt="" />
@@ -54,7 +55,7 @@ const CampusCard = ({ campus, onClose }) => {
           </div>
           <div className="h-[200px]">
               <img
-              className="object-cover max-h-[184px] w-[100%] rounded-md"
+              className="object-cover h-[184px] w-[100%] rounded-md"
               src={campus.campus_cover_photo_url} alt="" />
           </div>
           <hr />
