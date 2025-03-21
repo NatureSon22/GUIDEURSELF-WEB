@@ -9,7 +9,6 @@ import DataTable from "@/components/DataTable";
 import DialogContainer from "@/components/DialogContainer";
 import Loading from "@/components/Loading";
 import documentColumns from "@/components/columns/ArchiveDocuments";
-import documentStatus from "@/data/documentStatus";
 import { getAllCampuses } from "@/api/component-info";
 import {
   createDocument,
@@ -18,6 +17,18 @@ import {
   uploadFromWeb,
 } from "@/api/documents";
 import { useToast } from "@/hooks/use-toast";
+import MultiCampus from "@/layer/MultiCampus";
+
+const documentStatus = [
+  {
+    value: "synced",
+    label: "Synced",
+  },
+  {
+    value: "unparsed",
+    label: "Unparsed",
+  },
+];
 
 const ArchiveDocuments = () => {
   const { toast } = useToast();
@@ -87,39 +98,48 @@ const ArchiveDocuments = () => {
 
   const filteredDocuments = useMemo(() => {
     if (!allDocuments) return [];
-
-    const globalSearch = globalFilter.toLowerCase() || "";
+    const globalSearch = globalFilter?.toLowerCase() || "";
 
     return allDocuments.filter((account) => {
       // Column-specific filters
       const matchesFilters = filters.every((filter) => {
-        if (filter.value === "") return true;
-        const accountValue = account[filter.id];
-        return (
-          accountValue &&
-          accountValue
-            .toString()
-            .toLowerCase()
-            .includes(filter.value.toLowerCase())
-        );
+        if (!filter.value) return true; // Skip empty filters
+
+        // Support nested keys like "campus_id.campus_name"
+        const accountValue = filter.id
+          .split(".")
+          .reduce((obj, key) => obj?.[key], account);
+
+        return accountValue
+          ? String(accountValue)
+              .toLowerCase()
+              .includes(filter.value.toLowerCase())
+          : false;
       });
 
+      // Global search across all values in the account object
       const matchesGlobalFilter =
         globalSearch === "" ||
         Object.values(account).some(
           (value) =>
-            value && value.toString().toLowerCase().includes(globalSearch),
+            value && String(value).toLowerCase().includes(globalSearch),
         );
 
-      const accountDate = new Date(account.date_created);
+      // Parse date safely
+      const accountDate = new Date(account.date_last_modified);
+      if (isNaN(accountDate)) return false; // Skip invalid dates
+
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
+
       const matchesDateRange =
         (!from || accountDate >= from) && (!to || accountDate <= to);
 
       return matchesFilters && matchesGlobalFilter && matchesDateRange;
     });
   }, [allDocuments, globalFilter, filters, fromDate, toDate]);
+
+  console.table(filters);
 
   // Handlers
   const handleMutationResponse = (success, message) => {
@@ -305,13 +325,16 @@ const ArchiveDocuments = () => {
           />
         </div>
 
-        <ComboBox
-          options={allCampuses || []}
-          placeholder="select campus"
-          filter="campus_name"
-          setFilters={setFilters}
-          reset={reset}
-        />
+        <MultiCampus>
+          <ComboBox
+            options={allCampuses || []}
+            placeholder="select campus"
+            filter="campus_id.campus_name"
+            setFilters={setFilters}
+            reset={reset}
+          />
+        </MultiCampus>
+
         <ComboBox
           options={documentStatus}
           placeholder="select status"

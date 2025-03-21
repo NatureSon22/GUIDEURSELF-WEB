@@ -22,7 +22,6 @@ import { getAllCampuses } from "@/api/component-info";
 import documentStatus from "@/data/documentStatus";
 import documentTypes from "@/data/doc_types";
 import useUserStore from "@/context/useUserStore";
-import formatDate from "@/utils/formatDate";
 import MultiCampus from "@/layer/MultiCampus";
 
 const AllDocuments = () => {
@@ -84,20 +83,28 @@ const AllDocuments = () => {
   });
 
   const filteredDocuments = useMemo(() => {
-    const document = type === "drafts" ? draftedDocuments : allDocuments;
-    if (!document) return [];
+    const documentsList = type === "drafts" ? draftedDocuments : allDocuments;
+    if (!documentsList) return [];
 
-    return document.filter((account) => {
+    return documentsList.filter((doc) => {
+      // Ensure all filters match
       const matchesFilters = filters.every((filter) => {
-        if (filter.value === "") return true;
-        const accountValue = account[filter.id];
-        return (
-          accountValue &&
-          String(accountValue).toLowerCase() === filter.value.toLowerCase()
-        );
+        if (!filter.value) return true; // Skip empty filters
+
+        // Support nested keys like "campus_id.campus_name"
+        const docValue = filter.id
+          .split(".")
+          .reduce((obj, key) => obj?.[key], doc);
+
+        return docValue
+          ? String(docValue).toLowerCase().includes(filter.value.toLowerCase())
+          : false;
       });
 
-      const accountDate = formatDate(account.date_and_time);
+      // Parse date safely
+      const accountDate = new Date(doc.date_and_time);
+      if (isNaN(accountDate)) return false; // Skip invalid dates
+
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 

@@ -27,6 +27,12 @@ const columns = ({ handleSetSelectedDocument }) => [
     cell: ({ row }) => formatDate(row.original.date_last_modified),
   },
   {
+    accessorKey: "campus_id.campus_name",
+    id: "campus_id.campus_name",
+    header: "Campus",
+    filterFn: "equalsString",
+  },
+  {
     accessorKey: "status",
     header: "Status",
     filterFn: "equalsString",

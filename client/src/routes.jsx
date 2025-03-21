@@ -73,11 +73,19 @@ const routes = [
       },
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: (
+          <NetworkLayer>
+            <Dashboard />
+          </NetworkLayer>
+        ),
       },
       {
         path: "/documents",
-        element: <Container />,
+        element: (
+          <NetworkLayer>
+            <Container />
+          </NetworkLayer>
+        ),
         children: [
           {
             path: "",
@@ -111,7 +119,11 @@ const routes = [
       },
       {
         path: "/virtual-tour",
-        element: <VirtualTour />,
+        element: (
+          <NetworkLayer>
+            <VirtualTour />
+          </NetworkLayer>
+        ),
         children: [
           {
             path: "",
@@ -169,7 +181,11 @@ const routes = [
       },
       {
         path: "/chats",
-        element: <Container />,
+        element: (
+          <NetworkLayer>
+            <Container />
+          </NetworkLayer>
+        ),
         children: [
           {
             path: "",
@@ -179,7 +195,11 @@ const routes = [
       },
       {
         path: "/accounts",
-        element: <Container />,
+        element: (
+          <NetworkLayer>
+            <Container />
+          </NetworkLayer>
+        ),
         children: [
           {
             path: "",
@@ -201,7 +221,11 @@ const routes = [
       },
       {
         path: "/roles-permissions",
-        element: <Container />,
+        element: (
+          <NetworkLayer>
+            <Container />
+          </NetworkLayer>
+        ),
         children: [
           {
             path: "",
@@ -223,7 +247,11 @@ const routes = [
       },
       {
         path: "/reports",
-        element: <Container />,
+        element: (
+          <NetworkLayer>
+            <Container />
+          </NetworkLayer>
+        ),
         children: [
           {
             path: "",
@@ -245,7 +273,11 @@ const routes = [
       },
       {
         path: "/settings",
-        element: <Container />,
+        element: (
+          <NetworkLayer>
+            <Container />
+          </NetworkLayer>
+        ),
         children: [
           {
             path: "",
@@ -292,8 +324,7 @@ const routes = [
             ],
           },
         ],
-      }
-      
+      },
     ],
   },
   {
