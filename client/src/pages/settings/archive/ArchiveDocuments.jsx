@@ -23,11 +23,9 @@ const ArchiveDocuments = () => {
   const { toast } = useToast();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [searchState, setSearchState] = useState({
-    globalFilter: "",
-    filters: [],
-    reset: false,
-  });
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [filters, setFilters] = useState([]);
+  const [reset, setReset] = useState(false);
   const [dialogState, setDialogState] = useState({
     open: false,
     selectedDocument: null,
@@ -90,11 +88,11 @@ const ArchiveDocuments = () => {
   const filteredDocuments = useMemo(() => {
     if (!allDocuments) return [];
 
-    const globalSearch = searchState.globalFilter?.toLowerCase() || "";
+    const globalSearch = globalFilter.toLowerCase() || "";
 
     return allDocuments.filter((account) => {
       // Column-specific filters
-      const matchesFilters = searchState.filters.every((filter) => {
+      const matchesFilters = filters.every((filter) => {
         if (filter.value === "") return true;
         const accountValue = account[filter.id];
         return (
@@ -121,12 +119,12 @@ const ArchiveDocuments = () => {
 
       return matchesFilters && matchesGlobalFilter && matchesDateRange;
     });
-  }, [allDocuments, searchState, fromDate, toDate]);
+  }, [allDocuments, globalFilter, filters, fromDate, toDate]);
 
   // Handlers
   const handleMutationResponse = (success, message) => {
     setDialogState((prev) => ({ ...prev, open: false }));
-    setSearchState((prev) => ({ ...prev, reset: !prev.reset }));
+
     toast({
       variant: success ? "default" : "destructive",
       title: success ? "Success" : "Error",
@@ -135,11 +133,11 @@ const ArchiveDocuments = () => {
   };
 
   const handleReset = () => {
-    setSearchState({
-      globalFilter: "",
-      filters: [],
-      reset: !searchState.reset,
-    });
+    setFilters([]);
+    setGlobalFilter("");
+    setReset(!reset);
+    setFromDate("");
+    setToDate("");
   };
 
   const downloadFile = async (file_name, document_url) => {
@@ -286,10 +284,8 @@ const ArchiveDocuments = () => {
       <Input
         type="text"
         placeholder="Search"
-        value={searchState.globalFilter}
-        onChange={(e) =>
-          setSearchState((prev) => ({ ...prev, globalFilter: e.target.value }))
-        }
+        value={globalFilter || ""}
+        onChange={(e) => setGlobalFilter(e.target.value)}
       />
 
       <div className="flex items-center gap-5">
@@ -313,19 +309,15 @@ const ArchiveDocuments = () => {
           options={allCampuses || []}
           placeholder="select campus"
           filter="campus_name"
-          setFilters={(filters) =>
-            setSearchState((prev) => ({ ...prev, filters }))
-          }
-          reset={searchState.reset}
+          setFilters={setFilters}
+          reset={reset}
         />
         <ComboBox
           options={documentStatus}
           placeholder="select status"
           filter="status"
-          setFilters={(filters) =>
-            setSearchState((prev) => ({ ...prev, filters }))
-          }
-          reset={searchState.reset}
+          setFilters={setFilters}
+          reset={reset}
         />
         <Button
           className="ml-auto text-secondary-100-75"
@@ -340,14 +332,10 @@ const ArchiveDocuments = () => {
         <DataTable
           data={filteredDocuments || []}
           columns={documentColumns}
-          filters={searchState.filters}
-          setFilters={(filters) =>
-            setSearchState((prev) => ({ ...prev, filters }))
-          }
-          globalFilter={searchState.globalFilter}
-          setGlobalFilter={(globalFilter) =>
-            setSearchState((prev) => ({ ...prev, globalFilter }))
-          }
+          filters={filters}
+          setFilters={setFilters}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
           columnActions={{
             handleSetSelectedDocument: (document) =>
               setDialogState({ open: true, selectedDocument: document }),

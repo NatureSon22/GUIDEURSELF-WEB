@@ -11,6 +11,7 @@ const updateCreatedDocument = async (req, res) => {
     const { id, name, content, visibility, docId } = req.body;
     const userId = req.user?.userId;
 
+    // if name and visibility are only provided, then immeditaely update the database
     if (!id || !name || !content || !docId) {
       return res.status(400).json({ message: "Missing required fields." });
     }
@@ -28,13 +29,13 @@ const updateCreatedDocument = async (req, res) => {
           error: await deleteResponse.text(),
         });
       }
+
+      console.log(`Document deleted successfully: ${docId})`);
     } catch (deleteError) {
-      return res
-        .status(500)
-        .json({
-          message: "Error deleting document.",
-          error: deleteError.message,
-        });
+      return res.status(500).json({
+        message: "Error deleting document.",
+        error: deleteError.message,
+      });
     }
 
     // Step 2: Create a new document
@@ -56,12 +57,10 @@ const updateCreatedDocument = async (req, res) => {
         });
       }
     } catch (createError) {
-      return res
-        .status(500)
-        .json({
-          message: "Error creating document.",
-          error: createError.message,
-        });
+      return res.status(500).json({
+        message: "Error creating document.",
+        error: createError.message,
+      });
     }
 
     const data = await createResponse.json();
@@ -70,6 +69,7 @@ const updateCreatedDocument = async (req, res) => {
     try {
       await DocumentModel.findByIdAndUpdate(id, {
         $set: {
+          file_name: name,
           document_id: data.id,
           content_url: data.content_url,
           visibility,

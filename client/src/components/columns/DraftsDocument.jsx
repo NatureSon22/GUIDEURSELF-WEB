@@ -42,12 +42,26 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => {
       accessorKey: "campus_id.campus_name",
       id: "campus_id.campus_name",
       header: "Campus",
-      filterFn: "equalsString",
     },
     {
+      header: "Document Type",
       accessorKey: "document_type",
       id: "document_type",
       enableHiding: true,
+      cell: ({ row }) => {
+        const type = row.original.document_type;
+        let fileType = "";
+
+        if (type === "created-document") {
+          fileType = "Created Document";
+        } else if (type === "imported-web") {
+          fileType = "Imported Web";
+        } else {
+          fileType = "Uploaded Document";
+        }
+
+        return <p>{fileType}</p>;
+      },
     },
     {
       header: "Action",

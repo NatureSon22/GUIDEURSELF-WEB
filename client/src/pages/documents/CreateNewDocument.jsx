@@ -98,7 +98,7 @@ const CreateNewDocument = () => {
         title: "Success",
         description: data.message,
       });
-      navigate(-1);
+      navigate("/documents/all-documents");
       setOpenDialog(false);
     },
     onError: (error) => {
@@ -163,6 +163,7 @@ const CreateNewDocument = () => {
       formData.append("id", documentId);
       formData.append("docId", documentData.document_id);
       handleUpdateDocument(formData);
+      return;
     }
 
     if (documentId) {
@@ -238,30 +239,39 @@ const CreateNewDocument = () => {
       {/* Visibility Options */}
       <div className="grid gap-1">
         <p className="font-medium">Visibility</p>
-        <RadioGroup
-          className="ml-5 mt-3 space-y-3"
-          value={visibility}
-          onValueChange={(value) => setValue("visibility", value)}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="onlyMe" id="r1" />
-            <Label className="text-secondary-100-75" htmlFor="r1">
-              Only me
-            </Label>
+        {isLoading ? (
+          <div className="ml-5 mt-3 space-y-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Skeleton key={index} className="w-44 py-4" />
+            ))}
           </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="viewOnly" id="r2" />
-            <Label className="text-secondary-100-75" htmlFor="r2">
-              Allow others to View
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="viewAndEdit" id="r3" />
-            <Label className="text-secondary-100-75" htmlFor="r3">
-              Allow others to View and Edit
-            </Label>
-          </div>
-        </RadioGroup>
+        ) : (
+          <RadioGroup
+            className="ml-5 mt-3 space-y-3"
+            value={visibility}
+            onValueChange={(value) => setValue("visibility", value)}
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="onlyMe" id="r1" />
+              <Label className="text-secondary-100-75" htmlFor="r1">
+                Only me
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="viewOnly" id="r2" />
+              <Label className="text-secondary-100-75" htmlFor="r2">
+                Allow others to View
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="viewAndEdit" id="r3" />
+              <Label className="text-secondary-100-75" htmlFor="r3">
+                Allow others to View and Edit
+              </Label>
+            </div>
+          </RadioGroup>
+        )}
+
         {errors.visibility && (
           <p className="mt-1 text-sm text-red-500">
             {errors.visibility.message}

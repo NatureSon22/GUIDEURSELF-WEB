@@ -17,7 +17,20 @@ const TextEditor = ({ content, setContent }) => {
       askBeforePasteFromWord: false,
       link: { processVideoLink: false },
       image: { upload: false },
-      
+      toolbarAdaptive: false,
+      buttons: [
+        "bold",
+        "italic",
+        "underline",
+        "|",
+        "ul",
+        "ol",
+        "|",
+        "link",
+        "|",
+        "undo",
+        "redo",
+      ], // Correct format for Jodit buttons
     }),
     [],
   );

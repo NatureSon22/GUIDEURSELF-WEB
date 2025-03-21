@@ -167,17 +167,23 @@ const getAllDocuments = async (req, res) => {
       is_deleted: isDeleted ? true : { $ne: true },
     };
 
-    // If `all` is false, apply the type filter
-    if (!all) {
-      params.type = isDraftOnly ? "draft" : type || { $ne: "draft" };
-    }
+    // Ensure drafts are only accessible to the publisher
+    if (isDraftOnly) {
+      params.type = "draft";
+      params.published_by = req.user?.userId; // Only show drafts owned by the current user
+    } else {
+      // If `all` is false, apply the type filter
+      if (!all) {
+        params.type = type || { $ne: "draft" };
+      }
 
-    // Ensure "onlyMe" documents are only accessible to contributors
-    if (req.user?.userId) {
-      params.$or = [
-        { visibility: { $ne: "onlyMe" } }, // Public or restricted visibility
-        { contributors: req.user.userId }, // User is a contributor
-      ];
+      // Ensure "onlyMe" documents are only accessible to contributors
+      if (req.user?.userId) {
+        params.$or = [
+          { visibility: { $ne: "onlyMe" } }, // Public or restricted visibility
+          { contributors: req.user.userId }, // User is a contributor
+        ];
+      }
     }
 
     // Sorting configuration
