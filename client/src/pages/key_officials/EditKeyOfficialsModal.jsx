@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,9 +12,10 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   const [name, setName] = useState(official?.name || "");
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(official?.key_official_photo_url || "");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Fetch administrative positions
-  const { data: positions = [], isLoading, error } = useQuery({
+  const { data: positions = [], error } = useQuery({
     queryKey: ["positions"],
     queryFn: async () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/administartiveposition`, {
@@ -38,17 +39,25 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["keyOfficials"]); // Refresh the key officials list
-      if (onUpdate) onUpdate(); // Notify parent to refresh data
+      setIsLoading(true);
+      queryClient.invalidateQueries(["keyOfficials"]);
+      if (onUpdate) onUpdate();
       toast({
         title: "Success",
         description: "Key Official has been successfully updated!",
         variant: "default",
-    });
-      closeModal(); // Close the modal
+      });
+      
+      setIsLoading(false);
+      closeModal();
     },
     onError: (err) => {
-      console.error("Error updating official:", err);
+      console.error("Mutation error:", err);
+      toast({
+        title: "Error",
+        description: "Failed to update Key Official. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -63,6 +72,8 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
 
   // Handle save
   const handleSave = () => {
+    
+    setIsLoading(true);
     if (!official || !official._id) {
       console.error("Error: Missing official ID");
       return;
@@ -70,23 +81,23 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
 
     if (!name || !position) {
       toast({
-          title: "Missing Fields",
-          description: "All fields are required.",
-          variant: "destructive",
+        title: "Missing Fields",
+        description: "All fields are required.",
+        variant: "destructive",
       });
       return;
-  }
+    }
 
     const formData = new FormData();
     formData.append("name", name);
     formData.append("position_name", position);
     if (image) formData.append("image", image);
 
+    setIsLoading(true);
     mutation.mutate({ officialId: official._id, formData });
   };
 
-  if (isLoading) return <p></p>;
-  if (error) return <p></p>;
+  if (error) return <p>Error fetching positions</p>;
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
@@ -116,7 +127,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
                 Select new position
               </option>
               {positions.map((pos) => (
-                <option key={pos._id} value={pos.position_name}> {/* Use pos._id instead of pos.position_name */}
+                <option key={pos._id} value={pos.position_name}>
                   {pos.position_name}
                 </option>
               ))}
@@ -157,9 +168,9 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
               type="button"
               onClick={handleSave}
               className="bg-base-200 text-white w-[100px] p-2 rounded-md"
-              disabled={mutation.isLoading}
+              disabled={isLoading}
             >
-              {mutation.isLoading ? "Saving..." : "Save"}
+              {isLoading ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>
@@ -168,4 +179,4 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   );
 };
 
-export default EditKeyOfficialsModal; 
+export default EditKeyOfficialsModal;
