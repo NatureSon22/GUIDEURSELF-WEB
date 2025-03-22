@@ -731,8 +731,8 @@ const handleDrop = (e, targetFloor) => {
                       
                     >
                       <Popup className="custom-popup" closeButton={false}>
-                      <div className={`p-6 h-[50px] rounded-md flex justify-center items-center ${categoryConfig[marker.category]?.color || "bg-base-200"}`}>
-                        <p className="text-[16px] font-bold">
+                      <div className={`px-3 rounded-md flex justify-center items-center ${categoryConfig[marker.category]?.color || "bg-base-200"}`}>
+                        <p className="text-[16px] text-center font-bold">
                               {marker.marker_name}
                         </p>
                         </div>
