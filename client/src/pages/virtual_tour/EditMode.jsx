@@ -220,7 +220,6 @@ const handleCloseModal = () => {
 const handleExitEditModal = () => {
   setCoordinates({ lat: null, lng: null });
   setIsRemove(false);
-  setHideMarkers(true);
 };
 
 const { data: university } = useQuery({
