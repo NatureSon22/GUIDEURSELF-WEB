@@ -36,6 +36,7 @@ import { MdWidgets } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import { useToast } from "@/hooks/use-toast";
 import Loading from "@/components/Loading";
+import "@/fluttermap.css";
 
 const categoryConfig = {
   "Academic Spaces": { color: "bg-yellow-500", padding: "pl-[1px]", icon: BsDoorOpenFill },
@@ -167,6 +168,7 @@ const handleCloseEditMarkerModal = () => {
   setSelectedMarker(null);
   setIsSliderOpen(true);
   setIsRemove(false);
+  setHideMarkers(false);
 };
 
 const handleSelectFloor = (floor) => {
@@ -696,7 +698,7 @@ const handleDrop = (e, targetFloor) => {
                   </button>
                 </div>
               )}
-              <div  className={`absolute flex w-[80px] top-0 left-[60%] z-50 p-4 pl-6 mb-4 h-[90px]transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
+              <div  className={`absolute flex w-[80px] top-[-20px] left-[60%] z-50 p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
               <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
                 {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
               </button>
@@ -726,7 +728,16 @@ const handleDrop = (e, targetFloor) => {
                       key={index}
                       position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
                       icon={icon}
-                    />
+                      
+                    >
+                      <Popup className="custom-popup" closeButton={false}>
+                      <div className={`p-6 h-[50px] rounded-md flex justify-center items-center ${categoryConfig[marker.category]?.color || "bg-base-200"}`}>
+                        <p className="text-[16px] font-bold">
+                              {marker.marker_name}
+                        </p>
+                        </div>
+                        </Popup>
+                      </Marker>
                   );
                 })}
 
@@ -796,6 +807,7 @@ const handleDrop = (e, targetFloor) => {
             onClose={handleCloseEditMarkerModal}
             exitModal={handleExitEditModal}
             refreshMarkers={refreshMarkers}
+            hideMarkers={revertMarkers}
             updatedCampus={updatedCampus}
           />
         )}

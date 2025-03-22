@@ -240,7 +240,7 @@ const AddMarkerModal = ({
         setIsMutating(false);
         setErrorMessage(error.message || "Failed to add marker. Please try again.");
         setTimeout(() => setErrorMessage(""), 3000);
-      },
+      }, 
     });
   };
 
@@ -250,9 +250,9 @@ const AddMarkerModal = ({
   return (
     <div className="bg-secondary-500 h-100vh w-[37%] border-l overflow-y-auto z-1">
       <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[100%]">
-        <div className="overflow-y-auto p-6 max-h-[calc(100vh-120px)]">
+        <div className="overflow-y-auto p-6 justify-between max-h-[calc(100vh-120px)]">
           <Label className="text-lg">Configure this Location</Label>
-
+  
           <div className="mt-4">
             <Label className="text-[16px]">Location Name</Label>
             <Input
@@ -264,7 +264,7 @@ const AddMarkerModal = ({
               disabled={!isMarkerPositioned} // Disable if marker not positioned
             />
           </div>
-
+  
           <div className="mt-4">
             <Label className="text-[16px]">Upload 360 Photo</Label>
             <div className="flex justify-between mt-2 w-[100%]">
@@ -296,36 +296,35 @@ const AddMarkerModal = ({
               </div>
             )}
           </div>
-
-            <div>
-              {isShowed ? (
-                <div className="flex justify-end items-center gap-4">
+  
+          <div>
+            {isShowed ? (
+              <div className="flex justify-end items-center gap-4">
                 <Button type="button" className="text-base-200 bg-base-250 cursor-pointer hover:bg-base-250 hover:border hover:border-base-200" onClick={showPreview}>
                   <p>Add Hotspot</p>
                 </Button>
-                </div>
-              ) : (
-                <div className="flex justify-end items-center gap-4">
+              </div>
+            ) : (
+              <div className="flex justify-end items-center gap-4">
                 <Button type="button" variant="destructive" onClick={unshowPreview}>
-                Remove Hotspot
+                  Remove Hotspot
                 </Button>
-                </div>
-              )}
-              
-              {isAllowed && (
+              </div>
+            )}
+  
+            {isAllowed && (
               <div>
-                <div>
-                  <div className="mt-4">
-                    <Label className="text-[16px]">Area Categories</Label>
-                    <Input
-                      type="text"
-                      value={category}
-                      disabled
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
-                      placeholder="Choose category"
-                    />
-                    <div className="flex gap-3 mt-4">
+                <div className="mt-4">
+                  <Label className="text-[16px]">Area Categories</Label>
+                  <Input
+                    type="text"
+                    value={category}
+                    disabled
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
+                    placeholder="Choose category"
+                  />
+                  <div className="flex gap-3 mt-4">
                     <BsDoorOpenFill
                       onClick={isMarkerPositioned ? selectedAcademic : undefined} // Only allow click if marker is positioned
                       className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
@@ -374,25 +373,25 @@ const AddMarkerModal = ({
                         !isMarkerPositioned ? "opacity-50 pointer-events-none" : "" // Disable style and pointer events
                       }`}
                     />
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <Label className="text-[16px]">Description</Label>
-                    <Textarea
-                      placeholder="Type your marker description here."
-                      className="resize-none bg-white mt-2 h-[200px]"
-                      value={markerDescription}
-                      onChange={(e) => setMarkerDescription(e.target.value)}
-                      disabled={!isMarkerPositioned} // Disable if marker not positioned
-                    />
                   </div>
                 </div>
-            </div>)}
-            </div>
-            
-
-        <div className="mt-6 flex justify-between pt-6 gap-[10px]">
+  
+                <div className="mt-4">
+                  <Label className="text-[16px]">Description</Label>
+                  <Textarea
+                    placeholder="Type your marker description here."
+                    className="resize-none bg-white mt-2 h-[200px]"
+                    value={markerDescription}
+                    onChange={(e) => setMarkerDescription(e.target.value)}
+                    disabled={!isMarkerPositioned} // Disable if marker not positioned
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+  
+        <div className="mt-6 flex justify-between p-6 gap-[10px]">
           {errorMessage && (
             <div className="flex border rounded-md w-[1500px] border-accent-100 p-2 gap-2 items-center">
               <IoAlertCircle className="text-accent-100 h-[25px] w-[25px]" />
@@ -417,9 +416,8 @@ const AddMarkerModal = ({
             </Button>
           </div>
         </div>
-        </div>
       </form>
-
+  
       <div>
         {isPanorama && (
           <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">

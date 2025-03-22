@@ -14,3 +14,19 @@
     --radius: 15px !important;
   }
   
+  .leaflet-popup-content-wrapper {
+    background-color: rgba(0, 0, 0, 0) !important; /* Change this to your desired color */
+    color: white !important; /* Adjust text color for visibility */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    padding: 10px;
+  }
+  
+  .leaflet-popup-tip {
+    background-color: rgba(0, 0, 0, 0) !important; /* Matches the popup background */
+    box-shadow: none !important;
+  }
+
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    box-shadow: none !important;
+  }
+  
