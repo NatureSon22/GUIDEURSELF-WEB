@@ -88,7 +88,7 @@ const VirtualTourInfo = () => {
                     </div>
                 </div>
                 <hr />
-                <div className="flex items-center justify-center gap-6">
+                <div className="flex items-center justify-center gap-[6.5rem]">
                     <div>
                         <div className="flex flex-row items-center justify-center gap-3">
                             <p className="text-[2rem] font-bold text-base-200">{totalFloors}</p>
