@@ -70,7 +70,7 @@ const ArchiveVirtualTour = () => {
   const handleUnarchiveItem = async (itemId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/archived-items/${itemId}/unarchive`,
+        `${import.meta.env.VITE_API_URL}//archived-items/${itemId}/unarchive`,
         {
           method: "POST",
           credentials: "include",

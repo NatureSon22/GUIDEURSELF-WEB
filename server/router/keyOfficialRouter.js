@@ -190,6 +190,9 @@ router.post("/archive/:id", async (req, res) => {
 
 router.put("/:id", upload.single("image"), async (req, res) => {
   try {
+    console.log("Request File:", req.file); // Log the file to ensure it's being received
+    console.log("Request Body:", req.body); // Log the body to ensure other fields are being received
+
     const { id } = req.params;
     const { name, position_name } = req.body;  
     const userId = req.user?.userId; 
@@ -200,9 +203,13 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     // Check if an image was uploaded
     if (req.file) {
       try {
-        const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.file.path, {
-          resource_type: "image",
-        });
+        // Upload the file buffer directly to Cloudinary
+        const cloudinaryResponse = await cloudinary.v2.uploader.upload(
+          `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+          {
+            resource_type: "image",
+          }
+        );
 
         updatedData.key_official_photo_url = cloudinaryResponse.secure_url;
       } catch (uploadError) {
@@ -214,7 +221,6 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     // Update Key Official
     const updatedOfficial = await KeyOfficial.findByIdAndUpdate(id, updatedData, { new: true });
 
-    
     // **Ensure activity log is properly saved**
     if (userId) {
       await activitylog(userId, `Updated key official: ${updatedData.name}`);
