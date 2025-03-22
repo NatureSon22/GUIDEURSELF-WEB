@@ -136,7 +136,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="max-w-full max-h-full rounded-md"
+                  className="w-[100%] object-cover max-h-full rounded-md"
                 />
               ) : (
                 <span>No image selected</span>

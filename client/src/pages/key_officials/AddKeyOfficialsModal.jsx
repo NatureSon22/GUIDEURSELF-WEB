@@ -164,7 +164,7 @@
                                         <img
                                             src={imagePreview}
                                             alt="Preview"
-                                            className="max-w-full object-cover max-h-full rounded-md"
+                                            className="w-[100%] object-cover max-h-full rounded-md"
                                         />
                                     ) : (
                                         <span className="text-gray-500">No image uploaded</span>
