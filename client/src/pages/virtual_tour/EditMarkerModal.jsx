@@ -263,9 +263,9 @@ const EditMarkerModal =
   };
   
   return (
-    <div className="bg-secondary-500 h-100vh w-[37%] border-l overflow-y-auto">
+    <div className="bg-secondary-500 h-100vh w-[37%] border-l overflow-y-auto z-1">
       <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[100%]">
-        <div className="overflow-y-auto p-6 max-h-[calc(100vh-120px)]">
+        <div className="overflow-y-auto p-6 justify-between max-h-[calc(100vh-120px)]">
 
           <Label className="text-lg">Configure this Location</Label>
 

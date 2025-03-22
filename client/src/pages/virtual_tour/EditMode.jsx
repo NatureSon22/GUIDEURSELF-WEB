@@ -168,6 +168,7 @@ const handleCloseEditMarkerModal = () => {
   setSelectedMarker(null);
   setIsSliderOpen(true);
   setIsRemove(false);
+  setHideMarkers(false);
 };
 
 const handleSelectFloor = (floor) => {
@@ -219,6 +220,7 @@ const handleCloseModal = () => {
 const handleExitEditModal = () => {
   setCoordinates({ lat: null, lng: null });
   setIsRemove(false);
+  setHideMarkers(true);
 };
 
 const { data: university } = useQuery({
@@ -697,7 +699,7 @@ const handleDrop = (e, targetFloor) => {
                   </button>
                 </div>
               )}
-              <div  className={`absolute flex w-[80px] top-0 left-[60%] z-50 p-4 pl-6 mb-4 h-[90px]transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
+              <div  className={`absolute flex w-[80px] top-[-20px] left-[60%] z-50 p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
               <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
                 {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
               </button>
@@ -806,6 +808,7 @@ const handleDrop = (e, targetFloor) => {
             onClose={handleCloseEditMarkerModal}
             exitModal={handleExitEditModal}
             refreshMarkers={refreshMarkers}
+            hideMarkers={revertMarkers}
             updatedCampus={updatedCampus}
           />
         )}
