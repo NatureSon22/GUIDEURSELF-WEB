@@ -34,7 +34,7 @@ const UsageTrends = () => {
   const [filter, setFilter] = useState([{ id: "date", value: "week" }]);
   const [reset, setReset] = useState(false);
   const { data: dataTrend, isLoading } = useQuery({
-    queryKey: ["usage", filter],
+    queryKey: ["usage", filter[0].value],
     queryFn: () => getTrends(filter),
   });
 

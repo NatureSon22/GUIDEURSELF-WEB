@@ -44,7 +44,11 @@ const sendPasswordResendEmail = async (email, password, device) => {
                 
                 <div class="credentials" style="background-color: rgba(18, 165, 188, 0.1); padding: 20px; border-radius: 8px; margin: 25px 0; font-weight: 500; color: #2c3e50; border: 1px solid rgba(18, 165, 188, 0.2);">
                   <p><strong>Email:</strong> ${email}</p>
-                  <p><strong>Password:</strong> ${password}</p>
+                  <p><strong>Password:</strong> ${
+                    isMobile
+                      ? password
+                      : Array(password.length).fill("*").join("")
+                  }</p>
                 </div>
                 
                 <p><strong>For your security, please:</strong></p>

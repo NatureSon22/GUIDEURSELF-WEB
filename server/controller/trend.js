@@ -1,24 +1,26 @@
 import TrendModel from "../models/userTrend.js";
 
+
 const getTrends = async (req, res) => {
   try {
     const { filter } = req.query;
     const { isMultiCampus, campusId } = req.user;
     let startDate;
+    const today = new Date();
 
     // Determine start date based on filter
     switch (filter) {
       case "week":
-        startDate = moment().startOf("isoWeek").toDate();
+        startDate = new Date(today.setDate(today.getDate() - today.getDay())); // Start of the week (Sunday)
         break;
       case "month":
-        startDate = moment().startOf("month").toDate();
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1); // Start of the month
         break;
       case "year":
-        startDate = moment().startOf("year").toDate();
+        startDate = new Date(today.getFullYear(), 0, 1); // Start of the year
         break;
       default:
-        startDate = null;
+        startDate = null; // Default to all time
     }
 
     // Apply date and campus filter

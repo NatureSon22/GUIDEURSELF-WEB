@@ -56,6 +56,7 @@ const ResendPassword = () => {
     mutationFn: resetPassword,
     onSuccess: () => {
       setTimeout(() => setOpen(false), 1000);
+      form.reset();
     },
     onError: () => {
       toast({
@@ -174,14 +175,14 @@ const ResendPassword = () => {
             </p>
           )}
 
-          {!isPending && (
+          {/* {!isPending && (
             <Button
               className="mt-4 border border-base-200 bg-base-200/10 text-base-200 hover:bg-base-200/10"
               onClick={() => setOpen(false)}
             >
               Okay
             </Button>
-          )}
+          )} */}
         </div>
       </DialogContainer>
     </div>
