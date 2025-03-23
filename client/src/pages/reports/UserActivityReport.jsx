@@ -152,7 +152,7 @@ const UserActivityReport = () => {
     doc.setFontSize(13);    
     doc.setFont("helvetica", "normal");
     doc.setTextColor(60);
-    doc.text("User Account Report", 104   + imgWidth + 10, 83);
+    doc.text("User Acitivity Report", 104   + imgWidth + 10, 83);
 
 
     };
