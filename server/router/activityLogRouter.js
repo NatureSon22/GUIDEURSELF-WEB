@@ -17,7 +17,8 @@ activityLogRouter.get("/", verifyToken, async (req, res) => {
 
     const filter = isMultiCampus ? {} : { campus_name: campus.campus_name };
 
-    let query = ActivityLog.find(filter).sort({ createdAt: -1 });
+    // Ensure the field name matches the database schema (e.g., `date_created` or `createdAt`)
+    let query = ActivityLog.find(filter).sort({ date_created: -1 }); // Sort by `date_created` in descending order
 
     if (recent) {
       const limit = parseInt(recent, 10);
@@ -25,7 +26,7 @@ activityLogRouter.get("/", verifyToken, async (req, res) => {
     }
 
     const activityLogs = await query.exec();
-
+    console.log(activityLogs); // Verify the order of logs before sending the response
     res.status(200).json(activityLogs);
   } catch (error) {
     console.error("Error fetching activity logs:", error);

@@ -73,13 +73,12 @@ const getAllAccounts = async (req, res, next) => {
           status: 1,
         },
       },
+      { $sort: { date_created: -1 } }, // Always sort by `date_created` in descending order (latest first)
     ];
 
-    console.log(req.query);
-    
+    // If the `recent` query parameter is provided, limit the number of results
     if (recent) {
-      aggregationPipeline.push({ $sort: { date_created: -1 } }); // Sort by newest first
-      aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 }); // Limit results
+      aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 });
     }
 
     const users = await UserModel.aggregate(aggregationPipeline);

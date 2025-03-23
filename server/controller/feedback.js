@@ -21,6 +21,7 @@ const getAllFeedback = async (req, res) => {
 const getEveryFeedback = async (req, res) => {
   try {
     const feedbacks = await FeedbackModel.find()
+      .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order (latest first)
       .populate({
         path: "user_id",
         select:

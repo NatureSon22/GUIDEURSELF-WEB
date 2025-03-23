@@ -669,10 +669,10 @@ router.post("/archived-campuses", async (req, res) => {
 
 router.get("/archived-campuses", async (req, res) => {
   try {
-    // Fetch all archived campuses from the database
-    const archivedCampuses = await ArchivedCampus.find({});
+    // Fetch all archived campuses sorted by `date_archived` in descending order
+    const archivedCampuses = await ArchivedCampus.find({})
+      .sort({ date_archived: -1 }); // Sort by `date_archived` (latest first)
 
-    // Send the archived campuses as a response
     res.status(200).json(archivedCampuses);
   } catch (error) {
     console.error("Error fetching archived campuses:", error);
@@ -770,11 +770,12 @@ router.post("/campuses/:campusId/floors/:floorId/archive", async (req, res) => {
 
 router.get("/archived-items", async (req, res) => {
   try {
-    // Fetch all archived items and populate the campus name
+    // Fetch all archived items, populate the campus name, and sort by `date_archived`
     const archivedItems = await ArchivedItem.find({})
-      .populate("campus_id", "campus_name"); // Populate the campus_name field
+      .populate("campus_id", "campus_name") // Populate the campus_name field
+      .sort({ date_archived: -1 }); // Sort by `date_archived` (latest first)
 
-    // Send the archived items as a response
+      console.log(archivedItems);
     res.status(200).json(archivedItems);
   } catch (error) {
     console.error("Error fetching archived items:", error);

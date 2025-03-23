@@ -127,6 +127,7 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
             id="floorImage"
             onChange={handleFileChange}
             className="w-full py-1 px-0"
+            required
           />
           {imagePreview ? (
             <div className="mt-4">
