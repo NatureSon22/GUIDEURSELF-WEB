@@ -8,6 +8,10 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../../components/Loading";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import MultiCampus from "@/layer/MultiCampus";
+import ComboBox from "@/components/ComboBox";
+import { getAllCampuses } from "@/api/component-info";
+import { GrPowerReset } from "react-icons/gr";
 
 const AssignRole = () => {
   const [filters, setFilters] = useState([]);
@@ -18,13 +22,18 @@ const AssignRole = () => {
   });
   const navigate = useNavigate();
   const [rowSelection, setRowSelection] = useState({});
+  const [reset, setReset] = useState(false);
+
+  const { data: allCampuses } = useQuery({
+    queryKey: ["allCampuses"],
+    queryFn: getAllCampuses,
+  });
 
   const handleCancel = () => {
     navigate(-1);
   };
 
   const handleAssignRoleClick = () => {
-
     const selectedAccountIds = Object.keys(rowSelection);
 
     navigate("/roles-permissions/edit-assign-role", {
@@ -32,6 +41,12 @@ const AssignRole = () => {
         accountIds: selectedAccountIds,
       },
     });
+  };
+
+  const handleReset = () => {
+    setReset(!reset);
+    setGlobalFilter("");
+    setRowSelection({});
   };
 
   return (
@@ -48,6 +63,34 @@ const AssignRole = () => {
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
+
+        <Button
+          className="bg-base-200"
+          onClick={handleAssignRoleClick}
+          disabled={Object.keys(rowSelection).length === 0}
+        >
+          Select & Continue
+        </Button>
+      </div>
+
+      <div className="flex justify-between">
+        <MultiCampus>
+          <ComboBox
+            options={allCampuses || []}
+            placeholder="select campus"
+            filter="campus_name"
+            setFilters={setFilters}
+            reset={reset}
+          />
+        </MultiCampus>
+
+        <Button
+          className="ml-auto text-secondary-100-75"
+          variant="outline"
+          onClick={handleReset}
+        >
+          <GrPowerReset /> Reset Filters
+        </Button>
       </div>
 
       {isLoading ? (
@@ -66,14 +109,14 @@ const AssignRole = () => {
         />
       )}
 
-      <div className="ml-auto space-x-5">
+      {/* <div className="ml-auto space-x-5">
         <Button variant="ghost" onClick={handleCancel}>
           Cancel
         </Button>
         <Button className="bg-base-200" onClick={handleAssignRoleClick} disabled={Object.keys(rowSelection).length === 0} >
           Next
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };

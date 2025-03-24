@@ -75,6 +75,7 @@ const EditDialog = ({ type, role_id, children }) => {
     },
     onSettled: () => {
       setIsOpen(false);
+      setPermissions([]);
     },
   });
 

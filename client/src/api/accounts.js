@@ -28,6 +28,7 @@ const getAllAccounts = async (recent = "") => {
   return users || [];
 };
 
+
 const getAccount = async (accountId) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/accounts/${accountId}`,

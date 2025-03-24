@@ -26,6 +26,7 @@ const columns = () => [
     accessorKey: "user_number",
     header: "User ID",
     filterFn: "equalsString",
+    cell: ({ row }) => <p className="py-2" >{row.original.user_number}</p>,
   },
   {
     accessorKey: "username",
@@ -50,17 +51,17 @@ const columns = () => [
     header: "Campus",
     filterFn: "equalsString",
   },
-  {
-    accessorKey: "status",
-    id: "status",
-    header: "Status",
-    filterFn: "equalsString",
-    cell: ({ row }) => (
-      <div className="mx-auto w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
-        <p>{formatTitle(row.original.status)}</p>
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: "status",
+  //   id: "status",
+  //   header: "Status",
+  //   filterFn: "equalsString",
+  //   cell: ({ row }) => (
+  //     <div className="mx-auto w-24 rounded-full bg-accent-400 py-[7px] text-center text-[0.8rem] font-medium text-accent-300">
+  //       <p>{formatTitle(row.original.status)}</p>
+  //     </div>
+  //   ),
+  // },
   {
     accessorFn: (row) => {
       const { firstname, middlename, lastname } = row;

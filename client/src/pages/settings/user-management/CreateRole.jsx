@@ -46,6 +46,7 @@ const CreateRole = () => {
     onError: () => setOpenDialog(false),
     onSettled: () => {
       setRoleId("");
+      setPermissions([]);
     },
   });
 

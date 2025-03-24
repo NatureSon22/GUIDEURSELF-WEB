@@ -5,7 +5,9 @@ const getAllRoleTypes = async (req, res) => {
   try {
     const roleTypes = await RoleModel.find();
 
-    res.status(200).json({ roleTypes });
+    const filteredRoleTypes = roleTypes.filter((role) => !role.isDeleted);
+
+    res.status(200).json({ roleTypes: filteredRoleTypes });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -105,7 +107,11 @@ const deleteRole = async (req, res) => {
     }
 
     // Check if any users are assigned to this role
-    const usersWithTheRoles = await UserModel.find({ role_id });
+    // in here should i also consider staus that is pending or blocked?
+    const usersWithTheRoles = await UserModel.find({
+      role_id,
+      status: { $not: { $regex: /^inactive$|^blocked$/i } }, // Case-insensitive match
+    });
 
     if (usersWithTheRoles.length > 0) {
       return res.status(400).json({
@@ -113,7 +119,15 @@ const deleteRole = async (req, res) => {
       });
     }
 
-    await RoleModel.deleteOne({ _id: role_id });
+    await RoleModel.updateOne(
+      { _id: role_id },
+      {
+        $set: {
+          isDeleted: true,
+          date_updated: new Date(),
+        },
+      }
+    );
 
     res.status(200).json({ message: "Role deleted successfully." });
   } catch (error) {

@@ -1,43 +1,42 @@
 import TrendModel from "../models/userTrend.js";
 
-
 const getTrends = async (req, res) => {
   try {
     const { filter } = req.query;
     const { isMultiCampus, campusId } = req.user;
-    let startDate;
     const today = new Date();
+    let startDate = null;
 
-    // Determine start date based on filter
+    // Set startDate based on filter
     switch (filter) {
       case "week":
-        startDate = new Date(today.setDate(today.getDate() - today.getDay())); // Start of the week (Sunday)
+        const dayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+        const difference = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Move to Monday
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() + difference);
+        startDate.setUTCHours(0, 0, 0, 0);
         break;
       case "month":
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1); // Start of the month
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        startDate.setUTCHours(0, 0, 0, 0);
         break;
       case "year":
-        startDate = new Date(today.getFullYear(), 0, 1); // Start of the year
+        startDate = new Date(today.getFullYear(), 0, 1);
+        startDate.setUTCHours(0, 0, 0, 0);
         break;
-      default:
-        startDate = null; // Default to all time
     }
 
-    // Apply date and campus filter
-    const matchStage = { ...(startDate && { date: { $gte: startDate } }) };
+    // Apply filters dynamically
+    const matchStage = {};
+    if (startDate) matchStage.date = { $gte: startDate };
+    if (!isMultiCampus) matchStage.campus_id = campusId;
 
-    if (!isMultiCampus) {
-      matchStage.campus_id = campusId; // Filter by campus if needed
-    }
-
-    // MongoDB aggregation pipeline
+    // MongoDB Aggregation Pipeline
     const trends = await TrendModel.aggregate([
-      { $match: matchStage }, // Apply filters
+      { $match: matchStage },
       {
         $group: {
-          _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$date" },
-          },
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
           usage: { $sum: 1 },
         },
       },
@@ -57,6 +56,7 @@ const getTrends = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const recordTrend = async (req, res) => {
   try {

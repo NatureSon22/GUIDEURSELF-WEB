@@ -16,9 +16,10 @@ const recordTrend = async () => {
 };
 
 const getTrends = async (filter) => {
+  const getFilter = filter[0].value.replace(/^This\s+/i, "");
 
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/trend/get-trends?filter=${filter[0].value}`,
+    `${import.meta.env.VITE_API_URL}/trend/get-trends?filter=${getFilter}`,
     {
       method: "GET",
       credentials: "include",
