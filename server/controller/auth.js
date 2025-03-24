@@ -46,11 +46,11 @@ const login = async (req, res) => {
       });
     }
 
-    if (user.role_id.permissions.length === 0 || user.role_id.isDeleted) {
-      return res.status(403).json({
-        message: "Oops! It looks like you don’t have access to this website.",
-      });
-    }
+    // if (user.role_id.permissions.length === 0 || user.role_id.isDeleted) {
+    //   return res.status(403).json({
+    //     message: "Oops! It looks like you don’t have access to this website.",
+    //   });
+    // }
     
   } catch (error) {
     console.error("Login error:", error);
