@@ -129,7 +129,7 @@ const ResendPassword = () => {
                 className="mt-5 w-full bg-base-200 py-6 text-[1rem] font-semibold"
                 disabled={isPending}
               >
-                {isPending ? "Processing..." : "Resend Password"}
+                {isPending ? "Processing..." : "Reset Password"}
               </Button>
               <Button
                 type="button"

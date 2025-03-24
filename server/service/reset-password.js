@@ -31,14 +31,14 @@ const sendPasswordResendEmail = async (email, password, device) => {
             name: email, // Using the email as the recipient's name
           },
         ],
-        subject: "Password Resend Request",
+        subject: "Password Reset Request",
         htmlContent: `
           <body style="font-family: 'Poppins', sans-serif; background-color: #f4f7fc; margin: 0; padding: 30px; text-align: center; color: #333;">
             <div class="container" style="max-width: 500px; background: #ffffff; padding: 40px 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); margin: auto;">
               <div class="logo" style="margin-bottom: 40px;">
                 <img src="https://ucarecdn.com/9903e978-ffd0-4306-a6b6-a8ddda5b6b7e/-/preview/310x96/" alt="GuideURSelf Logo" style="max-width: 240px; height: auto;" />
               </div>
-              <div class="header" style="font-size: 26px; font-weight: 600; color: #2c3e50; margin-bottom: 25px;">Password Resend Request</div>
+              <div class="header" style="font-size: 26px; font-weight: 600; color: #2c3e50; margin-bottom: 25px;">Password Reset Request</div>
               <div class="content" style="text-align: left; font-size: 15px; color: #555; line-height: 1.8;">
                 <p>Your password has been resent. Here are your login credentials:</p>
                 

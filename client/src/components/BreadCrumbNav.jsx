@@ -55,11 +55,9 @@ const BreadCrumbNav = () => {
                       ? "font-medium"
                       : "cursor-pointer font-medium"
                   }
-                  // onClick={
-                  //   i == crumbs.length - 1
-                  //     ? () => {}
-                  //     : () => handleBreadcrumbClick(crumb.path)
-                  // }
+                  onClick={
+                    i == 0 ? () => handleBreadcrumbClick(crumb.path) : () => {}
+                  }
                 >
                   {crumb.label}
                 </span>

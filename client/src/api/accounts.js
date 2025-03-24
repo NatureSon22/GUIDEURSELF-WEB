@@ -28,6 +28,7 @@ const getAllAccounts = async (recent = "") => {
   return (users || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
 
+
 const getAccount = async (accountId) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/accounts/${accountId}`,

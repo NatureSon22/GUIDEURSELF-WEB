@@ -152,12 +152,10 @@ const getAllRoleTypes = async () => {
 
   const { roleTypes } = await response.json();
 
-  const allRoleTypes = roleTypes
-    .filter((roleType) => roleType.permissions.length > 0)
-    .map((roleType) => ({
-      value: roleType._id,
-      label: formatTitle(roleType.role_type),
-    }));
+  const allRoleTypes = roleTypes.map((roleType) => ({
+    value: roleType._id,
+    label: formatTitle(roleType.role_type),
+  }));
 
   return allRoleTypes || [];
 };
@@ -205,9 +203,12 @@ const getAllActLog = async () => {
 const getAllFeedback = async () => {
   try {
     // Fetch feedback data
-    const feedbackResponse = await fetch(`${import.meta.env.VITE_API_URL}/feedback/every-feedback`, {
-      credentials: "include",
-    });
+    const feedbackResponse = await fetch(
+      `${import.meta.env.VITE_API_URL}/feedback/every-feedback`,
+      {
+        credentials: "include",
+      },
+    );
 
     if (!feedbackResponse.ok) {
       throw new Error("Failed to fetch feedback");
@@ -217,9 +218,12 @@ const getAllFeedback = async () => {
     console.log("Feedback Data:", feedbackData); // Log feedback data
 
     // Fetch all campuses
-    const campusesResponse = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
-      credentials: "include",
-    });
+    const campusesResponse = await fetch(
+      `${import.meta.env.VITE_API_URL}/campuses`,
+      {
+        credentials: "include",
+      },
+    );
 
     if (!campusesResponse.ok) {
       throw new Error("Failed to fetch campuses");
@@ -264,5 +268,17 @@ const getAllFeedback = async () => {
   }
 };
 
-
-export {getAllFeedback, getAllActLog, fetchCampuses, getAllCampuses, getProgramTypeData, getMajorData, getProgramNameData, getAllRoleTypes, getAllStatus, getGeneralData, getUniversityData, getPositions };
+export {
+  getAllFeedback,
+  getAllActLog,
+  fetchCampuses,
+  getAllCampuses,
+  getProgramTypeData,
+  getMajorData,
+  getProgramNameData,
+  getAllRoleTypes,
+  getAllStatus,
+  getGeneralData,
+  getUniversityData,
+  getPositions,
+};

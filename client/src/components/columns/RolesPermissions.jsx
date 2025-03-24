@@ -55,32 +55,32 @@ const columns = ({ navigate }) => [
     cell: ({ row }) => formatDate(row.original.date_assigned),
     filterFn: "equalsString",
   },
-  {
-    accessorKey: "status",
-    id: "status",
-    header: "Status",
-    filterFn: "equalsString",
-    cell: ({ row }) => {
-      const status = row.original.status.toLowerCase();
+  // {
+  //   accessorKey: "status",
+  //   id: "status",
+  //   header: "Status",
+  //   filterFn: "equalsString",
+  //   cell: ({ row }) => {
+  //     const status = row.original.status.toLowerCase();
 
-      const statusColors = {
-        active: "bg-green-200/80  text-accent-300",
-        inactive: "bg-gray-200/80 text-gray-500",
-        pending: "bg-yellow-200/80 text-yellow-500",
-        blocked: "bg-red-200/80 text-red-500",
-      };
+  //     const statusColors = {
+  //       active: "bg-green-200/80  text-accent-300",
+  //       inactive: "bg-gray-200/80 text-gray-500",
+  //       pending: "bg-yellow-200/80 text-yellow-500",
+  //       blocked: "bg-red-200/80 text-red-500",
+  //     };
 
-      return (
-        <div
-          className={`mx-auto w-24 rounded-full py-[7px] text-center text-[0.8rem] font-medium ${
-            statusColors[status] || "bg-gray-200 text-gray-700"
-          }`}
-        >
-          <p>{formatTitle(row.original.status)}</p>
-        </div>
-      );
-    },
-  },
+  //     return (
+  //       <div
+  //         className={`mx-auto w-24 rounded-full py-[7px] text-center text-[0.8rem] font-medium ${
+  //           statusColors[status] || "bg-gray-200 text-gray-700"
+  //         }`}
+  //       >
+  //         <p>{formatTitle(row.original.status)}</p>
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorFn: (row) => {
       const { firstname, middlename, lastname } = row;

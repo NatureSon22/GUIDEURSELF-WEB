@@ -4,22 +4,23 @@ import columns from "@/components/columns/RoleType";
 import DataTable from "@/components/DataTable";
 import { useState } from "react";
 import Loading from "@/components/Loading";
+import PropTypes from "prop-types";
 
-const RoleTypeTable = () => {
+const RoleTypeTable = ({ globalFilter, setGlobalFilter }) => {
   const { data: roles, isLoading } = useQuery({
     queryKey: ["rolesWithPermissions"],
     queryFn: getAllRolesWithPermissions,
   });
-  const [globalFilter, setGlobalFilter] = useState("");
+
   const [filters, setFilters] = useState([]);
 
   return isLoading ? (
-    <div className="py-40">
-      <Loading></Loading>
+    <div className="flex justify-center items-center h-64">
+      <Loading />
     </div>
   ) : (
     <DataTable
-      data={roles}
+      data={roles || []}
       columns={columns}
       filters={filters}
       setFilters={setFilters}
@@ -29,6 +30,12 @@ const RoleTypeTable = () => {
       showFooter={true}
     />
   );
+};
+
+
+RoleTypeTable.propTypes = {
+  globalFilter: PropTypes.string,
+  setGlobalFilter: PropTypes.func,
 };
 
 export default RoleTypeTable;

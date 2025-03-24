@@ -31,11 +31,22 @@ const getAllAccounts = async (req, res, next) => {
     const aggregationPipeline = [
       matchStage,
       {
+        $match: {
+          status: { $ne: "inactive" }, // Exclude inactive users
+        },
+      },
+      // Lookup role information
+      {
         $lookup: {
           from: "roles",
           let: { roleId: "$role_id" },
           pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$roleId"] } } },
+            {
+              $match: {
+                $expr: { $eq: ["$_id", "$$roleId"] },
+                isDeleted: { $ne: true }, // Filter out deleted roles
+              },
+            },
             { $project: { role_type: 1 } },
           ],
           as: "role",
@@ -43,6 +54,7 @@ const getAllAccounts = async (req, res, next) => {
       },
       { $unwind: { path: "$role", preserveNullAndEmptyArrays: true } },
 
+      // Lookup campus information
       {
         $lookup: {
           from: "campus",
@@ -56,6 +68,12 @@ const getAllAccounts = async (req, res, next) => {
       },
       { $unwind: { path: "$campus", preserveNullAndEmptyArrays: true } },
 
+      // Ensure users with deleted roles are filtered out
+      {
+        $match: { "role.role_type": { $exists: true } },
+      },
+
+      // Project final fields
       {
         $project: {
           _id: 1,
@@ -73,12 +91,13 @@ const getAllAccounts = async (req, res, next) => {
           status: 1,
         },
       },
-      { $sort: { date_created: -1 } }, // Always sort by `date_created` in descending order (latest first)
+      {
+        $sort: { date_created: -1 },
+      },
     ];
-
-    // If the `recent` query parameter is provided, limit the number of results
+    
     if (recent) {
-      aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 });
+      aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 }); // Limit results
     }
 
     const users = await UserModel.aggregate(aggregationPipeline);
@@ -553,6 +572,31 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const getAllInactiveAccount = async (req, res) => {
+  try {
+    const { isMultiCampus, campusId } = req.user;
+
+    const filter = { status: "inactive" };
+
+    if (!isMultiCampus) {
+      filter.campus_id = campusId;
+    }
+
+    const users = await UserModel.find(filter)
+      .select(
+        "user_number username email firstname middlename lastname role_id campus_id date_created date_assigned status"
+      )
+      .populate("role_id", "role_type")
+      .populate("campus_id", "campus_name")
+      .sort({ date_created: -1 });
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error fetching inactive accounts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export {
   getAllAccounts,
   addAccount,
@@ -565,4 +609,5 @@ export {
   deleteAccounts,
   getLoggedInAccount,
   resetPassword,
+  getAllInactiveAccount,
 };

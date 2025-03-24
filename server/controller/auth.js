@@ -79,7 +79,6 @@ const login = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 const register = async (req, res) => {
   try {
     const { email, password } = req.body;

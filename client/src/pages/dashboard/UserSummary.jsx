@@ -44,23 +44,31 @@ const UserSummary = () => {
     const startDate = new Date();
     const endDate = new Date();
 
-    const filterValue = filter.length > 0 ? filter[0].value : "";
+    const filterValue = filter.length > 0 ? filter[0].value.toLowerCase() : "";
 
-    if (filterValue === "Today") {
+    if (filterValue === "today") {
       startDate.setHours(0, 0, 0, 0);
-    } else if (filterValue === "This week") {
+      endDate.setHours(23, 59, 59, 999);
+    } else if (filterValue === "this week") {
       const dayOfWeek = startDate.getDay();
-      startDate.setDate(startDate.getDate() - dayOfWeek);
+      const difference = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust to last Monday
+      startDate.setDate(startDate.getDate() + difference);
       startDate.setHours(0, 0, 0, 0);
-    } else if (filterValue === "This month") {
+      endDate.setDate(startDate.getDate() + 6); // End of the week (Sunday)
+      endDate.setHours(23, 59, 59, 999);
+    } else if (filterValue === "this month") {
       startDate.setDate(1);
       startDate.setHours(0, 0, 0, 0);
-    } else if (filterValue === "This year") {
-      startDate.setMonth(0);
-      startDate.setDate(1);
+      endDate.setMonth(startDate.getMonth() + 1, 0); // Last day of the month
+      endDate.setHours(23, 59, 59, 999);
+    } else if (filterValue === "this year") {
+      startDate.setMonth(0, 1);
       startDate.setHours(0, 0, 0, 0);
+      endDate.setMonth(11, 31); // Last day of December
+      endDate.setHours(23, 59, 59, 999);
     }
 
+    // Map role types to visitor counts
     const roleVisitorMap = allAccounts.reduce((acc, account) => {
       const { role_type } = account;
       const dateCreated = new Date(account.date_created);
@@ -85,9 +93,11 @@ const UserSummary = () => {
     return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
   }, [chartData]);
 
+  console.log("TOTAL VISITORS: " + totalVisitors);
+
   return (
-    <Card className="flex h-full flex-col justify-around px-7 py-5 shadow-none">
-      <div className="flex items-center justify-between">
+    <Card className="flex h-full flex-col px-7 py-5 shadow-none">
+      <div className="mt-2 flex items-center justify-between">
         <p className="font-medium">User Summary</p>
 
         <div className="flex items-center gap-3">
@@ -117,7 +127,7 @@ const UserSummary = () => {
           <Skeleton className="h-[320px] w-full max-w-[320px] rounded-full"></Skeleton>
         </div>
       ) : (
-        <CardContent className="pb-0">
+        <CardContent className="flex-1 pb-0">
           {chartData.length > 0 ? (
             <ChartContainer
               config={chartConfig}
@@ -168,7 +178,7 @@ const UserSummary = () => {
               </PieChart>
             </ChartContainer>
           ) : (
-            <div className="flex h-60 items-center justify-center">
+            <div className="flex h-full items-center justify-center">
               <p className="text-lg text-muted-foreground">No Data Found</p>
             </div>
           )}
@@ -176,7 +186,7 @@ const UserSummary = () => {
       )}
 
       {isLoading ? (
-        <div className="mb-5 w-full grid place-items-center gap-5 grid-cols-2">
+        <div className="mb-5 grid w-full grid-cols-2 place-items-center gap-5">
           <Skeleton className="w-full py-5"></Skeleton>
           <Skeleton className="w-full py-5"></Skeleton>
           <Skeleton className="w-full py-5"></Skeleton>
@@ -184,7 +194,7 @@ const UserSummary = () => {
         </div>
       ) : (
         chartData.length > 0 && (
-          <div className="mb-5 grid grid-cols-2 gap-5">
+          <div className="mb-10 mt-auto grid grid-cols-2 gap-5">
             {chartData.map((data, index) => {
               const { usertype, visitors, fill } = data;
               const label = usertype[0].toUpperCase() + usertype.slice(1);

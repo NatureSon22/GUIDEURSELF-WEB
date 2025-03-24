@@ -30,7 +30,7 @@ const UserManagement = () => {
       </Layout>
 
       <Layout
-        title="User Management"
+        title="Roles & Permissions"
         subtitle="Manage user roles, permissions, and access"
         isEditable={false}
       >

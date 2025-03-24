@@ -33,10 +33,10 @@ const Roles = () => {
     queryKey: ["accountRoles"],
     queryFn: () => getAllAccounts(),
   });
-  const { data: allStatus } = useQuery({
-    queryKey: ["allStatus"],
-    queryFn: getAllStatus,
-  });
+  // const { data: allStatus } = useQuery({
+  //   queryKey: ["allStatus"],
+  //   queryFn: getAllStatus,
+  // });
   const { data: allRoles } = useQuery({
     queryKey: ["allRoles"],
     queryFn: getAllRoleTypes,
@@ -142,13 +142,13 @@ const Roles = () => {
           reset={reset}
         />
 
-        <ComboBox
+        {/* <ComboBox
           options={allStatus}
           placeholder="select status"
           filter="status"
           setFilters={setFilters}
           reset={reset}
-        />
+        /> */}
 
         <Button
           className="ml-auto text-secondary-100-75"
