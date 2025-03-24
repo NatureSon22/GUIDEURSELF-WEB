@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import Header from "@/components/Header";
-import MediaPanoramicViewer from "./MediaPanoramicViewer";
+import LazyMediaPanoramicViewer from "./MediaPanoramicViewer";
 import { MdOutlinePermMedia } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import { FaListUl } from "react-icons/fa";
-import { Input } from "@/components/ui/input";
+import { GrNext, GrPrevious } from "react-icons/gr";
 import { CiSearch } from "react-icons/ci";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const fetchMarkers = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/markers`, {
@@ -42,8 +44,13 @@ const fetchCampuses = async () => {
 
 const MediaLibrary = () => {
   const [selectedCampus, setSelectedCampus] = useState("");
+  const [selectedMarker, setSelectedMarker] = useState(null);
   const [clickIcon, setClickIcon] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const markersPerPage = 6;
+
+
 
   const showList = () => {
     setClickIcon(true);
@@ -94,9 +101,18 @@ const MediaLibrary = () => {
       marker.marker_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    
+  // Calculate total pages
+  const totalPages = Math.ceil(finalMarkers.length / markersPerPage);
+
+  // Get current markers
+  const startIndex = (currentPage - 1) * markersPerPage;
+  const endIndex = startIndex + markersPerPage;
+  const currentMarkers = finalMarkers.slice(startIndex, endIndex);
+
   return (
-    <div className="w-full flex flex-col w-[100%]">
-      <div className="w-[100%] flex flex-col justify-between">
+    <div className="w-full flex flex-col w-[100%] gap-6">
+      <div className="w-[100%] flex flex-col justify-between gap-6">
         <Header
           title={"Media Library"}
           subtitle={"See uploaded media files in the virtual tour."}
@@ -143,28 +159,56 @@ const MediaLibrary = () => {
         
         <hr className={`${clickIcon ? "mt-2" : "my-2"}`} />
         {!clickIcon ? (
-          <div className="pb-3 grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
-            {finalMarkers.map((marker) => (
-              <div
-                key={marker._id}
-                className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[320px] border-gray-300 rounded-md shadow-md bg-white"
-              >
-                <MediaPanoramicViewer
-                  className="h-[400px] rounded-t-md"
-                  imageUrl={marker.marker_photo_url}
-                />
-                <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
-                  <p className="marker-name text-sm">{marker.marker_name}</p>
-                  <p className="text-sm text-gray-500">
-                    {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
-                      "about ",
-                      ""
-                    )}
-                  </p>
-                </div>
+              <div className="flex justify-between flex-col h-[100%]">
+              <div className="grid grid-cols-3 gap-4">
+                {currentMarkers.map((marker) => (
+                  <div
+                    key={marker._id}
+                    className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[320px] border-gray-300 rounded-md shadow-md bg-white"
+                  >
+                    <LazyMediaPanoramicViewer imageUrl={marker.marker_photo_url} />
+                    <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
+                      <p className="marker-name text-sm">{marker.marker_name}</p>
+                      <p className="text-sm text-gray-500">
+                        {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
+                          "about ",
+                          ""
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+        
+              {/* Pagination */}
+              <div className="flex justify-end gap-4 mt-4">
+                
+                <Button
+                  variant="outline"
+                  className="font-semibold text-secondary-100-75"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                <GrPrevious />
+                Previous
+              </Button>
+              <Input
+                type="number"
+                min="1"
+                value={currentPage}
+                className="w-16 rounded border p-1 text-center"
+              />
+                <Button
+                 variant="outline"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                className="font-semibold text-secondary-100-75"
+                >
+                Next
+                <GrNext />
+              </Button>
+              </div>
+            </div>
         ) : (
           <>
             {finalMarkers.map((marker) => (
