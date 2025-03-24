@@ -91,13 +91,11 @@ const getAllAccounts = async (req, res, next) => {
           status: 1,
         },
       },
-
-      // Sort by creation date
       {
         $sort: { date_created: -1 },
       },
     ];
-
+    
     if (recent) {
       aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 }); // Limit results
     }

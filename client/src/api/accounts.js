@@ -1,10 +1,9 @@
 const getAllAccounts = async (recent = "") => {
   console.trace("Received recent:", recent, "Type:", typeof recent); // Debugging
 
-
   if (typeof recent === "object") {
     console.warn(
-      "Warning: recent should be a string or number, but got an object.",
+      "Warning: recent should be a string or number, but got an object."
     );
     recent = ""; // Prevent issues
   }
@@ -25,7 +24,8 @@ const getAllAccounts = async (recent = "") => {
 
   const { users } = await response.json();
 
-  return users || [];
+  // Ensure sorting by latest date (if a date field like "createdAt" exists)
+  return (users || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
 
 

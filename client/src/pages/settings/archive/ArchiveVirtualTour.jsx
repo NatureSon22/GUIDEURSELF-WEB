@@ -18,6 +18,7 @@ const ArchiveVirtualTour = () => {
   const [toDate, setToDate] = useState(""); // Date filter state
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const searchValue = globalFilter?.toLowerCase() || "";
 
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
@@ -45,27 +46,40 @@ const ArchiveVirtualTour = () => {
     },
   });
 
-  // Filter archived items based on search, date range, and campus
   const filteredItems = useMemo(() => {
     if (!archivedItems) return [];
-
-    return archivedItems.filter((item) => {
+  
+    const transformedItems = archivedItems.map((item) => ({
+      ...item,
+      item_name: item.type === "floor"
+        ? item.floor_data?.floor_name || "N/A"
+        : item.location_data?.marker_name || "N/A"
+    }));
+  
+    return transformedItems.filter((item) => {
+      // Global text search
+      const matchesGlobalSearch = !globalFilter || 
+        ["campus_name", "type", "item_name"].some((key) => {
+          const value = item[key];
+          return typeof value === "string" && value.toLowerCase().includes(searchValue);
+        });
+  
+      // Filters (e.g., campus filter)
       const matchesFilters = filters.every((filter) => {
         if (!filter.value) return true;
         return item[filter.id]?.toLowerCase() === filter.value.toLowerCase();
       });
-
+  
+      // Date range filtering
       const itemDate = new Date(item.date_archived);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
-
-      const matchesDateRange =
-        (!from || itemDate >= from) &&
-        (!to || itemDate <= to);
-
-      return matchesFilters && matchesDateRange;
+  
+      const matchesDateRange = (!from || itemDate >= from) && (!to || itemDate <= to);
+  
+      return matchesGlobalSearch && matchesFilters && matchesDateRange;
     });
-  }, [archivedItems, filters, fromDate, toDate]);
+  }, [archivedItems, filters, fromDate, toDate, globalFilter]);
 
   const handleUnarchiveItem = async (itemId) => {
     try {
@@ -78,7 +92,6 @@ const ArchiveVirtualTour = () => {
       );
 
       const result = await response.json();
-      console.log("Response from backend:", result);
 
       if (!response.ok) throw new Error(result.message || "Failed to unarchive item");
 

@@ -123,10 +123,13 @@ router.post("/unarchive/:id", async (req, res) => {
 
 router.get("/archived", async (req, res) => {
   try {
-    const archivedOfficials = await ArchivedKeyOfficial.find();
+    // Fetch archived key officials sorted by `date_archived` in descending order
+    const archivedOfficials = await ArchivedKeyOfficial.find()
+      .sort({ date_archived: -1 }); // Sort by `date_archived` (latest first)
+
     res.status(200).json(archivedOfficials);
   } catch (error) {
-    console.error("Error fetching archived key officials:", error); // Log the error
+    console.error("Error fetching archived key officials:", error);
     res.status(500).json({ message: "Error fetching key official.", error: error.message });
   }
 });

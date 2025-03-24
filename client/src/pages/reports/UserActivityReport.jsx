@@ -152,7 +152,7 @@ const UserActivityReport = () => {
     doc.setFontSize(13);    
     doc.setFont("helvetica", "normal");
     doc.setTextColor(60);
-    doc.text("User Account Report", 104   + imgWidth + 10, 83);
+    doc.text("User Acitivity Report", 104   + imgWidth + 10, 83);
 
 
     };
@@ -207,7 +207,7 @@ const UserActivityReport = () => {
 
   return (
     <div className="flex flex-1 flex-col gap-5">
-      <Header title="User Acitivy Report" subtitle="Access, monitor, and generate reports on user activity logs" />
+      <Header title="User Activity Report" subtitle="Access, monitor, and generate reports on user activity logs" />
 
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-5">

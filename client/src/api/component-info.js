@@ -181,20 +181,19 @@ const getAllStatus = async () => {
   return allStatus || [];
 };
 
-const getAllActLog = async (recent = "") => {
+const getAllActLog = async () => {
   try {
-    const response = await fetch(
-      recent
-        ? `${import.meta.env.VITE_API_URL}/activitylogs?recent=${recent}`
-        : `${import.meta.env.VITE_API_URL}/activitylogs`,
-      {
-        credentials: "include",
-      },
-    ); // Ensure this endpoint is correct
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+      credentials: "include",
+    });
+
     if (!response.ok) {
-      throw new Error("Failed to fetch activity logs");
+      throw new Error(`Failed to fetch activity logs: ${response.statusText}`);
     }
-    return await response.json();
+
+    const data = await response.json();
+    console.log("Data from backend:", data); // Verify the order of logs
+    return data;
   } catch (error) {
     console.error("Error fetching activity logs:", error);
     throw error;
@@ -242,7 +241,7 @@ const getAllFeedback = async () => {
     console.log("Campus Map:", campusMap); // Log the campus map
 
     // Map feedback data to include campus names
-    return feedbackData.map((feedback) => {
+    const mappedFeedback = feedbackData.map((feedback) => {
       const campusId = feedback.user_id?.campus_id;
       const campusName = campusMap[campusId] || "N/A"; // Get campus name from the map
 
@@ -259,6 +258,10 @@ const getAllFeedback = async () => {
         date_submitted: feedback.date,
       };
     });
+
+    // Sort feedback by latest date
+    return mappedFeedback.sort((a, b) => new Date(b.date_submitted) - new Date(a.date_submitted));
+
   } catch (error) {
     console.error("Error fetching feedback:", error);
     throw error;

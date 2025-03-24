@@ -6,7 +6,6 @@ const columns = (columnActions) => [
   {
     accessorKey: "item_name",
     header: "Item Name",
-    filterFn: "includes", // Changed to "includes" for better filtering
     cell: ({ row }) => {
       const { type, floor_data, location_data } = row.original;
       return type === "floor"
@@ -17,18 +16,15 @@ const columns = (columnActions) => [
   {
     accessorKey: "campus_name",
     header: "Campus",
-    filterFn: "equalsString", // Changed to "includes" to allow partial matching
   },
   {
     accessorKey: "date_archived",
     header: "Date Archived",
-    filterFn: "equalsString",
     cell: ({ row }) => formatDateTime(row.original.date_archived),
   },
   {
     accessorKey: "type",
     header: "Type",
-    filterFn: "equalsString",
   },
   {
     header: "Action",
