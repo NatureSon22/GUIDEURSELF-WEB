@@ -2,11 +2,12 @@ import "leaflet/dist/leaflet.css";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
+import LoadingFallback from "@/components/LoadingFallback";
 import AddFloorModal from "./AddFloorModal";
 import HeaderSection from "./HeaderSection";
 import { Button } from "@/components/ui/button";
 import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
-import { useState, useEffect } from "react";
+import { useState, useEffect, StrictMode, Suspense  } from "react";
 import L from "leaflet"; 
 import AddMarkerModal from "./AddMarkerModal";
 import ConfirmationDialog from "./ConfirmationDialog";
@@ -461,6 +462,9 @@ const handleDrop = (e, targetFloor) => {
 };
  
   return (
+    
+      <StrictMode>
+            <Suspense fallback={<LoadingFallback />}>
       <div className="flex bg-secondary-500">
 
         {loadingVisible && (
@@ -824,7 +828,10 @@ const handleDrop = (e, targetFloor) => {
               />
             )}
       </div>
+            </Suspense>
+</StrictMode>
   );
 };
+
 
 export default EditMode;

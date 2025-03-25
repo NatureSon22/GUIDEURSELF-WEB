@@ -33,7 +33,9 @@ const PanoramicViewer = ({ imageUrl }) => {
         pitch: 0, // Keep the camera level
         minPitch: 0, // Prevent vertical movement
         maxPitch: 0, // Lock vertical panning
-        hfov: 100, // Field of View
+        hfov: 100, // Field of View (zoom level)
+        minHfov: 100, // Prevent zooming out
+        maxHfov: 100, // Prevent zooming in
       });
     }
 

@@ -33,7 +33,9 @@ const PreviewPanorama = ({ imageUrl }) => {
         pitch: 0, // Lock vertical
         minPitch: 0, // Disable vertical panning
         maxPitch: 0, // Prevent looking up/down
-        hfov: 100, // Default field of view
+        hfov: 50, // Default field of view
+        minHfov: 50, // Prevent zooming out
+        maxHfov: 50, // Prevent zooming in
       });
     }
 
