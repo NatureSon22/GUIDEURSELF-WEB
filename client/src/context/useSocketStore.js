@@ -20,8 +20,6 @@ const useSocketStore = create((set) => {
     set({ socketId: null });
   });
 
-
-
   return {
     socket,
     socketId: null,
@@ -44,6 +42,10 @@ const useSocketStore = create((set) => {
 
     setMessages: (messages) => {
       set({ messages });
+    },
+
+    disconnect: () => {
+      socket.disconnect();
     },
   };
 });

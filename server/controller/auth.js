@@ -6,11 +6,11 @@ config();
 
 const login = async (req, res) => {
   try {
-    const { email, password, rememberMe } = req.body;
+    const { email, password, rememberMe, device = "mobile" } = req.body;
 
     const user = await UserModel.findOne({ email }).populate({
       path: "role_id",
-      select: "isMultiCampus",
+      select: "isMultiCampus permissions",
     });
 
     if (!user) {
@@ -43,6 +43,13 @@ const login = async (req, res) => {
       return res.status(403).json({
         message:
           "Your account has been blocked due to policy violations. Contact support for more details.",
+      });
+    }
+
+    if (device === "web" && user.role_id.permissions.length === 0) {
+      return res.status(403).json({
+        message:
+          "Oops! It seems like you don't have access to this page. Please contact support for further assistance.",
       });
     }
 

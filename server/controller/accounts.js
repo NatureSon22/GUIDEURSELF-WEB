@@ -95,7 +95,7 @@ const getAllAccounts = async (req, res, next) => {
         $sort: { date_created: -1 },
       },
     ];
-    
+
     if (recent) {
       aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 }); // Limit results
     }
@@ -575,6 +575,7 @@ const resetPassword = async (req, res) => {
 const getAllInactiveAccount = async (req, res) => {
   try {
     const { isMultiCampus, campusId } = req.user;
+    console.log(isMultiCampus);
 
     const filter = { status: "inactive" };
 
@@ -584,7 +585,7 @@ const getAllInactiveAccount = async (req, res) => {
 
     const users = await UserModel.find(filter)
       .select(
-        "user_number username email firstname middlename lastname role_id campus_id date_created date_assigned status"
+        "user_number username email firstname middlename lastname role_id campus_name date_created date_assigned status"
       )
       .populate("role_id", "role_type")
       .populate("campus_id", "campus_name")
@@ -593,7 +594,26 @@ const getAllInactiveAccount = async (req, res) => {
     res.status(200).json({ users });
   } catch (error) {
     console.error("Error fetching inactive accounts:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const activateAccount = async (req, res) => {
+  try {
+    const { accountId } = req.params;
+
+    await UserModel.updateOne(
+      { _id: accountId },
+      {
+        $set: {
+          status: "active",
+        },
+      }
+    );
+
+    res.status(200).json({ message: "User activated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -610,4 +630,5 @@ export {
   getLoggedInAccount,
   resetPassword,
   getAllInactiveAccount,
+  activateAccount,
 };

@@ -101,11 +101,11 @@ const ArchiveDocuments = () => {
     const globalSearch = globalFilter?.toLowerCase() || "";
 
     return allDocuments.filter((account) => {
-      // Column-specific filters
+      // ✅ Column-specific filters
       const matchesFilters = filters.every((filter) => {
         if (!filter.value) return true; // Skip empty filters
 
-        // Support nested keys like "campus_id.campus_name"
+        // Dynamically access nested values (e.g., "campus_id.campus_name")
         const accountValue = filter.id
           .split(".")
           .reduce((obj, key) => obj?.[key], account);
@@ -117,7 +117,7 @@ const ArchiveDocuments = () => {
           : false;
       });
 
-      // Global search across all values in the account object
+      // ✅ Global search across all account values
       const matchesGlobalFilter =
         globalSearch === "" ||
         Object.values(account).some(
@@ -125,9 +125,9 @@ const ArchiveDocuments = () => {
             value && String(value).toLowerCase().includes(globalSearch),
         );
 
-      // Parse date safely
+      // ✅ Date range filtering (handle invalid dates safely)
       const accountDate = new Date(account.date_last_modified);
-      if (isNaN(accountDate)) return false; // Skip invalid dates
+      if (isNaN(accountDate)) return false; // Ignore invalid dates
 
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;

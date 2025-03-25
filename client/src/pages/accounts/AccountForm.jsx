@@ -98,7 +98,7 @@ const AccountForm = ({
                   placeholder="Select user type"
                 />,
               )}
-              
+
               <MultiCampus>
                 {RenderField(
                   form,

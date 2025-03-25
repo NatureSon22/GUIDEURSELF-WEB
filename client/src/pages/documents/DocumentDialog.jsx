@@ -18,6 +18,8 @@ const DocumentDialog = ({ open, setOpen, document_url }) => {
     setIsLoading(false); // Document finished loading
   };
 
+  
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="flex h-[70%] flex-col sm:max-w-[425px] lg:max-w-[900px] [&>button]:hidden">

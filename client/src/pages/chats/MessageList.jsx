@@ -25,10 +25,10 @@ const MessageList = () => {
   }, [isLoading, messagelist, setMessages]);
 
   useEffect(() => {
-    if (currentUser?._id) {
-      joinRoom(currentUser._id);
+    if (selectedChat?._id) {
+      joinRoom(selectedChat._id);
     }
-  }, [currentUser, joinRoom]);
+  }, [selectedChat, joinRoom]);
 
   useEffect(() => {
     if (messagesEndRef.current) {

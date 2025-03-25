@@ -5,7 +5,7 @@ const login = async ({ email, password, rememberMe }) => {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify({ email, password, rememberMe }),
+    body: JSON.stringify({ email, password, rememberMe, device: "web" }),
   });
 
   if (!response.ok) {

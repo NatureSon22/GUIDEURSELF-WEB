@@ -3,7 +3,7 @@ const getAllAccounts = async (recent = "") => {
 
   if (typeof recent === "object") {
     console.warn(
-      "Warning: recent should be a string or number, but got an object."
+      "Warning: recent should be a string or number, but got an object.",
     );
     recent = ""; // Prevent issues
   }
@@ -25,9 +25,10 @@ const getAllAccounts = async (recent = "") => {
   const { users } = await response.json();
 
   // Ensure sorting by latest date (if a date field like "createdAt" exists)
-  return (users || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return (users || []).sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
 };
-
 
 const getAccount = async (accountId) => {
   const response = await fetch(
@@ -46,6 +47,25 @@ const getAccount = async (accountId) => {
   const { user } = await response.json();
 
   return user || {};
+};
+
+const getAllInactiveAccount = async () => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/inactive-accounts`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { users } = await response.json();
+
+  return users || [];
 };
 
 const addAccount = async (data) => {
@@ -181,6 +201,23 @@ const resetPassword = async (formData) => {
   return response.json();
 };
 
+const activateAccount = async (accountId) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/activate-account/${accountId}`,
+    {
+      method: "PUT",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
 export {
   addAccount,
   addBulkAccount,
@@ -191,4 +228,6 @@ export {
   updateAccountRoleType,
   verifyAccount,
   resetPassword,
+  getAllInactiveAccount,
+  activateAccount,
 };

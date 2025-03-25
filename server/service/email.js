@@ -5,7 +5,11 @@ config();
 
 const sendVerificationEmail = async (email, username, password) => {
   try {
-    const loginUrl = `${process.env.CLIENT_URL}/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+    const loginUrl = `${
+      process.env.CLIENT_URL
+    }/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(
+      password
+    )}`;
 
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -34,7 +38,9 @@ const sendVerificationEmail = async (email, username, password) => {
                 <p>We are pleased to share your account credentials. Please keep this information confidential.</p>
                 <div style="background-color: rgba(18, 165, 188, 0.1); padding: 20px; border-radius: 8px; margin: 25px 0; font-weight: 500; color: #2c3e50; border: 1px solid rgba(18, 165, 188, 0.2);">
                   <p><strong>Email:</strong> ${email}<br>
-                     <strong>Password:</strong> ${password}</p>
+                     <strong>Password:</strong> ${Array(password.length)
+                       .fill("*")
+                       .join("")}</p>
                 </div>
                 <p><strong>For your security, please:</strong></p>
                 <ul style="list-style: none; padding: 0; margin: 20px 0;">
@@ -59,7 +65,9 @@ const sendVerificationEmail = async (email, username, password) => {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`Failed to send email: ${errorData.message || response.statusText}`);
+      throw new Error(
+        `Failed to send email: ${errorData.message || response.statusText}`
+      );
     }
 
     console.log("Email sent successfully!");

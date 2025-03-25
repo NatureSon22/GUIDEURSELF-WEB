@@ -17,7 +17,7 @@ import { FaPen } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
 import "@/fluttermap.css";
 
-// Fix for default marker icon not showing  
+// Fix for default marker icon not showing
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -48,7 +48,11 @@ const DisplayCampus = () => {
     navigate(path);
   };
 
-  const { data: campuses = [], isLoading, isError } = useQuery({
+  const {
+    data: campuses = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["campuses"],
     queryFn: fetchCampuses,
   });
@@ -73,18 +77,21 @@ const DisplayCampus = () => {
   const handleSearchChange = (e) => {
     const term = e.target.value.toLowerCase().trim();
     setSearchTerm(term);
-  
-    const foundCampus = campuses.find((campus) => 
-      campus.campus_name.toLowerCase() === term
+
+    const foundCampus = campuses.find(
+      (campus) => campus.campus_name.toLowerCase() === term,
     );
-  
+
     if (foundCampus && foundCampus.latitude && foundCampus.longitude) {
-      updateMapView([parseFloat(foundCampus.latitude), parseFloat(foundCampus.longitude)], 17);
+      updateMapView(
+        [parseFloat(foundCampus.latitude), parseFloat(foundCampus.longitude)],
+        17,
+      );
     }
   };
 
   if (isLoading) {
-    return <Skeleton className="w-[240px] rounded-md bg-secondary-200/40 py-24" />;
+    return <Skeleton className="rounded-md bg-secondary-200/40 py-24" />;
   }
 
   if (isError) {
@@ -92,16 +99,16 @@ const DisplayCampus = () => {
   }
 
   return (
-    <div className="w-full flex">
+    <div className="flex w-full">
       {/* Left Container */}
-      <div className="w-[75%] flex flex-col gap-6">
+      <div className="flex w-[75%] flex-col gap-6">
         <Header
           title={"Manage Campus"}
           subtitle={"See list of all campuses to manage and edit."}
         />
 
         {/* Search and Buttons */}
-        <div className="w-full pt-6 flex gap-4">
+        <div className="flex w-full gap-4 pt-6">
           <Input
             placeholder="Search Campus"
             value={searchTerm}
@@ -109,7 +116,7 @@ const DisplayCampus = () => {
           />
 
           <FeaturePermission module="Manage Campus" access="add campus">
-            <Button 
+            <Button
               variant="outline"
               className="text-secondary-100-75"
               onClick={() => handleNavigate("/campus/add")}
@@ -128,10 +135,10 @@ const DisplayCampus = () => {
         </div>
 
         {/* Map Section */}
-        <div className="h-[700px] flex flex-col gap-5">
-          <div className="border border-gray-300 rounded-md">
+        <div className="flex h-[700px] flex-col gap-5">
+          <div className="rounded-md border border-gray-300">
             <div className="p-4">
-              <h2 className="font-bold font-cizel-decor">
+              <h2 className="font-cizel-decor font-bold">
                 University Of Rizal System - Campus Map
               </h2>
             </div>
@@ -139,14 +146,17 @@ const DisplayCampus = () => {
               key={key} // Forces re-render when state updates
               center={mapCenter}
               zoom={mapZoom} // Dynamically update zoom level
-              className="h-[530px] w-[100%] outline-none border border-gray-300"
+              className="h-[530px] w-[100%] border border-gray-300 outline-none"
               scrollWheelZoom={false}
             >
               <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
               {campuses.map((campus, index) => (
                 <Marker
                   key={index}
-                  position={[parseFloat(campus.latitude), parseFloat(campus.longitude)]}
+                  position={[
+                    parseFloat(campus.latitude),
+                    parseFloat(campus.longitude),
+                  ]}
                 >
                   <Popup>
                     <strong>{campus.campus_name}</strong>
@@ -156,36 +166,47 @@ const DisplayCampus = () => {
                 </Marker>
               ))}
             </MapContainer>
-
           </div>
         </div>
       </div>
 
       {/* Right Container */}
-      <div className="w-[40%] pl-6 py-2 flex flex-col gap-4">
-        <div className="border px-2 w-[100%] h-[100px] flex justify-between rounded-md">
-          <div className="w-[30%] gap-3 flex items-center justify-center">
-            <img className="h-[60px]" src={university?.university_vector_url} alt="" />
-            <img className="h-[60px]" src={university?.university_logo_url} alt="" />
+      <div className="flex w-[40%] flex-col gap-4 py-2 pl-6">
+        <div className="flex h-[100px] w-[100%] justify-between rounded-md border px-2">
+          <div className="flex w-[30%] items-center justify-center gap-3">
+            <img
+              className="h-[60px]"
+              src={university?.university_vector_url}
+              alt=""
+            />
+            <img
+              className="h-[60px]"
+              src={university?.university_logo_url}
+              alt=""
+            />
           </div>
-          <div className="w-[70%] flex flex-col justify-center">
-            <h2 className="font-bold text-lg font-cizel-decor">UNIVERSITY OF RIZAL SYSTEM</h2>
-            <h3 className="text-sm font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+          <div className="flex w-[70%] flex-col justify-center">
+            <h2 className="font-cizel-decor text-lg font-bold">
+              UNIVERSITY OF RIZAL SYSTEM
+            </h2>
+            <h3 className="font-cizel text-sm">NURTURING TOMORROW'S NOBLEST</h3>
           </div>
         </div>
 
         <p className="text-sm">List of Campuses</p>
-        <div className="border-t border-x">
+        <div className="border-x border-t">
           {/* Render campus names */}
           {campuses.map((campus, index) => (
-            <div key={index} className="py-4 border-b border-gray-300">
-              <p className="text-center font-cizel">{campus.campus_name} Campus</p>
+            <div key={index} className="border-b border-gray-300 py-4">
+              <p className="text-center font-cizel">
+                {campus.campus_name} Campus
+              </p>
             </div>
           ))}
         </div>
       </div>
     </div>
   );
-};  
+};
 
 export default DisplayCampus;

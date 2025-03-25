@@ -45,7 +45,7 @@ const columns = ({ navigate, handleVerifyAccount, hasAction = true }) => {
     {
       accessorKey: "role_type",
       id: "role_type",
-      header: "Role Type",
+      header: "User Type",
       cell: ({ row }) => formatTitle(row.original.role_type),
       filterFn: "equalsString",
     },

@@ -11,6 +11,8 @@ import {
   getLoggedInAccount,
   updatePhoto,
   resetPassword,
+  getAllInactiveAccount,
+  activateAccount,
 } from "../controller/accounts.js";
 import multer from "multer";
 import verifyToken from "../middleware/verifyToken.js";
@@ -49,8 +51,8 @@ accountRouter.use((err, req, res, next) => {
 
 accountRouter.get("/", verifyToken, getAllAccounts);
 accountRouter.get("/logged-in-account", verifyToken, getLoggedInAccount);
+accountRouter.get("/inactive-accounts", verifyToken, getAllInactiveAccount);
 accountRouter.get("/:accountId", getAccount);
-
 accountRouter.post(
   "/import-add-account",
   verifyToken,
@@ -79,6 +81,7 @@ accountRouter.put(
 );
 accountRouter.put("/verify-account/:accountId", verifyToken, verifyAccount);
 accountRouter.put("/reset-password", upload.none(), resetPassword);
+accountRouter.put("/activate-account/:accountId", verifyToken, activateAccount);
 
 accountRouter.delete("/delete-accounts", verifyToken, deleteAccounts);
 

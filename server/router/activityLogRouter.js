@@ -26,7 +26,6 @@ activityLogRouter.get("/", verifyToken, async (req, res) => {
     }
 
     const activityLogs = await query.exec();
-    console.log(activityLogs); // Verify the order of logs before sending the response
     res.status(200).json(activityLogs);
   } catch (error) {
     console.error("Error fetching activity logs:", error);

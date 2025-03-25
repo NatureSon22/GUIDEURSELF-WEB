@@ -154,9 +154,13 @@ io.on("connection", (socket) => {
 
         await newMessage.save();
 
-        // Emit message to sender and receiver
-        io.to(sender_id).emit("receiveMessage", newMessage);
-        io.to(receiver_id).emit("receiveMessage", newMessage);
+        // ✅ Emit only if users are connected
+        if (io.sockets.adapter.rooms.has(sender_id)) {
+          io.to(sender_id).emit("receiveMessage", newMessage);
+        }
+        if (io.sockets.adapter.rooms.has(receiver_id)) {
+          io.to(receiver_id).emit("receiveMessage", newMessage);
+        }
       } catch (error) {
         console.error("Error sending message:", error);
       }
@@ -173,14 +177,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected: " + socket.id);
+    console.log("A user disconnected: " + socket.id);
   });
 });
 
 (async () => {
   config();
   server.listen(process.env.PORT || 3000, async () => {
-    // <== Use 'server.listen'
     await connectDB();
     console.log("Server running on port", process.env.PORT || 3000);
   });

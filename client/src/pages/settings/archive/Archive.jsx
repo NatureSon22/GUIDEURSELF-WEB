@@ -3,8 +3,15 @@ import ArchiveDocuments from "./ArchiveDocuments";
 import ArchiveVirtualTour from "./ArchiveVirtualTour";
 import ArchiveKeyOfficials from "./ArchiveKeyOfficials";
 import ArchiveCampus from "./ArchiveCampus";
+import ArchiveAccount from "./ArchiveAccount";
 
-const tabs = ["Documents", "Virtual Tour", "Key Officials", "Campus"];
+const tabs = [
+  "Accounts",
+  "Documents",
+  "Virtual Tour",
+  "Key Officials",
+  "Campus",
+];
 
 const Archive = () => {
   const [selectedArchive, setSelectedArchive] = useState(0);
@@ -27,10 +34,11 @@ const Archive = () => {
         })}
       </div>
 
-      {selectedArchive === 0 && <ArchiveDocuments />}
-      {selectedArchive === 1 && <ArchiveVirtualTour />}
-      {selectedArchive === 2 && <ArchiveKeyOfficials />}
-      {selectedArchive === 3 && <ArchiveCampus />}
+      {selectedArchive === 0 && <ArchiveAccount />}
+      {selectedArchive === 1 && <ArchiveDocuments />}
+      {selectedArchive === 2 && <ArchiveVirtualTour />}
+      {selectedArchive === 3 && <ArchiveKeyOfficials />}
+      {selectedArchive === 4 && <ArchiveCampus />}
     </div>
   );
 };
