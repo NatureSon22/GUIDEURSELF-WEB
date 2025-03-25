@@ -1,33 +1,47 @@
-import React, { useEffect, useRef } from 'react';
-import Marzipano from 'marzipano'; 
+import React, { useState, useEffect, useRef } from "react";
+import "pannellum";
 
-const MediaPanoramicViewer = ({ imageUrl }) => {
+const LazyMediaPanoramicViewer = ({ imageUrl }) => {
   const viewerRef = useRef(null);
-  
+  const pannellumViewer = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
-    if (viewerRef.current) {
-      const panoElement = viewerRef.current;
-      const viewer = new Marzipano.Viewer(panoElement);
-      const source = Marzipano.ImageUrlSource.fromString(imageUrl);
-      const geometry = new Marzipano.EquirectGeometry([{ width: 4000 }]);
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.2 } // Loads when 20% of the element is visible
+    );
 
-      // Set a small pitch range to disable vertical movement without breaking the view
-      const limiter = Marzipano.RectilinearView.limit.pitch(-0.300, 0.300);
+    if (viewerRef.current) observer.observe(viewerRef.current);
 
-      const view = new Marzipano.RectilinearView({ yaw: Math.PI, pitch: 0 }, limiter);
-      const scene = viewer.createScene({
-        source: source,
-        geometry: geometry,
-        view: view,
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isVisible && viewerRef.current) {
+      if (pannellumViewer.current) {
+        pannellumViewer.current.destroy();
+      }
+
+      pannellumViewer.current = pannellum.viewer(viewerRef.current, {
+        type: "equirectangular",
+        panorama: imageUrl,
+        autoLoad: true,
+        showControls: false,
+        hfov: 100,
+        pitch: 0, // Keep the camera level
+        minPitch: 0, // Prevent looking up or down
+        maxPitch: 0, // Lock vertical movement
+        yaw: 180, // Default horizontal view
       });
-      
-      scene.switchTo();
     }
-  }, [imageUrl]);
 
-  return (
-    <div id="pano" className="h-[800px] relative w-[100%] rounded-md" ref={viewerRef}></div>
-  );
+    return () => {
+      if (pannellumViewer.current) pannellumViewer.current.destroy();
+    };
+  }, [isVisible, imageUrl]);
+
+  return <div ref={viewerRef} className="h-[400px] w-full rounded-md bg-gray-200"></div>;
 };
 
-export default MediaPanoramicViewer;
+export default LazyMediaPanoramicViewer;
