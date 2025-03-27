@@ -5,6 +5,22 @@ import { config } from "dotenv";
 
 config();
 
+const getMessages = async (req, res) => {
+  try {
+    const messages = await MessageModel.find({
+      is_machine_generated: true,
+      is_helpful: { $exists: true, $in: [true, false] }, 
+    });
+
+    res.status(200).json(messages);
+  } catch (error) {
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
+
+
+
 const sendMessage = async (req, res) => {
   try {
     const { content, conversation_id } = req.body;
@@ -83,4 +99,4 @@ const reviewMessage = async (req, res) => {
   }
 };
 
-export { sendMessage, reviewMessage };
+export { sendMessage, reviewMessage, getMessages };

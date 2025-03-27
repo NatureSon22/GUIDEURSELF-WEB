@@ -1,6 +1,7 @@
 import { FaUserGroup } from "react-icons/fa6";
 import { TbMessageCircleFilled } from "react-icons/tb";
 import { IoTv } from "react-icons/io5";
+import { FaMessage } from "react-icons/fa6";
 
 const ReportsTabInfo = [
   {
@@ -26,6 +27,14 @@ const ReportsTabInfo = [
     title: "User Activity Log",
     subtitle: "Access, review, and generate reports on user activity logs",
     path: "user-activity-log",
+  },
+  {
+    icon: (
+      <FaMessage className="text-4xl transition-colors duration-150 ease-in-out group-hover:text-base-200" />
+    ),
+    title: "Messages",
+    subtitle: "Access, review, and generate reports on user messages",
+    path: "messages",
   },
 ];
 

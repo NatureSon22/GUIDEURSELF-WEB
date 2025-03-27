@@ -102,6 +102,7 @@ const Chats = lazy(() => import("./pages/chats/Chats.jsx"));
 const Reports = lazy(() => import("./pages/reports/Reports.jsx"));
 const AccountReports = lazy(() => import("./pages/reports/AccountReports.jsx"));
 const FeedbackReport = lazy(() => import("./pages/reports/FeedbackReport.jsx"));
+const MessageReport = lazy(() => import("./pages/reports/MessageReports.jsx"));
 const UserActivityReport = lazy(
   () => import("./pages/reports/UserActivityReport.jsx"),
 );
@@ -142,6 +143,7 @@ export {
   PrivacyPolicyWebSetting,
   PrivacyPolicyMobileSetting,
   ReportsTemplate,
+  MessageReport,
   Archive,
   AllCampusDocuments,
   CampusDocument,

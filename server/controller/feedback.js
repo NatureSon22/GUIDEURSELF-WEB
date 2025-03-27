@@ -136,7 +136,6 @@ const getTotalFeedback = async (req, res) => {
     });
 
     const response = await FeedbackModel.aggregate(pipeline);
-    console.log("Filtered Result:", response);
 
     // Initialize rating counts
     const total = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };

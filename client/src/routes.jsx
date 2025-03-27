@@ -43,6 +43,7 @@ import {
   PrivacyPolicySetting,
   PrivacyPolicyWebSetting,
   PrivacyPolicyMobileSetting,
+  MessageReport,
   ReportsTemplate,
   Archive,
   AssignRole,
@@ -268,6 +269,10 @@ const routes = [
           {
             path: "/reports/user-activity-log",
             element: <UserActivityReport />,
+          },
+          {
+            path: "/reports/messages",
+            element: <MessageReport />,
           },
         ],
       },

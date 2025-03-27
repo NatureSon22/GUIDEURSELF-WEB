@@ -13,4 +13,20 @@ const getChatHeads = async () => {
   return chatHeads || [];
 };
 
-export { getChatHeads };
+
+const getMessages = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/message/get-messages`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    throw error;
+  }
+};
+
+export { getChatHeads, getMessages};

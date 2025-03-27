@@ -192,7 +192,6 @@ const getAllActLog = async () => {
     }
 
     const data = await response.json();
-    console.log("Data from backend:", data); // Verify the order of logs
     return data;
   } catch (error) {
     console.error("Error fetching activity logs:", error);
@@ -215,7 +214,6 @@ const getAllFeedback = async () => {
     }
 
     const feedbackData = await feedbackResponse.json();
-    console.log("Feedback Data:", feedbackData); // Log feedback data
 
     // Fetch all campuses
     const campusesResponse = await fetch(
@@ -230,7 +228,6 @@ const getAllFeedback = async () => {
     }
 
     const campusesData = await campusesResponse.json();
-    console.log("Campuses Data:", campusesData); // Log campuses data
 
     // Create a map of campus IDs to campus names
     const campusMap = campusesData.reduce((map, campus) => {
@@ -238,7 +235,6 @@ const getAllFeedback = async () => {
       return map;
     }, {});
 
-    console.log("Campus Map:", campusMap); // Log the campus map
 
     // Map feedback data to include campus names
     const mappedFeedback = feedbackData.map((feedback) => {
