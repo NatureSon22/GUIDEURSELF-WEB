@@ -282,7 +282,7 @@ const EditMarkerModal =
               </div>
 
               <div className="mt-4">
-                <Label className="text-[16px]">Upload 360 Photo</Label>
+                <Label className="text-[16px]">Upload Panoramic Photo</Label>
                 <div className="flex justify-between mt-2 w-[100%]">
                   <Input
                     type="file"
@@ -302,7 +302,7 @@ const EditMarkerModal =
                   </div>
                 ) : (
                   <div className="w-[100%] h-[250px] flex items-center justify-center border border-secondary-200 rounded-md border-dashed mb-4">
-                    <Label className="text-[16px] text-secondary-200">Upload 360 Photo</Label>
+                    <Label className="text-[16px] text-secondary-200">Upload Panoramic Photo</Label>
                   </div>
                 )}
               </div>

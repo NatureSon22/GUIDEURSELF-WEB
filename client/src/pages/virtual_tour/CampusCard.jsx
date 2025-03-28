@@ -72,7 +72,7 @@ const CampusCard = ({ campus, onClose }) => {
                 <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
                 <RiCameraLensLine className="text-4xl text-base-200 mb-1"/>
               </div>
-              <p className="text-center text-sm mt-2">360° View Available</p>
+              <p className="text-center text-sm mt-2">Panoramic View Available</p>
             </div>
             <div>
               <div className="flex flex-row items-center justify-center gap-2">

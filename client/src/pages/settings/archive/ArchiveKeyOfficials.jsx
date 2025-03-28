@@ -69,7 +69,7 @@ const ArchiveKeyOfficials = () => {
         return official[filter.id]?.toLowerCase() === filter.value.toLowerCase();
       });
 
-      const officialDate = new Date(official.date_archived);
+      const officialDate = new Date(official.date_added);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 

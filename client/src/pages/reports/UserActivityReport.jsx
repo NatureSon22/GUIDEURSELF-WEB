@@ -199,7 +199,8 @@ const UserActivityReport = () => {
     if (preview) {
       const pdfBlob = doc.output("blob");
       const pdfUrl = URL.createObjectURL(pdfBlob);
-      setPdfPreviewUrl(pdfUrl);
+      
+      window.open(pdfUrl, '_blank');
     } else {
       doc.save("user_account_report.pdf");
     }

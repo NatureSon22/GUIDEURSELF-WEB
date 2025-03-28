@@ -57,7 +57,7 @@ import { MdTouchApp } from "react-icons/md";
                 <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
                 <RiCameraLensLine className="text-4xl text-base-200 mb-2"/>
             </div>
-                <p className="text-center text-sm">360° View Available</p>
+                <p className="text-center text-sm">Panoramic View Available</p>
           </div>
           <div>
             <div className="flex flex-row items-center justify-center gap-3">

@@ -71,7 +71,7 @@ const ArchiveCampus = () => {
         return campus[filter.id]?.toLowerCase() === filter.value.toLowerCase();
       });
 
-      const campusDate = new Date(campus.date_archived);
+      const campusDate = new Date(campus.date_added);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 

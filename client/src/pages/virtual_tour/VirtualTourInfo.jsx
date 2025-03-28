@@ -101,7 +101,7 @@ const VirtualTourInfo = () => {
                             <p className="text-[2rem] font-bold text-base-200">{totalMarkerPhotos}</p>
                             <RiCameraLensLine className="text-4xl text-base-200"/>
                         </div>
-                        <p>360° View Available</p>
+                        <p>Panoramic View Available</p>
                     </div>
                     <div>
                         <div className="flex flex-row items-center justify-center gap-3">
