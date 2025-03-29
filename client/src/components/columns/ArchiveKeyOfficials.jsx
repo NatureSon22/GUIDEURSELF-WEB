@@ -1,9 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { IoReturnUpForward } from "react-icons/io5";
 import formatDateTime from "@/utils/formatDateTime";
-
+import { Checkbox } from "../ui/checkbox";
 
 const keyOfficialsColumns = (columnActions) => [
+  {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox className="border border-secondary-200"
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox className="border border-secondary-200"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+    },  
   {
     accessorKey: "name",
     header: "Name",
@@ -14,15 +34,6 @@ const keyOfficialsColumns = (columnActions) => [
     header: "Position",
     filterFn: "equalsString",
   },
-  // {
-  //   accessorKey: "campus_id",
-  //   header: "Campus",
-  //   filterFn: "equalsString",
-  //   cell: ({ row }) => {
-  //     // You can format campus data here if needed
-  //     return row.original.campus_id;
-  // //   },
-  // },
   {
     accessorKey: "date_added",
     header: "Date Archived",

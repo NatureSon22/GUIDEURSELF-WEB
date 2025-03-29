@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import LoadingFallback from "@/components/LoadingFallback";
 import AddFloorModal from "./AddFloorModal";
+import EditFloorModal from "./EditFloorModal";
 import HeaderSection from "./HeaderSection";
 import { Button } from "@/components/ui/button";
 import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
@@ -110,6 +111,7 @@ const queryClient = useQueryClient();
 
 const { campus } = location.state || {};
 
+const [editingFloor, setEditingFloor] = useState(null);
 const [hideMarkers, setHideMarkers] = useState(false);
 const bounds = [[14.480740, 121.184750], [14.488870, 121.192500]];
 const [draggedFloor, setDraggedFloor] = useState(null);
@@ -563,6 +565,13 @@ const handleDrop = (e, targetFloor) => {
                       <RxDragHandleDots2 className="text-black h-[30px] w-[30px]" />
                       <h3 className="font-semibold p-2">{floor.floor_name}</h3>
                     </div>
+                    <div>
+                    <button
+                      onClick={() => setEditingFloor(floor)}
+                      className="h-[30px] w-[30px]"
+                    >
+                      <FaPen className="h-[16px] w-[16px] cursor-pointer" />
+                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -572,6 +581,7 @@ const handleDrop = (e, targetFloor) => {
                     >
                       <RiDeleteBin5Fill className="cursor-pointer h-[18px] w-[18px] text-accent-100" />
                     </button>
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -788,6 +798,17 @@ const handleDrop = (e, targetFloor) => {
         {isModalOpen && (
           <AddFloorModal closeModal={closeModal} campusId={campus._id} refreshFloors={refreshFloors} />
         )}
+
+      {editingFloor && (
+        <EditFloorModal
+          closeModal={() => setEditingFloor(null)}
+          campusId={campus._id}
+          floorData={editingFloor}
+          refreshFloors={refreshFloors}
+          selectedFloor={selectedFloor}
+          setSelectedFloor={setSelectedFloor}
+        />
+      )}
 
         <ConfirmationDialog
           isOpen={isDialogOpen}

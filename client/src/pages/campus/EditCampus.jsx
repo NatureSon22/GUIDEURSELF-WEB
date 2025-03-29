@@ -7,16 +7,15 @@ import "leaflet/dist/leaflet.css";
 import addImage from "../../assets/add.png";
 import CloseIcon from "../../assets/CloseIcon.png";
 import AddProgramModal from "./AddProgramModal";
-import Pin from "../../assets/pin.png";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import useUserStore from "@/context/useUserStore";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditProgramModal";
+import { useMutation } from "@tanstack/react-query";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -26,6 +25,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const EditCampus = () => {
+    const { currentUser } = useUserStore((state) => state);
     const { id } = useParams();
     const navigate = useNavigate();
     const [campus, setCampus] = useState(null);
@@ -50,6 +50,23 @@ const EditCampus = () => {
       campus_about: "",
       campus_cover_photo: null,
       campus_programs: [], 
+    });
+
+    const logActivityMutation = useMutation({
+      mutationFn: async (logData) => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(logData),
+          credentials: "include",
+          });
+          if (!response.ok) {
+            throw new Error("Failed to log activity");
+          }
+          return response.json();
+          },
     });
     
     const secondHandleBack = () => {
@@ -157,6 +174,16 @@ const EditCampus = () => {
                     });
               
                     if (response.ok) {
+
+                      await logActivityMutation.mutateAsync({
+                        user_number: currentUser.user_number, // Replace with actual user number
+                        username: currentUser.username, // Replace with actual username
+                        firstname: currentUser.firstname, // Replace with actual firstname
+                        lastname: currentUser.lastname, // Replace with actual lastname
+                        role_type: currentUser.role_type, // Replace with actual role type
+                        campus_name: currentUser.campus_name, // Replace with actual campus name
+                        action: `Edit ${campusData.campus_name} Campus`,
+                    });
                       setLoadingMessage("Saving New Changes...");
                       setLoadingVisible(true);
                 

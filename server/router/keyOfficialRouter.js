@@ -3,8 +3,9 @@ import cloudinary from 'cloudinary';
 import multer from 'multer';
 import { Readable } from 'stream';
 import { KeyOfficial, ArchivedKeyOfficial } from "../models/KeyOfficial.js"; 
-import verifyToken from "../middleware/verifyToken.js"
-import activitylog from "../controller/activitylog.js"
+import verifyToken from "../middleware/verifyToken.js";
+import activitylog from "../controller/activitylog.js";
+import { ObjectId } from 'mongodb';
 
 // Set up multer storage (using memory storage for file handling)
 const storage = multer.memoryStorage();
@@ -62,6 +63,18 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
+router.delete("/delete-bulk", async (req, res) => {
+  try {
+      const { ids } = req.body;
+      if (!ids || !ids.length) return res.status(400).json({ message: "No IDs provided" });
+  
+      await ArchivedKeyOfficial.deleteMany({ _id: { $in: ids } });
+  
+      res.status(200).json({ message: "Items deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting items", error: error.message });
+    }
+});
 
 router.get("/", async (req, res) => {
   try {

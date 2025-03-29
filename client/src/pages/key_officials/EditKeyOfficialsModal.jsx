@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast"; 
+import useUserStore from "@/context/useUserStore";
 
 const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
+  const { currentUser } = useUserStore((state) => state);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [position, setPosition] = useState(official?.position_name || "");
@@ -35,6 +37,16 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
         credentials: "include",
         body: formData,
       });
+
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number, // Replace with actual user number
+        username: currentUser.username, // Replace with actual username
+        firstname: currentUser.firstname, // Replace with actual firstname
+        lastname: currentUser.lastname, // Replace with actual lastname
+        role_type: currentUser.role_type, // Replace with actual role type
+        campus_name: currentUser.campus_name, // Replace with actual campus name
+        action: `Edit key official ${name}`,
+    });
       if (!response.ok) throw new Error("Failed to update official");
       return response.json();
     },
@@ -70,6 +82,23 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
     reader.readAsDataURL(file);
   };
 
+   const logActivityMutation = useMutation({
+              mutationFn: async (logData) => {
+                  const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+                      method: "POST",
+                      headers: {
+                          "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify(logData),
+                      credentials: "include",
+                  });
+                  if (!response.ok) {
+                      throw new Error("Failed to log activity");
+                  }
+                  return response.json();
+              },
+          });
+
   // Handle save
   const handleSave = () => {
     
@@ -92,6 +121,8 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
     formData.append("name", name);
     formData.append("position_name", position);
     if (image) formData.append("image", image);
+
+    
 
     setIsLoading(true);
     mutation.mutate({ officialId: official._id, formData });

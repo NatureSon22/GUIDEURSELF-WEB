@@ -15,6 +15,33 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// In your backend router (e.g., routes/archivedItems.js)
+router.delete("/archived-items/delete", async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !ids.length) return res.status(400).json({ message: "No IDs provided" });
+
+    await ArchivedItem.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Items deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting items", error: error.message });
+  }
+});
+
+router.delete("/campuses/delete-bulk", async (req, res) => {
+  try {
+      const { ids } = req.body;
+      if (!ids || !ids.length) return res.status(400).json({ message: "No IDs provided" });
+  
+      await ArchivedCampus.deleteMany({ _id: { $in: ids } });
+  
+      res.status(200).json({ message: "Items deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting items", error: error.message });
+    }
+});
+
 // Create Campus
 router.post(
   "/campuses",
@@ -225,6 +252,51 @@ router.put("/campuses/:id", upload.fields([{ name: "campus_cover_photo", maxCoun
   }
 });
 
+
+router.put("/campuses/floors/:campusId/:floorId", upload.single("floor_photo"), async (req, res) => {
+  const { campusId, floorId } = req.params;
+  const { floor_name } = req.body;
+  const userId = req.user?.userId;
+  const file = req.file;
+
+  try {
+    const campus = await Campus.findById(campusId);
+    if (!campus) {
+      return res.status(404).json({ message: "Campus not found" });
+    }
+
+    const floorToUpdate = campus.floors.id(floorId);
+    if (!floorToUpdate) {
+      return res.status(404).json({ message: "Floor not found" });
+    }
+
+    // Update floor name if provided
+    if (floor_name) {
+      floorToUpdate.floor_name = floor_name;
+    }
+
+    // Update floor photo if provided
+    if (file) {
+      const photoUrl = await uploadToCloudinary(file.buffer, "floor_photos");
+      floorToUpdate.floor_photo_url = photoUrl;
+    }
+
+    if (userId) {
+      await activitylog(userId, `Updated floor ${floorToUpdate.floor_name} for: ${campus.campus_name}`);
+    } else {
+      console.warn("User ID not found, activity log not saved.");
+    }
+
+    await campus.save();
+    res.status(200).json({ 
+      message: "Floor updated successfully", 
+      data: floorToUpdate 
+    });
+  } catch (error) {
+    console.error("Error updating floor:", error);
+    res.status(500).json({ message: "Error updating floor", error: error.message });
+  }
+});
 router.put("/campuses/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 10 }]), async (req, res) => {
   const { campusId } = req.params;
   const { floors } = req.body;

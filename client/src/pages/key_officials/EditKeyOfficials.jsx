@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import addImage from "../../assets/add.png";
 import Modal from "./AddKeyOfficialsModal";
 import EditKeyOfficialsModal from "./EditKeyOfficialsModal";
 import { RiAddLargeFill } from "react-icons/ri";
 import Pen from "../../assets/Pen.png";
 import Bin from "../../assets/bin.png";
-import Check from "../../assets/Check.png";
 import Header from "@/components/Header";
+import useUserStore from "@/context/useUserStore";
 import { IoAlertCircle } from "react-icons/io5";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
@@ -15,12 +14,13 @@ import { useToast } from "@/hooks/use-toast";
 import FeaturePermission from "@/layer/FeaturePermission";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FaPen } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa6";
+
 
 const EditKeyOfficials = () => {
   
   const navigate = useNavigate();
+  const { currentUser } = useUserStore((state) => state);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOfficial, setSelectedOfficial] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -91,11 +91,38 @@ const EditKeyOfficials = () => {
     },
   });
 
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(logData),
+        credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to log activity");
+        }
+        return response.json();
+        },
+  });
+
   const handleConfirmArchive = async () => {
     if (!officialToArchive) return;
 
     try {
-      await archiveOfficial(officialToArchive._id);
+
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number, // Replace with actual user number
+        username: currentUser.username, // Replace with actual username
+        firstname: currentUser.firstname, // Replace with actual firstname
+        lastname: currentUser.lastname, // Replace with actual lastname
+        role_type: currentUser.role_type, // Replace with actual role type
+        campus_name: currentUser.campus_name, // Replace with actual campus name
+        action: `Archived key official ${officialToArchive.name}`,
+    });
+      archiveOfficial(officialToArchive._id);
       setOfficialToArchive(null);
       setIsArchiveModalOpen(false); // Close the archive modal
       toast({

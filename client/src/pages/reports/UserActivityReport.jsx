@@ -46,11 +46,6 @@ const UserActivityReport = () => {
   if (error) {
     console.error("Error fetching activity logs:", error);
   }
-
-  useEffect(() => {
-    console.log("Activity Logs Data:", allLogs);
-  }, [allLogs]);
-  
   
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
@@ -64,7 +59,6 @@ const UserActivityReport = () => {
 
   // Filter accounts based on selected date range and filters
   const filteredAccounts = useMemo(() => {
-    console.log(allLogs);
     if (!allLogs) return [];
 
     return allLogs.filter((account) => {

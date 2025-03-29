@@ -6,13 +6,19 @@ import ComboBox from "@/components/ComboBox";
 import { Input } from "@/components/ui/input";
 import { GrPowerReset } from "react-icons/gr";
 import campusColumns from "@/components/columns/ArchiveCampus";
+import useUserStore from "@/context/useUserStore";
+import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAllCampuses } from "@/api/component-info";
+import { IoAlertCircle } from "react-icons/io5";
 
 const ArchiveCampus = () => {
+  const { currentUser } = useUserStore((state) => state);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [openModal, setOpenModal] = useState(false);
   const [filters, setFilters] = useState([]);
+  const [rowSelection, setRowSelection] = useState({});
   const [reset, setReset] = useState(false);
   const [fromDate, setFromDate] = useState(""); // Date filter state
   const [toDate, setToDate] = useState(""); // Date filter state
@@ -22,6 +28,28 @@ const ArchiveCampus = () => {
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
     queryFn: getAllCampuses,
+  });
+
+  
+  const openConfirmationModal = () => {
+    setOpenModal(true);
+  }
+  
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(logData),
+        credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to log activity");
+        }
+        return response.json();
+        },
   });
 
   // Fetch archived campuses
@@ -95,6 +123,15 @@ const ArchiveCampus = () => {
       );
 
       if (response.ok) {
+        await logActivityMutation.mutateAsync({
+          user_number: currentUser.user_number, // Replace with actual user number
+          username: currentUser.username, // Replace with actual username
+          firstname: currentUser.firstname, // Replace with actual firstname
+          lastname: currentUser.lastname, // Replace with actual lastname
+          role_type: currentUser.role_type, // Replace with actual role type
+          campus_name: currentUser.campus_name, // Replace with actual campus name
+          action: `Retrieved ${campus.campus_name} Campus`,
+      });
         toast({
           title: "Success",
           description: "Campus unarchived successfully.",
@@ -108,6 +145,61 @@ const ArchiveCampus = () => {
       console.error("Error unarchiving campus:", error);
     }
   };
+
+  const handleDeleteSelected = async () => {
+    const selectedIds = Object.keys(rowSelection);
+  
+    if (selectedIds.length === 0) {
+      toast({
+        title: "No items selected",
+        description: "Please select at least one campus to delete.",
+        variant: "destructive",
+      });
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses/delete-bulk`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds }),
+        credentials: "include",
+      });
+  
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "Failed to delete campuses");
+  
+      if (response.ok) {
+        queryClient.invalidateQueries(["archivedCampuses"]);
+  
+        toast({
+          title: "Success",
+          description: `${selectedIds.length} campus deleted successfully.`,
+          variant: "default",
+        });
+
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number,
+        username: currentUser.username,
+        firstname: currentUser.firstname,
+        lastname: currentUser.lastname,
+        role_type: currentUser.role_type,
+        campus_name: currentUser.campus_name,
+        action: `Deleted  ${selectedIds.length} campus`,
+      });
+    
+      setOpenModal(false);
+      setRowSelection({});
+      }
+       // Clear selection after deletion
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete campus.",
+        variant: "destructive",
+      });
+    }
+  };  
 
   const handleReset = () => {
     setFilters([]);
@@ -128,12 +220,22 @@ const ArchiveCampus = () => {
 
   return (
     <div className="flex flex-1 flex-col space-y-5">
-      <Input
-        type="text"
-        placeholder="Search"
-        value={globalFilter || ""}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-      />
+      <div className="flex items-center gap-5">
+        <Input
+          type="text"
+          placeholder="Search"
+          value={globalFilter || ""}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+        />
+
+        <Button
+          className="bg-red-500 text-white"
+          disabled={Object.keys(rowSelection).length === 0}
+          onClick={openConfirmationModal}
+        >
+          Confirm & Delete
+        </Button>
+      </div>   
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
@@ -163,10 +265,36 @@ const ArchiveCampus = () => {
           filters={filters}
           setFilters={setFilters}
           globalFilter={globalFilter}
+          rowSelection={rowSelection}
+          setRowSelection={setRowSelection}
           setGlobalFilter={setGlobalFilter}
           columnActions={{ handleUnarchive }}
         />
       </div>
+      {openModal && (
+              <div className="fixed !mt-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-secondary-300 p-6 text-center shadow-md">
+                  <IoAlertCircle className="text-[3rem] text-base-200" />
+                  <p className="text-md my-4 text-gray-600">
+                  Once you proceed, the selected data will be permanently deleted and cannot be restored.
+                  </p>
+                  <div className="mt-4 flex w-[100%] justify-center gap-4">
+                    <button
+                      onClick={() => setOpenModal(false)}
+                      className="w-[100%] rounded-md border border-secondary-210 bg-secondary-300 px-4 py-2 text-secondary-210"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDeleteSelected}
+                      className="w-[100%] rounded-md border border-base-200 bg-base-210 px-4 py-2 text-base-200"
+                    >
+                      Proceed
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
     </div>
   );
 };

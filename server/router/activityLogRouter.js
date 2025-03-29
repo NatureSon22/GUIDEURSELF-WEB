@@ -5,6 +5,16 @@ import { Campus } from "../models/campusModel.js";
 
 const activityLogRouter = express.Router();
 
+activityLogRouter.post('/', verifyToken, async (req, res) => {
+  try {
+    const activityLog = new ActivityLog(req.body);
+    await activityLog.save();
+    res.status(201).send(activityLog);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 activityLogRouter.get("/", verifyToken, async (req, res) => {
   const { recent } = req.query;
   const { isMultiCampus, campusId } = req.user;

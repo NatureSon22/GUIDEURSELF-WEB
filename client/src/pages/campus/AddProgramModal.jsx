@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import addImage from "../../assets/add.png";
 import CloseIcon from "../../assets/CloseIcon.png";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 

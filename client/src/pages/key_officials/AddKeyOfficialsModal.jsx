@@ -54,6 +54,25 @@
             }
         };
 
+        // Mutation for logging activity
+        const logActivityMutation = useMutation({
+            mutationFn: async (logData) => {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(logData),
+                    credentials: "include",
+                });
+                if (!response.ok) {
+                    throw new Error("Failed to log activity");
+                }
+                return response.json();
+            },
+        });
+
+
         const handleSave = async () => {
             setIsLoading(true);
         
@@ -86,6 +105,16 @@
         
                 const savedOfficial = await response.json();
         
+                // Log "add" action to ActivityLog
+                await logActivityMutation.mutateAsync({
+                    user_number: currentUser.user_number, // Replace with actual user number
+                    username: currentUser.username, // Replace with actual username
+                    firstname: currentUser.firstname, // Replace with actual firstname
+                    lastname: currentUser.lastname, // Replace with actual lastname
+                    role_type: currentUser.role_type, // Replace with actual role type
+                    campus_name: currentUser.campus_name, // Replace with actual campus name
+                    action: `Added key official ${name}`,
+                });
         
                 addOfficial();
                 toast({

@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import addImage from "../../assets/add.png";
 import CloseIcon from "../../assets/CloseIcon.png";
+import useUserStore from "@/context/useUserStore";
 import AddProgramModal from "./AddNewProgramModal";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -24,6 +25,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const AddNewCampus = () => {
+  const { currentUser } = useUserStore((state) => state);
   const { toast } = useToast();
   const [position, setPosition] = useState([14.466440, 121.226080]); 
   const [loadingVisible, setLoadingVisible] = useState(false);
@@ -49,6 +51,23 @@ const AddNewCampus = () => {
     campus_cover_photo: null,
   });
 
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(logData),
+        credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to log activity");
+        }
+        return response.json();
+        },
+  });
+
   useEffect(() => {
       const fetchCampuses = async () => {
         try {
@@ -63,6 +82,8 @@ const AddNewCampus = () => {
       fetchCampuses();
     }, []);
 
+
+    
     const handleSubmit = async (e) => {
       e.preventDefault();
     
@@ -143,6 +164,15 @@ const AddNewCampus = () => {
         });
     
         if (response.ok) {
+          await logActivityMutation.mutateAsync({
+            user_number: currentUser.user_number, // Replace with actual user number
+            username: currentUser.username, // Replace with actual username
+            firstname: currentUser.firstname, // Replace with actual firstname
+            lastname: currentUser.lastname, // Replace with actual lastname
+            role_type: currentUser.role_type, // Replace with actual role type
+            campus_name: currentUser.campus_name, // Replace with actual campus name
+            action: `Added new campus ${campusData.campus_name}`,
+        });
           setIsLoading(false);
           setLoadingMessage("Adding New Campus...");
           setLoadingVisible(true);

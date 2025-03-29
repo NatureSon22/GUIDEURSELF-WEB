@@ -11,11 +11,13 @@ import { loggedInUser } from "@/api/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FaPen } from "react-icons/fa6";
+import useUserStore from "@/context/useUserStore";
 import { FaCheck } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
+import { useMutation } from "@tanstack/react-query";
 
 const EditDisplayCampus = () => {
+  const { currentUser } = useUserStore((state) => state);
   const [campusToDelete, setCampusToDelete] = useState(null);
   const [loadingVisible, setLoadingVisible] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -24,6 +26,23 @@ const EditDisplayCampus = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(logData),
+        credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to log activity");
+        }
+        return response.json();
+        },
+  });
   
   const handleNavigate = (path) => {
     navigate(path);
@@ -127,8 +146,19 @@ const EditDisplayCampus = () => {
         `${import.meta.env.VITE_API_URL}/campuses/${campusToDelete._id}`,
         { method: "DELETE", credentials: "include" },
       );
+
+
   
       if (deleteResponse.ok) {
+        await logActivityMutation.mutateAsync({
+          user_number: currentUser.user_number, // Replace with actual user number
+          username: currentUser.username, // Replace with actual username
+          firstname: currentUser.firstname, // Replace with actual firstname
+          lastname: currentUser.lastname, // Replace with actual lastname
+          role_type: currentUser.role_type, // Replace with actual role type
+          campus_name: currentUser.campus_name, // Replace with actual campus name
+          action: `Archived ${campusToDelete.campus_name} Campus`,
+      });
         toast({
           title: "Success",
           description: `Campus successfully archived and deleted: ${campusToDelete.campus_name}`,
