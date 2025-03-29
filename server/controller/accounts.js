@@ -525,13 +525,21 @@ const verifyAccount = async (req, res) => {
 const deleteAccounts = async (req, res) => {
   try {
     const { accountIds } = req.body;
-    const accountIdsArray = accountIds.split(",");
+    console.log(accountIds);
 
-    await UserModel.deleteMany({ _id: { $in: accountIdsArray } });
+    if (!accountIds || !Array.isArray(accountIds) || accountIds.length === 0) {
+      return res.status(400).json({ message: "Invalid account IDs" });
+    }
 
-    res.status(200).json({
-      message: "User deleted successfully",
+    const deletionResult = await UserModel.deleteMany({
+      _id: { $in: accountIds },
     });
+
+    if (deletionResult.deletedCount === 0) {
+      return res.status(404).json({ message: "No matching accounts found" });
+    }
+
+    res.status(200).json({ message: "Accounts deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -585,7 +593,7 @@ const getAllInactiveAccount = async (req, res) => {
 
     const users = await UserModel.find(filter)
       .select(
-        "user_number username email firstname middlename lastname role_id campus_name date_created date_assigned status"
+        "user_number username email firstname middlename lastname role_id campus_name date_created date_updated date_assigned status "
       )
       .populate("role_id", "role_type")
       .populate("campus_id", "campus_name")

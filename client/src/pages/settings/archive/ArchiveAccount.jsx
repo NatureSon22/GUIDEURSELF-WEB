@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { activateAccount, getAllInactiveAccount } from "@/api/accounts";
+import {
+  activateAccount,
+  deleteAccount,
+  getAllInactiveAccount,
+} from "@/api/accounts";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import { Button } from "@/components/ui/button";
 import ComboBox from "@/components/ComboBox";
@@ -12,6 +16,8 @@ import MultiCampus from "@/layer/MultiCampus";
 import { Input } from "@/components/ui/input";
 import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
+import Loading from "@/components/Loading";
+import { MdDelete } from "react-icons/md";
 
 const ArchiveAccount = () => {
   const { toast } = useToast();
@@ -21,14 +27,17 @@ const ArchiveAccount = () => {
   const [filters, setFilters] = useState([]);
   const [reset, setReset] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [rowSelection, setRowSelection] = useState({});
 
   const client = useQueryClient();
 
-  const { data: inactiveAccounts } = useQuery({
-    queryKey: ["inactive-accounts"],
-    queryFn: getAllInactiveAccount,
-  });
+  const { data: inactiveAccounts, isLoading: loadingInactiveAccounts } =
+    useQuery({
+      queryKey: ["inactive-accounts"],
+      queryFn: getAllInactiveAccount,
+    });
 
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
@@ -91,6 +100,34 @@ const ArchiveAccount = () => {
     setOpenDialog: () => setOpenDialog(false),
   });
 
+  const { mutateAsync: handleDeleteAccount, isLoading: isDeleting } =
+    useMutation({
+      mutationFn: deleteAccount,
+      onSuccess: () => {
+        toast({
+          title: "Accounts Deleted",
+          description: "Accounts have been deleted successfully",
+        });
+        client.invalidateQueries(["inactive-accounts"]);
+        setRowSelection({});
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to delete accounts",
+          variant: "destructive",
+        });
+      },
+      onSettled: () => {
+        setOpenDeleteDialog(false);
+      },
+    });
+
+  const handleDelete = async () => {
+    const accountIds = Object.keys(rowSelection);
+    await handleDeleteAccount(accountIds);
+  };
+
   const handleReset = () => {
     setGlobalFilter("");
     setFilters([]);
@@ -106,12 +143,23 @@ const ArchiveAccount = () => {
 
   return (
     <div className="flex flex-1 flex-col space-y-5">
-      <Input
-        type="text"
-        placeholder="Search"
-        value={globalFilter || ""}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-      />
+      <div className="flex gap-5">
+        <Input
+          type="text"
+          placeholder="Search"
+          value={globalFilter || ""}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+        />
+
+        <Button
+          className="bg-accent-100 hover:bg-accent-100/15 hover:text-accent-100"
+          disabled={Object.keys(rowSelection).length === 0}
+          onClick={() => setOpenDeleteDialog(true)}
+        >
+          <MdDelete />
+          Delete
+        </Button>
+      </div>
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
@@ -158,16 +206,51 @@ const ArchiveAccount = () => {
       </div>
 
       <div className="flex-1">
-        <DataTable
-          data={filteredInactiveAccounts}
-          columns={columns}
-          filters={filters}
-          setFilters={setFilters}
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-          columnActions={{ handleSelect }}
-        />
+        {loadingInactiveAccounts ? (
+          <div className="grid h-full place-items-center">
+            <Loading />
+          </div>
+        ) : (
+          <DataTable
+            data={filteredInactiveAccounts}
+            columns={columns}
+            filters={filters}
+            setFilters={setFilters}
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+            columnActions={{ handleSelect }}
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+          />
+        )}
       </div>
+
+      <DialogContainer openDialog={openDeleteDialog}>
+        <div className="flex flex-col items-center gap-5">
+          <FaCircleExclamation className="text-[2.5rem] text-base-200" />
+          <p className="text-center text-[0.91rem] font-semibold">
+            Warning: Once deleted, these accounts cannot be restored. Do you
+            want to proceed?
+          </p>
+          <div className="flex w-full gap-4">
+            <Button
+              variant="outline"
+              className="flex-1 border-secondary-200 py-1 text-secondary-100-75"
+              onClick={() => setOpenDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              Proceed
+            </Button>
+          </div>
+        </div>
+      </DialogContainer>
 
       <DialogContainer openDialog={openDialog}>
         <div className="flex flex-col items-center gap-5">

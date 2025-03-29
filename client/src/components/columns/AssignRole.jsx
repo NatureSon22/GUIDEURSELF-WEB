@@ -1,4 +1,3 @@
-import formatTitle from "@/utils/formatTitle";
 import { Checkbox } from "../ui/checkbox";
 
 const columns = () => [

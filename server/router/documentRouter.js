@@ -13,6 +13,7 @@ import {
   uploadDraftFilesAndCreateDocuments,
   syncDocument,
   deleteDocument,
+  deleteDocuments,
 } from "../controller/document.js";
 import multer from "multer";
 import storage from "../config/storage.js";
@@ -110,6 +111,7 @@ documentRouter.delete(
   verifyToken,
   deleteDocument
 );
+documentRouter.delete("/delete-documents", verifyToken, deleteDocuments);
 documentRouter.put(
   "/update-upload-document",
   verifyToken,

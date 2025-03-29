@@ -13,7 +13,6 @@ import Loading from "@/components/Loading";
 import {
   getAllCampuses,
   getAllRoleTypes,
-  getAllStatus,
 } from "@/api/component-info";
 import { GrPowerReset } from "react-icons/gr";
 import MultiCampus from "@/layer/MultiCampus";

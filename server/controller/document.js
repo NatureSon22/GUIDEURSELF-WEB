@@ -1067,6 +1067,27 @@ const deleteDocument = async (req, res) => {
   }
 };
 
+const deleteDocuments = async (req, res) => {
+  try {
+    const { documentIds } = req.body;
+    if (
+      !documentIds ||
+      !Array.isArray(documentIds) ||
+      documentIds.length === 0
+    ) {
+      return res.status(400).json({ message: "Invalid document IDs" });
+    }
+
+    await DocumentModel.deleteMany({ _id: { $in: documentIds } });
+
+    res.json({
+      message: "Document deletion process completed",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 export {
   getAllFolders,
   createFolder,
@@ -1081,4 +1102,5 @@ export {
   saveAsDraftUploadDocuments,
   syncDocument,
   deleteDocument,
+  deleteDocuments,
 };
