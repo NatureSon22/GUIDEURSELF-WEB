@@ -15,6 +15,7 @@ import FeaturePermission from "@/layer/FeaturePermission";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaCheck } from "react-icons/fa6";
+import KeyOfficialLogTable from "./KeyOfficialLogTable";
 
 
 const EditKeyOfficials = () => {
@@ -120,7 +121,9 @@ const EditKeyOfficials = () => {
         lastname: currentUser.lastname, // Replace with actual lastname
         role_type: currentUser.role_type, // Replace with actual role type
         campus_name: currentUser.campus_name, // Replace with actual campus name
-        action: `Archived key official ${officialToArchive.name}`,
+        action: `Archived key official: ${officialToArchive.name}`,
+        date_created: officialToArchive.date_added,
+        date_last_modified: Date.now(),
     });
       archiveOfficial(officialToArchive._id);
       setOfficialToArchive(null);
@@ -290,6 +293,17 @@ const EditKeyOfficials = () => {
         ) : (
           <p className="text-gray-600">No key officials found.</p>
         )}
+      </div>
+      <div
+        className="mt-[40px]"
+      >
+      <Header
+        className="mb-4"
+        title={"Key Official Log"}
+        subtitle={"This section lists the most recent updates and changes made by administration for different key officials."}
+        />
+      <KeyOfficialLogTable />
+
       </div>
 
       {/* Delete Confirmation Modal */}

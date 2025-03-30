@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaPen } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
+import CampusLogTable from "./CampusLogTable";
 import "@/fluttermap.css";
 
 // Fix for default marker icon not showing
@@ -99,8 +100,11 @@ const DisplayCampus = () => {
   }
 
   return (
-    <div className="flex w-full">
-      {/* Left Container */}
+    <div className="flex flex-col w-full">
+      
+      <div className="flex w-full">
+
+        {/* Left Container */}
       <div className="flex w-[75%] flex-col gap-6">
         <Header
           title={"Manage Campus"}
@@ -135,7 +139,7 @@ const DisplayCampus = () => {
         </div>
 
         {/* Map Section */}
-        <div className="flex h-[700px] flex-col gap-5">
+        <div className="flex flex-col gap-5">
           <div className="rounded-md border border-gray-300">
             <div className="p-4">
               <h2 className="font-cizel-decor font-bold">
@@ -204,7 +208,22 @@ const DisplayCampus = () => {
             </div>
           ))}
         </div>
+
       </div>
+
+      </div>
+      
+            <div
+              className="mt-[40px]"
+            >
+            <Header
+              className="mb-4"
+              title={"Campus Log"}
+              subtitle={"This section lists the most recent updates and changes made by administration across different campuses."}
+              />
+            <CampusLogTable />
+      
+            </div>
     </div>
   );
 };

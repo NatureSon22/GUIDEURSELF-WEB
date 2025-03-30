@@ -1,12 +1,12 @@
 import "leaflet/dist/leaflet.css";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import LoadingFallback from "@/components/LoadingFallback";
 import AddFloorModal from "./AddFloorModal";
 import EditFloorModal from "./EditFloorModal";
 import HeaderSection from "./HeaderSection";
-import { Button } from "@/components/ui/button";
+import useUserStore from "@/context/useUserStore";
 import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
 import { useState, useEffect, StrictMode, Suspense  } from "react";
 import L from "leaflet"; 
@@ -25,7 +25,6 @@ import { RxDragHandleDots2 } from "react-icons/rx";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoAlertCircle } from "react-icons/io5";
 import { Input } from "@/components/ui/input";
-import { CiSearch } from "react-icons/ci";
 import { renderToString } from "react-dom/server";
 import { BsDoorOpenFill } from "react-icons/bs";
 import { PiOfficeChairFill } from "react-icons/pi";
@@ -33,10 +32,8 @@ import { FaGraduationCap } from "react-icons/fa";
 import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
 import { renderToStaticMarkup } from "react-dom/server";
-import { HiSquaresPlus } from "react-icons/hi2";
 import { MdWidgets } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
-import { useToast } from "@/hooks/use-toast";
 import Loading from "@/components/Loading";
 import "@/fluttermap.css";
 
@@ -110,7 +107,7 @@ const navigate = useNavigate();
 const queryClient = useQueryClient();
 
 const { campus } = location.state || {};
-
+const { currentUser } = useUserStore((state) => state);
 const [editingFloor, setEditingFloor] = useState(null);
 const [hideMarkers, setHideMarkers] = useState(false);
 const bounds = [[14.480740, 121.184750], [14.488870, 121.192500]];
@@ -133,12 +130,30 @@ const [expandedFloor, setExpandedFloor] = useState(null);
 const [isSliderOpen, setIsSliderOpen] = useState(true);
 const [searchQuery, setSearchQuery] = useState("");
 const [loadingMessage, setLoadingMessage] = useState("");
+const [ date, setDate] = useState("");
+
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(logData),
+    credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to log activity");
+    }
+      return response.json();
+    },     
+   }); 
 
 const toggleSlider = () => {
   setIsSliderOpen(!isSliderOpen);
 };
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["user"],
     queryFn: loggedInUser,
     refetchOnWindowFocus: false,
@@ -292,9 +307,10 @@ const toggleEditMode = async () => {
   setIsRemove(false);
 };
 
-const confirmRemoveFloor = (floorId) => {
-  setFloorToRemove(floorId);
+const confirmRemoveFloor = (floor) => {
+  setFloorToRemove(floor._id);
   setIsDialogOpen(true);
+  console.log(floor._id)
 };
 
 const revertMarkers = () => {
@@ -333,6 +349,35 @@ const handleProceedRemove = async () => {
       );
 
       if (!response.ok) throw new Error("Failed to archive floor");
+
+      const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          campus_name: campus.campus_name || "Unknown Campus",
+          activity: `Archived a floor: ${floorToArchive.floor_name}`,
+          updated_by: `${data?.firstname} ${data?.lastname}` || "Unknown User",
+        }),
+      });
+
+      if (!logResponse.ok) {
+        console.error("Failed to log archiving activity:", logResponse.statusText);
+      }
+
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number, // Replace with actual user number
+        username: currentUser.username, // Replace with actual username
+        firstname: currentUser.firstname, // Replace with actual firstname
+        lastname: currentUser.lastname, // Replace with actual lastname
+        role_type: currentUser.role_type, // Replace with actual role type
+        campus_name: currentUser.campus_name, // Replace with actual campus name
+        action: `Archived existing floor: ${floorToArchive.floor_name}`,
+        date_created: floorToArchive.date_added,
+        date_last_modified: Date.now(),
+    });
 
       const updatedFloors = updatedCampus.floors.filter(
         (floor) => floor._id !== floorToRemove
@@ -393,7 +438,7 @@ const handleProceedRemoveMarker = async () => {
         body: JSON.stringify({
           campus_name: campus.campus_name || "Unknown Campus",
           activity: `Archived a location ${markerToRemove.marker_name}`,
-          updated_by: data?.username || "Unknown User",
+          updated_by: `${data?.firstname} ${data?.lastname}` || "Unknown User",
         }),
       });
 
@@ -402,6 +447,19 @@ const handleProceedRemoveMarker = async () => {
       }
 
       console.log(`Marker with ID ${markerToRemove._id} archived successfully.`);
+
+      
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number, // Replace with actual user number
+        username: currentUser.username, // Replace with actual username
+        firstname: currentUser.firstname, // Replace with actual firstname
+        lastname: currentUser.lastname, // Replace with actual lastname
+        role_type: currentUser.role_type, // Replace with actual role type
+        campus_name: currentUser.campus_name, // Replace with actual campus name
+        action: `Archived existing location: ${markerToRemove.marker_name}`,
+        date_created: markerToRemove.date_added,
+        date_last_modified: Date.now(),
+    });
 
       refreshFloors();
       refreshMarkers();
@@ -575,7 +633,7 @@ const handleDrop = (e, targetFloor) => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        confirmRemoveFloor(floor._id);
+                        confirmRemoveFloor(floor);
                       }}
                       className="h-[30px] w-[30px]"
                     >
@@ -796,7 +854,12 @@ const handleDrop = (e, targetFloor) => {
         </div>
       
         {isModalOpen && (
-          <AddFloorModal closeModal={closeModal} campusId={campus._id} refreshFloors={refreshFloors} />
+          <AddFloorModal 
+          updatedCampus={updatedCampus}
+          closeModal={closeModal} 
+          campusId={campus._id} 
+          refreshFloors={refreshFloors} 
+          />
         )}
 
       {editingFloor && (
@@ -807,6 +870,7 @@ const handleDrop = (e, targetFloor) => {
           refreshFloors={refreshFloors}
           selectedFloor={selectedFloor}
           setSelectedFloor={setSelectedFloor}
+          updatedCampus={updatedCampus}
         />
       )}
 

@@ -33,6 +33,8 @@ const LazyMediaPanoramicViewer = ({ imageUrl }) => {
         minPitch: 0, // Prevent looking up or down
         maxPitch: 0, // Lock vertical movement
         yaw: 180, // Default horizontal view
+        minHfov: 100, // Prevent zooming out
+        maxHfov: 100, // Prevent zooming in
       });
     }
 

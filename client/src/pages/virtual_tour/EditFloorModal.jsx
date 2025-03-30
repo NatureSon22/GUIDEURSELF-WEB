@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,8 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import useUserStore from "@/context/useUserStore";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { loggedInUser } from "@/api/auth";
 
-const updateFloor = async ({ campusId, floorId, formData }) => {
+const updateFloor = async ({ campusId, floorId, formData, }) => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/campuses/floors/${campusId}/${floorId}`,
@@ -26,23 +28,66 @@ const updateFloor = async ({ campusId, floorId, formData }) => {
       throw new Error(errorData.message || "Failed to update floor.");
     }
 
+    const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        campus_name: formData.get("campus_name"),
+        activity: formData.get("activity"),
+        updated_by: formData.get("updated_by"),
+      }),
+    });
+
+    if (!logResponse.ok) {
+      console.error("Failed to log activity:", logResponse.statusText);
+    }
+
     return await response.json();
   } catch (error) {
     throw new Error(error.message || "Failed to update floor.");
   }
 };
 
-const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, selectedFloor, setSelectedFloor }) => {
+const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, updatedCampus, selectedFloor, setSelectedFloor }) => {
   const [errorMessage, setErrorMessage] = useState("");
+  const { currentUser } = useUserStore((state) => state);
+  const [ date, setDate] = useState(floorData.date_added);
   const [floorName, setFloorName] = useState("");
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  
+  const { data } = useQuery({
+    queryKey: ["user"],
+    queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
+  });
+
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(logData),
+    credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to log activity");
+    }
+      return response.json();
+    },     
+   }); 
 
   useEffect(() => {
     if (floorData) {
       setFloorName(floorData.floor_name);
       setImagePreview(floorData.floor_photo_url);
+      setDate(floorData.date_added);
     }
   }, [floorData]);
 
@@ -52,8 +97,20 @@ const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, select
       floorId: floorData._id,
       formData
     }),
-    onSuccess: (updatedFloor) => {
+    onSuccess: async (updatedFloor) => {
         refreshFloors();
+
+        await logActivityMutation.mutateAsync({
+          user_number: currentUser.user_number, // Replace with actual user number
+          username: currentUser.username, // Replace with actual username
+          firstname: currentUser.firstname, // Replace with actual firstname
+          lastname: currentUser.lastname, // Replace with actual lastname
+          role_type: currentUser.role_type, // Replace with actual role type
+          campus_name: currentUser.campus_name, // Replace with actual campus name
+          action: `Update existing floor: ${floorName}`,
+          date_created: date,
+          date_last_modified: Date.now(),
+      });
       
         // Update the selectedFloor state in parent if needed
         if (selectedFloor && selectedFloor._id === floorData._id) {
@@ -82,6 +139,10 @@ const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, select
     if (file) {
       formData.append("floor_photo", file);
     }
+
+    formData.append("updated_by", `${data?.firstname} ${data?.lastname}`|| "Unknown User");
+    formData.append("activity", `Update existing floor ${floorName}`);
+    formData.append("campus_name", `${updatedCampus.campus_name} Campus` || "Unknown Campus");
 
     updateFloorMutation(formData);
   };

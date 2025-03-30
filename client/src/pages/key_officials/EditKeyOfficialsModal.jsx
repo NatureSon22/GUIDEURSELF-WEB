@@ -12,6 +12,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   const { toast } = useToast();
   const [position, setPosition] = useState(official?.position_name || "");
   const [name, setName] = useState(official?.name || "");
+  const [date, setDate] = useState(official?.date_added || Date.now());
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(official?.key_official_photo_url || "");
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +46,9 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
         lastname: currentUser.lastname, // Replace with actual lastname
         role_type: currentUser.role_type, // Replace with actual role type
         campus_name: currentUser.campus_name, // Replace with actual campus name
-        action: `Edit key official ${name}`,
+        action: `Edit key official: ${name}`,
+        date_created: date,
+        date_last_modified: Date.now(),
     });
       if (!response.ok) throw new Error("Failed to update official");
       return response.json();
@@ -152,13 +155,13 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
             <select
               value={position}
               onChange={(e) => setPosition(e.target.value)}
-              className="w-full p-2 border text-[15px] border-gray-300 rounded-md"
+              className="font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
             >
-              <option value="" disabled>
+              <option className="font-normal text-[0.875rem]" value="" disabled>
                 Select new position
               </option>
               {positions.map((pos) => (
-                <option key={pos._id} value={pos.position_name}>
+                <option className="font-normal text-[0.875rem]" key={pos._id} value={pos.position_name}>
                   {pos.position_name}
                 </option>
               ))}

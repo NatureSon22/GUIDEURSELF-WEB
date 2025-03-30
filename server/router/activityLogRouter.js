@@ -28,7 +28,7 @@ activityLogRouter.get("/", verifyToken, async (req, res) => {
     const filter = isMultiCampus ? {} : { campus_name: campus.campus_name };
 
     // Ensure the field name matches the database schema (e.g., `date_created` or `createdAt`)
-    let query = ActivityLog.find(filter).sort({ date_created: -1 }); // Sort by `date_created` in descending order
+    let query = ActivityLog.find(filter).sort({ date_last_modified: -1 }); // Sort by `date_created` in descending order
 
     if (recent) {
       const limit = parseInt(recent, 10);

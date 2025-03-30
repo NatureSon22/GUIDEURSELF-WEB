@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import formatDateTime from "@/utils/formatDateTime";
 
-const fetchVirtualTourLogs = async () => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
+const CampusLogs = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuslogs`, {
     method: "GET",
     credentials: "include",
   }); 
@@ -12,10 +12,10 @@ const fetchVirtualTourLogs = async () => {
   return response.json();
 };
 
-const VirtualTourLogTable = () => {
+const CampusLogTable = () => {
   const { data, error, isLoading, isError } = useQuery({
-    queryKey: ['virtualTourLogs'], 
-    queryFn: fetchVirtualTourLogs,
+    queryKey: ['campusLogs'], 
+    queryFn: CampusLogs,
   });
 
   if (isLoading) {
@@ -57,4 +57,4 @@ const VirtualTourLogTable = () => {
   );
 };
 
-export default VirtualTourLogTable;
+export default CampusLogTable;

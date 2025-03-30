@@ -1,5 +1,5 @@
 import express from 'express';
-import VirtualTourLog from '../models/VirtualTourLog.js'; // Adjust the import path accordingly
+import KeyOfficialLog from '../models/KeyOfficialLog.js'; // Adjust the import path accordingly
 import verifyToken from "../middleware/verifyToken.js"
 
 const router = express.Router();
@@ -7,13 +7,13 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
   try {
-    const { campus_name, updated_by, activity } = req.body;
+    const { name, updated_by, activity } = req.body;
 
-    if (!campus_name || !updated_by || !activity) {
+    if (!name || !updated_by || !activity) {
       return res.status(400).json({ success: false, message: "Missing required fields." });
     }
 
-    const newLog = new VirtualTourLog({ campus_name, updated_by, activity });
+    const newLog = new KeyOfficialLog({ name, updated_by, activity });
     const savedLog = await newLog.save();
 
     res.status(201).json({ success: true, data: savedLog });
@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const logs = await VirtualTourLog.find();
+    const logs = await KeyOfficialLog.find();
     res.status(200).json(logs);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -52,7 +52,7 @@ const ViewTourSummary = () => {
             <p className="text-3xl font-semibold">{totalMarkerPhotos}</p>
             <RiCameraLensLine className="text-4xl text-base-200" />
           </div>
-          <p className="text-[0.9rem]">Total Panoramic&deg; View Available</p>
+          <p className="text-[0.9rem]">Total Panoramic&deg; View</p>
         </div>
 
         <div className="grid place-items-center space-y-2">

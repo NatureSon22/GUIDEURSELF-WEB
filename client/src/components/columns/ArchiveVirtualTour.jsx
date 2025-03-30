@@ -40,8 +40,14 @@ const columns = (columnActions) => [
   },
   {
     accessorKey: "date_archived",
-    header: "Date Archived",
+    header: "Date Created",
     cell: ({ row }) => formatDateTime(row.original.date_archived),
+  },
+  {
+    accessorKey: "date_last_modified",
+    header: "Date Archived",
+    filterFn: "equalsString",
+    cell: ({ row }) => formatDateTime(row.original.date_last_modified),
   },
   {
     accessorKey: "type",

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import addImage from "../../assets/add.png";
+import { FaPlus } from "react-icons/fa";
 import CloseIcon from "../../assets/CloseIcon.png";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -228,7 +228,7 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
                 className="w-full h-10 border border-gray-300 rounded-md p-2"
                 disabled={!selectedProgram} // Disable if no program name is selected
               >
-                <option value="">SELECT MAJOR NAME</option>
+                <option value=""  hidden>SELECT MAJOR NAME</option>
                 {majorNames.map((major) => (
                   <option key={major._id} value={major.majorname}>
                     {major.majorname}
@@ -237,10 +237,10 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
               </select>
               <Button
                 type="button"
-                className="w-[40%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 hover:bg-gray-200 bg-gray-200"
+                className="!w-[25%] border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
                 onClick={handleAddMajor}
               >
-                <img className="w-[30px] h-[30px]" src={addImage} alt="Add Major" />
+                <FaPlus />
                 Add Major
               </Button>
             </div>

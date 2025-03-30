@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import formatDateTime from "@/utils/formatDateTime";
 
-const fetchVirtualTourLogs = async () => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
+const fetchKeyOfficialLogs = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/keyofficiallogs`, {
     method: "GET",
     credentials: "include",
   }); 
@@ -12,10 +12,10 @@ const fetchVirtualTourLogs = async () => {
   return response.json();
 };
 
-const VirtualTourLogTable = () => {
+const KeyOfficialLogTable = () => {
   const { data, error, isLoading, isError } = useQuery({
-    queryKey: ['virtualTourLogs'], 
-    queryFn: fetchVirtualTourLogs,
+    queryKey: ['keyOfficialLogs'], 
+    queryFn: fetchKeyOfficialLogs,
   });
 
   if (isLoading) {
@@ -36,7 +36,7 @@ const VirtualTourLogTable = () => {
       <table className="w-full text-left border-collapse border-y border-gray-300">
         <thead>
           <tr className="bg-gray-100">
-            <th className="p-2 border text-[0.875rem] font-medium text-base-300">Campus Name</th>
+            <th className="p-2 border text-[0.875rem] font-medium text-base-300">Official Name</th>
             <th className="p-2 border text-[0.875rem] font-medium text-base-300">Date And Time Modified</th>
             <th className="p-2 border text-[0.875rem] font-medium text-base-300">Updated By</th>
             <th className="p-2 border text-[0.875rem] font-medium text-base-300">Activity</th>
@@ -45,7 +45,7 @@ const VirtualTourLogTable = () => {
         <tbody>
           {latestLogs.map((log) => (
             <tr key={log._id}>
-              <td className="p-4 border-y text-[0.9rem]">{log.campus_name}</td>
+              <td className="p-4 border-y text-[0.9rem]">{log.name}</td>
               <td className="p-4 border-y text-[0.9rem]">{formatDateTime(log.date_added)}</td>
               <td className="p-4 border-y text-[0.9rem]">{log.updated_by}</td>
               <td className="p-4 border-y text-[0.9rem]">{log.activity}</td>
@@ -57,4 +57,4 @@ const VirtualTourLogTable = () => {
   );
 };
 
-export default VirtualTourLogTable;
+export default KeyOfficialLogTable;

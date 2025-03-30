@@ -11,7 +11,7 @@ import { PiOfficeChairFill } from "react-icons/pi";
 import { FaGraduationCap } from "react-icons/fa";
 import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
-import { HiSquaresPlus } from "react-icons/hi2";
+import useUserStore from "@/context/useUserStore";
 import { MdWidgets } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import PreviewPanorama from "./PreviewPanorama";
@@ -83,12 +83,12 @@ const EditMarkerModal =
   exitModal,
   updatedCampus 
 }) => {
+  const { currentUser } = useUserStore((state) => state);
   const { toast } = useToast();
   const [markerName, setMarkerName] = useState(marker.marker_name || "");
+  const [date, setDate] = useState(marker.date_added || Date.now());
   const [markerDescription, setMarkerDescription] = useState(marker.marker_description || "");
   const [category, setCategory] = useState(marker.category|| "");
-  const [latitude, setLatitude] = useState(coordinates.lat);
-  const [longitude, setLongitude] = useState(coordinates.lng);
   const [imageFile, setImageFile] = useState(marker.marker_photo_url);
   const [newImagePreview, setNewImagePreview] = useState(null);
   const [isMutating, setIsMutating] = useState(false);
@@ -100,6 +100,23 @@ const EditMarkerModal =
   const [markerSubInfo, setMarkerSubInfo] = useState(marker.sub_info || "");
   
   const queryClient = useQueryClient(); 
+
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(logData),
+    credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to log activity");
+    }
+      return response.json();
+    },     
+   }); 
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -208,7 +225,7 @@ const EditMarkerModal =
           latitude: coordinates.lat !== null ? parseFloat(coordinates.lat) : null,
           longitude: coordinates.lng !== null ? parseFloat(coordinates.lng) : null,
           campus_name: updatedCampus.campus_name, // Add the campus name here
-          updated_by: data?.username || "Unknown User", // Add the user data here
+          updated_by: `${data?.firstname} ${data?.lastname}` || "Unknown User", // Add the user data here
         },
         imageFile
       );
@@ -216,23 +233,24 @@ const EditMarkerModal =
       if (typeof refreshMarkers === "function") {
         refreshMarkers();
       }
+
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number, // Replace with actual user number
+        username: currentUser.username, // Replace with actual username
+        firstname: currentUser.firstname, // Replace with actual firstname
+        lastname: currentUser.lastname, // Replace with actual lastname
+        role_type: currentUser.role_type, // Replace with actual role type
+        campus_name: currentUser.campus_name, // Replace with actual campus name
+        action: `Update existing marker: ${markerName}`,
+        date_created: date,
+        date_last_modified: Date.now(),
+    });
   
       queryClient.invalidateQueries(["campuses", campusId]);
   
       toast({
         title: "Success",
         description: "Marker updated successfully",
-      });
-
-      console.log({
-        marker_name: markerName,
-        marker_description: markerDescription.trim() ? markerDescription : "",
-        sub_info: markerSubInfo,
-        category: category.trim() ? category : "",
-        latitude: coordinates.lat !== null ? parseFloat(coordinates.lat) : null,
-        longitude: coordinates.lng !== null ? parseFloat(coordinates.lng) : null,
-        campus_name: updatedCampus.campus_name,
-        updated_by: data?.username || "Unknown User",
       });
   
       onClose();
@@ -270,7 +288,7 @@ const EditMarkerModal =
           <Label className="text-lg">Configure this Location</Label>
 
           <div className="mt-4">
-                <Label className="text-[16px]">location Name</Label>
+                <Label className="text-[16px]">Location Name</Label>
                 <Input
                   type="text"
                   value={markerName}

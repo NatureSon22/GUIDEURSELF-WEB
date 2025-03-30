@@ -43,6 +43,15 @@ const columns = () => [
         <p>{formatDate(row.original.date_created)}</p>
       </div>
     ),
+  },
+  {
+    accessorKey: "date_last_modified",
+    header: "Date Last Modified",
+    cell: ({ row }) => (
+      <div className="py-[7px]">
+        <p>{formatDate(row.original.date_last_modified)}</p>
+      </div>
+    ),
     filterFn: "equalsString",
   },
 ];

@@ -45,9 +45,9 @@ const AddPositionModal = ({ onClose, queryClient, addPosition }) => {
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="grid gap-5 sm:max-w-[525px] [&>button]:hidden">
           <DialogHeader>
-            <DialogTitle>Add Program Type</DialogTitle>
+            <DialogTitle>Add Administrative Name</DialogTitle>
             <DialogDescription>
-              Create the type of the program.
+              Create a new administrative position.
             </DialogDescription>
           </DialogHeader>
   

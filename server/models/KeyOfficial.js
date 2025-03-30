@@ -17,6 +17,10 @@ const keyOfficialSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     required: true },
   date_added: { 
+    type: Date,  
+    required: true 
+  },
+  date_last_modified: { 
     type: Date, 
     default: Date.now 
   },

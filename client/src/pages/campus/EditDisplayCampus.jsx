@@ -158,6 +158,8 @@ const EditDisplayCampus = () => {
           role_type: currentUser.role_type, // Replace with actual role type
           campus_name: currentUser.campus_name, // Replace with actual campus name
           action: `Archived ${campusToDelete.campus_name} Campus`,
+          date_created: campusToDelete.date_added,
+          date_last_modified: Date.now(),
       });
         toast({
           title: "Success",

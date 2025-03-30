@@ -88,6 +88,7 @@ const getAllAccounts = async (req, res, next) => {
           campus_name: "$campus.campus_name",
           date_created: 1,
           date_assigned: 1,
+          date_updated: 1,
           status: 1,
         },
       },

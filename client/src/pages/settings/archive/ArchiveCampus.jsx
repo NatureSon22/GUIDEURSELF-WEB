@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAllCampuses } from "@/api/component-info";
 import { IoAlertCircle } from "react-icons/io5";
+import { RiDeleteBin7Fill } from "react-icons/ri";
 
 const ArchiveCampus = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -99,7 +100,7 @@ const ArchiveCampus = () => {
         return campus[filter.id]?.toLowerCase() === filter.value.toLowerCase();
       });
 
-      const campusDate = new Date(campus.date_added);
+      const campusDate = new Date(campus.date_last_modified);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 
@@ -131,6 +132,8 @@ const ArchiveCampus = () => {
           role_type: currentUser.role_type, // Replace with actual role type
           campus_name: currentUser.campus_name, // Replace with actual campus name
           action: `Retrieved ${campus.campus_name} Campus`,
+          date_created: campus.date_added,
+          date_last_modified: Date.now(),
       });
         toast({
           title: "Success",
@@ -186,6 +189,8 @@ const ArchiveCampus = () => {
         role_type: currentUser.role_type,
         campus_name: currentUser.campus_name,
         action: `Deleted  ${selectedIds.length} campus`,
+        date_created: Date.now(),
+        date_last_modified: Date.now(),
       });
     
       setOpenModal(false);
@@ -233,7 +238,8 @@ const ArchiveCampus = () => {
           disabled={Object.keys(rowSelection).length === 0}
           onClick={openConfirmationModal}
         >
-          Confirm & Delete
+          <RiDeleteBin7Fill/>
+          Clear Archives
         </Button>
       </div>   
 

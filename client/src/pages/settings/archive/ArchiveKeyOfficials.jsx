@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import useUserStore from "@/context/useUserStore";
 import { useMutation } from "@tanstack/react-query";
 import { IoAlertCircle } from "react-icons/io5";
+import { RiDeleteBin7Fill } from "react-icons/ri";
 
 const ArchiveKeyOfficials = () => {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -96,7 +97,7 @@ const ArchiveKeyOfficials = () => {
         return official[filter.id]?.toLowerCase() === filter.value.toLowerCase();
       });
 
-      const officialDate = new Date(official.date_added);
+      const officialDate = new Date(official.date_last_modified);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 
@@ -129,6 +130,8 @@ const ArchiveKeyOfficials = () => {
         role_type: currentUser.role_type, // Replace with actual role type
         campus_name: currentUser.campus_name, // Replace with actual campus name
         action: `Retrieved key official ${official.name}`,
+        date_created: official.date_added,
+        date_last_modified: Date.now(),
     });
         toast({
           title: "Success",
@@ -183,6 +186,8 @@ const ArchiveKeyOfficials = () => {
         role_type: currentUser.role_type,
         campus_name: currentUser.campus_name,
         action: `Deleted ${selectedIds.length} key official`,
+        date_created: Date.now(),
+        date_last_modified: Date.now(),
       });
       setOpenModal(false)
       setRowSelection({});
@@ -230,7 +235,8 @@ const ArchiveKeyOfficials = () => {
         disabled={Object.keys(rowSelection).length === 0}
         onClick={openConfirmationModal}
       >
-        Confirm & Delete
+          <RiDeleteBin7Fill/>
+        Clear Archives
       </Button>
 
       </div>   

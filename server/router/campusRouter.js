@@ -58,6 +58,7 @@ router.post(
         campus_programs, // This comes in as a stringified JSON
         latitude,
         longitude,
+        date_added,
       } = req.body;
 
       const userId = req.user?.userId; 
@@ -114,6 +115,7 @@ router.post(
             campus_programs: formattedPrograms, // Correctly formatted programs
             latitude,
             longitude,
+            date_added,
           });
 
           
@@ -297,6 +299,8 @@ router.put("/campuses/floors/:campusId/:floorId", upload.single("floor_photo"), 
     res.status(500).json({ message: "Error updating floor", error: error.message });
   }
 });
+
+
 router.put("/campuses/floors/:campusId", upload.fields([{ name: "floor_photo", maxCount: 10 }]), async (req, res) => {
   const { campusId } = req.params;
   const { floors } = req.body;
@@ -743,7 +747,7 @@ router.get("/archived-campuses", async (req, res) => {
   try {
     // Fetch all archived campuses sorted by `date_archived` in descending order
     const archivedCampuses = await ArchivedCampus.find({})
-      .sort({ date_archived: -1 }); // Sort by `date_archived` (latest first)
+      .sort({ date_last_modified: -1 }); // Sort by `date_archived` (latest first)
 
     res.status(200).json(archivedCampuses);
   } catch (error) {
@@ -766,7 +770,7 @@ router.post("/archived-campuses/unarchive/:id", async (req, res) => {
     // Step 2: Create a new campus document in the active collection
     const newCampusData = {
       ...archivedCampus.toObject(), // Copy all fields from the archived campus
-      date_added: new Date(), // Set the current date as the date_added field
+      date_added: archivedCampus.date_added, // Set the current date as the date_added field
     };
 
     const newCampus = new Campus(newCampusData);
@@ -812,7 +816,7 @@ router.post("/campuses/:campusId/floors/:floorId/archive", async (req, res) => {
       floor_data: floorToArchive.toObject(), // Store floor details
       location_data: null, // Make sure this is null to prevent validation errors
       campus_id: campusId,
-      date_archived: new Date(),
+      date_archived: floorToArchive.date_added,
       campus_name: campus.campus_name,
     });
 
@@ -845,7 +849,7 @@ router.get("/archived-items", async (req, res) => {
     // Fetch all archived items, populate the campus name, and sort by `date_archived`
     const archivedItems = await ArchivedItem.find({})
       .populate("campus_id", "campus_name") // Populate the campus_name field
-      .sort({ date_archived: -1 }); // Sort by `date_archived` (latest first)
+      .sort({ date_last_modified: -1 }); // Sort by `date_archived` (latest first)
 
       console.log(archivedItems);
     res.status(200).json(archivedItems);
@@ -906,96 +910,6 @@ router.post("/archived-items/:id/unarchive", async (req, res) => {
   }
 });
 
-
-
-router.post("/campuses/:campusId/locations/:locationId/archive", async (req, res) => {
-  try {
-    const { campusId, locationId } = req.params;
-    console.log(`Archiving location ${locationId} from campus ${campusId}`);
-    const userId = req.user?.userId; 
-
-
-    // Step 1: Find the campus
-    const campus = await Campus.findById(campusId);
-    if (!campus) {
-      console.log("Campus not found");
-      return res.status(404).json({ message: "Campus not found" });
-    }
-
-    // Step 2: Find the specific location to archive
-    const locationToArchive = campus.locations.find(
-      (location) => location._id.toString() === locationId
-    );
-    if (!locationToArchive) {
-      console.log("Location not found");
-      return res.status(404).json({ message: "Location not found" });
-    }
-
-    // Step 3: Create a new archived item for the location
-    const archivedItem = new ArchivedItem({
-      type: "location", // Set the type to "location"
-      location_data: locationToArchive.toObject(), // Copy all fields from the location
-      campus_id: campusId, // Reference to the original campus
-      date_archived: new Date(), // Set the current date as the date_archived field
-      campus_name: campus.campus_name,
-    });
-
-    // Step 4: Save the archived item
-    await archivedItem.save();
-
-    // Step 5: Remove the location from the original campus
-    campus.locations = campus.locations.filter(
-      (location) => location._id.toString() !== locationId
-    );
-
-    
-    if (userId) {
-      await activitylog(userId, `Archived location from: ${campus.campus_name}`);
-    } else {
-      console.warn("User ID not found, activity log not saved.");
-    }
-
-    // Step 6: Save the updated campus
-    await campus.save();
-
-    // Step 7: Send a success response
-    console.log("Location archived successfully");
-    res.status(201).json({
-      message: "Location archived successfully",
-      archivedItem,
-    });
-  } catch (error) {
-    console.error("Error archiving location:", error);
-    res.status(500).json({ message: "Failed to archive location" });
-  }
-});
-
-// router.post("/archive-item", async (req, res) => {
-//   try {
-//     const { type, floor_data, location_data, campus_id } = req.body;
-
-//     // Create a new archived item
-//     const archivedItem = new ArchivedItem({
-//       type,
-//       floor_data: type === "floor" ? floor_data : undefined,
-//       location_data: type === "location" ? location_data : undefined,
-//       campus_id,
-//     });
-
-//     // Save the archived item
-//     await archivedItem.save();
-
-//     // Send a success response
-//     res.status(201).json({
-//       message: "Item archived successfully",
-//       archivedItem,
-//     });
-//   } catch (error) {
-//     console.error("Error archiving item:", error);
-//     res.status(500).json({ message: "Failed to archive item" });
-//   }
-// });
-
 router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", async (req, res) => {
   try {
     const { campusId, floorId, markerId } = req.params;
@@ -1023,13 +937,14 @@ router.post("/campuses/:campusId/floors/:floorId/markers/:markerId/archive", asy
 
     // Step 4: Create a new archived item for the marker
     const archivedItem = new ArchivedItem({
-      type: "location", // Set type to "location"
-      location_data: markerToArchive.toObject(), // Store marker details
-      floor_id: floorId, // 🔹 Store floor ID to track its original location
-      campus_id: campusId, // Store campus ID
-      campus_name: campus.campus_name, // Add campus_name to the archived item
-      date_archived: new Date(),
+      type: "location", 
+      location_data: markerToArchive.toObject(),
+      floor_id: floorId,  
+      campus_id: campusId,  
+      campus_name: campus.campus_name,  
+      date_archived: markerToArchive.date_added // ✅ Use the actual marker's `date_added`
     });
+    
 
     // Step 5: Save the archived item
     await archivedItem.save();

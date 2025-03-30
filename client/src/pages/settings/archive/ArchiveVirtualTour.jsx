@@ -12,6 +12,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCampuses } from "@/api/component-info";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IoAlertCircle } from "react-icons/io5";
+import { RiDeleteBin7Fill } from "react-icons/ri";
 
 const ArchiveVirtualTour = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -98,7 +99,7 @@ const ArchiveVirtualTour = () => {
       });
   
       // Date range filtering
-      const itemDate = new Date(item.date_archived);
+      const itemDate = new Date(item.date_last_modified);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
   
@@ -132,6 +133,8 @@ const ArchiveVirtualTour = () => {
         role_type: currentUser.role_type,
         campus_name: currentUser.campus_name,
         action: `Retrieved an item: ${itemName}`,
+        date_created: Date.now(),
+        date_last_modified: Date.now(),
       });
 
       
@@ -191,6 +194,8 @@ const ArchiveVirtualTour = () => {
         role_type: currentUser.role_type,
         campus_name: currentUser.campus_name,
         action: `Deleted ${selectedIds.length} item`,
+        date_created: Date.now(),
+        date_last_modified: Date.now(),
       });
   
       setOpenModal(false);
@@ -240,7 +245,8 @@ const ArchiveVirtualTour = () => {
         disabled={Object.keys(rowSelection).length === 0}
         onClick={openConfirmationModal}
       >
-        Confirm & Delete
+                <RiDeleteBin7Fill/>
+        Clear Archives
       </Button>
 
       </div>   

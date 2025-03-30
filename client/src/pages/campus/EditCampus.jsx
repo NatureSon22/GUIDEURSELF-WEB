@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import addImage from "../../assets/add.png";
+import { FaPlus } from "react-icons/fa";
 import CloseIcon from "../../assets/CloseIcon.png";
 import AddProgramModal from "./AddProgramModal";
 import useUserStore from "@/context/useUserStore";
@@ -48,6 +48,7 @@ const EditCampus = () => {
       campus_email: "",
       campus_address: "",
       campus_about: "",
+      date_added: "",
       campus_cover_photo: null,
       campus_programs: [], 
     });
@@ -126,6 +127,7 @@ const EditCampus = () => {
                     campus_address: data.campus_address || "",
                     campus_about: data.campus_about || "",
                     campus_cover_photo: null,
+                    date_added: data.date_added,
                     campus_programs: data.campus_programs || [],
                 });
 
@@ -183,6 +185,8 @@ const EditCampus = () => {
                         role_type: currentUser.role_type, // Replace with actual role type
                         campus_name: currentUser.campus_name, // Replace with actual campus name
                         action: `Edit ${campusData.campus_name} Campus`,
+                        date_created: campusData.date_added,
+                        date_last_modified: Date.now(),
                     });
                       setLoadingMessage("Saving New Changes...");
                       setLoadingVisible(true);
@@ -552,10 +556,10 @@ const EditCampus = () => {
                         e.preventDefault();
                         toggleModal();
                     }}
-                    className="w-[12%] pr-2 text-md h-10 flex justify-start items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 bg-gray-200  hover:bg-gray-200 transition duration-300"
+                    className="!w-[10%] border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
                     >
-                    <img className="w-[30px] h-[30px]" src={addImage} alt="Add Program" />
-                    Add Program
+                      <FaPlus />
+                       Add Program
                     </Button>           
                 </div>
                 </div>

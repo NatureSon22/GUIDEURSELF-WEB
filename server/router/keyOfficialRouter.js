@@ -17,7 +17,7 @@ const router = express.Router();
 // POST route to save key official data (including image upload)
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    const { name, position_name, campus_id } = req.body;
+    const { name, position_name, campus_id, date_added } = req.body;
     const userId = req.user?.userId; 
 
     if (!req.file) {
@@ -44,6 +44,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       position_name,
       key_official_photo_url: imageUrl,
       campus_id,
+      date_added,
       is_deleted: false,
     });
 
@@ -108,7 +109,7 @@ router.post("/unarchive/:id", async (req, res) => {
       name: archivedOfficial.name,
       key_official_photo_url: archivedOfficial.key_official_photo_url,
       campus_id: archivedOfficial.campus_id,
-      date_added: new Date(),
+      date_added: archivedOfficial.date_added,
     });
 
     
@@ -138,7 +139,7 @@ router.get("/archived", async (req, res) => {
   try {
     // Fetch archived key officials sorted by `date_archived` in descending order
     const archivedOfficials = await ArchivedKeyOfficial.find()
-      .sort({ date_archived: -1 }); // Sort by `date_archived` (latest first)
+      .sort({ date_last_modified: -1 }); // Sort by `date_archived` (latest first)
 
     res.status(200).json(archivedOfficials);
   } catch (error) {
@@ -184,7 +185,7 @@ router.post("/archive/:id", async (req, res) => {
       name: official.name,
       key_official_photo_url: official.key_official_photo_url,
       campus_id: official.campus_id,
-      date_added: new Date(),
+      date_added: official.date_added,
     });
 
     await archivedOfficial.save();

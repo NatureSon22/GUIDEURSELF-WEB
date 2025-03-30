@@ -8,7 +8,8 @@ const ActivityLogSchema = new Schema({
   role_type: { type: String, required: true },  
   campus_name: { type: String, required: true },
   action: { type: String, required: true },
-  date_created: { type: Date, default: Date.now },
+  date_created: { type: Date, required: true  },
+  date_last_modified: { type: Date, default: Date.now },
 });
 
 const ActivityLog = model('ActivityLog', ActivityLogSchema, 'activitylog');

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { loggedInUser } from "@/api/auth";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import useUserStore from "@/context/useUserStore";
 
 const uploadFloorImage = async (campusId, formData) => {
   console.log("Sending request to server...");
@@ -26,7 +28,23 @@ const uploadFloorImage = async (campusId, formData) => {
     }
 
     const data = await response.json();
-    console.log("Server response:", data);
+    const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        campus_name: formData.get("campus_name"),
+        activity: formData.get("activity"),
+        updated_by: formData.get("updated_by"),
+      }),
+    });
+
+    if (!logResponse.ok) {
+      console.error("Failed to log activity:", logResponse.statusText);
+    }
+
     return data;
   } catch (error) {
     console.error("Error uploading floor:", error);
@@ -34,16 +52,52 @@ const uploadFloorImage = async (campusId, formData) => {
   }
 };
 
-const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
+const AddFloorModal = ({ closeModal, campusId, refreshFloors, updatedCampus }) => {
   const [errorMessage, setErrorMessage] = useState(""); 
+  const { currentUser } = useUserStore((state) => state);
   const [floorName, setFloorName] = useState("");
   const [file, setFile] = useState(null);
+  const [date, setDate] = useState(Date.now());
   const [isLoading, isSetLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null); // State for image preview
 
+    const { data } = useQuery({
+      queryKey: ["user"],
+      queryFn: loggedInUser,
+      refetchOnWindowFocus: false,
+    });
+          
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(logData),
+    credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to log activity");
+    }
+      return response.json();
+    },     
+   }); 
+
   const { mutate: addFloor } = useMutation({
     mutationFn: (data) => uploadFloorImage(campusId, data),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number, // Replace with actual user number
+        username: currentUser.username, // Replace with actual username
+        firstname: currentUser.firstname, // Replace with actual firstname
+        lastname: currentUser.lastname, // Replace with actual lastname
+        role_type: currentUser.role_type, // Replace with actual role type
+        campus_name: currentUser.campus_name, // Replace with actual campus name
+        action: `Added new floor: ${floorName}`,
+        date_created: date,
+        date_last_modified: Date.now(),
+    });
       isSetLoading(true);
       refreshFloors();
       closeModal();
@@ -69,7 +123,12 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors }) => {
       console.log(key, value);
     }
      console.log(formData);
+     formData.append("updated_by", `${data?.firstname} ${data?.lastname}`|| "Unknown User");
+     formData.append("activity", `Added new floor ${floorName}`);
+     formData.append("campus_name", `${updatedCampus.campus_name} Campus` || "Unknown Campus");
+
     addFloor(formData);
+    
   };
 
   const handleFileChange = (e) => {

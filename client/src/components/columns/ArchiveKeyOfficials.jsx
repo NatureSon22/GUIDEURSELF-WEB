@@ -36,9 +36,14 @@ const keyOfficialsColumns = (columnActions) => [
   },
   {
     accessorKey: "date_added",
+    header: "Date Created",
+    cell: ({ row }) => formatDateTime(row.original.date_added),
+  },
+  {
+    accessorKey: "date_last_modified",
     header: "Date Archived",
     filterFn: "equalsString",
-    cell: ({ row }) => formatDateTime(row.original.date_added),
+    cell: ({ row }) => formatDateTime(row.original.date_last_modified),
   },
   {
     header: "Action",

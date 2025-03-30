@@ -60,7 +60,7 @@ const AccountReports = () => {
         return accountValue && accountValue.toLowerCase() === filter.value.toLowerCase();
       });
 
-      const accountDate = new Date(account.date_created);
+      const accountDate = new Date(account.date_updated);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 
@@ -161,6 +161,7 @@ const AccountReports = () => {
       account.role_type,
       account.campus_name,
       formatDate(account.date_created),
+      formatDate(account.date_assigned),
       account.status,
     ]);
 
@@ -175,7 +176,7 @@ const AccountReports = () => {
 
       const chunk = tableData.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
       doc.autoTable({
-        head: [["USER ID", "USERNAME", "FIRSTNAME", "LASTNAME", "USER TYPE", "CAMPUS", "DATE CREATED", "STATUS"]],
+        head: [["USER ID", "USERNAME", "FIRSTNAME", "LASTNAME", "USER TYPE", "CAMPUS", "DATE CREATED", "DATE UPDATED", "STATUS"]],
         body: chunk,
         startY: 90,
         didDrawPage: (data) => addFooter(doc.internal.getNumberOfPages()),

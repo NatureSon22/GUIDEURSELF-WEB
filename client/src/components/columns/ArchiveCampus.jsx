@@ -31,9 +31,14 @@ const columns = (columnActions) => [
   },
   {
     accessorKey: "date_added", // Assuming this is the field for the archived date
+    header: "Date Created",
+    cell: ({ row }) => formatDateTime(row.original.date_added), // Format the date
+  },
+  {
+    accessorKey: "date_last_modified", // Assuming this is the field for the archived date
     header: "Date Archived",
     filterFn: "equalsString",
-    cell: ({ row }) => formatDateTime(row.original.date_added), // Format the date
+    cell: ({ row }) => formatDateTime(row.original.date_last_modified), // Format the date
   },
   {
     header: "Action",

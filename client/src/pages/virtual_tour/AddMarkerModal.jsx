@@ -13,11 +13,12 @@ import { FaGraduationCap } from "react-icons/fa";
 import { MdWidgets } from "react-icons/md";
 import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";
-import { HiSquaresPlus } from "react-icons/hi2";
+import useUserStore from "@/context/useUserStore";
 import { useToast } from "@/hooks/use-toast";
 import { IoAlertCircle } from "react-icons/io5";
 
 const addMarker = async (campusId, selectedFloor, formData) => {
+
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/campuses/${campusId}/floors/${selectedFloor._id}/markers`,
@@ -34,7 +35,6 @@ const addMarker = async (campusId, selectedFloor, formData) => {
     }
 
     const data = await response.json();
-    console.log("Server response:", data);
 
     const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
       method: "POST",
@@ -79,6 +79,7 @@ const AddMarkerModal = ({
   const [isShowed, setIsShowed] = useState(true);
   const [category, setCategory] = useState("");
   const queryClient = useQueryClient();
+  const { currentUser } = useUserStore((state) => state);
   const { toast } = useToast();
   const [isPanorama, setIsPanorama] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -110,13 +111,37 @@ const AddMarkerModal = ({
     setIsPanorama(true);
   };
 
-  const unshowPanorama = () => {
-    setIsPanorama(false);
-  };
+  const logActivityMutation = useMutation({
+    mutationFn: async (logData) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(logData),
+    credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to log activity");
+    }
+      return response.json();
+    },     
+   }); 
 
   const { mutate: addNewMarker } = useMutation({
     mutationFn: (data) => addMarker(campusId, selectedFloor, data),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await logActivityMutation.mutateAsync({
+        user_number: currentUser.user_number, // Replace with actual user number
+        username: currentUser.username, // Replace with actual username
+        firstname: currentUser.firstname, // Replace with actual firstname
+        lastname: currentUser.lastname, // Replace with actual lastname
+        role_type: currentUser.role_type, // Replace with actual role type
+        campus_name: currentUser.campus_name, // Replace with actual campus name
+        action: `Added new location: ${markerName}`,
+        date_created: Date.now(),
+        date_last_modified: Date.now(),
+    });
       setIsMutating(false);
       queryClient.invalidateQueries(["campuses", campusId._id]);
       closeModal();
@@ -230,7 +255,7 @@ const AddMarkerModal = ({
 
     hideMarkers();
 
-    formData.append("updated_by", data?.username || "Unknown User");
+    formData.append("updated_by", `${data?.firstname} ${data?.lastname}`|| "Unknown User");
     formData.append("activity", `Added new location ${markerName}`);
     formData.append("campus_name", `${updatedCampus.campus_name} Campus` || "Unknown Campus");
 

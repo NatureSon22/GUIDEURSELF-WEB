@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
 import { useState, useMemo, useEffect } from "react";
-import { getAllCampuses, getAllRoleTypes, getAllActLog } from "@/api/component-info";
+import { getAllCampuses, getHighRoleTypes, getAllActLog } from "@/api/component-info";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,7 @@ const UserActivityReport = () => {
 
   const { data: allRoles } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
+    queryFn: getHighRoleTypes,
   });
 
   // Filter accounts based on selected date range and filters
@@ -68,7 +68,7 @@ const UserActivityReport = () => {
         return accountValue && accountValue.toLowerCase() === filter.value.toLowerCase();
       });
 
-      const accountDate = new Date(account.date_created);
+      const accountDate = new Date(account.date_last_modified);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 
@@ -170,6 +170,7 @@ const UserActivityReport = () => {
       account.campus_name,
       account.action,
       formatDate(account.date_created),
+      formatDate(account.date_last_modified),
     ]);
 
     const rowsPerPage = 12;
@@ -183,7 +184,7 @@ const UserActivityReport = () => {
 
       const chunk = tableData.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
       doc.autoTable({
-        head: [["USER ID", "USERNAME", "FIRSTNAME", "LASTNAME", "USER TYPE", "CAMPUS", "DATE CREATED", "STATUS"]],
+        head: [["USER ID", "USERNAME", "FIRSTNAME", "LASTNAME", "USER TYPE", "CAMPUS", "ACTION", "DATE CREATED", "DATE LAST MODIFIED"]],
         body: chunk,
         startY: 90,
         didDrawPage: (data) => addFooter(doc.internal.getNumberOfPages()),
@@ -196,7 +197,7 @@ const UserActivityReport = () => {
       
       window.open(pdfUrl, '_blank');
     } else {
-      doc.save("user_account_report.pdf");
+      doc.save("user_activity_report.pdf");
     }
   };
 
@@ -209,7 +210,7 @@ const UserActivityReport = () => {
           <p>Filters:</p>
           <Input type="date" className="w-[170px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
           <Input type="date" className="w-[170px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-          <ComboBox options={allRoles} placeholder="Select user type" filter="role_type" setFilters={setFilters} reset={reset} />
+          <ComboBox options={allRoles} placeholder="Select Role" filter="role_type" setFilters={setFilters} reset={reset} />
           <ComboBox options={allCampuses} placeholder="Select campus" filter="campus_name" setFilters={setFilters} reset={reset} />
           <Button className="text-secondary-100-75" variant="outline" onClick={handleReset}>
             <GrPowerReset /> Reset Filters

@@ -17,6 +17,7 @@ const floorSchema = new mongoose.Schema({
   floor_photo_url: { type: String, default: "" },
   markers: { type: [markerSchema], default: [] },
   order: { type: Number, required: true, default: 0 },
+  date_added: { type: Date, default: Date.now },
 });
 
 const programSchema = new mongoose.Schema({
@@ -46,6 +47,7 @@ const campusSchema = new mongoose.Schema({
   latitude: { type: String, required: true },
   longitude: { type: String, required: true },
   date_added: { type: Date, default: Date.now },
+  date_last_modified: { type: Date, default: Date.now },
   floors: { type: [floorSchema], default: [] },
 });
 
@@ -64,6 +66,7 @@ const archivedItemSchema = new mongoose.Schema({
   campus_id: { type: mongoose.Schema.Types.ObjectId, ref: "Campus", required: true },
   campus_name: { type: String, trim: true, maxlength: 100 },
   date_archived: { type: Date, default: Date.now },
+  date_last_modified: { type: Date, default: Date.now },
 });
 
 const ArchivedItem = mongoose.model("ArchivedItem", archivedItemSchema, "archiveditems");

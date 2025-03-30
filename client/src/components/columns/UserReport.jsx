@@ -46,6 +46,12 @@ const columns = () => [
     filterFn: "equalsString",
   },
   {
+    accessorKey: "date_assigned",
+    header: "Date Last Modified",
+    cell: ({ row }) => formatDate(row.original.date_updated),
+    filterFn: "equalsString",
+  },
+  {
     accessorKey: "status",
     id: "status",
     header: "Status",

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import addImage from "../../assets/add.png";
+import { FaPlus } from "react-icons/fa";
 import CloseIcon from "../../assets/CloseIcon.png";
 import useUserStore from "@/context/useUserStore";
 import AddProgramModal from "./AddNewProgramModal";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import "@/fluttermap.css";
+import { useMutation } from "@tanstack/react-query";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditNewProgramModal";
 
@@ -48,6 +49,7 @@ const AddNewCampus = () => {
     campus_email: "",
     campus_address: "",
     campus_about: "",
+    date_added: Date.now(),
     campus_cover_photo: null,
   });
 
@@ -89,7 +91,7 @@ const AddNewCampus = () => {
     
       setIsLoading(true);
     
-      const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, campus_about, campus_cover_photo } = campusData;
+      const { campus_name, campus_code, campus_phone_number, campus_email, campus_address, date_added, campus_about, campus_cover_photo } = campusData;
     
       // Email validation regex
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -144,6 +146,7 @@ const AddNewCampus = () => {
       formData.append("campus_about", campusData.campus_about);
       formData.append("latitude", coordinates.lat);
       formData.append("longitude", coordinates.lng);
+      formData.append("date_added", campusData.date_added);
       formData.append("campus_cover_photo", campusData.campus_cover_photo);
     
       const formattedPrograms = Object.keys(programs).map((programType) => ({
@@ -172,6 +175,8 @@ const AddNewCampus = () => {
             role_type: currentUser.role_type, // Replace with actual role type
             campus_name: currentUser.campus_name, // Replace with actual campus name
             action: `Added new campus ${campusData.campus_name}`,
+            date_created: campusData.date_added,
+            date_last_modified: Date.now(),
         });
           setIsLoading(false);
           setLoadingMessage("Adding New Campus...");
@@ -188,6 +193,7 @@ const AddNewCampus = () => {
           const errorData = await response.json();
           console.error("Error adding campus:", errorData);
     
+          setIsLoading(false);
           setLoadingMessage("Server Error, failed to add campus!");
           setLoadingVisible(true);
     
@@ -201,6 +207,7 @@ const AddNewCampus = () => {
         setLoadingMessage("Network Error, failed to add campus!");
         setLoadingVisible(true);
     
+        setIsLoading(false);
         setTimeout(() => {
           setLoadingVisible(false);
         }, 2000);
@@ -569,9 +576,10 @@ const AddNewCampus = () => {
                     e.preventDefault();
                     toggleModal();
                   }}a
-                  className="w-[12%] text-md h-10 flex justify-evenly items-center outline-none focus-none border-[1.5px] rounded-md border-gray-400 text-gray-800 bg-gray-200  hover:bg-gray-200 transition duration-300"
+                  className="!w-[10%] border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
                 >
-                  <img className="w-[30px] h-[30px]" src={addImage} alt="Add Program" />
+                  
+                  <FaPlus />
                   Add Program
                 </Button>
               </div>

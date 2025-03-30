@@ -10,6 +10,7 @@
         const { currentUser } = useUserStore((state) => state);
         const [positions, setPositions] = useState([]);
         const [name, setName] = useState("");
+        const [date, setDate] = useState(Date.now());
         const [position, setPosition] = useState("");
         const [image, setImage] = useState(null);
         const [imagePreview, setImagePreview] = useState(null);
@@ -91,6 +92,7 @@
             formData.append("name", name);
             formData.append("campus_id", "675cd6ff56f690410f1473af");
             formData.append("position_name", position);
+            formData.append("date_added", date);
         
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/keyofficials`, {
@@ -113,7 +115,9 @@
                     lastname: currentUser.lastname, // Replace with actual lastname
                     role_type: currentUser.role_type, // Replace with actual role type
                     campus_name: currentUser.campus_name, // Replace with actual campus name
-                    action: `Added key official ${name}`,
+                    action: `Added new key official: ${name}`,
+                    date_created: date,
+                    date_last_modified: Date.now(),
                 });
         
                 addOfficial();
@@ -164,11 +168,11 @@
                                 <select
                                     value={position}
                                     onChange={(e) => setPosition(e.target.value)}
-                                    className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+                                    className="font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
                                 >
-                                    <option value="">Select Position</option>
+                                    <option className="font-normal text-[0.875rem]" value="">Select Position</option>
                                     {positions.map((pos) => (
-                                        <option key={pos._id} value={pos.position_name}>
+                                        <option className="font-normal text-[0.875rem]" key={pos._id} value={pos.position_name}>
                                             {pos.position_name}
                                         </option>
                                     ))}
