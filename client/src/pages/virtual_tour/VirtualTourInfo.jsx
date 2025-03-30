@@ -37,24 +37,30 @@ const VirtualTourInfo = () => {
         0
       );
       
-    
       const totalMarkerPhotos = campuses.reduce(
-        (sum, campus) => sum + (campus.floors?.reduce(
-          (floorSum, floor) =>
-            floorSum + (floor.markers?.filter((marker) => marker.marker_photo_url)?.length || 0), 0) || 0),
+        (sum, campus) =>
+          sum +
+          (campus?.floors?.reduce(
+            (floorSum, floor) =>
+              floorSum +
+              (floor?.markers?.filter((marker) => marker?.marker_photo_url)?.length || 0), // ✅ Fix: Add `?.`
+            0
+          ) || 0),
         0
       );
+      
 
-      const totalCategories = campuses.reduce((total, campus) => {
-        campus.floors?.forEach((floor) => {
-          floor.markers?.forEach((marker) => {
-            if (marker.category) {
-              total += 1;
-            }
-          });
-        });
-        return total;
-      }, 0);
+      const totalCategories = campuses.reduce(
+        (total, campus) =>
+          total +
+          (campus?.floors?.reduce(
+            (floorTotal, floor) =>
+              floorTotal + (floor?.markers?.filter((marker) => marker?.category)?.length || 0), // ✅ Added `?.`
+            0
+          ) || 0),
+        0
+      );
+      
 
   const handleBuildMode = () => {
     setLoadingMessage("Entering Build Mode");
@@ -101,7 +107,7 @@ const VirtualTourInfo = () => {
                             <p className="text-[2rem] font-bold text-base-200">{totalMarkerPhotos}</p>
                             <RiCameraLensLine className="text-4xl text-base-200"/>
                         </div>
-                        <p>Panoramic View Available</p>
+                        <p>Panoramic View</p>
                     </div>
                     <div>
                         <div className="flex flex-row items-center justify-center gap-3">
