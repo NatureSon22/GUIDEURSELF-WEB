@@ -499,24 +499,39 @@ const updateAccountRoleType = async (req, res) => {
 
 const verifyAccount = async (req, res) => {
   try {
-    const { accountId } = req.params;
-    const user = await UserModel.findById(accountId);
-    console.log(user.email);
+    const { accountIds } = req.body;
 
-    await UserModel.updateOne(
-      { _id: accountId },
-      {
-        $set: {
-          status: "active",
-        },
-      }
+    // Validate input
+    if (!Array.isArray(accountIds) || accountIds.length === 0) {
+      return res.status(400).json({ message: "Invalid account IDs" });
+    }
+
+    // Fetch users
+    const updatedUsers = await UserModel.find({ _id: { $in: accountIds } });
+
+    if (updatedUsers.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    // Update status in bulk
+    await UserModel.updateMany(
+      { _id: { $in: accountIds } },
+      { $set: { status: "active", date_updated: new Date() } }
     );
 
-    await sendVerificationEmail(user.email, user.username, user.password);
+    await Promise.allSettled(
+      updatedUsers.map(async (user) => {
+        if (user?.email && user?.password) {
+          return sendVerificationEmail(
+            user.email,
+            user.username,
+            user.password
+          );
+        }
+      })
+    );
 
-    res.status(200).json({
-      message: "User verified successfully",
-    });
+    res.status(200).json({ message: "Accounts verified successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -547,9 +562,9 @@ const deleteAccounts = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { email, campusId, device = "web" } = req.body;
+    const { email, device = "web" } = req.body;
 
-    const user = await UserModel.findOne({ email, campus_id: campusId });
+    const user = await UserModel.findOne({ email});
 
     if (!user) {
       return res.status(200).json({

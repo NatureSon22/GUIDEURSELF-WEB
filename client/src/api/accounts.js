@@ -167,12 +167,16 @@ const updateAccountRoleType = async (
   return message;
 };
 
-const verifyAccount = async (accountId) => {
+const verifyAccount = async (accountIds) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/accounts/verify-account/${accountId}`,
+    `${import.meta.env.VITE_API_URL}/accounts/verify-account`,
     {
       method: "PUT",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountIds }),
     },
   );
 

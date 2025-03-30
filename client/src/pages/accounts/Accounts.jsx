@@ -11,12 +11,23 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getAllAccounts, verifyAccount } from "@/api/accounts";
 import VerifyAccountDialog from "./VerifyAccountDialog";
-import accountStatus from "@/utils/accountStatus";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import Loading from "@/components/Loading";
 import { GrPowerReset } from "react-icons/gr";
 import FeaturePermission from "@/layer/FeaturePermission";
 import MultiCampus from "@/layer/MultiCampus";
+import { FaCheckCircle } from "react-icons/fa";
+
+const status = [
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "pending",
+    label: "Pending",
+  },
+];
 
 const Accounts = () => {
   const navigate = useNavigate();
@@ -26,6 +37,7 @@ const Accounts = () => {
   const [reset, setReset] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [rowSelection, setRowSelection] = useState({});
 
   const {
     data: allAccounts,
@@ -33,7 +45,7 @@ const Accounts = () => {
     refetch,
   } = useQuery({
     queryKey: ["accounts"],
-    queryFn: getAllAccounts,
+    queryFn: () => getAllAccounts(),
     refetchOnWindowFocus: false,
   });
 
@@ -57,6 +69,9 @@ const Accounts = () => {
       }, 1000);
     },
     onError: () => setOpenDialog(false),
+    onSettled: () => {
+      setRowSelection({});
+    },
   });
 
   const filteredAccounts = useMemo(() => {
@@ -88,6 +103,7 @@ const Accounts = () => {
   };
 
   const columnActions = { navigate, handleVerifyAccount };
+  const hasSelected = Object.keys(rowSelection).length > 0;
 
   const handleReset = () => {
     setFilters([]);
@@ -95,6 +111,11 @@ const Accounts = () => {
     setReset(!reset);
     setFromDate("");
     setToDate("");
+  };
+
+  const handleSelectedVerifyAccounts = () => {
+    const selectedAccounts = Object.keys(rowSelection);
+    handleVerifyAccount(selectedAccounts);
   };
 
   return (
@@ -138,57 +159,75 @@ const Accounts = () => {
         </div>
       </div>
 
-      <div className="flex items-center gap-5">
-        <p>Filters:</p>
+      <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center gap-5 ${hasSelected ? "" : "flex-1"} `}
+        >
+          <p>Filters:</p>
 
-        <div className="flex gap-2">
-          <Input
-            type="date"
-            className="w-[170px]"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-          />
-          <Input
-            type="date"
-            className="w-[170px]"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-          />
-        </div>
+          <div className="flex gap-2">
+            <Input
+              type="date"
+              className="w-[170px]"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+            <Input
+              type="date"
+              className="w-[170px]"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
 
-        <ComboBox
-          options={allRoles}
-          placeholder="select user type"
-          filter="role_type"
-          setFilters={setFilters}
-          reset={reset}
-        />
-
-        <MultiCampus>
           <ComboBox
-            options={allCampuses}
-            placeholder="select campus"
-            filter="campus_name"
+            options={allRoles}
+            placeholder="select user type"
+            filter="role_type"
             setFilters={setFilters}
             reset={reset}
           />
-        </MultiCampus>
 
-        <ComboBox
-          options={accountStatus}
-          placeholder="select status"
-          filter="status"
-          setFilters={setFilters}
-          reset={reset}
-        />
+          <MultiCampus>
+            <ComboBox
+              options={allCampuses}
+              placeholder="select campus"
+              filter="campus_name"
+              setFilters={setFilters}
+              reset={reset}
+            />
+          </MultiCampus>
 
-        <Button
-          className="ml-auto text-secondary-100-75"
-          variant="outline"
-          onClick={handleReset}
-        >
-          <GrPowerReset /> Reset Filters
-        </Button>
+          <ComboBox
+            options={status}
+            placeholder="select status"
+            filter="status"
+            setFilters={setFilters}
+            reset={reset}
+          />
+
+          <Button
+            className="ml-auto text-secondary-100-75"
+            variant="outline"
+            onClick={handleReset}
+          >
+            <GrPowerReset /> Reset Filters
+          </Button>
+        </div>
+
+        {hasSelected && (
+          <div>
+            <Button
+              className={
+                "bg-base-200 text-[0.75rem] text-white shadow-none hover:bg-base-200/10 hover:text-base-200"
+              }
+              onClick={handleSelectedVerifyAccounts}
+            >
+              <FaCheckCircle className="mr-1" />
+              Verify Accounts
+            </Button>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -202,6 +241,8 @@ const Accounts = () => {
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
           columnActions={columnActions}
+          rowSelection={rowSelection}
+          setRowSelection={setRowSelection}
         />
       )}
 

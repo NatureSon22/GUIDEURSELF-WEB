@@ -4,17 +4,53 @@ import { BiEdit } from "react-icons/bi";
 import { FaCheckCircle, FaRedoAlt } from "react-icons/fa";
 import formatTitle from "@/utils/formatTitle";
 import FeaturePermission from "@/layer/FeaturePermission";
+import { Checkbox } from "../ui/checkbox";
+import { DropdownMenu } from "../ui/dropdown-menu";
+import {
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { FaEllipsis } from "react-icons/fa6";
 
 const handleEditClick = (row, navigate) => {
   navigate(`/accounts/edit-account/${row.original._id}`);
 };
 
 const handleVerifyClick = async (accountId, verifyAccount) => {
-  await verifyAccount(accountId);
+  await verifyAccount([accountId]);
 };
 
 const columns = ({ navigate, handleVerifyAccount, hasAction = true }) => {
-  const baseColumns = [
+  const baseColumns = [];
+
+  // ✅ Correctly Add Checkbox Column Conditionally
+  if (hasAction) {
+    baseColumns.push({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          className="ml-1 mr-3 border border-secondary-200"
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          className="ml-1 border border-secondary-200"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+    });
+  }
+
+  // ✅ Other Columns
+  baseColumns.push(
     {
       accessorKey: "user_number",
       header: "User ID",
@@ -87,7 +123,7 @@ const columns = ({ navigate, handleVerifyAccount, hasAction = true }) => {
         );
       },
     },
-    // Hidden `full_name` field combining firstname, middlename, and lastname
+    // ✅ Hidden `full_name` field combining firstname, middlename, and lastname
     {
       accessorFn: (row) => {
         const { firstname, middlename, lastname } = row;
@@ -99,47 +135,56 @@ const columns = ({ navigate, handleVerifyAccount, hasAction = true }) => {
       sortFn: "fuzzySort",
       enableHiding: true,
     },
-  ];
+  );
 
-  // Conditionally add action column
+  // ✅ Add Action Column Conditionally
   if (hasAction) {
     baseColumns.push({
       header: "Action",
       enableHiding: true,
       cell: ({ row }) => {
         return (
-          <div className="flex items-center justify-around gap-2">
-            <FeaturePermission module="Manage Accounts" access="edit account">
-              <Button
-                className={
-                  "bg-base-200/10 text-[0.75rem] text-base-200 shadow-none hover:bg-base-200 hover:text-white"
-                }
-                onClick={() => handleEditClick(row, navigate)}
-              >
-                <BiEdit />
-                Edit
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="mx-4 py-1">
+                <FaEllipsis />
               </Button>
-            </FeaturePermission>
+            </DropdownMenuTrigger>
 
-            <FeaturePermission module="Manage Accounts" access="verify account">
-              <Button
-                className={`bg-base-200/10 text-[0.75rem] text-base-200 shadow-none ${
-                  row.original.status === "pending" ? "px-[21px]" : ""
-                } hover:bg-base-200 hover:text-white`}
-                onClick={() =>
-                  handleVerifyClick(row.original._id, handleVerifyAccount)
-                }
+            <DropdownMenuContent className="grid w-[135px] gap-1 rounded-md bg-white p-3 shadow-md">
+              <FeaturePermission module="Manage Accounts" access="edit account">
+                <Button
+                  className="bg-base-200/10 text-[0.75rem] text-base-200 shadow-none hover:bg-base-200 hover:text-white"
+                  onClick={() => handleEditClick(row, navigate)}
+                >
+                  <BiEdit />
+                  Edit
+                </Button>
+              </FeaturePermission>
+
+              <FeaturePermission
+                module="Manage Accounts"
+                access="verify account"
               >
-                {row.original.status === "pending" ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaRedoAlt />
-                )}
+                <Button
+                  className={`bg-base-200/10 text-[0.75rem] text-base-200 shadow-none ${
+                    row.original.status === "pending" ? "px-[21px]" : ""
+                  } hover:bg-base-200 hover:text-white`}
+                  onClick={() =>
+                    handleVerifyClick(row.original._id, handleVerifyAccount)
+                  }
+                >
+                  {row.original.status === "pending" ? (
+                    <FaCheckCircle />
+                  ) : (
+                    <FaRedoAlt />
+                  )}
 
-                {row.original.status === "pending" ? "Verify" : "Resend"}
-              </Button>
-            </FeaturePermission>
-          </div>
+                  {row.original.status === "pending" ? "Verify" : "Resend"}
+                </Button>
+              </FeaturePermission>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     });
