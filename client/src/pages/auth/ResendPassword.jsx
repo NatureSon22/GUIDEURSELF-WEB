@@ -6,9 +6,7 @@ import logo from "../../assets/home-logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Input } from "@/components/ui/input";
-import ComboBox from "@/components/ComboBox";
-import RenderField from "@/components/RenderField";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { FaCheckCircle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +16,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { getAllCampuses } from "@/api/component-info";
 import { useState } from "react";
 import DialogContainer from "@/components/DialogContainer";
 import Spinner from "@/components/Spinner";
@@ -27,7 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 
 // Define the schema with an email field
 const formSchema = z.object({
-  campus: z.string().min(1, { message: "Campus is required" }),
+  // campus: z.string().min(1, { message: "Campus is required" }),
   email: z
     .string()
     .email("Invalid email")
@@ -45,17 +42,16 @@ const ResendPassword = () => {
     },
   });
 
-  const { data: allCampuses = [] } = useQuery({
-    queryKey: ["campuses"],
-    queryFn: getAllCampuses,
-  });
+  // const { data: allCampuses = [] } = useQuery({
+  //   queryKey: ["campuses"],
+  //   queryFn: getAllCampuses,
+  // });
 
   const [open, setOpen] = useState(false);
 
   const { mutateAsync: handleResetPassword, isPending } = useMutation({
     mutationFn: resetPassword,
     onSuccess: () => {
-      setTimeout(() => setOpen(false), 1000);
       form.reset();
     },
     onError: () => {
@@ -65,6 +61,9 @@ const ResendPassword = () => {
         description: "Something went wrong. Please try again.",
       });
     },
+    onSettled: () => {
+      setTimeout(() => setOpen(false), 1000);
+    },
   });
 
   const handleOnSubmit = async (values) => {
@@ -72,7 +71,7 @@ const ResendPassword = () => {
 
     const formData = new FormData();
     formData.append("email", values.email);
-    formData.append("campusId", values.campus);
+    // formData.append("campusId", values.campus);
 
     await handleResetPassword(formData);
   };
@@ -91,7 +90,7 @@ const ResendPassword = () => {
             </div>
 
             <div className="space-y-4">
-              {RenderField(
+              {/* {RenderField(
                 form,
                 "campus",
                 "Select your campus",
@@ -101,7 +100,7 @@ const ResendPassword = () => {
                   style={{ width: "w-[400px]", py: "py-5" }}
                 />,
                 { className: "text-secondary-100/50" },
-              )}
+              )} */}
 
               <FormField
                 control={form.control}

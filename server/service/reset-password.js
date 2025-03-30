@@ -4,8 +4,6 @@ import { config } from "dotenv";
 config();
 
 const sendPasswordResendEmail = async (email, password, device) => {
-  const isMobile = device === "mobile";
-
   try {
     const loginUrl = `${
       process.env.CLIENT_URL
@@ -44,11 +42,9 @@ const sendPasswordResendEmail = async (email, password, device) => {
                 
                 <div class="credentials" style="background-color: rgba(18, 165, 188, 0.1); padding: 20px; border-radius: 8px; margin: 25px 0; font-weight: 500; color: #2c3e50; border: 1px solid rgba(18, 165, 188, 0.2);">
                   <p><strong>Email:</strong> ${email}</p>
-                  <p><strong>Password:</strong> ${
-                    isMobile
-                      ? password
-                      : Array(password.length).fill("*").join("")
-                  }</p>
+                  <p><strong>Password:</strong> ${Array(password.length)
+                    .fill("*")
+                    .join("")}</p>
                 </div>
                 
                 <p><strong>For your security, please:</strong></p>
@@ -57,13 +53,9 @@ const sendPasswordResendEmail = async (email, password, device) => {
                   <li style="margin: 10px 0; padding-left: 20px; position: relative; color: #444;">Change your password after logging in.</li>
                 </ul>
                 
-                ${
-                  !isMobile
-                    ? `<div style="text-align: center;">
-                        <a href="${loginUrl}" class="button" style="display: inline-block; padding: 14px 32px; margin: 25px 0; background: linear-gradient(135deg, rgba(18, 165, 188, 1), rgba(0, 123, 255, 1)); color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500; transition: 0.3s ease-in-out; box-shadow: 0 4px 12px rgba(18, 165, 188, 0.2);">Login to Your Account</a>
-                      </div>`
-                    : ""
-                }
+                <div style="text-align: center;">
+                  <a href="${loginUrl}" class="button" style="display: inline-block; padding: 14px 32px; margin: 25px 0; background: linear-gradient(135deg, rgba(18, 165, 188, 1), rgba(0, 123, 255, 1)); color: white; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 500; transition: 0.3s ease-in-out; box-shadow: 0 4px 12px rgba(18, 165, 188, 0.2);">Login to Your Account</a>
+                </div>
               </div>
               
               <div class="footer" style="font-size: 13px; color: #888; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">

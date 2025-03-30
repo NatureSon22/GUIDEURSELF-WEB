@@ -12,12 +12,14 @@ import documentColumns from "@/components/columns/ArchiveDocuments";
 import { getAllCampuses } from "@/api/component-info";
 import {
   createDocument,
+  deleteDocuments,
   getAllDocuments,
   uploadDraftDocument,
   uploadFromWeb,
 } from "@/api/documents";
 import { useToast } from "@/hooks/use-toast";
 import MultiCampus from "@/layer/MultiCampus";
+import { MdDelete } from "react-icons/md";
 
 const documentStatus = [
   {
@@ -42,10 +44,12 @@ const ArchiveDocuments = () => {
     selectedDocument: null,
   });
   const client = useQueryClient();
+  const [rowSelection, setRowSelection] = useState({});
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   // Queries
-  const { data: allDocuments } = useQuery({
-    queryKey: ["allDocuments"],
+  const { data: allDocuments, isLoading: loadingAllDocuments } = useQuery({
+    queryKey: ["allDeletedDocuments"],
     queryFn: () => getAllDocuments("", "", false, false, true, true),
   });
 
@@ -62,7 +66,7 @@ const ArchiveDocuments = () => {
     mutationFn: uploadDraftDocument,
     onSuccess: () => {
       handleMutationResponse(true, "Document unarchived successfully");
-      client.invalidateQueries(["allDocuments"]);
+      client.invalidateQueries(["allDeletedDocuments"]);
     },
     onError: () =>
       handleMutationResponse(false, "Failed to unarchive document"),
@@ -76,7 +80,7 @@ const ArchiveDocuments = () => {
     mutationFn: uploadFromWeb,
     onSuccess: () => {
       handleMutationResponse(true, "Document unarchived successfully");
-      client.invalidateQueries(["allDocuments"]);
+      client.invalidateQueries(["allDeletedDocuments"]);
     },
     onError: () =>
       handleMutationResponse(false, "Failed to unarchive document"),
@@ -90,10 +94,23 @@ const ArchiveDocuments = () => {
     mutationFn: createDocument,
     onSuccess: () => {
       handleMutationResponse(true, "Document unarchived successfully");
-      client.invalidateQueries(["allDocuments"]);
+      client.invalidateQueries(["allDeletedDocuments"]);
     },
     onError: () =>
       handleMutationResponse(false, "Failed to unarchive document"),
+  });
+
+  const { mutateAsync: handleDeleteDocuments } = useMutation({
+    mutationFn: deleteDocuments,
+    onSuccess: () => {
+      handleMutationResponse(true, "Documents deleted successfully");
+      client.invalidateQueries(["allDeletedDocuments"]);
+      setRowSelection({});
+    },
+    onError: () => handleMutationResponse(false, "Failed to delete documents"),
+    onSettled: () => {
+      setOpenDeleteDialog(false);
+    },
   });
 
   const filteredDocuments = useMemo(() => {
@@ -139,8 +156,6 @@ const ArchiveDocuments = () => {
     });
   }, [allDocuments, globalFilter, filters, fromDate, toDate]);
 
-  console.table(filters);
-
   // Handlers
   const handleMutationResponse = (success, message) => {
     setDialogState((prev) => ({ ...prev, open: false }));
@@ -176,11 +191,11 @@ const ArchiveDocuments = () => {
       return file;
     } catch (e) {
       console.error("Download Error:", e);
-      // toast({
-      //   variant: "destructive",
-      //   title: "Error",
-      //   description: "Failed to download the document",
-      // });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to download the document",
+      });
     }
   };
 
@@ -236,6 +251,11 @@ const ArchiveDocuments = () => {
       formData.append("content", metadata.content);
       unarchiveCreatedDocument(formData);
     }
+  };
+
+  const handleDelete = async () => {
+    const documentIds = Object.keys(rowSelection);
+    await handleDeleteDocuments(documentIds);
   };
 
   // Dialog Content Components
@@ -301,12 +321,23 @@ const ArchiveDocuments = () => {
 
   return (
     <div className="flex flex-1 flex-col space-y-5">
-      <Input
-        type="text"
-        placeholder="Search"
-        value={globalFilter || ""}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-      />
+      <div className="flex items-center gap-5">
+        <Input
+          type="text"
+          placeholder="Search"
+          value={globalFilter || ""}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+        />
+
+        <Button
+          className="bg-accent-100 hover:bg-accent-100/15 hover:text-accent-100"
+          disabled={Object.keys(rowSelection).length === 0}
+          onClick={() => setOpenDeleteDialog(true)}
+        >
+          <MdDelete />
+          Delete
+        </Button>
+      </div>
 
       <div className="flex items-center gap-5">
         <p>Filters:</p>
@@ -352,19 +383,52 @@ const ArchiveDocuments = () => {
       </div>
 
       <div className="flex-1">
-        <DataTable
-          data={filteredDocuments || []}
-          columns={documentColumns}
-          filters={filters}
-          setFilters={setFilters}
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-          columnActions={{
-            handleSetSelectedDocument: (document) =>
-              setDialogState({ open: true, selectedDocument: document }),
-          }}
-        />
+        {loadingAllDocuments ? (
+          <div className="grid h-full place-items-center">
+            <Loading />
+          </div>
+        ) : (
+          <DataTable
+            data={filteredDocuments || []}
+            columns={documentColumns}
+            filters={filters}
+            setFilters={setFilters}
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+            columnActions={{
+              handleSetSelectedDocument: (document) =>
+                setDialogState({ open: true, selectedDocument: document }),
+            }}
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+          />
+        )}
       </div>
+
+      <DialogContainer openDialog={openDeleteDialog}>
+        <div className="flex flex-col items-center gap-5">
+          <FaCircleExclamation className="text-[2.5rem] text-base-200" />
+          <p className="text-center text-[0.91rem] font-semibold">
+            Warning: Once deleted, these documents cannot be restored. Do you
+            want to proceed?
+          </p>
+          <div className="flex w-full gap-4">
+            <Button
+              variant="outline"
+              className="flex-1 border-secondary-200 py-1 text-secondary-100-75"
+              onClick={() => setOpenDeleteDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
+              onClick={handleDelete}
+            >
+              Proceed
+            </Button>
+          </div>
+        </div>
+      </DialogContainer>
 
       <DialogContainer openDialog={dialogState.open}>
         <DialogContent />

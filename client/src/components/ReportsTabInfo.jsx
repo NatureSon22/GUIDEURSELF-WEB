@@ -1,7 +1,7 @@
 import { FaUserGroup } from "react-icons/fa6";
 import { TbMessageCircleFilled } from "react-icons/tb";
 import { IoTv } from "react-icons/io5";
-import { FaMessage } from "react-icons/fa6";
+import { FaSquareCheck } from "react-icons/fa6";
 
 const ReportsTabInfo = [
   {
@@ -30,10 +30,10 @@ const ReportsTabInfo = [
   },
   {
     icon: (
-      <FaMessage className="text-4xl transition-colors duration-150 ease-in-out group-hover:text-base-200" />
+      <FaSquareCheck className="text-4xl transition-colors duration-150 ease-in-out group-hover:text-base-200" />
     ),
-    title: "Messages",
-    subtitle: "Access, review, and generate reports on user messages",
+    title: "Response Review", // a better title?
+    subtitle: "Generate reports on chatbot response effectiveness", // review the bot response
     path: "messages",
   },
 ];

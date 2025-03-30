@@ -167,12 +167,16 @@ const updateAccountRoleType = async (
   return message;
 };
 
-const verifyAccount = async (accountId) => {
+const verifyAccount = async (accountIds) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/accounts/verify-account/${accountId}`,
+    `${import.meta.env.VITE_API_URL}/accounts/verify-account`,
     {
       method: "PUT",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountIds }),
     },
   );
 
@@ -218,6 +222,28 @@ const activateAccount = async (accountId) => {
   return response.json();
 };
 
+const deleteAccount = async (accountIds) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/delete-accounts`,
+    {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountIds }),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to delete accounts");
+  }
+
+  return data.message;
+};
+
 export {
   addAccount,
   addBulkAccount,
@@ -230,4 +256,5 @@ export {
   resetPassword,
   getAllInactiveAccount,
   activateAccount,
+  deleteAccount,
 };

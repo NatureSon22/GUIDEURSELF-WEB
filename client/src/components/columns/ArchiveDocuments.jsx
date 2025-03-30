@@ -1,8 +1,31 @@
 import formatDate from "@/utils/formatDate";
 import { Button } from "../ui/button";
 import { IoReturnUpForward } from "react-icons/io5";
+import { Checkbox } from "../ui/checkbox";
 
 const columns = ({ handleSetSelectedDocument }) => [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        className="border border-secondary-200"
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        className="border border-secondary-200"
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+  },
   {
     accessorKey: "file_name",
     header: "Filename",

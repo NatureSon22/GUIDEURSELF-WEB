@@ -29,10 +29,6 @@ const AssignRole = () => {
     queryFn: getAllCampuses,
   });
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
   const handleAssignRoleClick = () => {
     const selectedAccountIds = Object.keys(rowSelection);
 

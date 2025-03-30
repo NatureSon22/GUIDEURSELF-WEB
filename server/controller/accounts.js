@@ -500,24 +500,39 @@ const updateAccountRoleType = async (req, res) => {
 
 const verifyAccount = async (req, res) => {
   try {
-    const { accountId } = req.params;
-    const user = await UserModel.findById(accountId);
-    console.log(user.email);
+    const { accountIds } = req.body;
 
-    await UserModel.updateOne(
-      { _id: accountId },
-      {
-        $set: {
-          status: "active",
-        },
-      }
+    // Validate input
+    if (!Array.isArray(accountIds) || accountIds.length === 0) {
+      return res.status(400).json({ message: "Invalid account IDs" });
+    }
+
+    // Fetch users
+    const updatedUsers = await UserModel.find({ _id: { $in: accountIds } });
+
+    if (updatedUsers.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    // Update status in bulk
+    await UserModel.updateMany(
+      { _id: { $in: accountIds } },
+      { $set: { status: "active", date_updated: new Date() } }
     );
 
-    await sendVerificationEmail(user.email, user.username, user.password);
+    await Promise.allSettled(
+      updatedUsers.map(async (user) => {
+        if (user?.email && user?.password) {
+          return sendVerificationEmail(
+            user.email,
+            user.username,
+            user.password
+          );
+        }
+      })
+    );
 
-    res.status(200).json({
-      message: "User verified successfully",
-    });
+    res.status(200).json({ message: "Accounts verified successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -526,13 +541,21 @@ const verifyAccount = async (req, res) => {
 const deleteAccounts = async (req, res) => {
   try {
     const { accountIds } = req.body;
-    const accountIdsArray = accountIds.split(",");
+    console.log(accountIds);
 
-    await UserModel.deleteMany({ _id: { $in: accountIdsArray } });
+    if (!accountIds || !Array.isArray(accountIds) || accountIds.length === 0) {
+      return res.status(400).json({ message: "Invalid account IDs" });
+    }
 
-    res.status(200).json({
-      message: "User deleted successfully",
+    const deletionResult = await UserModel.deleteMany({
+      _id: { $in: accountIds },
     });
+
+    if (deletionResult.deletedCount === 0) {
+      return res.status(404).json({ message: "No matching accounts found" });
+    }
+
+    res.status(200).json({ message: "Accounts deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -540,9 +563,9 @@ const deleteAccounts = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { email, campusId, device = "web" } = req.body;
+    const { email, device = "web" } = req.body;
 
-    const user = await UserModel.findOne({ email, campus_id: campusId });
+    const user = await UserModel.findOne({ email});
 
     if (!user) {
       return res.status(200).json({
@@ -586,7 +609,7 @@ const getAllInactiveAccount = async (req, res) => {
 
     const users = await UserModel.find(filter)
       .select(
-        "user_number username email firstname middlename lastname role_id campus_name date_created date_assigned status"
+        "user_number username email firstname middlename lastname role_id campus_name date_created date_updated date_assigned status "
       )
       .populate("role_id", "role_type")
       .populate("campus_id", "campus_name")

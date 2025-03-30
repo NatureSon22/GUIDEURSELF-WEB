@@ -79,10 +79,14 @@ accountRouter.put(
   verifyToken,
   updateAccountRoleType
 );
-accountRouter.put("/verify-account/:accountId", verifyToken, verifyAccount);
+accountRouter.put("/verify-account", verifyToken, verifyAccount);
 accountRouter.put("/reset-password", upload.none(), resetPassword);
 accountRouter.put("/activate-account/:accountId", verifyToken, activateAccount);
-
-accountRouter.delete("/delete-accounts", verifyToken, deleteAccounts);
+accountRouter.delete(
+  "/delete-accounts",
+  verifyToken,
+  upload.none(),
+  deleteAccounts
+);
 
 export default accountRouter;

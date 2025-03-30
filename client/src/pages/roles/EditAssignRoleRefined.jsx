@@ -137,7 +137,7 @@ const EditAssignRole = () => {
     );
 
     setPermissions(updatedPermissions);
-  }, [groundPermissions, grantedPermissions, revokedPermissions])
+  }, [groundPermissions, grantedPermissions, revokedPermissions]);
 
   const handleSetPermissions = (module, access, checked) => {
     if (!customize) return;
@@ -298,7 +298,7 @@ const EditAssignRole = () => {
         <Button
           variant="ghost"
           className="text-base-200"
-          onClick={() => navigate("/roles-permissions")}
+          onClick={() => navigate(-1)}
           disabled={isUpdating}
         >
           Return

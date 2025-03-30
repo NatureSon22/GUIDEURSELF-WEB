@@ -217,6 +217,17 @@ const deleteDocument = async (documentId) => {
   return message;
 };
 
+const deleteDocuments = async (documentIds) => {
+  await fetch(`${import.meta.env.VITE_API_URL}/documents/delete-documents`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ documentIds }),
+  });
+};
+
 const updateCreateDocument = async (formData) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/documents/edit-create-document`,
@@ -287,6 +298,7 @@ export {
   saveAsDraftDocument,
   syncDraftDocument,
   deleteDocument,
+  deleteDocuments,
   updateCreateDocument,
   updateDocument,
   updateWebUpload,

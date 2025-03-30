@@ -53,11 +53,11 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => {
         let fileType = "";
 
         if (type === "created-document") {
-          fileType = "Created Document";
+          fileType = "Created";
         } else if (type === "imported-web") {
-          fileType = "Imported Web";
+          fileType = "Imported";
         } else {
-          fileType = "Uploaded Document";
+          fileType = "Uploaded";
         }
 
         return <p>{fileType}</p>;
