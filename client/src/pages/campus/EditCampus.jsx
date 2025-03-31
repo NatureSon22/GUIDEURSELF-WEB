@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditProgramModal";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { loggedInUser } from "@/api/auth";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -52,6 +53,13 @@ const EditCampus = () => {
       campus_cover_photo: null,
       campus_programs: [], 
     });
+
+    const { data } = useQuery({
+      queryKey: ["user"],
+      queryFn: loggedInUser,
+      refetchOnWindowFocus: false,
+    });
+
 
     const logActivityMutation = useMutation({
       mutationFn: async (logData) => {
@@ -188,6 +196,20 @@ const EditCampus = () => {
                         date_created: campusData.date_added,
                         date_last_modified: Date.now(),
                     });
+
+                    const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/campuslogs`, {
+                      method: "POST",
+                      credentials: "include",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        campus_name: campusData.campus_name || "Unknown Name",
+                        activity: `Edited existing ${campusData.campus_name} Campus`,
+                        updated_by: data?.username || "Unknown User",
+                      }),
+                    });
+
                       setLoadingMessage("Saving New Changes...");
                       setLoadingVisible(true);
                 
@@ -273,9 +295,6 @@ const EditCampus = () => {
   
       return coordinates.lat ? (
         <Marker position={[coordinates.lat, coordinates.lng]}>
-          <Popup>
-            Selected Location: <br /> Latitude: {coordinates.lat} <br /> Longitude: {coordinates.lng}
-          </Popup>
         </Marker>
       ) : null;
     };
@@ -427,7 +446,7 @@ const EditCampus = () => {
             <div className="border border-gray-300 rounded-md">
               <div className="p-4">
               <h2 className="font-bold text-lg font-medium">
-                PIN CAMPUS LOCATION
+                UPDATE PIN CAMPUS LOCATION
               </h2>
               </div>
                 <MapContainer
@@ -448,10 +467,13 @@ const EditCampus = () => {
                         parseFloat(campus.longitude)
                         ]}
                         >
-                            <Popup>
-                            <strong>{campus.campus_name} Campus</strong><br />
-                            {campus.campus_address}
-                            </Popup>
+                        <Popup className="custom-popup" closeButton={false}>
+                          <div className="px-3 rounded-md  box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white text-black border border-black">
+                            <p className="text-[16px] text-center font-bold">
+                                {campus.campus_name}
+                            </p>
+                          </div>
+                        </Popup>
                         </Marker>
                         ))
                     }

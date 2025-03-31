@@ -6,13 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import PanoramicViewer from "./PanoramicViewer";
-import { BsDoorOpenFill } from "react-icons/bs";
-import { PiOfficeChairFill } from "react-icons/pi";
-import { FaGraduationCap } from "react-icons/fa";
-import { FaFlag } from "react-icons/fa";
-import { ImManWoman } from "react-icons/im";  
 import useUserStore from "@/context/useUserStore";
-import { MdWidgets } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import PreviewPanorama from "./PreviewPanorama";
 import { IoAlertCircle } from "react-icons/io5";
@@ -79,13 +73,16 @@ const EditMarkerModal =
   floorId, 
   onClose, 
   coordinates, 
-  refreshMarkers, 
-  exitModal,
-  updatedCampus 
+  refreshMarkers,
+  updatedCampus,
+  selectedCategory, 
+  setSelectedCategory,
+  categoryConfig
 }) => {
   const { currentUser } = useUserStore((state) => state);
   const { toast } = useToast();
   const [markerName, setMarkerName] = useState(marker.marker_name || "");
+  const [localSelectedCategory, setLocalSelectedCategory] = useState(selectedCategory);
   const [date, setDate] = useState(marker.date_added || Date.now());
   const [markerDescription, setMarkerDescription] = useState(marker.marker_description || "");
   const [category, setCategory] = useState(marker.category|| "");
@@ -98,7 +95,17 @@ const EditMarkerModal =
   const modalRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [markerSubInfo, setMarkerSubInfo] = useState(marker.sub_info || "");
+
+  useEffect(() => {
+    setSelectedCategory(selectedCategory);
+    setLocalSelectedCategory(selectedCategory); // Update local state if the prop changes
+  }, [selectedCategory]);
   
+  const handleCategoryChange = (cat) => {
+    setLocalSelectedCategory(cat); // Update local state
+    setSelectedCategory(cat); // Also update the parent state if needed
+  };
+
   const queryClient = useQueryClient(); 
 
   const logActivityMutation = useMutation({
@@ -169,35 +176,7 @@ const EditMarkerModal =
       reader.readAsDataURL(file);
     }
   };
-  
-  const selectedAcademic = () =>{
-    setCategory("Academic Spaces");
-  };
 
-  
-  const selectedServices = () =>{
-    setCategory("Student Services");
-  };
-
-  
-  const selectedOffice = () =>{
-    setCategory("Administrative Offices");
-  };
-
-  
-  const selectedAttraction = () =>{
-    setCategory("Campus Attraction");
-  };
-
-  
-  const selectedUtility = () =>{
-    setCategory("Utility Areas");
-  };
-  
-  const selectedOther = () =>{
-    setCategory("Others (Miscellaneous)");
-  };
-    
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -221,7 +200,7 @@ const EditMarkerModal =
           marker_name: markerName,
           marker_description: markerDescription.trim() ? markerDescription : "",
           sub_info: markerSubInfo, // Ensure sub_info is passed correctly
-          category: category.trim() ? category : "",
+          category: localSelectedCategory.trim() ? localSelectedCategory : "",
           latitude: coordinates.lat !== null ? parseFloat(coordinates.lat) : null,
           longitude: coordinates.lng !== null ? parseFloat(coordinates.lng) : null,
           campus_name: updatedCampus.campus_name, // Add the campus name here
@@ -264,7 +243,6 @@ const EditMarkerModal =
     } finally {
       setIsMutating(false);
     }
-    exitModal();
   };
 
   
@@ -311,11 +289,6 @@ const EditMarkerModal =
                 </div>
                 {previewImage ? (
                   <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4 relative">
-                    <div className="z-50 absolute flex justify-center items-center bg-black w-[710px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
-                      <Button type="button" onClick={showPanorama} className="text-white h-[40px]">
-                        Click to Preview
-                      </Button>
-                    </div>
                     <PanoramicViewer imageUrl={previewImage} />
                   </div>
                 ) : (
@@ -341,41 +314,28 @@ const EditMarkerModal =
                           )}
                           {isAllowed && (
                           <div>
-                            <div className="mt-4">
+                          <div className="mt-4">
                             <Label className="text-[16px]">Area Categories</Label>
                             <Input
                               type="text"
-                              value={category}
-                              onChange={(e) => setCategory(e.target.value)}
+                              value={localSelectedCategory}
+                              disabled
                               className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
                               placeholder="Choose category"
                             />
+
                             <div className="flex gap-3 mt-4">
-                              <BsDoorOpenFill onClick={selectedAcademic} 
-                              className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                                category === "Academic Spaces" ? "text-base-200 border-base-200 border" : "text-black"
-                              }`}/>
-                              <PiOfficeChairFill onClick={selectedOffice} 
-                              className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                                category === "Administrative Offices" ? "text-base-200 border-base-200 border" : "text-black"
-                                }`}/>
-                              <FaGraduationCap onClick={selectedServices} 
-                              className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                                category === "Student Services" ? "text-base-200 border-base-200 border" : "text-black"
-                                }`}/>
-                              <FaFlag onClick={selectedAttraction} 
-                              className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                                category === "Campus Attraction" ? "text-base-200 border-base-200 border" : "text-black"
-                                }`}/>
-                              <ImManWoman onClick={selectedUtility} 
-                              className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                                category === "Utility Areas" ? "text-base-200 border-base-200 border" : "text-black"
-                                }`}/>
-                              <MdWidgets onClick={selectedOther} 
-                              className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                                category === "Others (Miscellaneous)" ? "text-base-200 border-base-200 border" : "text-black"
-                                }`}/>
+                              {Object.entries(categoryConfig).map(([cat, { icon: IconComponent, textColor, color, borderColor }]) => (
+                                <IconComponent
+                                  key={cat}   
+                                  onClick={() => handleCategoryChange(cat)} // ✅ Update local & parent state
+                                  className={`text-[50px] bg-white shadow-md p-2 rounded-md transition-all duration-200
+                                    ${localSelectedCategory === cat ? `${textColor} ${borderColor} border` : "text-black"} 
+                                  `}
+                                />
+                              ))}
                             </div>
+
                           </div>
             
                           <div className="mt-4">

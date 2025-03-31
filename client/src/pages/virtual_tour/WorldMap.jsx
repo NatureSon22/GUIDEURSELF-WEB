@@ -69,11 +69,13 @@ return (
             parseFloat(campus.longitude),
           ]}
         >
-          <Popup>
-            <strong>{campus.campus_name}</strong>
-            <br />
-            {campus.campus_address}
-          </Popup>
+                  <Popup className="custom-popup" closeButton={false}>
+                  <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
+                    <p className="text-[16px] text-center font-bold">
+                        {campus.campus_name}
+                    </p>
+                  </div>
+                  </Popup>
         </Marker>
       ))}
   </MapContainer>

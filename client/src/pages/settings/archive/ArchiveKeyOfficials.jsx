@@ -245,13 +245,6 @@ const ArchiveKeyOfficials = () => {
         <p>Filters:</p>
         <Input type="date" className="w-[170px]" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
         <Input type="date" className="w-[170px]" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-        <BigComboBox
-          options={allPositions || []}
-          placeholder="Select position"
-          filter="position_name"
-          setFilters={setFilters}
-          reset={reset}
-        />
 
         <Button
           className="ml-auto text-secondary-100-75"

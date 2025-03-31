@@ -8,13 +8,14 @@ import { getUniversityData } from "@/api/component-info";
 import { useToast } from "@/hooks/use-toast";
 import FeaturePermission from "@/layer/FeaturePermission";
 import { loggedInUser } from "@/api/auth";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useUserStore from "@/context/useUserStore";
 import { FaCheck } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+
+const ITEMS_PER_PAGE = 8;
 
 const EditDisplayCampus = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -26,6 +27,7 @@ const EditDisplayCampus = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const logActivityMutation = useMutation({
     mutationFn: async (logData) => {
@@ -42,6 +44,12 @@ const EditDisplayCampus = () => {
         }
         return response.json();
         },
+  });
+
+  const { data } = useQuery({
+    queryKey: ["user"],
+    queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
   });
   
   const handleNavigate = (path) => {
@@ -161,6 +169,20 @@ const EditDisplayCampus = () => {
           date_created: campusToDelete.date_added,
           date_last_modified: Date.now(),
       });
+
+      const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/campuslogs`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          campus_name: campusToDelete.campus_name || "Unknown Name",
+          activity: `Archived ${campusToDelete.campus_name} Campus`,
+          updated_by: data?.username || "Unknown User",
+        }),
+      });
+
         toast({
           title: "Success",
           description: `Campus successfully archived and deleted: ${campusToDelete.campus_name}`,
@@ -227,6 +249,15 @@ const EditDisplayCampus = () => {
     )
     .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
+    
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredCampuses.length / ITEMS_PER_PAGE);
+  // Get paginated campuses
+  const paginatedCampuses = filteredCampuses.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="w-full">
       {loadingVisible && (
@@ -275,8 +306,10 @@ const EditDisplayCampus = () => {
         </Button>
       </div>
 
+      <div>
+      {/* Campuses Grid */}
       <div className="grid grid-cols-1 gap-4 rounded-md py-6 md:grid-cols-2 lg:grid-cols-4">
-        {filteredCampuses.map((campus, index) => (
+        {paginatedCampuses.map((campus, index) => (
           <div
             key={index}
             className="flex h-[370px] w-full max-w-[360px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3"
@@ -302,7 +335,9 @@ const EditDisplayCampus = () => {
                 <h2 className="text-lg font-bold font-cizel-decor">
                   {campus.campus_name} Campus
                 </h2>
-                <h3 className="text-[12px] font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                <h3 className="text-[12px] font-cizel">
+                  NURTURING TOMORROW'S NOBLEST
+                </h3>
               </div>
             </div>
 
@@ -333,6 +368,33 @@ const EditDisplayCampus = () => {
           </div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-end gap-4 mt-4">
+        <Button
+          variant="outline"
+          className="font-semibold text-secondary-100-75"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <Input
+        type="number"
+        min="1"
+        value={currentPage}
+        className="w-16 rounded border p-1 text-center"
+        />       
+        <Button
+          variant="outline"
+          className="font-semibold text-secondary-100-75"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
       {isDeleteModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-[20%]">
                   <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-white p-6 text-center shadow-md">

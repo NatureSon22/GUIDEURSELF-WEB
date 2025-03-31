@@ -1,10 +1,11 @@
     import React, { useState, useEffect } from "react";
-    import { useMutation } from "@tanstack/react-query"; // Import useMutation
     import { Input } from "@/components/ui/input";
     import { Label } from "@/components/ui/label";
     import { Button } from "@/components/ui/button";
     import { useToast } from "@/hooks/use-toast";
     import useUserStore from "@/context/useUserStore";
+    import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+    import { loggedInUser } from "@/api/auth";
     
     const Modal = ({ closeModal, addOfficial }) => {
         const { currentUser } = useUserStore((state) => state);
@@ -18,6 +19,12 @@
         const [loadingMessage, setLoadingMessage] = useState("");
         const [isLoading, setIsLoading] = useState(false);
         const { toast } = useToast();
+
+        const { data } = useQuery({
+            queryKey: ["user"],
+            queryFn: loggedInUser,
+            refetchOnWindowFocus: false,
+        });
 
         // Fetch positions from the database
         useEffect(() => {
@@ -119,6 +126,24 @@
                     date_created: date,
                     date_last_modified: Date.now(),
                 });
+
+                const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/keyofficiallogs`, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      name: name || "Unknown Name",
+                      activity: `Added new official ${name}`,
+                      updated_by: data?.username || "Unknown User",
+                    }),
+                  });
+                  
+              
+                  if (!logResponse.ok) {
+                    console.error("Failed to log activity:", logResponse.statusText);
+                  }
         
                 addOfficial();
                 toast({
