@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
-import { useState } from "react";
+import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -162,10 +162,12 @@ const DisplayCampus = () => {
                     parseFloat(campus.longitude),
                   ]}
                 >
-                  <Popup>
-                    <strong>{campus.campus_name}</strong>
-                    <br />
-                    {campus.campus_address}
+                  <Popup className="custom-popup" closeButton={false}>
+                  <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
+                    <p className="text-[16px] text-center font-bold">
+                        {campus.campus_name}
+                    </p>
+                  </div>
                   </Popup>
                 </Marker>
               ))}

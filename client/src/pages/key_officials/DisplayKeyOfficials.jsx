@@ -3,14 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
 import SearchBox from "@/components/SearchBox";
 import OfficialCard from "@/components/OfficialCard";
-import Pen from "@/assets/Pen.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import Header from "@/components/Header";
 import FeaturePermission from "@/layer/FeaturePermission";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { FaPen } from "react-icons/fa6";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DisplayingKeyOfficials = () => {
   
@@ -42,6 +41,11 @@ const DisplayingKeyOfficials = () => {
   const filteredOfficials = officials?.filter((official) =>
     official.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+    if (isLoading) {
+      return <Skeleton className="rounded-md bg-secondary-200/40 py-24" />;
+    }
+  
 
   return (
     <div className="w-full">

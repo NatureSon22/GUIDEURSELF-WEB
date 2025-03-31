@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast"; 
 import useUserStore from "@/context/useUserStore";
+import { loggedInUser } from "@/api/auth";
 
 const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   const { currentUser } = useUserStore((state) => state);
@@ -16,6 +17,12 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(official?.key_official_photo_url || "");
   const [isLoading, setIsLoading] = useState(false);
+
+        const { data } = useQuery({
+            queryKey: ["user"],
+            queryFn: loggedInUser,
+            refetchOnWindowFocus: false,
+        });
 
   // Fetch administrative positions
   const { data: positions = [], error } = useQuery({
@@ -53,7 +60,25 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
       if (!response.ok) throw new Error("Failed to update official");
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+
+      const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/keyofficiallogs`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name || "Unknown Name",
+          activity: `Edited existing official ${name}`,
+          updated_by: data?.username || "Unknown User",
+        }),
+      });
+      
+      if (!logResponse.ok) {
+        console.error("Failed to log activity:", logResponse.statusText);
+      }
+
       setIsLoading(true);
       queryClient.invalidateQueries(["keyOfficials"]);
       if (onUpdate) onUpdate();

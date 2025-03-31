@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import "@/fluttermap.css";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { loggedInUser } from "@/api/auth";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditNewProgramModal";
 
@@ -51,6 +52,12 @@ const AddNewCampus = () => {
     campus_about: "",
     date_added: Date.now(),
     campus_cover_photo: null,
+  });
+
+  const { data } = useQuery({
+    queryKey: ["user"],
+    queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
   });
 
   const logActivityMutation = useMutation({
@@ -178,6 +185,20 @@ const AddNewCampus = () => {
             date_created: campusData.date_added,
             date_last_modified: Date.now(),
         });
+
+        const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/campuslogs`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            campus_name: campus_name || "Unknown Name",
+            activity: `Added new ${campus_name} Campus`,
+            updated_by: data?.username || "Unknown User",
+          }),
+        });
+
           setIsLoading(false);
           setLoadingMessage("Adding New Campus...");
           setLoadingVisible(true);
@@ -189,6 +210,7 @@ const AddNewCampus = () => {
               navigate("/campus/edit-campus");
             }, 1500);
           }, 2000);
+          
         } else {
           const errorData = await response.json();
           console.error("Error adding campus:", errorData);
@@ -324,9 +346,6 @@ const AddNewCampus = () => {
 
     return coordinates.lat ? (
       <Marker position={[coordinates.lat, coordinates.lng]}>
-        <Popup>
-          Selected Location: <br /> Latitude: {coordinates.lat} <br /> Longitude: {coordinates.lng}
-        </Popup>
       </Marker>
     ) : null;
   };
@@ -467,9 +486,12 @@ const AddNewCampus = () => {
                                     parseFloat(campus.longitude)
                                   ]}
                                 >
-                                  <Popup>
-                                    <strong>{campus.campus_name} Campus</strong><br />
-                                    {campus.campus_address}
+                                  <Popup className="custom-popup" closeButton={false}>
+                                    <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
+                                      <p className="text-[16px] text-center font-bold">
+                                          {campus.campus_name}
+                                      </p>
+                                    </div>
                                   </Popup>
                                 </Marker>
                               ))

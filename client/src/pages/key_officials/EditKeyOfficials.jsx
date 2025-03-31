@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "./AddKeyOfficialsModal";
 import EditKeyOfficialsModal from "./EditKeyOfficialsModal";
 import { RiAddLargeFill } from "react-icons/ri";
+import { Skeleton } from "@/components/ui/skeleton";
 import Pen from "../../assets/Pen.png";
 import Bin from "../../assets/bin.png";
 import Header from "@/components/Header";
@@ -16,11 +17,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaCheck } from "react-icons/fa6";
 import KeyOfficialLogTable from "./KeyOfficialLogTable";
+import { loggedInUser } from "@/api/auth";
+import { GrNext, GrPrevious } from "react-icons/gr";
+import { CiSearch } from "react-icons/ci";
 
+const ITEMS_PER_PAGE = 10;
 
 const EditKeyOfficials = () => {
   
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
   const { currentUser } = useUserStore((state) => state);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOfficial, setSelectedOfficial] = useState(null);
@@ -35,6 +41,12 @@ const EditKeyOfficials = () => {
 
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { data } = useQuery({
+    queryKey: ["user"],
+    queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
+  });
 
   const { toast } = useToast();
 
@@ -126,6 +138,18 @@ const EditKeyOfficials = () => {
         date_last_modified: Date.now(),
     });
       archiveOfficial(officialToArchive._id);
+      const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/keyofficiallogs`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: officialToArchive.name || "Unknown Name",
+          activity: `Archived an official ${officialToArchive.name}`,
+          updated_by: data?.username || "Unknown User",
+        }),
+      });
       setOfficialToArchive(null);
       setIsArchiveModalOpen(false); // Close the archive modal
       toast({
@@ -183,6 +207,18 @@ const EditKeyOfficials = () => {
         official.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : [];
+
+    
+        if (isLoading) {
+          return <Skeleton className="rounded-md bg-secondary-200/40 py-24" />;
+        }
+  
+    const totalPages = Math.ceil(filteredOfficials.length / ITEMS_PER_PAGE);
+    
+    const paginatedOfficials = filteredOfficials.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
 
   return (
     <div className="w-full">
@@ -248,8 +284,10 @@ const EditKeyOfficials = () => {
         ) : isError ? (
           <p className="text-gray-600">Error loading officials.</p>
         ) : filteredOfficials.length > 0 ? (
+          <div>
+      {/* Officials Grid */}
           <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-5">
-            {filteredOfficials.map((official, index) => (
+            {paginatedOfficials.map((official, index) => (
               <div
                 key={index}
                 className="flex h-[100%] w-[270px] flex-col items-center justify-between rounded-md border border-gray-300 bg-white p-4 shadow-md"
@@ -290,6 +328,35 @@ const EditKeyOfficials = () => {
               </div>
             ))}
           </div>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-end gap-4 mt-4">
+            <Button
+              variant="outline"
+              className="font-semibold text-secondary-100-75"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <GrPrevious />
+              Previous
+            </Button>
+              <Input
+                type="number"
+                min="1"
+                value={currentPage}
+                className="w-16 rounded border p-1 text-center"
+              />
+            <Button
+              variant="outline"
+              className="font-semibold text-secondary-100-75"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <GrNext />
+            </Button>
+          </div>
+        </div>
         ) : (
           <p className="text-gray-600">No key officials found.</p>
         )}

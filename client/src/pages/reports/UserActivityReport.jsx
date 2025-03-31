@@ -97,31 +97,31 @@ const UserActivityReport = () => {
     const doc = new jsPDF({ orientation: "landscape" });
     const today = new Date().toLocaleDateString("en-US");
     
-    const imgWidth = 15; 
-    const imgHeight = 15; 
+const imgWidth = 17; 
+    const imgHeight = 17; 
 
     const addHeader = () => {
-      doc.addImage(logoUrl, "PNG", 100, 16, imgWidth, imgHeight);
+      doc.addImage(logoUrl, "PNG", 93, 16, imgWidth, imgHeight);
   
       doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(80);
-      doc.text("Republic Of The Philippines", 98 + imgWidth + 10, 21);
+      doc.text("Republic of the Philippines", 100 + imgWidth + 10, 21);
     
-      doc.setFontSize(16);
+      doc.setFontSize(15);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(60);
-      doc.text("University of Rizal System", 90 + imgWidth + 10, 26.5);
+      doc.text("UNIVERSITY OF RIZAL SYSTEM", 82 + imgWidth + 10, 27.7);
     
       doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(80);
-      doc.text("Nurturing Tomorrow's Noblest", 97 + imgWidth + 10, 32);
+      doc.text("Nurturing Tomorrow's Noblest", 97 + imgWidth + 10, 33.3);
     
-      doc.addImage(vectorUrl, "PNG", 187, 16, imgWidth, imgHeight);
+      doc.addImage(vectorUrl, "PNG", 190, 16, imgWidth, imgHeight);
 
     doc.setLineWidth(0.5);
-    doc.line(14, 37, 285, 37);
+    doc.line(14, 40, 285, 40);
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
@@ -141,12 +141,12 @@ const UserActivityReport = () => {
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(60);
-    doc.text("GUIDEURSELF", 107 + imgWidth + 10, 77);
+    doc.text("GUIDEURSELF", 107 + imgWidth + 10, 67);
     
     doc.setFontSize(13);    
     doc.setFont("helvetica", "normal");
     doc.setTextColor(60);
-    doc.text("User Acitivity Report", 104   + imgWidth + 10, 83);
+    doc.text("User Acitivity Report", 104   + imgWidth + 10, 73);
 
 
     };
@@ -173,7 +173,7 @@ const UserActivityReport = () => {
       formatDate(account.date_last_modified),
     ]);
 
-    const rowsPerPage = 12;
+    const rowsPerPage = 8;
     const totalPages = Math.ceil(tableData.length / rowsPerPage);
 
     for (let i = 0; i < totalPages; i++) {
@@ -186,7 +186,7 @@ const UserActivityReport = () => {
       doc.autoTable({
         head: [["USER ID", "USERNAME", "FIRSTNAME", "LASTNAME", "USER TYPE", "CAMPUS", "ACTION", "DATE CREATED", "DATE LAST MODIFIED"]],
         body: chunk,
-        startY: 90,
+        startY: 80,
         didDrawPage: (data) => addFooter(doc.internal.getNumberOfPages()),
       });
     }

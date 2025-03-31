@@ -7,12 +7,6 @@ import { Button } from "@/components/ui/button";
 import PanoramicViewer from "./PanoramicViewer";
 import PreviewPanorama from "./PreviewPanorama";
 import { loggedInUser } from "@/api/auth";
-import { BsDoorOpenFill } from "react-icons/bs";
-import { PiOfficeChairFill } from "react-icons/pi";
-import { FaGraduationCap } from "react-icons/fa";
-import { MdWidgets } from "react-icons/md";
-import { FaFlag } from "react-icons/fa";
-import { ImManWoman } from "react-icons/im";
 import useUserStore from "@/context/useUserStore";
 import { useToast } from "@/hooks/use-toast";
 import { IoAlertCircle } from "react-icons/io5";
@@ -67,6 +61,9 @@ const AddMarkerModal = ({
   campusId,
   hideMarkers,
   updatedCampus,
+  selectedCategory, 
+  setSelectedCategory,
+  categoryConfig
 }) => {
   const modalRef = useRef(null);
   const [markerName, setMarkerName] = useState("");
@@ -77,7 +74,6 @@ const AddMarkerModal = ({
   const [isMutating, setIsMutating] = useState(false);
   const [isAllowed, setIsAllowed] = useState(false);
   const [isShowed, setIsShowed] = useState(true);
-  const [category, setCategory] = useState("");
   const queryClient = useQueryClient();
   const { currentUser } = useUserStore((state) => state);
   const { toast } = useToast();
@@ -165,33 +161,8 @@ const AddMarkerModal = ({
   const unshowPreview = () => {
     setIsAllowed(false);
     setIsShowed(true);
-    setCategory("");
+    setSelectedCategory("");
     setMarkerDescription("");
-  };
-
-
-  const selectedAcademic = () => {
-    setCategory("Academic Spaces");
-  };
-
-  const selectedServices = () => {
-    setCategory("Student Services");
-  };
-
-  const selectedOffice = () => {
-    setCategory("Administrative Offices");
-  };
-
-  const selectedAttraction = () => {
-    setCategory("Campus Attraction");
-  };
-
-  const selectedUtility = () => {
-    setCategory("Utility Areas");
-  };
-
-  const selectedOther = () => {
-    setCategory("Others (Miscellaneous)");
   };
 
   const handleImageUpload = (e) => {
@@ -245,8 +216,8 @@ const AddMarkerModal = ({
       formData.append("marker_description", markerDescription);
     }
 
-    if (category.trim()) {
-      formData.append("category", category);
+    if (selectedCategory.trim()) {
+      formData.append("category", selectedCategory);
     }
 
     if (imageFile) {
@@ -303,16 +274,6 @@ const AddMarkerModal = ({
             </div>
             {newImagePreview ? (
               <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4 relative">
-                <div className="z-50 absolute flex justify-center items-center bg-black w-[710px] h-[250px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
-                  <Button
-                    type="button"
-                    onClick={showPanorama}
-                    className="text-white h-[40px]"
-                    disabled={!isMarkerPositioned} // Disable if marker not positioned
-                  >
-                    Click to Preview
-                  </Button>
-                </div>
                 <PanoramicViewer imageUrl={newImagePreview} />
               </div>
             ) : (
@@ -343,61 +304,23 @@ const AddMarkerModal = ({
                   <Label className="text-[16px]">Area Categories</Label>
                   <Input
                     type="text"
-                    value={category}
+                    value={selectedCategory}
                     disabled
-                    onChange={(e) => setCategory(e.target.value)}
                     className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
                     placeholder="Choose category"
                   />
                   <div className="flex gap-3 mt-4">
-                    <BsDoorOpenFill
-                      onClick={isMarkerPositioned ? selectedAcademic : undefined} // Only allow click if marker is positioned
-                      className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                        category === "Academic Spaces" ? "text-base-200 border-base-200 border" : "text-black"
-                      } ${
-                        !isMarkerPositioned ? "opacity-50 pointer-events-none" : "" // Disable style and pointer events
-                      }`}
+                  {Object.entries(categoryConfig).map(([cat, { icon: IconComponent, textColor, color, borderColor }]) => (
+                    <IconComponent
+                      key={cat}   
+                      onClick={isMarkerPositioned ? () => setSelectedCategory(cat) : undefined} 
+                      className={`text-[50px] bg-white shadow-md p-2 rounded-md transition-all duration-200
+                        ${selectedCategory === cat ? `${textColor} ${borderColor} border` : "text-black"} 
+                        ${!isMarkerPositioned ? "opacity-50 pointer-events-none" : ""} 
+                      `}
                     />
-                    <PiOfficeChairFill
-                      onClick={isMarkerPositioned ? selectedOffice : undefined} // Only allow click if marker is positioned
-                      className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                        category === "Administrative Offices" ? "text-base-200 border-base-200 border" : "text-black"
-                      } ${
-                        !isMarkerPositioned ? "opacity-50 pointer-events-none" : "" // Disable style and pointer events
-                      }`}
-                    />
-                    <FaGraduationCap
-                      onClick={isMarkerPositioned ? selectedServices : undefined} // Only allow click if marker is positioned
-                      className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                        category === "Student Services" ? "text-base-200 border-base-200 border" : "text-black"
-                      } ${
-                        !isMarkerPositioned ? "opacity-50 pointer-events-none" : "" // Disable style and pointer events
-                      }`}
-                    />
-                    <FaFlag
-                      onClick={isMarkerPositioned ? selectedAttraction : undefined} // Only allow click if marker is positioned
-                      className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                        category === "Campus Attraction" ? "text-base-200 border-base-200 border" : "text-black"
-                      } ${
-                        !isMarkerPositioned ? "opacity-50 pointer-events-none" : "" // Disable style and pointer events
-                      }`}
-                    />
-                    <ImManWoman
-                      onClick={isMarkerPositioned ? selectedUtility : undefined} // Only allow click if marker is positioned
-                      className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                        category === "Utility Areas" ? "text-base-200 border-base-200 border" : "text-black"
-                      } ${
-                        !isMarkerPositioned ? "opacity-50 pointer-events-none" : "" // Disable style and pointer events
-                      }`}
-                    />
-                    <MdWidgets
-                      onClick={isMarkerPositioned ? selectedOther : undefined} // Only allow click if marker is positioned
-                      className={`text-[50px] bg-white shadow-md p-2 rounded-md ${
-                        category === "Others (Miscellaneous)" ? "text-base-200 border-base-200 border" : "text-black"
-                      } ${
-                        !isMarkerPositioned ? "opacity-50 pointer-events-none" : "" // Disable style and pointer events
-                      }`}
-                    />
+                  ))}
+
                   </div>
                 </div>
   

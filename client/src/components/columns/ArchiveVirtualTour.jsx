@@ -35,6 +35,14 @@ const columns = (columnActions) => [
     },
   },
   {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ getValue }) => {
+      const value = getValue();
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    },
+  },
+  {
     accessorKey: "campus_name",
     header: "Campus",
   },
@@ -48,10 +56,6 @@ const columns = (columnActions) => [
     header: "Date Archived",
     filterFn: "equalsString",
     cell: ({ row }) => formatDateTime(row.original.date_last_modified),
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
   },
   {
     header: "Action",
