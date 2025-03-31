@@ -45,7 +45,7 @@ app.use(
   cors({
     origin: ["https://guide-urself.netlify.app", "http://localhost:5173", "*"],
     credentials: true,
-    // allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     // methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
@@ -88,19 +88,24 @@ app.use("/api/chats", messagechatRouter);
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);
 
-  socket.on("join", (userId) => {
-    if (userId) {
-      socket.join(userId);
-      console.log(`User ${userId} joined room.`);
+  // Join a room when selecting a chat
+  socket.on("join", ({ userId, otherUserId }) => {
+    console.log(userId, otherUserId);
+    if (userId && otherUserId) {
+      const roomId = [userId, otherUserId].sort().join("_"); // Unique room
+      socket.join(roomId);
+      console.log(`User ${userId} joined room ${roomId}`);
     }
   });
 
+  // Sending messages
   socket.on(
     "sendMessage",
     async ({ sender_id, receiver_id, content, files }) => {
       try {
         let fileUrls = [];
 
+        // Handle file uploads
         if (files && files.length > 0) {
           if (!fs.existsSync("uploads")) {
             fs.mkdirSync("uploads", { recursive: true });
@@ -113,17 +118,15 @@ io.on("connection", (socket) => {
             const filePath = path.join("uploads", fileName);
 
             try {
-              // Validate Base64
+              // Validate Base64 format
               if (!data.startsWith("data:")) {
                 console.error("Invalid Base64 data");
                 continue;
               }
 
-              // Convert Base64 to Buffer
+              // Convert Base64 to Buffer and save file
               const base64Data = data.replace(/^data:.+;base64,/, "");
               const buffer = Buffer.from(base64Data, "base64");
-
-              // Write file
               await fs.promises.writeFile(filePath, buffer);
               console.log(`File saved: ${filePath}`);
 
@@ -136,7 +139,7 @@ io.on("connection", (socket) => {
                   : "file",
               });
 
-              // Delete file
+              // Delete local file
               await fs.promises.unlink(filePath);
               console.log(`File deleted: ${filePath}`);
             } catch (error) {
@@ -147,39 +150,44 @@ io.on("connection", (socket) => {
 
         console.log("File URLs:", fileUrls);
 
-        // Save message with file URLs
+        // Save message in DB
         const newMessage = new MessageChatModel({
           sender_id,
           receiver_id,
           content: content || "",
-          files: fileUrls, // Now correctly formatted as { url, type }
+          files: fileUrls,
           status: "sent",
         });
 
         await newMessage.save();
 
-        // ✅ Emit only if users are connected
-        if (io.sockets.adapter.rooms.has(sender_id)) {
-          io.to(sender_id).emit("receiveMessage", newMessage);
-        }
-        if (io.sockets.adapter.rooms.has(receiver_id)) {
-          io.to(receiver_id).emit("receiveMessage", newMessage);
-        }
+        // Emit message to the shared room
+        const roomId = [sender_id, receiver_id].sort().join("_");
+        io.to(roomId).emit("receiveMessage", newMessage);
+        io.to(roomId).emit("hasNewMessage", true); // is this correct
       } catch (error) {
         console.error("Error sending message:", error);
       }
     }
   );
 
+  socket.on("leave", ({ roomId }) => {
+    socket.leave(roomId);
+    console.log(`User ${socket.id} left room: ${roomId}`);
+  });
+
+  // Mark messages as read
   socket.on("markAsRead", async ({ sender_id, receiver_id }) => {
     await MessageChatModel.updateMany(
       { sender_id, receiver_id, status: "sent" },
       { $set: { status: "read" } }
     );
 
-    io.to(sender_id).emit("messagesRead", { sender_id, receiver_id });
+    const roomId = [sender_id, receiver_id].sort().join("_");
+    io.to(roomId).emit("messagesRead", { sender_id, receiver_id });
   });
 
+  // Handle disconnect
   socket.on("disconnect", () => {
     console.log("A user disconnected: " + socket.id);
   });

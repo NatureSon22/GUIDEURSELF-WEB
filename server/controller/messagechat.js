@@ -1,6 +1,7 @@
 import MessageChatModel from "../models/messagechat.js";
 import RoleModel from "../models/role.js";
 import UserModel from "../models/user.js";
+import { Types } from "mongoose";
 
 const getChatMessages = async (req, res) => {
   try {
@@ -20,7 +21,7 @@ const getChatMessages = async (req, res) => {
         { sender_id, receiver_id },
         { sender_id: receiver_id, receiver_id: sender_id },
       ],
-    }).sort({ timestamp: -1 }); // Ensure timestamp field is indexed
+    }).sort({ createdAt: -1 }); // Ensure timestamp field is indexed
     // .limit(100) // Optional: Prevent fetching too many messages
     // .populate({
     //   path: "sender_id",
@@ -68,25 +69,32 @@ const chatHeads = async (req, res) => {
     }
 
     const receiverIds = receivers.map((receiver) => receiver._id);
+    const receiverIdsObject = receiverIds.map((id) => new Types.ObjectId(id));
+    const userIdObject = new Types.ObjectId(userId);
 
-    // Fetch latest messages and unread count
     const chatMessages = await MessageChatModel.aggregate([
       {
         $match: {
           $or: [
-            { sender_id: userId, receiver_id: { $in: receiverIds } },
-            { sender_id: { $in: receiverIds }, receiver_id: userId },
+            {
+              sender_id: userIdObject,
+              receiver_id: { $in: receiverIdsObject },
+            },
+            {
+              sender_id: { $in: receiverIdsObject },
+              receiver_id: userIdObject,
+            },
           ],
         },
       },
-      { $sort: { timestamp: -1 } },
+      { $sort: { createdAt: -1 } },
       {
         $group: {
           _id: {
             $cond: {
               if: { $gt: ["$sender_id", "$receiver_id"] },
-              then: ["$sender_id", "$receiver_id"],
-              else: ["$receiver_id", "$sender_id"],
+              then: { sender: "$sender_id", receiver: "$receiver_id" },
+              else: { sender: "$receiver_id", receiver: "$sender_id" },
             },
           },
           latestMessage: { $first: "$$ROOT" },
@@ -95,7 +103,7 @@ const chatHeads = async (req, res) => {
               $cond: [
                 {
                   $and: [
-                    { $eq: ["$receiver_id", userId] },
+                    { $eq: ["$receiver_id", userIdObject] },
                     { $eq: ["$status", "sent"] },
                   ],
                 },
@@ -108,26 +116,29 @@ const chatHeads = async (req, res) => {
       },
     ]);
 
+    // Create a map of chat partner IDs to their latest messages
     const chatMap = new Map();
     chatMessages.forEach((chat) => {
       const chatPartnerId =
-        chat.latestMessage.sender_id.toString() === userId
+        chat.latestMessage.sender_id.toString() === userId.toString()
           ? chat.latestMessage.receiver_id.toString()
           : chat.latestMessage.sender_id.toString();
+
       chatMap.set(chatPartnerId, {
         ...chat.latestMessage,
         unreadCount: chat.unreadCount,
       });
     });
 
-    const chatHeads = receivers.map((receiver) => {
+    // Map receivers to chat heads with latest message info
+    let chatHeads = receivers.map((receiver) => {
       const receiverId = receiver._id.toString();
       const lastMessage = chatMap.get(receiverId);
 
       return {
         _id: lastMessage ? lastMessage._id : null,
         content: lastMessage ? lastMessage.content : null,
-        timestamp: lastMessage ? lastMessage.timestamp : null,
+        createdAt: lastMessage ? lastMessage.createdAt : null,
         unreadCount: lastMessage ? lastMessage.unreadCount : 0,
         sender: { _id: userId },
         receiver: {
@@ -138,6 +149,16 @@ const chatHeads = async (req, res) => {
         },
       };
     });
+
+    // Sort chat heads by latest message timestamp (newest first)
+    chatHeads = chatHeads
+      .filter((chat) => chat.createdAt !== null)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .concat(chatHeads.filter((chat) => chat.createdAt === null));
+
+    if (userRole !== "student") {
+      chatHeads = chatHeads.filter((chat) => chat._id !== null);
+    }
 
     res.status(200).json({ chatHeads });
   } catch (error) {

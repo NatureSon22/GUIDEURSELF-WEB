@@ -25,10 +25,10 @@ const MessageList = () => {
   }, [isLoading, messagelist, setMessages]);
 
   useEffect(() => {
-    if (selectedChat?._id) {
-      joinRoom(selectedChat._id);
+    if (currentUser?._id && selectedChat?._id) {
+      joinRoom(currentUser._id, selectedChat._id);
     }
-  }, [selectedChat, joinRoom]);
+  }, [currentUser, selectedChat, joinRoom]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -42,7 +42,7 @@ const MessageList = () => {
 
       {messages.map((message) => (
         <div
-          key={message.timestamp}
+          key={message.createdAt}
           className={`flex ${
             message.sender_id === currentUser._id
               ? "justify-end"
@@ -95,7 +95,7 @@ const MessageList = () => {
               ))}
 
             <span className="mt-3 block text-right text-xs text-secondary-100-75/60">
-              {formatDate(message.timestamp)}
+              {formatDate(message.createdAt)}
             </span>
           </div>
         </div>

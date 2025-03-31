@@ -57,6 +57,7 @@ import {
 import NetworkLayer from "./layer/NetworkLayer.jsx";
 import EditAssignRoleRefined from "./pages/roles/EditAssignRoleRefined.jsx";
 import ResendPassword from "./pages/auth/ResendPassword.jsx";
+import Verification from "./pages/auth/Verification.jsx";
 
 const routes = [
   {
@@ -363,6 +364,10 @@ const routes = [
   {
     path: "/forgot-password",
     element: <ResendPassword />,
+  },
+  {
+    path: "/email-verification",
+    element: <Verification />,
   },
   {
     path: "/legal",

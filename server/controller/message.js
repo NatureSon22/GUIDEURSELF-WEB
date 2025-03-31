@@ -9,7 +9,7 @@ const getMessages = async (req, res) => {
   try {
     const messages = await MessageModel.find({
       is_machine_generated: true,
-      is_helpful: { $exists: true, $in: [true, false] }, 
+      is_helpful: { $exists: true, $in: [true, false] },
     });
 
     res.status(200).json(messages);
@@ -17,9 +17,6 @@ const getMessages = async (req, res) => {
     res.status(500).json({ error: "Server error", details: error.message });
   }
 };
-
-
-
 
 const sendMessage = async (req, res) => {
   try {
@@ -99,4 +96,53 @@ const reviewMessage = async (req, res) => {
   }
 };
 
-export { sendMessage, reviewMessage, getMessages };
+const tallyReview = async (req, res) => {
+  try {
+    const result = await MessageModel.aggregate([
+      {
+        $match: {
+          is_machine_generated: true,
+          is_helpful: { $in: [true, false] }, // Ensures only reviewed messages are counted
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalMessages: { $sum: 1 },
+          helpfulMessages: {
+            $sum: { $cond: [{ $eq: ["$is_helpful", true] }, 1, 0] },
+          },
+          unhelpfulMessages: {
+            $sum: { $cond: [{ $eq: ["$is_helpful", false] }, 1, 0] },
+          },
+        },
+      },
+    ]);
+
+    if (result.length === 0) {
+      return res.status(200).json({
+        totalMessages: 0,
+        helpfulMessages: 0,
+        unhelpfulMessages: 0,
+        helpfulPercentage: 0,
+        unhelpfulPercentage: 0,
+      });
+    }
+
+    const { totalMessages, helpfulMessages, unhelpfulMessages } = result[0];
+
+    res.status(200).json({
+      totalMessages,
+      helpfulMessages,
+      unhelpfulMessages,
+      helpfulPercentage: (helpfulMessages / totalMessages) * 100,
+      unhelpfulPercentage: (unhelpfulMessages / totalMessages) * 100,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to tally review", error: error.message });
+  }
+};
+
+export { sendMessage, reviewMessage, getMessages, tallyReview };

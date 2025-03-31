@@ -44,6 +44,7 @@
     "draft-js": "^0.11.7",
     "framer-motion": "^12.0.5",
     "global": "^4.4.0",
+    "input-otp": "^1.4.2",
     "jodit-react": "^5.2.5",
     "js-cookie": "^3.0.5",
     "jspdf": "^2.5.2",
