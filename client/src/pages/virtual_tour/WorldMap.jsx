@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useQuery } from "@tanstack/react-query";
 import "@/fluttermap.css";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
+const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
+const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
  
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+const defaultIcon = L.icon({
+  iconUrl,
+  iconSize: [35, 45],
+  iconAnchor: [15, 40],
 });
 
 const fetchCampuses = async () => {
@@ -44,7 +44,7 @@ const WorldMap = () => {
 return (
     <MapContainer
     center={position}
-    zoom={11}
+    zoom={12}
     scrollWheelZoom={false}
     className="h-[100vh] w-[100%] z-[10] outline-none border border-gray-300"
   >
@@ -68,6 +68,7 @@ return (
             parseFloat(campus.latitude),
             parseFloat(campus.longitude),
           ]}
+          icon={defaultIcon}
         >
                   <Popup className="custom-popup" closeButton={false}>
                   <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
