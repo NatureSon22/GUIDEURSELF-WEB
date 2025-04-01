@@ -31,7 +31,7 @@ const AccountForm = ({
   });
   const { data: allRoleTypes } = useQuery({
     queryKey: ["allRoleTypes"],
-    queryFn: getAllRoleTypes,
+    queryFn: () => getAllRoleTypes( type === "edit" ? [] : ["Super Administrator", "Administrator"]),
     refetchOnMount: true,
   });
 

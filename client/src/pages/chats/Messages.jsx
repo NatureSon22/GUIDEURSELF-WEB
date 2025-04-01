@@ -8,7 +8,7 @@ const Messages = () => {
   if (!selectedChat) {
     return (
       <div className="grid h-full place-items-center">
-        <p>Select chat</p>
+        <div className="h-full w-full rounded-lg bg-secondary-200-60/10"></div>
       </div>
     );
   }

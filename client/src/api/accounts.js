@@ -24,7 +24,6 @@ const getAllAccounts = async (recent = "") => {
 
   const { users } = await response.json();
 
-  // Ensure sorting by latest date (if a date field like "createdAt" exists)
   return (users || []).sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
   );

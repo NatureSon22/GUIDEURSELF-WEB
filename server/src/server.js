@@ -85,16 +85,19 @@ app.use("/api/trend", trendRouter);
 app.use("/api/session", sessionRouter);
 app.use("/api/chats", messagechatRouter);
 
+const users = new Map();
+
 io.on("connection", (socket) => {
-  console.log("A user connected: " + socket.id);
+  socket.on("registerUser", (userId) => {
+    users.set(userId, socket.id);
+    console.log(`User ${userId} registered with socket ${socket.id}`);
+  });
 
   // Join a room when selecting a chat
   socket.on("join", ({ userId, otherUserId }) => {
-    console.log(userId, otherUserId);
     if (userId && otherUserId) {
       const roomId = [userId, otherUserId].sort().join("_"); // Unique room
       socket.join(roomId);
-      console.log(`User ${userId} joined room ${roomId}`);
     }
   });
 
@@ -164,7 +167,11 @@ io.on("connection", (socket) => {
         // Emit message to the shared room
         const roomId = [sender_id, receiver_id].sort().join("_");
         io.to(roomId).emit("receiveMessage", newMessage);
-        io.to(roomId).emit("hasNewMessage", true); // is this correct
+
+        const receiverSocketId = users.get(receiver_id);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("hasNewMessage", true);
+        }
       } catch (error) {
         console.error("Error sending message:", error);
       }
@@ -173,7 +180,6 @@ io.on("connection", (socket) => {
 
   socket.on("leave", ({ roomId }) => {
     socket.leave(roomId);
-    console.log(`User ${socket.id} left room: ${roomId}`);
   });
 
   // Mark messages as read
@@ -189,7 +195,7 @@ io.on("connection", (socket) => {
 
   // Handle disconnect
   socket.on("disconnect", () => {
-    console.log("A user disconnected: " + socket.id);
+    //console.log("A user disconnected: " + socket.id);
   });
 });
 

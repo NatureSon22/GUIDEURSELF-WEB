@@ -1,11 +1,10 @@
 import { create } from "zustand";
 import { io } from "socket.io-client";
+
 const useSocketStore = create((set, get) => {
   const socket = io(import.meta.env.VITE_SOCKET_URL, { autoConnect: true });
-  console.log(import.meta.env.VITE_SOCKET_URL);
 
   socket.on("connect", () => {
-    console.log("Connected to socket server: ", socket.id);
     set({ socketId: socket.id });
   });
 
@@ -19,26 +18,30 @@ const useSocketStore = create((set, get) => {
   });
 
   socket.on("hasNewMessage", () => {
-    console.log("Has new message");
+    console.log("New message received");
+    set({ hasNewMessage: true });
   });
 
   return {
     socket,
     socketId: null,
     messages: [],
-    currentRoom: null, // Track current room
+    currentRoom: null,
+    hasNewMessage: false,
+
+    registerUser: (userId) => {
+      socket.emit("registerUser", userId);
+    },
 
     /** ✅ Join a room based on user pair, leaving the previous one */
     joinRoom: (userId, otherUserId) => {
       const state = get();
       const newRoomId = [userId, otherUserId].sort().join("_");
 
-      if (state.currentRoom) {
-        console.log(`Leaving room: ${state.currentRoom}`);
+      if (state.currentRoom && state.currentRoom !== newRoomId) {
         socket.emit("leave", { roomId: state.currentRoom });
       }
 
-      console.log(`Joining room: ${newRoomId}`);
       socket.emit("join", { userId, otherUserId });
 
       set({ currentRoom: newRoomId });
@@ -53,7 +56,6 @@ const useSocketStore = create((set, get) => {
       if (content.trim() === "" && files.length === 0) return;
 
       const message = { sender_id, receiver_id, content, files };
-      console.log("Sending message: ", message);
       socket.emit("sendMessage", message);
     },
 
@@ -62,12 +64,15 @@ const useSocketStore = create((set, get) => {
       set({ messages });
     },
 
-    /** ✅ Properly handle disconnection */
     disconnect: () => {
       console.log("Disconnecting socket...");
       socket.removeAllListeners();
       socket.disconnect();
       set({ socketId: null, messages: [], currentRoom: null });
+    },
+
+    resetNewMessage: () => {
+      set({ hasNewMessage: false });
     },
   };
 });

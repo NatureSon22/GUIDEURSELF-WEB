@@ -3,24 +3,28 @@ import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
 import PageLayout from "./pages/PageLayout";
 import { Toaster } from "./components/ui/toaster";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { recordTrend } from "./api/trend";
 import { createSession } from "./api/session";
 
 const App = () => {
-  const hasRun = useRef(false); 
   useEffect(() => {
-    if (!hasRun.current) {
-      hasRun.current = true;
+    const initApp = async () => {
+      try {
+        const sessionExists = sessionStorage.getItem("sessionCreated");
 
-      const handleRecordTrend = async () => {
-        await recordTrend();
-        await createSession();
-      };
+        if (!sessionExists) {
+          await recordTrend();
+          await createSession();
+          sessionStorage.setItem("sessionCreated", "true");
+        }
+      } catch (error) {
+        console.error("Error initializing app:", error);
+      }
+    };
 
-      handleRecordTrend();
-    }
-  }, []); 
+    initApp();
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden">

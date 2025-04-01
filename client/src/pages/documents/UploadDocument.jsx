@@ -425,7 +425,8 @@ const UploadDocument = () => {
         <div>
           <h2 className="font-medium">File Upload</h2>
           <p className="text-base text-gray-600">
-            Upload your documents in PDF, DOC, or PPTX format.
+            Upload your documents in PDF, DOC, or PPTX format. Maximum file size
+            is <span className="font-semibold">10MB</span>
           </p>
         </div>
 

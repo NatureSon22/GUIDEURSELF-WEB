@@ -154,8 +154,11 @@ const getHighRoleTypes = async () => {
 
   // Exclude "Student", "Faculty", and "Staff"
   const filteredRoleTypes = roleTypes
-    .filter(roleType => !["Student", "Faculty", "Staff"].includes(roleType.role_type))
-    .map(roleType => ({
+    .filter(
+      (roleType) =>
+        !["Student", "Faculty", "Staff"].includes(roleType.role_type),
+    )
+    .map((roleType) => ({
       value: roleType._id,
       label: formatTitle(roleType.role_type),
     }));
@@ -163,8 +166,7 @@ const getHighRoleTypes = async () => {
   return filteredRoleTypes || [];
 };
 
-
-const getAllRoleTypes = async () => {
+const getAllRoleTypes = async (filter = []) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
     method: "GET",
     credentials: "include",
@@ -177,10 +179,16 @@ const getAllRoleTypes = async () => {
 
   const { roleTypes } = await response.json();
 
-  const allRoleTypes = roleTypes.map((roleType) => ({
+  let allRoleTypes = roleTypes.map((roleType) => ({
     value: roleType._id,
     label: formatTitle(roleType.role_type),
   }));
+
+  if (filter.length > 0) {
+    allRoleTypes = allRoleTypes.filter(
+      (roleType) => !filter.includes(roleType.label),
+    );
+  }
 
   return allRoleTypes || [];
 };
@@ -208,9 +216,12 @@ const getAllStatus = async () => {
 
 const getAllActLog = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/activitylogs`,
+      {
+        credentials: "include",
+      },
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to fetch activity logs: ${response.statusText}`);
@@ -260,7 +271,6 @@ const getAllFeedback = async () => {
       return map;
     }, {});
 
-
     // Map feedback data to include campus names
     const mappedFeedback = feedbackData.map((feedback) => {
       const campusId = feedback.user_id?.campus_id;
@@ -281,8 +291,9 @@ const getAllFeedback = async () => {
     });
 
     // Sort feedback by latest date
-    return mappedFeedback.sort((a, b) => new Date(b.date_submitted) - new Date(a.date_submitted));
-
+    return mappedFeedback.sort(
+      (a, b) => new Date(b.date_submitted) - new Date(a.date_submitted),
+    );
   } catch (error) {
     console.error("Error fetching feedback:", error);
     throw error;

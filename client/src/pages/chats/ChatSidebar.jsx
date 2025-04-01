@@ -2,22 +2,37 @@ import { getChatHeads } from "@/api/chatmessages";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import useChatStore from "@/context/useChatStore";
-import { useQuery } from "@tanstack/react-query";
+import useSocketStore from "@/context/useSocketStore";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 const ChatSidebar = () => {
+  const { selectedChat, setSelectedChat } = useChatStore((state) => state);
+  const { hasNewMessage, resetNewMessage } = useSocketStore((state) => state);
+  const [searchTerm, setSearchTerm] = useState("");
+  const queryClient = useQueryClient();
+
+  // ✅ Fetch chat heads (without `hasNewMessage` in queryKey)
   const { data: chatHeads = [], isLoading } = useQuery({
     queryKey: ["chatHeads"],
     queryFn: getChatHeads,
   });
-  const { selectedChat, setSelectedChat } = useChatStore((state) => state);
-  const [searchTerm, setSearchTerm] = useState("");
 
+  // ✅ Manually refetch chat heads only when a new message arrives
   useEffect(() => {
-    if (chatHeads.length > 0) {
+    if (hasNewMessage) {
+      console.log("Refetching chat heads...");
+      queryClient.invalidateQueries(["chatHeads"]);
+      resetNewMessage();
+    }
+  }, [hasNewMessage, queryClient, resetNewMessage]);
+
+  // ✅ Select first chat only on initial load
+  useEffect(() => {
+    if (!selectedChat && chatHeads.length > 0) {
       setSelectedChat(chatHeads[0].receiver);
     }
-  }, [chatHeads, setSelectedChat]);
+  }, [chatHeads, selectedChat, setSelectedChat]);
 
   const handleChatClick = (user) => {
     setSelectedChat(user);
@@ -60,8 +75,10 @@ const ChatSidebar = () => {
               >
                 <div className="size-12 overflow-hidden rounded-full border">
                   <img
-                    src={receiver.user_profile}
-                    alt={`${receiver.firstname} ${receiver.lastname} profile picture`}
+                    src={receiver.user_profile || "/default-avatar.png"} // ✅ Fallback image
+                    alt={`${receiver.firstname || "User"} ${
+                      receiver.lastname || "Profile"
+                    }`}
                     className="h-full w-full object-cover"
                     loading="lazy"
                   />

@@ -40,7 +40,7 @@ const ImportAddAccount = () => {
 
   const { data: allRoleTypes } = useQuery({
     queryKey: ["allRoleTypes"],
-    queryFn: getAllRoleTypes,
+    queryFn: () => getAllRoleTypes(["Super Administrator", "Administrator"]),
     refetchOnMount: true,
   });
 

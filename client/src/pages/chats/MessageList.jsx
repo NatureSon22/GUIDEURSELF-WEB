@@ -52,8 +52,8 @@ const MessageList = () => {
           <div
             className={`w-max max-w-[60%] px-4 py-3 ${
               message.sender_id === currentUser._id
-                ? "rounded-r-2xl rounded-tl-2xl bg-base-200/25"
-                : "rounded-l-2xl rounded-tr-2xl border border-secondary-100-75/20 bg-white"
+                ? "rounded-l-2xl rounded-tr-2xl bg-base-200/25"
+                : "rounded-r-2xl rounded-tl-2xl border border-secondary-100-75/20 bg-white"
             }`}
           >
             {/* Display text message */}
