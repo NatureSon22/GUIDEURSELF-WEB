@@ -121,7 +121,6 @@ const ArchiveVirtualTour = () => {
   
       const result = await response.json();
   
-      if (!response.ok) throw new Error(result.message || "Failed to unarchive item");
   
       queryClient.invalidateQueries(["archivedItems"]);
   
@@ -136,8 +135,6 @@ const ArchiveVirtualTour = () => {
         date_created: Date.now(),
         date_last_modified: Date.now(),
       });
-
-      
   
       toast({
         title: "Success",
