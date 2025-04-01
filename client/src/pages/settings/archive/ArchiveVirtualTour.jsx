@@ -121,6 +121,7 @@ const ArchiveVirtualTour = () => {
   
       const result = await response.json();
   
+      if (!response.ok) throw new Error(result.message || "Item parent is also archived. Retrieve it first!");
   
       queryClient.invalidateQueries(["archivedItems"]);
   
@@ -135,6 +136,8 @@ const ArchiveVirtualTour = () => {
         date_created: Date.now(),
         date_last_modified: Date.now(),
       });
+
+      
   
       toast({
         title: "Success",
@@ -146,7 +149,7 @@ const ArchiveVirtualTour = () => {
         title: "Unsuccessful",
         description: error.message === "ITEM_PARENT_ARCHIVED" 
           ? "Item parent is also archived. Retrieve it first!" 
-          : "Failed to unarchive item",
+          : "Item parent is also archived. Retrieve it first!",
         variant: "destructive",
       });
     }
