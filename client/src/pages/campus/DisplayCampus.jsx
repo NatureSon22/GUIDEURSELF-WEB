@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
+import { renderToStaticMarkup } from "react-dom/server";
 import FeaturePermission from "@/layer/FeaturePermission";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,13 +15,15 @@ import { FaPen } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
 import CampusLogTable from "./CampusLogTable";
 import "@/fluttermap.css";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
-// Fix for default marker icon not showing
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
+const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
+ 
+const defaultIcon = L.icon({
+  iconUrl,
+  iconSize: [35, 45],
+  iconAnchor: [15, 40],
 });
 
 const fetchCampuses = async () => {
@@ -39,11 +39,11 @@ const fetchCampuses = async () => {
 };
 
 const DisplayCampus = () => {
-  const [mapCenter, setMapCenter] = useState([14.46644, 121.22608]); // Default center position
+  const [mapCenter, setMapCenter] = useState([14.530440, 121.22608]); // Default center position
   const [searchTerm, setSearchTerm] = useState("");
   const [key, setKey] = useState(0); // Force re-render
   const navigate = useNavigate();
-  const [mapZoom, setMapZoom] = useState(11); // Default zoom level
+  const [mapZoom, setMapZoom] = useState(12); // Default zoom level
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -161,6 +161,7 @@ const DisplayCampus = () => {
                     parseFloat(campus.latitude),
                     parseFloat(campus.longitude),
                   ]}
+                  icon={defaultIcon}
                 >
                   <Popup className="custom-popup" closeButton={false}>
                   <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">

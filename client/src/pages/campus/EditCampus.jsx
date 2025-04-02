@@ -5,11 +5,10 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaf
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FaPlus } from "react-icons/fa";
+import { renderToStaticMarkup } from "react-dom/server";
 import CloseIcon from "../../assets/CloseIcon.png";
 import AddProgramModal from "./AddProgramModal";
 import useUserStore from "@/context/useUserStore";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
@@ -17,26 +16,39 @@ import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditProgramModal";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
+const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
+ 
+const defaultIcon = L.icon({
+  iconUrl,
+  iconSize: [35, 45],
+  iconAnchor: [15, 40],
 });
+const newIconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="green"/>);
+const newIconUrl = `data:image/svg+xml;base64,${btoa(newIconSvg)}`;
+ 
+const newDefaultIcon = L.icon({
+  iconUrl: newIconUrl, // ✅ Corrected key
+  iconSize: [35, 45],
+  iconAnchor: [15, 40],
+});
+
 
 const EditCampus = () => {
     const { currentUser } = useUserStore((state) => state);
     const { id } = useParams();
     const navigate = useNavigate();
     const [campus, setCampus] = useState(null);
-    const [position, setPosition] = useState([14.466440, 121.226080]); // Default: Manila, Philippines
+    const [position, setPosition] = useState([14.536440, 121.226080]); // Default: Manila, Philippines
     const [loadingVisible, setLoadingVisible] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const [campuses, setCampuses] = useState([]);
     const [isLoading, isSetLoading] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
     const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+    const [newCoordinates, setNewCoordinates] = useState({ lat: null, lng: null });
     const [campusImage, setCampusImage] = useState(null);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [selectedProgram, setSelectedProgram] = useState(null);
@@ -168,8 +180,8 @@ const EditCampus = () => {
                 formData.append('campus_email', campusData.campus_email);
                 formData.append('campus_address', campusData.campus_address);
                 formData.append('campus_about', campusData.campus_about);
-                formData.append('latitude', coordinates.lat);  // Pull from coordinates
-                formData.append('longitude', coordinates.lng);
+                formData.append('latitude', newCoordinates?.lat ?? coordinates.lat);
+                formData.append('longitude', newCoordinates?.lng ?? coordinates.lng);
                 formData.append('campus_programs', JSON.stringify(campusData.campus_programs));
               
                 if (campusData.campus_cover_photo) {
@@ -232,8 +244,6 @@ const EditCampus = () => {
                 }
             };
 
-            
-
             const handleRemoveProgram = (programTypeId, programIndex) => {
               const updatedPrograms = campusData.campus_programs.map((programType) => {
                 if (programType.program_type_id === programTypeId) {
@@ -290,11 +300,14 @@ const EditCampus = () => {
         click(e) {
           const { lat, lng } = e.latlng;
           setCoordinates({ lat, lng });
+          setNewCoordinates({ lat, lng });
         },
       });
   
-      return coordinates.lat ? (
-        <Marker position={[coordinates.lat, coordinates.lng]}>
+      return newCoordinates.lat ? (
+        <Marker 
+        position={[newCoordinates.lat, newCoordinates.lng]}
+        icon={newDefaultIcon}>
         </Marker>
       ) : null;
     };
@@ -451,7 +464,7 @@ const EditCampus = () => {
               </div>
                 <MapContainer
                 center={coordinates.lat ? [coordinates.lat, coordinates.lng] : position}
-                zoom={11}
+                zoom={12}
                 className="h-[530px] w-[100%] outline-none border border-gray-300"
                 style={{ cursor: "crosshair" }}
                 scrollWheelZoom={false}
@@ -466,6 +479,7 @@ const EditCampus = () => {
                         parseFloat(campus.latitude), 
                         parseFloat(campus.longitude)
                         ]}
+                        icon={defaultIcon}
                         >
                         <Popup className="custom-popup" closeButton={false}>
                           <div className="px-3 rounded-md  box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white text-black border border-black">

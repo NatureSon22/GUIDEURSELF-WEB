@@ -6,9 +6,8 @@ import "leaflet/dist/leaflet.css";
 import { FaPlus } from "react-icons/fa";
 import CloseIcon from "../../assets/CloseIcon.png";
 import useUserStore from "@/context/useUserStore";
+import { renderToStaticMarkup } from "react-dom/server";
 import AddProgramModal from "./AddNewProgramModal";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,18 +17,31 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditNewProgramModal";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
+const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
+ 
+const defaultIcon = L.icon({
+  iconUrl,
+  iconSize: [35, 45],
+  iconAnchor: [15, 40],
 });
+
+const newIconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="green"/>);
+const newIconUrl = `data:image/svg+xml;base64,${btoa(newIconSvg)}`;
+ 
+const newDefaultIcon = L.icon({
+  iconUrl: newIconUrl, // ✅ Corrected key
+  iconSize: [35, 45],
+  iconAnchor: [15, 40],
+});
+
 
 const AddNewCampus = () => {
   const { currentUser } = useUserStore((state) => state);
   const { toast } = useToast();
-  const [position, setPosition] = useState([14.466440, 121.226080]); 
+  const [position, setPosition] = useState([14.536440, 121.226080]); 
   const [loadingVisible, setLoadingVisible] = useState(false);
   const navigate = useNavigate();
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -345,7 +357,8 @@ const AddNewCampus = () => {
     });
 
     return coordinates.lat ? (
-      <Marker position={[coordinates.lat, coordinates.lng]}>
+      <Marker position={[coordinates.lat, coordinates.lng]}
+      icon={newDefaultIcon}>
       </Marker>
     ) : null;
   };
@@ -464,7 +477,7 @@ const AddNewCampus = () => {
                 </div>
                 <MapContainer
                 center={position}
-                zoom={11}
+                zoom={12}
                 className="h-[530px] w-[100%] z-[10] outline-none border border-gray-300"
                 style={{ cursor: "crosshair" }}
                 scrollWheelZoom={false}
@@ -485,6 +498,7 @@ const AddNewCampus = () => {
                                     parseFloat(campus.latitude), 
                                     parseFloat(campus.longitude)
                                   ]}
+                                  icon={defaultIcon}
                                 >
                                   <Popup className="custom-popup" closeButton={false}>
                                     <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
