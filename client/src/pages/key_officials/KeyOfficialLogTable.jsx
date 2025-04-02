@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import formatDateTime from "@/utils/formatDateTime";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fetchKeyOfficialLogs = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/keyofficiallogs`, {
@@ -18,9 +19,9 @@ const KeyOfficialLogTable = () => {
     queryFn: fetchKeyOfficialLogs,
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+    if (isLoading) {
+      return <Skeleton className="rounded-md bg-secondary-200/40 py-24" />;
+    }
 
   if (isError) {
     return <div>Error: {error.message}</div>;

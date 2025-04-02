@@ -30,7 +30,7 @@ const newIconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="green"/
 const newIconUrl = `data:image/svg+xml;base64,${btoa(newIconSvg)}`;
  
 const newDefaultIcon = L.icon({
-  iconUrl: newIconUrl, // ✅ Corrected key
+  iconUrl: newIconUrl,
   iconSize: [35, 45],
   iconAnchor: [15, 40],
 });
@@ -41,7 +41,7 @@ const EditCampus = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [campus, setCampus] = useState(null);
-    const [position, setPosition] = useState([14.536440, 121.226080]); // Default: Manila, Philippines
+    const [position, setPosition] = useState([14.536440, 121.226080]); 
     const [loadingVisible, setLoadingVisible] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const [campuses, setCampuses] = useState([]);
@@ -308,6 +308,14 @@ const EditCampus = () => {
         <Marker 
         position={[newCoordinates.lat, newCoordinates.lng]}
         icon={newDefaultIcon}>
+
+        <Popup className="custom-popup" closeButton={false}>
+          <div className="px-3 rounded-md  box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white text-black border border-black">
+            <p className="text-[16px] text-center font-bold">
+              New location for {campus.campus_name} Campus
+            </p>
+          </div>
+       </Popup>
         </Marker>
       ) : null;
     };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import Header from "@/components/Header";
@@ -8,7 +8,9 @@ import { loggedInUser } from "@/api/auth";
 import { FaListUl } from "react-icons/fa";
 import { GrNext, GrPrevious } from "react-icons/gr";
 import { CiSearch } from "react-icons/ci";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import PreviewPanorama from "./PreviewPanorama";
 import { Input } from "@/components/ui/input";
 
 const fetchMarkers = async () => {
@@ -44,13 +46,39 @@ const fetchCampuses = async () => {
 
 const MediaLibrary = () => {
   const [selectedCampus, setSelectedCampus] = useState("");
-  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [previewImage, setPreviewImage] = useState("");
+  const [markerName, setMarkerName] = useState("");
+  const [markerDescription, setMarkerDescription] = useState("");
   const [clickIcon, setClickIcon] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const markersPerPage = 6;
+  const [isPanorama, setIsPanorama] = useState(false);
+  const modalRef = useRef(null);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsPanorama(false); // Close when clicking outside
+      }
+    };
 
+    if (isPanorama) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isPanorama]);
+
+  const showPanorama = (marker) => {
+    setPreviewImage(marker.marker_photo_url);
+    setMarkerName(marker.marker_name);
+    setMarkerDescription(marker.marker_description);
+    setIsPanorama(true);
+    setIsPanorama(true);
+  };
 
   const showList = () => {
     setClickIcon(true);
@@ -65,9 +93,18 @@ const MediaLibrary = () => {
     queryFn: fetchMarkers,
   });
 
-  const { data: campuses, isLoading: campusesLoading, error: campusesError } = useQuery({
-    queryKey: ["campuses"],
-    queryFn: fetchCampuses,
+  const { data: campuses, campusesLoading, error: campusesError } = useQuery({
+    queryKey: ["campuses-with-photos"],
+    queryFn: async () => {
+      const allCampuses = await fetchCampuses();
+      return allCampuses.filter(campus => 
+        campus.floors?.some(floor => 
+          floor.markers?.some(marker => 
+            marker.marker_photo_url
+          )
+        )
+      );
+    },
   });
 
   const { data: user, isLoading: userLoading } = useQuery({
@@ -137,11 +174,17 @@ const MediaLibrary = () => {
                 onChange={(e) => setSelectedCampus(e.target.value)}
               >
                 <option value="">All Campuses</option>
-                {campuses.map((campus) => (
-                  <option key={campus._id} value={campus._id}>
-                    {campus.campus_name}
-                  </option>
-                ))}
+                {campusesLoading ? (
+                  <option disabled>Loading campuses...</option>
+                ) : campusesError ? (
+                  <option disabled>Error loading campuses</option>
+                ) : (
+                  campuses?.map((campus) => (
+                    <option key={campus._id} value={campus._id}>
+                      {campus.campus_name}
+                    </option>
+                  )) ?? [] // Fallback empty array if campuses is undefined
+                )}
               </select>
             )}
             
@@ -166,6 +209,14 @@ const MediaLibrary = () => {
                     key={marker._id}
                     className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[320px] border-gray-300 rounded-md shadow-md bg-white"
                   >
+                    <div className="z-50 absolute flex justify-center items-center bg-black w-[550px] h-[255px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
+                    <Button type="button" 
+                    onClick={() => showPanorama(marker)} 
+                    className="text-white h-[40px]"
+                    >
+                        Click to Preview
+                      </Button>
+                    </div>
                     <LazyMediaPanoramicViewer imageUrl={marker.marker_photo_url} />
                     <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
                       <p className="marker-name text-sm">{marker.marker_name}</p>
@@ -230,6 +281,17 @@ const MediaLibrary = () => {
           </>
         )}
       </div>
+              {isPanorama && (
+              <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
+                <div ref={modalRef} className="relative">
+                 <PreviewPanorama 
+                 imageUrl={previewImage} 
+                 markerDescription={markerDescription} 
+                 markerName={markerName} 
+                  />
+                </div>
+              </div>
+              )}
     </div>
   );
 };

@@ -65,7 +65,7 @@ const CampusCard = ({ campus, onClose }) => {
                 <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
                 <TbMap2 className="text-4xl text-base-200 mb-1"/>
               </div>  
-              <p className="text-center text-sm mt-2">Featured Locations</p>
+              <p className="text-center text-sm mt-2">Featured Floors</p>
             </div>
             <div>
               <div className="flex flex-row items-center justify-center gap-2">

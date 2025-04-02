@@ -8,14 +8,17 @@ import EditFloorModal from "./EditFloorModal";
 import HeaderSection from "./HeaderSection";
 import useUserStore from "@/context/useUserStore";
 import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
-import { useState, useEffect, StrictMode, Suspense  } from "react";
+import { useState, useEffect, StrictMode, useRef, Suspense  } from "react";
 import L from "leaflet"; 
 import AddMarkerModal from "./AddMarkerModal";
 import ConfirmationDialog from "./ConfirmationDialog";
+import { Label } from "@/components/ui/label";
+import PreviewPanorama from "./PreviewPanorama";
 import DeleteMarkerConfirmationDialog from "./DeleteMarkerConfirmationDialog"
 import EditMarkerModal from "./EditMarkerModal";
 import { GoAlert } from "react-icons/go";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
 import { MdClose } from "react-icons/md";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { LuPlus } from "react-icons/lu";
@@ -122,6 +125,7 @@ const queryClient = useQueryClient();
 const { campus } = location.state || {};
 const [selectedCategory, setSelectedCategory] = useState("");
 const { currentUser } = useUserStore((state) => state);
+const modalRef = useRef(null);
 const [editingFloor, setEditingFloor] = useState(null);
 const [hideMarkers, setHideMarkers] = useState(false);
 const bounds = [[14.480740, 121.184750], [14.488870, 121.192500]];
@@ -144,7 +148,33 @@ const [expandedFloor, setExpandedFloor] = useState(null);
 const [isSliderOpen, setIsSliderOpen] = useState(true);
 const [searchQuery, setSearchQuery] = useState("");
 const [loadingMessage, setLoadingMessage] = useState("");
-const [ date, setDate] = useState("");
+const [isPanorama, setIsPanorama] = useState(false);
+const [previewImage, setPreviewImage] = useState("");
+const [markerName, setMarkerName] = useState("");
+const [markerDescription, setMarkerDescription] = useState("");
+
+const showPanorama = (marker) => {
+  setPreviewImage(marker.marker_photo_url);
+  setMarkerName(marker.marker_name);
+  setMarkerDescription(marker.marker_description);
+  setIsPanorama(true);
+};
+
+   useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (modalRef.current && !modalRef.current.contains(event.target)) {
+          setIsPanorama(false); // Close when clicking outside
+        }
+      };
+  
+      if (isPanorama) {
+        document.addEventListener("mousedown", handleClickOutside);
+      }
+  
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [isPanorama]);
 
   const logActivityMutation = useMutation({
     mutationFn: async (logData) => {
@@ -191,7 +221,7 @@ const handleExitBuildMode = () => {
   }, 3000);
 };
 
-const handleMarkerClick = (marker) => {
+const handleMarkerClick = (marker) => { 
   setSelectedMarker(marker);
   toggleSlider();
 };
@@ -272,24 +302,35 @@ const closeModal = () => setIsModalOpen(false);
 const refreshFloors = () => queryClient.invalidateQueries(["campuses", campus._id]);
 
 const LocationMarker = () => {
+  const [isSliderOpen] = useState(false);
+  const isSliderOpenRef = useRef(isSliderOpen);
+
+  useEffect(() => {
+    isSliderOpenRef.current = isSliderOpen;
+  }, [isSliderOpen]);
+
   useMapEvents({
     click(e) {
-      const { lat, lng } = e.latlng;
-      setCoordinates({ lat, lng });
+      // Enhanced check - verify this is a direct map click
+      if (!isSliderOpenRef.current && e.originalEvent.target === e.target._container) {
+        const { lat, lng } = e.latlng;
+        setCoordinates({ lat, lng });
+      }
     },
   });
 
-  
-  const icon = getIcon(selectedCategory); // Get updated icon based on category
+  const icon = getIcon(selectedCategory);
 
   return coordinates.lat ? (
     <Marker 
       position={[coordinates.lat, coordinates.lng]}
-      icon={icon} // Use dynamic icon
+      icon={icon} 
+      eventHandlers={{
+        click: (e) => e.originalEvent.stopPropagation() // Prevent marker clicks from bubbling
+      }}
     />
   ) : null;
 };
-
 
 const handleAddMarkerClick = () => {
   setAddMarkerModalOpen(true);
@@ -821,12 +862,35 @@ const handleDrop = (e, targetFloor) => {
                       
                     >
                       <Popup className="custom-popup" closeButton={false}>
-                      <div className={`px-3 rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center border border-white ${categoryConfig[marker.category]?.color || "bg-base-200"}`}>
-                        <p className="text-[16px] text-center font-bold">
-                              {marker.marker_name}
-                        </p>
+                        <div className={`p-3 border ${categoryConfig[marker.category]?.borderColor || "border-base-200"} ${categoryConfig[marker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
+                          <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
+                          <p className={`${categoryConfig[marker.category]?.textColor || "text-base-200"} tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{marker.marker_name}</p>
+                          {marker.marker_photo_url ? (
+                            <button
+                              onClick={() => showPanorama(marker)}
+                              className={`p-3 rounded-md text-[15px] text-white ${categoryConfig[marker.category]?.color || "bg-base-200"}`}
+                            >
+                            <Label
+                            className={`text-[14px] tracking-wider cursor-pointer`}
+                            >
+                              VIEW PANORAMA
+                            </Label>
+                            </button>
+                          ) : isSliderOpen ? (
+                            <button
+                              onClick={() => handleMarkerClick(marker)}
+                              className={`p-3 rounded-md text-[15px] text-white ${categoryConfig[marker.category]?.color || "bg-base-200"}`}
+                            > 
+                              <Label
+                              className="text-[14px] tracking-wider cursor-pointer"
+                              >
+                                UPLOAD PANORAMA
+                              </Label>
+                            </button>
+                          ) : null}
+                          </div>
                         </div>
-                        </Popup>
+                      </Popup>
                       </Marker>
                   );
                 })}
@@ -870,6 +934,17 @@ const handleDrop = (e, targetFloor) => {
             </div>
           )}
         </div>
+
+        {isPanorama &&  (
+        <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
+          <div ref={modalRef} className="relative">
+            <PreviewPanorama imageUrl={previewImage} 
+            markerDescription={markerDescription} 
+            markerName={markerName} 
+            />
+          </div>
+        </div>
+        )}
       
         {isModalOpen && (
           <AddFloorModal 

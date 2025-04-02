@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "pannellum";
+import { Label } from "@/components/ui/label";
 
-const PreviewPanorama = ({ imageUrl }) => {
+const PreviewPanorama = ({ imageUrl, markerName, markerDescription }) => {
   const viewerRef = useRef(null);
   const pannellumViewer = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -44,7 +45,22 @@ const PreviewPanorama = ({ imageUrl }) => {
     };
   }, [isVisible, imageUrl]);
 
-  return <div ref={viewerRef} className="h-[800px] w-[450px] rounded-md bg-gray-200"></div>;
+  return (
+    <div className="border border-black flex p-6 gap-6 h-[700px] w-[900px] rounded-md bg-white">
+      
+    <div className="w-[500px] h-[100%]">
+    <div ref={viewerRef} className="border border-black rounded-md bg-gray-200"></div> 
+    </div>
+      
+      <div  className="w-[500px] gap-6 flex flex-col h-[100%]">
+      <Label className="text-[22px]">{markerName}</Label>
+      {/* Scrollable Description */}
+      <div className="max-h-[490px] text-justify min-h-[200px] overflow-y-auto pr-4"> {/* Adjust max-h as needed */}
+        <Label className="text-[19px] text-justify">{markerDescription}</Label>
+      </div>
+      </div>
+    </div>
+  )
 };
 
 export default PreviewPanorama;
