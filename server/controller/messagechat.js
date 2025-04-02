@@ -51,20 +51,26 @@ const chatHeads = async (req, res) => {
     let receivers;
 
     if (userRole === "super administrator") {
+      // Fetch all users except the current user
       receivers = await UserModel.find({ _id: { $ne: userId } }).populate(
         "role_id"
       );
     } else if (userRole === "student") {
+      // Fetch all users in the same campus except students and the current user
       receivers = await UserModel.find({
         campus_id: campusId,
         _id: { $ne: userId },
-        "role_id.role_type": { $ne: "student" },
-      }).populate("role_id");
+      })
+        .populate("role_id")
+        .then((users) =>
+          users.filter((user) => user.role_id.role_type !== "Student")
+        );
     } else {
+      // Fetch users in the same campus with different role_id
       receivers = await UserModel.find({
         campus_id: campusId,
         _id: { $ne: userId },
-        role_id: { $ne: roleId },
+        role_id: { $ne: roleId }, // Ensure roleId is an ObjectId
       }).populate("role_id");
     }
 
