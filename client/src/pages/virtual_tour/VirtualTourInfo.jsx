@@ -69,7 +69,7 @@ const VirtualTourInfo = () => {
       setTimeout(() => {
         setLoadingVisible(false);
         navigate("/virtual-tour/build-mode");
-    }, 3000);
+    }, 6000);
   };
 
     return (

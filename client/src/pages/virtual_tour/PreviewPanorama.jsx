@@ -21,7 +21,7 @@ const PreviewPanorama = ({ imageUrl, markerName, markerDescription, markerCatego
   
     // Calculate text width and container size
     const singleTextWidth = textElement.getBoundingClientRect().width;
-    const containerWidthValue = Math.min(Math.max(singleTextWidth + 60, 80), 475);
+    const containerWidthValue = Math.min(Math.max(singleTextWidth + 60, 80), 675);
     setContainerWidth(containerWidthValue);
   
     // Only scroll if text overflows
@@ -106,21 +106,23 @@ const PreviewPanorama = ({ imageUrl, markerName, markerDescription, markerCatego
   const IconComponent = categoryDetails.icon || FaLocationArrow; // Default icon if category is missing
 
   return (
-    <div className="border border-black flex p-6 gap-6 h-[880px] w-[1000px] rounded-md bg-white">
-      <div className="w-[600px] h-[100%]">
-        {/* <div ref={viewerRef} className="border border-black rounded-md bg-gray-200"></div>  */}
+    <div className="border border-black flex p-6 gap-6 h-[880px] w-[1500px] rounded-md bg-white">
+      <div className="w-[70%] h-[100%]">
+        <div ref={viewerRef} className="border border-black rounded-md bg-gray-200"></div> 
       </div>
         
-      <div className="w-[500px] gap-6 flex flex-col h-[100%]">
+      <div className="w-[50%] gap-6 flex flex-col h-[100%]">
         
         <div className="flex flex-col gap-3">
-          {/* Dynamic Category with Icon */}
+        
+        {markerCategory && (
           <div className={`flex items-center py-2 px-4 rounded-[50px] max-w-fit whitespace-normal break-words relative ${categoryDetails.color || "bg-gray-300"}`}>
             {React.createElement(IconComponent, { className: `absolute left-3 top-1/2 transform -translate-y-1/2 text-white text-xl` })}
             <Label className={`text-[20px] px-4 pl-7 text-white`}>
               {markerCategory}
             </Label>
           </div>
+          )}
 
           <div
           className="relative bg-base-200 rounded-[50px] py-2 px-4 pl-[45px] flex items-center"
