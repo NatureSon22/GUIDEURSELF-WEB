@@ -12,6 +12,21 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import PreviewPanorama from "./PreviewPanorama";
 import { Input } from "@/components/ui/input";
+import { BsDoorOpenFill } from "react-icons/bs";
+import { PiOfficeChairFill } from "react-icons/pi";
+import { FaGraduationCap } from "react-icons/fa";
+import { FaFlag } from "react-icons/fa";
+import { ImManWoman } from "react-icons/im";  
+import { MdWidgets } from "react-icons/md";
+
+const categoryConfig = {
+  "Academic Spaces": { color: "bg-yellow-500", textColor: "text-yellow-500", borderColor: "border-yellow-500", icon: BsDoorOpenFill },
+  "Administrative Offices": { color: "bg-red-500", textColor: "text-red-500", borderColor: "border-red-500", icon: PiOfficeChairFill },
+  "Student Services": { color: "bg-blue-500", textColor: "text-blue-500", borderColor: "border-blue-500", icon: FaGraduationCap },
+  "Campus Attraction": { color: "bg-green-500", textColor: "text-green-500", borderColor: "border-green-500", icon: FaFlag },
+  "Utility Areas": { color: "bg-pink-500", textColor: "text-pink-500", borderColor: "border-pink-500", icon: ImManWoman },
+  "Others (Miscellaneous)": { color: "bg-blue-400", textColor: "text-blue-500", borderColor: "border-blue-400", icon: MdWidgets },
+};
 
 const fetchMarkers = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/markers`, {
@@ -55,6 +70,7 @@ const MediaLibrary = () => {
   const markersPerPage = 6;
   const [isPanorama, setIsPanorama] = useState(false);
   const modalRef = useRef(null);
+  const [markerCategory, setMarkerCategory] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -76,6 +92,7 @@ const MediaLibrary = () => {
     setPreviewImage(marker.marker_photo_url);
     setMarkerName(marker.marker_name);
     setMarkerDescription(marker.marker_description);
+    setMarkerCategory(marker.category);
     setIsPanorama(true);
     setIsPanorama(true);
   };
@@ -288,6 +305,8 @@ const MediaLibrary = () => {
                  imageUrl={previewImage} 
                  markerDescription={markerDescription} 
                  markerName={markerName} 
+                 markerCategory={markerCategory} 
+                 categoryConfig={categoryConfig}  
                   />
                 </div>
               </div>
