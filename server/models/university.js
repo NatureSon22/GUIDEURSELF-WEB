@@ -4,6 +4,7 @@ const universityManagementSchema = new mongoose.Schema({
   university_logo_url: String,
   university_vector_url: String,
   university_history: String,
+  university_about: String,
   university_vision: String,
   university_mission: String,
   university_core_values: String,

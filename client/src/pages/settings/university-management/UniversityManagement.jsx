@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import LogoField from "./LogoField";
 import VectorField from "./VectorField";
 import HistoryField from "./HistoryField";
+import AboutField from "./AboutField";
 import VisionField from "./VisionField"
 import MissionField from "./MissionField"
 import CoreValuesField from "./CoreValuesField"
@@ -35,6 +36,10 @@ const UniversitySettings = () => {
       <HistoryField
       isLoading={isLoading}
       universityhistory={university?.university_history}
+      />
+      <AboutField
+      isLoading={isLoading}
+      universityabout={university?.university_about}
       />
       <VisionField
       isLoading={isLoading}

@@ -19,6 +19,8 @@
   html {
     font-family: "Poppins", serif;
   }
+
+  
   
   :root {
     --background: 0 0% 100%;
@@ -77,6 +79,8 @@
 
   
   /* Custom Scrollbar */
+
+  
   ::-webkit-scrollbar {
     width: 10px;
   }

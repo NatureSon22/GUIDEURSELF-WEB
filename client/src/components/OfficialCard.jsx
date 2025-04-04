@@ -10,7 +10,7 @@ const OfficialCard = ({ official }) => {
       <h3 className="text-md font-cizel-decor mt-5 text-[1.05rem] px-4 text-center font-bold text-gray-800">
         {official.name}
       </h3>
-      <p className="font-cizel font-semibold mt-1 px-4 text-center text-[0.85rem]">
+      <p className="mt-2 font-cizel text-center text-gray-600">
         {official.position_name}
       </p>
     </div>

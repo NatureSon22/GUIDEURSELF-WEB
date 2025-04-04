@@ -39,6 +39,7 @@ universityManagementRouter.put(
     const userId = req.user?.userId;
     const {
       university_history,
+      university_about,
       university_vision,
       university_mission,
       university_core_values,
@@ -46,6 +47,7 @@ universityManagementRouter.put(
 
     const updatedData = {
       university_history,
+      university_about,
       university_vision,
       university_mission,
       university_core_values,

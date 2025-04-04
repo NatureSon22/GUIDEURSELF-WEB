@@ -6,6 +6,10 @@
     font-size: 25px !important;
 }
 
+.scrolling-container {
+  will-change: transform;
+  backface-visibility: hidden;
+}
 .custom-dialog {
     border-radius: 15px !important;
   }

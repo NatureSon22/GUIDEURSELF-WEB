@@ -289,7 +289,7 @@ const EditMarkerModal =
                 </div>
                 {previewImage ? (
                   <div className="w-[100%] h-[250px] bg-secondary-200 rounded-md mb-4 relative">
-                    <PanoramicViewer imageUrl={previewImage} />
+                    {/* <PanoramicViewer imageUrl={previewImage} /> */}
                   </div>
                 ) : (
                   <div className="w-[100%] h-[250px] flex items-center justify-center border border-secondary-200 rounded-md border-dashed mb-4">

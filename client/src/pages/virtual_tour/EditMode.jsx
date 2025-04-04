@@ -152,11 +152,13 @@ const [isPanorama, setIsPanorama] = useState(false);
 const [previewImage, setPreviewImage] = useState("");
 const [markerName, setMarkerName] = useState("");
 const [markerDescription, setMarkerDescription] = useState("");
+const [markerCategory, setMarkerCategory] = useState("");
 
 const showPanorama = (marker) => {
   setPreviewImage(marker.marker_photo_url);
   setMarkerName(marker.marker_name);
   setMarkerDescription(marker.marker_description);
+  setMarkerCategory(marker.category);
   setIsPanorama(true);
 };
 
@@ -941,6 +943,8 @@ const handleDrop = (e, targetFloor) => {
             <PreviewPanorama imageUrl={previewImage} 
             markerDescription={markerDescription} 
             markerName={markerName} 
+            markerCategory={markerCategory} 
+            categoryConfig={categoryConfig}  
             />
           </div>
         </div>
