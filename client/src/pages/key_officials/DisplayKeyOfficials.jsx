@@ -98,7 +98,7 @@ const DisplayingKeyOfficials = () => {
       </div>
 
       <div className="mt-12 py-6 px-4 sm:px-6 lg:px-8"> {/* Added horizontal padding for smaller screens */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {filteredOfficials?.map((official, index) => (
             <div className="box-shadow-200 flex px-2 flex-col items-center rounded-md border border-secondary-200/30 bg-white py-4">
             <img

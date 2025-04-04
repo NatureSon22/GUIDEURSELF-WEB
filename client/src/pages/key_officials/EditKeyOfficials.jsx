@@ -287,11 +287,11 @@ const EditKeyOfficials = () => {
           <div>
             {/* Officials Grid */}
             <div className="mt-12 py-6 px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {paginatedOfficials.map((official, index) => (
                   <div
                     key={index}
-                    className="box-shadow-200 flex flex-col rounded-md border border-secondary-200/30 bg-white"
+                    className="box-shadow-200 flex justify-between flex-col rounded-md border border-secondary-200/30 bg-white"
                   >
                     <div className="flex flex-col items-center px-2 py-4">
                       <img
@@ -309,7 +309,7 @@ const EditKeyOfficials = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex w-full justify-end gap-2 border-t border-secondary-200/30 p-3">
+                    <div className="flex w-full justify-end gap-2 p-3">
                       <FeaturePermission
                         module="Manage Key Officials"
                         access="edit key official"
