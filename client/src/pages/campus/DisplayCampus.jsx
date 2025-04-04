@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaPen } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
-import CampusLogTable from "./CampusLogTable";
 import "@/fluttermap.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
@@ -164,10 +163,15 @@ const DisplayCampus = () => {
                   icon={defaultIcon}
                 >
                   <Popup className="custom-popup" closeButton={false}>
-                  <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
-                    <p className="text-[16px] text-center font-bold">
-                        {campus.campus_name}
-                    </p>
+                  <div className="border border-grey w-[450px] px-3 py-1 rounded-md bg-white flex justify-center gap-3">
+                    <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
+                      <img className="h-[60px]" src={university?.university_vector_url} alt="" />
+                      <img className="h-[60px]" src={university?.university_logo_url} alt="" />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <h2 className="font-bold text-base-400 font-cizel-decor text-lg">{campus.campus_name} Campus</h2>
+                      <h3 className="text-sm text-secondary-200-80 font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                    </div>
                   </div>
                   </Popup>
                 </Marker>
@@ -215,18 +219,6 @@ const DisplayCampus = () => {
       </div>
 
       </div>
-      
-            <div
-              className="mt-[40px]"
-            >
-            <Header
-              className="mb-4"
-              title={"Campus Log"}
-              subtitle={"This section lists the most recent updates and changes made by administration across different campuses."}
-              />
-            <CampusLogTable />
-      
-            </div>
     </div>
   );
 };

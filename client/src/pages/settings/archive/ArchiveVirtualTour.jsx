@@ -11,8 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllCampuses } from "@/api/component-info";
 import { Skeleton } from "@/components/ui/skeleton";
-import { IoAlertCircle } from "react-icons/io5";
-import { RiDeleteBin7Fill } from "react-icons/ri";
+import DialogContainer from "@/components/DialogContainer";
+import { FaCircleExclamation } from "react-icons/fa6";
+import { MdDelete } from "react-icons/md";
 
 const ArchiveVirtualTour = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -24,6 +25,7 @@ const ArchiveVirtualTour = () => {
   const [fromDate, setFromDate] = useState(""); // Date filter state
   const [toDate, setToDate] = useState(""); // Date filter state
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
   const searchValue = globalFilter?.toLowerCase() || "";
 
@@ -156,6 +158,8 @@ const ArchiveVirtualTour = () => {
   };
 
   const handleDeleteSelected = async () => {
+    setIsDeleting(true);
+
     const selectedIds = Object.keys(rowSelection);
   
     if (selectedIds.length === 0) {
@@ -245,7 +249,7 @@ const ArchiveVirtualTour = () => {
         disabled={Object.keys(rowSelection).length === 0}
         onClick={openConfirmationModal}
       >
-                <RiDeleteBin7Fill/>
+                <MdDelete/>
         Clear Archives
       </Button>
 
@@ -289,28 +293,32 @@ const ArchiveVirtualTour = () => {
       </div>
 
       {openModal && (
-              <div className="fixed !mt-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-secondary-300 p-6 text-center shadow-md">
-                  <IoAlertCircle className="text-[3rem] text-base-200" />
-                  <p className="text-md my-4 text-gray-600">
-                  Once you proceed, the selected data will be permanently deleted and cannot be restored.
+              <DialogContainer openDialog={openModal}>
+                <div className="flex flex-col items-center gap-5">
+                  <FaCircleExclamation className="text-[2.5rem] text-base-200" />
+                  <p className="text-center text-[0.91rem] font-semibold">
+                    Warning: Once deleted, these item in the virtual tour cannot be restored. Do you
+                    want to proceed?
                   </p>
-                  <div className="mt-4 flex w-[100%] justify-center gap-4">
-                    <button
+                  <div className="flex w-full gap-4">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-secondary-200 py-1 text-secondary-100-75"
                       onClick={() => setOpenModal(false)}
-                      className="w-[100%] rounded-md border border-secondary-210 bg-secondary-300 px-4 py-2 text-secondary-210"
+                      disabled={isDeleting}
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={handleDeleteSelected}
-                      className="w-[100%] rounded-md border border-base-200 bg-base-210 px-4 py-2 text-base-200"
+                      className="flex-1 border border-base-200 bg-base-200/10 py-1 text-base-200 shadow-none hover:bg-base-200/10"
+                      disabled={isDeleting}
                     >
                       Proceed
-                    </button>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </DialogContainer>
             )}
     </div>
   );

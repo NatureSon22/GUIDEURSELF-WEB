@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
-import { getAllCampuses, getAllRoleTypes, getAllFeedback } from "@/api/component-info";
+import { getAllCampuses, getLowRoleTypes, getAllFeedback } from "@/api/component-info";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import Header from "@/components/Header";
@@ -43,7 +43,7 @@ const FeedbackReport = () => {
 
   const { data: allRoles } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
+    queryFn: getLowRoleTypes,
   });
 
   const filteredFeedbacks = useMemo(() => {

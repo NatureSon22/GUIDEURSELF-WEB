@@ -1,8 +1,8 @@
 import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
 import { useState, useMemo } from "react";
-import { getAllAccounts } from "@/api/accounts";
-import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
+import { getLowAccounts } from "@/api/accounts";
+import { getAllCampuses, getLowRoleTypes, getAllRoleTypes } from "@/api/component-info";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
 import accountStatus from "@/utils/accountStatus";
@@ -35,7 +35,7 @@ const AccountReports = () => {
 
   const { data: allAccounts, isLoading } = useQuery({
     queryKey: ["accounts"],
-    queryFn: getAllAccounts,
+    queryFn: getLowAccounts,
     refetchOnWindowFocus: false,
   });
 
@@ -44,10 +44,10 @@ const AccountReports = () => {
     queryFn: getAllCampuses,
   });
 
-  const { data: allRoles } = useQuery({
-    queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
-  });
+    const { data: allRoles } = useQuery({
+      queryKey: ["allRoles"],
+      queryFn: getLowRoleTypes,
+    });
 
   // Filter accounts based on selected date range and filters
   const filteredAccounts = useMemo(() => {

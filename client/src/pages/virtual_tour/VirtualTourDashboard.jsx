@@ -18,7 +18,7 @@ const VirtualTourDashboard = () => {
         </div>
         <Header
             classame="mb-4"
-            title={"Virtual Tour Log"}
+            title={"Recent Changes"}
             subtitle={"This section lists the most recent updates and changes made by administration across different campuses."}
         />
         <VirtualTourLogTable />

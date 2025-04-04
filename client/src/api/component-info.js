@@ -166,6 +166,34 @@ const getHighRoleTypes = async () => {
   return filteredRoleTypes || [];
 };
 
+
+const getLowRoleTypes = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { roleTypes } = await response.json();
+
+  // Exclude "Student", "Faculty", and "Staff"
+  const filteredRoleTypes = roleTypes
+    .filter(
+      (roleType) =>
+        !["Super Administrator", "Administrator"].includes(roleType.role_type),
+    )
+    .map((roleType) => ({
+      value: roleType._id,
+      label: formatTitle(roleType.role_type),
+    }));
+
+  return filteredRoleTypes || [];
+};
+
 const getAllRoleTypes = async (filter = []) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
     method: "GET",
@@ -306,6 +334,7 @@ export {
   fetchCampuses,
   getAllCampuses,
   getProgramTypeData,
+  getLowRoleTypes,
   getMajorData,
   getProgramNameData,
   getAllRoleTypes,

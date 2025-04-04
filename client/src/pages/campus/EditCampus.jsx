@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import CloseIcon from "../../assets/CloseIcon.png";
 import AddProgramModal from "./AddProgramModal";
 import useUserStore from "@/context/useUserStore";
+import { getUniversityData } from "@/api/component-info";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
@@ -26,7 +27,7 @@ const defaultIcon = L.icon({
   iconSize: [35, 45],
   iconAnchor: [15, 40],
 });
-const newIconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="green"/>);
+const newIconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="red"/>);
 const newIconUrl = `data:image/svg+xml;base64,${btoa(newIconSvg)}`;
  
 const newDefaultIcon = L.icon({
@@ -71,6 +72,12 @@ const EditCampus = () => {
       queryFn: loggedInUser,
       refetchOnWindowFocus: false,
     });
+
+    
+      const { data: university } = useQuery({
+        queryKey: ["universitysettings"],
+        queryFn: getUniversityData,
+      });
 
 
     const logActivityMutation = useMutation({
@@ -392,6 +399,12 @@ const EditCampus = () => {
                   placeholder="Binangonan"
                   className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
+                    }
+                  }}
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -404,6 +417,12 @@ const EditCampus = () => {
                     const value = e.target.value;
                     if (/^\+?[0-9\s]*$/.test(value)) {
                       setCampusData({ ...campusData, campus_phone_number: value });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
                     }
                   }}
                   placeholder="+63 2 123 4567"
@@ -430,6 +449,12 @@ const EditCampus = () => {
                       setCampusData({ ...campusData, campus_code: value.toUpperCase() });
                     }
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
+                    }
+                  }}
                     placeholder="BIN"
                     className="w-[10%] h-[40px] outline-none text-center border border-gray-300 rounded-md"
                     type="text"
@@ -446,6 +471,12 @@ const EditCampus = () => {
                   placeholder="contact@urs.edu.ph"
                   className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -462,6 +493,12 @@ const EditCampus = () => {
                   placeholder="F5MQ+62W, Manila E Rd, Binangonan, 1940 Rizal"
                   className="w-[100%] mt-3 h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
+                    }
+                  }}
                 />
             </div>
             <div className="border border-gray-300 rounded-md">
@@ -471,9 +508,9 @@ const EditCampus = () => {
               </h2>
               </div>
                 <MapContainer
-                center={coordinates.lat ? [coordinates.lat, coordinates.lng] : position}
+                center={position}
                 zoom={12}
-                className="h-[530px] w-[100%] outline-none border border-gray-300"
+                className="h-[530px] w-[100%] z-[10] outline-none border border-gray-300"
                 style={{ cursor: "crosshair" }}
                 scrollWheelZoom={false}
                 >
@@ -490,11 +527,16 @@ const EditCampus = () => {
                         icon={defaultIcon}
                         >
                         <Popup className="custom-popup" closeButton={false}>
-                          <div className="px-3 rounded-md  box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white text-black border border-black">
-                            <p className="text-[16px] text-center font-bold">
-                                {campus.campus_name}
-                            </p>
+                        <div className="border border-grey w-[450px] px-3 py-1 rounded-md bg-white flex justify-center gap-3">
+                          <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
+                            <img className="h-[60px]" src={university?.university_vector_url} alt="" />
+                            <img className="h-[60px]" src={university?.university_logo_url} alt="" />
                           </div>
+                          <div className="flex flex-col justify-center">
+                            <h2 className="font-bold text-base-400 font-cizel-decor text-lg">{campus.campus_name} Campus</h2>
+                            <h3 className="text-sm text-secondary-200-80 font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                          </div>
+                        </div>
                         </Popup>
                         </Marker>
                         ))
@@ -526,6 +568,12 @@ const EditCampus = () => {
                 accept="image/*"
                 className="mt-2 py-1 cursor-pointer"
                 onChange={handleImageUpload}  // Use existing handler
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevents form submission
+                    e.stopPropagation(); // Stops event bubbling
+                  }
+                }}
                 />
             </div>
 

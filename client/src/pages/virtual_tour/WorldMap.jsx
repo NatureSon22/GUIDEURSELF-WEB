@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import CampusCard from "./CampusCard";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useQuery } from "@tanstack/react-query";
 import "@/fluttermap.css";
@@ -28,7 +29,7 @@ const fetchCampuses = async () => {
     return response.json();
   };
 
-const WorldMap = () => {
+const WorldMap = (campus, onClose) => {
     const [position] = useState([14.46644, 121.22608]);
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -70,12 +71,8 @@ return (
           ]}
           icon={defaultIcon}
         >
-                  <Popup className="custom-popup" closeButton={false}>
-                  <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
-                    <p className="text-[16px] text-center font-bold">
-                        {campus.campus_name}
-                    </p>
-                  </div>
+                  <Popup className="custom-popup !right-[-300px]" closeButton={false}>
+                    <CampusCard campus={campus} onClose={onClose}/>
                   </Popup>
         </Marker>
       ))}

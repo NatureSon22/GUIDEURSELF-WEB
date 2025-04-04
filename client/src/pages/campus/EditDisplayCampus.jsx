@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Pen from "../../assets/Pen.png";
 import Bin from "../../assets/bin.png";
 import { IoAlertCircle } from "react-icons/io5";
+import CampusLogTable from "./CampusLogTable";
 import { getUniversityData } from "@/api/component-info";
 import { useToast } from "@/hooks/use-toast";
 import FeaturePermission from "@/layer/FeaturePermission";
@@ -395,6 +396,16 @@ const EditDisplayCampus = () => {
         </Button>
       </div>
     </div>
+      <div
+      className="mt-[40px]"
+      >
+        <Header
+        className="mb-4"
+        title={"Recent Changes"}
+        subtitle={"This section lists the most recent updates and changes made by administration across different campuses."}
+        />
+        <CampusLogTable />
+      </div>
       {isDeleteModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-[20%]">
                   <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-white p-6 text-center shadow-md">

@@ -9,7 +9,6 @@ const VirtualTourDashboard = lazy(
 );
 
 const BuildMode = lazy(() => import("./pages/virtual_tour/BuildMode.jsx"));
-const BuildModeII = lazy(() => import("./pages/virtual_tour/BuildModeII.jsx"));
 const EditMode = lazy(() => import("./pages/virtual_tour/EditMode.jsx"));
 
 // Key Officials
@@ -117,7 +116,6 @@ export {
   VirtualTour,
   VirtualTourDashboard,
   BuildMode,
-  BuildModeII,
   EditMode,
   KeyOfficials,
   EditKeyOfficials,

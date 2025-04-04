@@ -106,9 +106,9 @@ const PreviewPanorama = ({ imageUrl, markerName, markerDescription, markerCatego
   const IconComponent = categoryDetails.icon || FaLocationArrow; // Default icon if category is missing
 
   return (
-    <div className="border border-black flex p-6 gap-6 h-[880px] w-[1500px] rounded-md bg-white">
+    <div className=" flex p-6 gap-6 h-[880px] w-[1500px] rounded-md bg-white">
       <div className="w-[70%] h-[100%]">
-        <div ref={viewerRef} className="border border-black rounded-md bg-gray-200"></div> 
+        <div ref={viewerRef} className="rounded-md bg-gray-200"></div> 
       </div>
         
       <div className="w-[50%] gap-6 flex flex-col h-[100%]">

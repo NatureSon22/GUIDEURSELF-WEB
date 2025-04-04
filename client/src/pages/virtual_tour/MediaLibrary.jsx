@@ -179,7 +179,6 @@ const MediaLibrary = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <CiSearch />
           </div>
           <div className="flex justify-end gap-4 pr-2">
             {isMultiCampus && (
@@ -221,31 +220,34 @@ const MediaLibrary = () => {
         {!clickIcon ? (
               <div className="flex justify-between flex-col h-[100%]">
               <div className="grid grid-cols-3 gap-4">
-                {currentMarkers.map((marker) => (
-                  <div
-                    key={marker._id}
-                    className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[320px] border-gray-300 rounded-md shadow-md bg-white"
-                  >
-                    <div className="z-50 absolute flex justify-center items-center bg-black w-[550px] h-[255px] rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400">
-                    <Button type="button" 
-                    onClick={() => showPanorama(marker)} 
-                    className="text-white h-[40px]"
+              {currentMarkers.map((marker) => (
+                <div
+                      key={marker._id}
+                      className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[325px] border-gray-300 rounded-md shadow-md bg-white overflow-hidden"
                     >
-                        Click to Preview
-                      </Button>
+                      <div className="relative w-full h-[100%]">
+                        <LazyMediaPanoramicViewer imageUrl={marker.marker_photo_url} />
+                        <div className="flex justify-center items-center bg-black w-full h-full rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400 absolute top-0 left-0">
+                          <Button 
+                            type="button" 
+                            onClick={() => showPanorama(marker)} 
+                            className="text-white h-[40px] z-10"
+                          >
+                            Click to Preview
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
+                        <p className="marker-name text-sm">{marker.marker_name}</p>
+                        <p className="text-sm text-gray-500">
+                          {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
+                            "about ",
+                            ""
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <LazyMediaPanoramicViewer imageUrl={marker.marker_photo_url} />
-                    <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
-                      <p className="marker-name text-sm">{marker.marker_name}</p>
-                      <p className="text-sm text-gray-500">
-                        {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
-                          "about ",
-                          ""
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
         
               {/* Pagination */}

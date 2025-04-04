@@ -366,7 +366,7 @@ const EditKeyOfficials = () => {
       >
       <Header
         className="mb-4"
-        title={"Key Official Log"}
+        title={"Recent Changes"}
         subtitle={"This section lists the most recent updates and changes made by administration for different key officials."}
         />
       <KeyOfficialLogTable />

@@ -29,6 +29,44 @@ const getAllAccounts = async (recent = "") => {
   );
 };
 
+const getLowAccounts = async (recent = "") => {
+  console.trace("Received recent:", recent, "Type:", typeof recent); // Debugging
+
+  if (typeof recent === "object") {
+    console.warn(
+      "Warning: recent should be a string or number, but got an object.",
+    );
+    recent = ""; // Prevent issues
+  }
+
+  const url = recent
+    ? `${import.meta.env.VITE_API_URL}/accounts?recent=${recent}`
+    : `${import.meta.env.VITE_API_URL}/accounts`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { users } = await response.json();
+
+  // Filter out Super Administrators and Administrators
+  const filteredUsers = (users || []).filter(
+    (user) => 
+      user.role_type !== "Super Administrator" && 
+      user.role_type !== "Administrator"
+  );
+
+  return filteredUsers.sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
+};
+
 const getAccount = async (accountId) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/accounts/${accountId}`,
@@ -248,6 +286,7 @@ export {
   addBulkAccount,
   getAccount,
   getAllAccounts,
+  getLowAccounts,
   updateAccount,
   update,
   updateAccountRoleType,
