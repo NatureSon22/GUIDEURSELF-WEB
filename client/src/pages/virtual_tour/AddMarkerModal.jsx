@@ -197,6 +197,7 @@ const AddMarkerModal = ({
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
+    
 
     if (!markerDescription.trim()) {
       setErrorMessage("Location description is required.");

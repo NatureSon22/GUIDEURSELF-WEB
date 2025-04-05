@@ -5,7 +5,7 @@ import { TbMap2 } from "react-icons/tb";
 import { RiCameraLensLine } from "react-icons/ri";
 import { MdTouchApp } from "react-icons/md";
 
-const CampusCard = ({ campus, onClose }) => {
+const CampusCard = ({ campus, closePopup }) => {
 
     const { data: university } = useQuery({
       queryKey: ["universitysettings"],
@@ -85,8 +85,8 @@ const CampusCard = ({ campus, onClose }) => {
           <hr />
           <div className="flex gap-4">
               <button
-              onClick={onClose}
               className="text-base-200 w-[50%] h-[50px] text-[20px] rounded-md hover:bg-secondary-350"
+              onClick={closePopup}
               >
                   Close
               </button>
@@ -97,7 +97,6 @@ const CampusCard = ({ campus, onClose }) => {
               state={{ campus }}
               className="bg-base-200 w-[50%] !text-white text-[20px] h-[50px] flex justify-center items-center rounded-md">
                   <button
-                  onClick={onClose}
                   >
                       Edit
                   </button>

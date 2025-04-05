@@ -61,9 +61,6 @@ const BuildMode = () => {
     setSelectedCampus(campus); // Update state with the selected campus
   };
 
-  const closeModal = () => {
-    setSelectedCampus(null);
-  };
 
   return (
     <div className="flex min-h-screen">
@@ -77,7 +74,7 @@ const BuildMode = () => {
       )}
       {isWelcomeCardOpen && <WelcomeCard onClose={closeWelcomeCard} />}
       <SlideBar userData={data} onCampusSelect={handleCampusSelect} exitBuildMode={handleExitBuildMode} />
-      <WorldMap userData={data} campus={selectedCampus} onClose={closeModal}/>
+      <WorldMap userData={data} campus={selectedCampus}/>
     </div>
   );
 };
