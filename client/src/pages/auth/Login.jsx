@@ -186,9 +186,7 @@ const Login = () => {
               className="mt-5 w-full bg-base-200 py-6 text-[1rem] font-semibold"
               disabled={isPending || isPendingVerification}
             >
-              {isPending || isPendingVerification
-                ? "Sending Code ..."
-                : "Send Verification Code"}
+              {isPending || isPendingVerification ? "Logging in..." : "Login"}
             </Button>
           </form>
         </Form>
