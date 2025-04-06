@@ -82,30 +82,34 @@ const MessageReport = () => {
 
     
     const imgWidth = 17; 
-        const imgHeight = 17; 
+    const imgHeight = 18;
+
+    const addHeader = () => {
+      doc.addImage(logoUrl, "PNG", 83, 16, 16.5, 18.5);
+  
+      doc.setFontSize(15);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80);
+      doc.text("Republic of the Philippines", 96.3 + imgWidth + 10, 21);
     
-        const addHeader = () => {
-          doc.addImage(logoUrl, "PNG", 93, 16, imgWidth, imgHeight);
-      
-          doc.setFontSize(12);
-          doc.setFont("helvetica", "normal");
-          doc.setTextColor(80);
-          doc.text("Republic of the Philippines", 100 + imgWidth + 10, 21);
-        
-          doc.setFontSize(15);
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(60);
-          doc.text("UNIVERSITY OF RIZAL SYSTEM", 82 + imgWidth + 10, 27.7);
-        
-          doc.setFontSize(12);
-          doc.setFont("helvetica", "normal");
-          doc.setTextColor(80);
-          doc.text("Nurturing Tomorrow's Noblest", 97 + imgWidth + 10, 33.3);
-        
-          doc.addImage(vectorUrl, "PNG", 190, 16, imgWidth, imgHeight);
+      doc.setFontSize(17);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(60);
+      doc.text("University of Rizal System", 90 + imgWidth + 10, 27.7);
     
-        doc.setLineWidth(0.5);
-        doc.line(14, 40, 285, 40);
+      doc.setFontSize(12.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80);
+      doc.text("Nurturing Tomorrow's Noblest", 97.6 + imgWidth + 10, 33.3);
+    
+      doc.addImage(vectorUrl, "PNG", 210, 16, imgWidth, imgHeight);
+
+    doc.setLineWidth(0.1);
+    doc.line(14, 40, 285, 40);
+    
+    doc.setLineWidth(0.1);
+    doc.line(14, 39.3, 285, 39.3);
+
     
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
