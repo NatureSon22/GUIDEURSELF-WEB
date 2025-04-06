@@ -189,15 +189,7 @@ const EditMarkerModal =
       return;
     }
 
-    
-    if (imageFile && imageFile.size > maxSize) {
-      setErrorMessage("File size too large. Maximum is 10MB.");
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-
-
-    if (!markerDesciption.trim()) {
+    if (!markerDescription.trim()) {
       setErrorMessage("Location description is required.");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
