@@ -5,7 +5,6 @@ import FeedbackSummary from "./FeedbackSummary";
 import UserSummary from "./UserSummary";
 import UsageTrends from "./UsageTrends";
 import AccountActivityList from "./AccountActivityList.jsx";
-import TallyReportSummary from "./TallyReportSummary";
 
 const Dashboard = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -27,7 +26,7 @@ const Dashboard = () => {
 
       <OverViewSummary />
 
-      <TallyReportSummary />
+      {/* <TallyReportSummary /> */}
 
       <div className="flex gap-5">
         <div className="flex flex-1 flex-col gap-5">

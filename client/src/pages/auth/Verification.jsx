@@ -154,7 +154,7 @@ const Verification = () => {
                         maxLength={6}
                         {...field}
                         pattern={REGEXP_ONLY_DIGITS}
-                        disabled={failedAttempts < 4 || time === 0}
+                        disabled={failedAttempts > 4 || time === 0}
                       >
                         <InputOTPGroup className="flex w-full gap-2">
                           {Array.from({ length: 6 }).map((_, index) => (
