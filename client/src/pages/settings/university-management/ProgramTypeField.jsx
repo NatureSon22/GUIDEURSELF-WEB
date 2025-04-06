@@ -4,6 +4,7 @@ import { getProgramTypeData } from "@/api/component-info";
 import { addType } from "@/api/university-settings";
 import { useToast } from "@/hooks/use-toast";
 import EditTypeModal from "./EditTypeModal";
+import { GrNext, GrPrevious } from "react-icons/gr";
 import { BiSolidEdit } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,27 @@ const ProgramTypeField = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
+  const filteredTypes = types
+  ? types.filter((type) =>
+      (type?.program_type_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
+
+  const totalPages = Math.ceil(filteredTypes.length / itemsPerPage);
+  const paginatedTypes = filteredTypes.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -73,14 +95,8 @@ const ProgramTypeField = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredTypes = types
-    ? types.filter((type) =>
-        type.program_type_name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : [];
-
   return (
-    <div className="box-shadow-100 space-y-4 rounded-lg bg-white p-4">
+    <div className="box-shadow-100 h-[320px] space-y-4 border border-secondary-200/40 rounded-lg bg-white p-4">
       <div className="flex justify-between flex-col gap-4">
         <div>
           <p className="text-[0.95rem] font-semibold">Program Type</p>
@@ -93,7 +109,10 @@ const ProgramTypeField = () => {
             type="text"
             placeholder="Search"
             value={searchTerm}
-            onChange={handleSearchChange}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
           />
           <Button
             variant="outline"
@@ -104,7 +123,7 @@ const ProgramTypeField = () => {
           </Button>
         </div>
 
-        <div className="mt-4 h-[200px] overflow-y-auto">
+        <div className="mt-4 h-[200px] flex flex-col justify-between overflow-y-auto">
           {isLoading ? (
             <p>Loading program type...</p>
           ) : isError ? (
@@ -120,7 +139,7 @@ const ProgramTypeField = () => {
               </thead>
               <tbody>
                 {filteredTypes.length > 0 ? (
-                  filteredTypes.map((type) => (
+                  paginatedTypes.map((type) => (
                     <tr key={type._id}>
                       <td className="p-2 border text-[0.9rem w-[702px]">
                         {type.program_type_name}
@@ -128,10 +147,10 @@ const ProgramTypeField = () => {
                       <td className="p-2 border text-center text-[0.9rem]">
                         {formatDateTime(type.date_added)}
                       </td>
-                      <td className="p-2 border text-[0.9rem] flex gap-2">
+                      <td className="flex items-center justify-center gap-5 p-2">
                         <Button
                           variant="secondary"
-                          className="bg-base-200/10 w-full text-base-200"
+                        className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
                           onClick={() => handleOpenEditModal(type)}
                         >
                           <BiSolidEdit />
@@ -139,10 +158,10 @@ const ProgramTypeField = () => {
                         </Button>
                         <Button
                           variant="destructive"
-                          className="p-1 bg-red-500 w-full text-white rounded-md"
+                          className="group rounded-full bg-accent-100/10 px-[0.65rem]"
                           onClick={() => handleDeleteType(type._id)}
                         >
-                          <MdDelete />
+                          <MdDelete className="text-accent-100 group-hover:text-white" />
                         </Button>
                       </td>
                     </tr>
@@ -157,6 +176,32 @@ const ProgramTypeField = () => {
               </tbody>
             </table>
           )}
+          {filteredTypes.length > 0 && (
+                    <div className="mb-0 mt-auto flex items-center justify-between pt-7">
+                      <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+                      {`Showing ${currentPage} of ${totalPages} ${
+                        totalPages > 1 ? "pages" : "page"
+                      }`}
+                    </p>
+          
+                      <div className="flex items-center gap-2">
+                      <Button variant="outline" className="font-semibold text-secondary-100-75" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+                      <GrPrevious />
+                       Prev
+                      </Button>
+                       <Input
+                          type="number"
+                          min="1"
+                          value={currentPage}
+                          className="w-16 rounded border p-1 text-center"
+                        />
+                      <Button variant="outline" className="font-semibold text-secondary-100-75"onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                        Next
+                        <GrNext />
+                      </Button>
+                    </div>
+                    </div>
+                    )}
         </div>
       </div>
 

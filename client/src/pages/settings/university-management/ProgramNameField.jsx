@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import AddProgramNameModal from "./AddProgramNameModal";
 import EditProgramNameModal from "./EditProgramNameModal";
 import { BiSolidEdit } from "react-icons/bi";
+import { GrNext, GrPrevious } from "react-icons/gr";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,14 +24,26 @@ const ProgramNameField = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
 
-  // Filter programs based on search term
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
   const filteredPrograms = programs
-  ? programs.filter(
-      (program) =>
-        program.programname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        program.programtype.toLowerCase().includes(searchTerm.toLowerCase())
+  ? programs.filter((program) =>
+      (program?.programtype || "").toLowerCase().includes(searchTerm.toLowerCase())
     )
   : [];
+
+  const totalPages = Math.ceil(filteredPrograms.length / itemsPerPage);
+  const paginatedPrograms = filteredPrograms.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const handleDeleteProgram = async (id) => {
     try {
@@ -81,7 +94,7 @@ const ProgramNameField = () => {
   };
 
   return (
-    <div className="box-shadow-100 space-y-4 rounded-lg bg-white p-4">
+    <div className="box-shadow-100 border border-secondary-200/40 space-y-4 rounded-lg bg-white p-4">
       <div className="flex justify-between flex-col gap-4">
         <div>
           <p className="text-[0.95rem] font-semibold">Program Name</p>
@@ -93,7 +106,11 @@ const ProgramNameField = () => {
           <Input
             placeholder="Search..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
+
           />
           <Button
             variant="outline"
@@ -104,7 +121,7 @@ const ProgramNameField = () => {
           </Button>
         </div>
 
-        <div className="mt-4 h-[300px] overflow-y-auto">
+        <div className="mt-4 h-[320px] flex flex-col justify-between overflow-y-auto">
           {isLoading ? (
             <p>Loading program type...</p>
           ) : isError ? (
@@ -121,7 +138,7 @@ const ProgramNameField = () => {
               </thead>
               <tbody>
                 {filteredPrograms.length > 0 ? (
-                  filteredPrograms.map((program) => (
+                  paginatedPrograms.map((program) => (
                     <tr key={program._id}>
                       <td className="p-2 border text-[0.9rem]">{program.programtype}</td>
                       <td className="p-2 border text-center text-[0.9rem]">
@@ -130,10 +147,10 @@ const ProgramNameField = () => {
                       <td className="p-2 border text-center text-[0.9rem]">
                         {formatDateTime(program.date_added)}
                       </td>
-                      <td className="p-2 border text-[0.9rem] flex gap-2">
+                      <td className="flex items-center justify-center gap-5 p-2">
                         <Button
                           variant="secondary"
-                          className="bg-base-200/10 w-full text-base-200"
+                        className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
                           onClick={() => handleOpenEditModal(program)}
                         >
                           <BiSolidEdit />
@@ -141,10 +158,10 @@ const ProgramNameField = () => {
                         </Button>
                         <Button
                           variant="destructive"
-                          className="p-1 bg-red-500 w-full text-white rounded-md"
+                          className="group rounded-full bg-accent-100/10 px-[0.65rem]"
                           onClick={() => handleDeleteProgram(program._id)}
                         >
-                          <MdDelete />
+                          <MdDelete className="text-accent-100 group-hover:text-white" />
                         </Button>
                       </td>
                     </tr>
@@ -159,6 +176,32 @@ const ProgramNameField = () => {
               </tbody>
             </table>
           )}
+          {filteredPrograms.length > 0 && (
+                    <div className="mb-0 mt-auto flex items-center justify-between pt-7">
+                      <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+                      {`Showing ${currentPage} of ${totalPages} ${
+                        totalPages > 1 ? "pages" : "page"
+                      }`}
+                    </p>
+          
+                      <div className="flex items-center gap-2">
+                      <Button variant="outline" className="font-semibold text-secondary-100-75" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+                      <GrPrevious />
+                       Prev
+                      </Button>
+                       <Input
+                          type="number"
+                          min="1"
+                          value={currentPage}
+                          className="w-16 rounded border p-1 text-center"
+                        />
+                      <Button variant="outline" className="font-semibold text-secondary-100-75"onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                        Next
+                        <GrNext />
+                      </Button>
+                    </div>
+                    </div>
+                    )}
         </div>
       </div>
 

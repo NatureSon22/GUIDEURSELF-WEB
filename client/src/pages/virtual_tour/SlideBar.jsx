@@ -105,7 +105,7 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
                   <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
                   <TbMap2 className="text-4xl text-base-200 mb-2" />
                 </div>
-                <p className="text-center text-sm">Featured Locations</p>
+                <p className="text-center text-sm">Featured Floors</p>
               </div>
               <div>
                 <div className="flex flex-row items-center justify-center gap-3">

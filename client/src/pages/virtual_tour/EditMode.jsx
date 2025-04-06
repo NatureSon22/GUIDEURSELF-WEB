@@ -7,15 +7,18 @@ import AddFloorModal from "./AddFloorModal";
 import EditFloorModal from "./EditFloorModal";
 import HeaderSection from "./HeaderSection";
 import useUserStore from "@/context/useUserStore";
-import { MapContainer, ImageOverlay, Marker, useMapEvents, Popup } from "react-leaflet";
-import { useState, useEffect, StrictMode, Suspense  } from "react";
+import { MapContainer, ImageOverlay, Marker, useMapEvents,Rectangle , TileLayer, Popup } from "react-leaflet";
+import { useState, useEffect, StrictMode, useRef, Suspense  } from "react";
 import L from "leaflet"; 
 import AddMarkerModal from "./AddMarkerModal";
 import ConfirmationDialog from "./ConfirmationDialog";
+import { Label } from "@/components/ui/label";
+import PreviewPanorama from "./PreviewPanorama";
 import DeleteMarkerConfirmationDialog from "./DeleteMarkerConfirmationDialog"
 import EditMarkerModal from "./EditMarkerModal";
 import { GoAlert } from "react-icons/go";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
 import { MdClose } from "react-icons/md";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { LuPlus } from "react-icons/lu";
@@ -31,8 +34,9 @@ import { PiOfficeChairFill } from "react-icons/pi";
 import { FaGraduationCap } from "react-icons/fa";
 import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
-import { renderToStaticMarkup } from "react-dom/server";
 import { MdWidgets } from "react-icons/md";
+import { renderToStaticMarkup } from "react-dom/server";
+import { FaInfo } from "react-icons/fa6";
 import { loggedInUser } from "@/api/auth";
 import Loading from "@/components/Loading";
 import "@/fluttermap.css";
@@ -52,31 +56,47 @@ const categoryConfig = {
 };
 
 const MarkerIcon = ({ bgColor, IconComponent }) => (
-  <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] ${bgColor}`}>
-    <IconComponent color="white" size={25} className="" />
+  <div className="relative">
+    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] ${bgColor} relative z-10`}>
+      <IconComponent color="white" size={25} className="" />
+    </div>
+    <div className={`absolute top-[0px] left-[0px] w-[45px] h-[45px] rounded-full ${bgColor} opacity-100 animate-ping`}></div>
   </div>
 );
 
-const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
-const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
-
-
-const defaultIcon = L.icon({
-  iconUrl,
-  iconSize: [35, 45],
-  iconAnchor: [15, 40],
-});
+// Create a default version of MarkerIcon
+const DefaultMarkerIcon = () => (
+  <div className="relative">
+    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] bg-blue-500 relative z-10`}>
+      <FaInfo color="white" size={25} className="" />
+    </div>
+    <div className={`absolute top-[5px] left-[5px] w-[35px] h-[35px] rounded-full bg-blue-500 opacity-100 animate-ping`}></div>
+  </div>
+);
 
 const createIcon = (category) => {
-  if (!category) return defaultIcon; // Ensure default icon is used if no category
+  if (!category) {
+    // Return default icon as divIcon to match custom icons
+    return L.divIcon({
+      html: renderToString(<DefaultMarkerIcon />),
+      className: "custom-marker",
+      iconSize: [35, 35],
+      iconAnchor: [25, 20],
+    });
+  }
 
   const { color, icon: IconComponent } = categoryConfig[category] || {}; 
-  if (!IconComponent) return defaultIcon; 
-
-  const iconString = renderToString(<MarkerIcon bgColor={color} IconComponent={IconComponent} />);
+  if (!IconComponent) {
+    return L.divIcon({
+      html: renderToString(<DefaultMarkerIcon />),
+      className: "custom-marker",
+      iconSize: [35, 35],
+      iconAnchor: [25, 20],
+    });
+  }
 
   return L.divIcon({
-    html: iconString,
+    html: renderToString(<MarkerIcon bgColor={color} IconComponent={IconComponent} />),
     className: "custom-marker",
     iconSize: [35, 35],
     iconAnchor: [25, 20], 
@@ -84,7 +104,7 @@ const createIcon = (category) => {
 };
 
 const getIcon = (category) => {
-  return createIcon(category); // Always get fresh icon
+  return createIcon(category);
 };
 
 const customIcons = new Proxy({}, {
@@ -122,6 +142,7 @@ const queryClient = useQueryClient();
 const { campus } = location.state || {};
 const [selectedCategory, setSelectedCategory] = useState("");
 const { currentUser } = useUserStore((state) => state);
+const modalRef = useRef(null);
 const [editingFloor, setEditingFloor] = useState(null);
 const [hideMarkers, setHideMarkers] = useState(false);
 const bounds = [[14.480740, 121.184750], [14.488870, 121.192500]];
@@ -144,7 +165,35 @@ const [expandedFloor, setExpandedFloor] = useState(null);
 const [isSliderOpen, setIsSliderOpen] = useState(true);
 const [searchQuery, setSearchQuery] = useState("");
 const [loadingMessage, setLoadingMessage] = useState("");
-const [ date, setDate] = useState("");
+const [isPanorama, setIsPanorama] = useState(false);
+const [previewImage, setPreviewImage] = useState("");
+const [markerName, setMarkerName] = useState("");
+const [markerDescription, setMarkerDescription] = useState("");
+const [markerCategory, setMarkerCategory] = useState("");
+
+const showPanorama = (marker) => {
+  setPreviewImage(marker.marker_photo_url);
+  setMarkerName(marker.marker_name);
+  setMarkerDescription(marker.marker_description);
+  setMarkerCategory(marker.category);
+  setIsPanorama(true);
+};
+
+   useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (modalRef.current && !modalRef.current.contains(event.target)) {
+          setIsPanorama(false); // Close when clicking outside
+        }
+      };
+  
+      if (isPanorama) {
+        document.addEventListener("mousedown", handleClickOutside);
+      }
+  
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [isPanorama]);
 
   const logActivityMutation = useMutation({
     mutationFn: async (logData) => {
@@ -191,8 +240,9 @@ const handleExitBuildMode = () => {
   }, 3000);
 };
 
-const handleMarkerClick = (marker) => {
+const handleMarkerClick = (marker) => { 
   setSelectedMarker(marker);
+  setHideMarkers(true);
   toggleSlider();
 };
 
@@ -244,9 +294,11 @@ useEffect(() => {
   }
 }, [selectedFloor, isAddMarkerModalOpen]);
 
+
 const handleCloseModal = () => {
   setAddMarkerModalOpen(false);
   setIsSliderOpen(true);
+  setHideMarkers(false);
   setSelectedCategory("");
   setIsRemove(false);
   setCoordinates({ lat: null, lng: null });
@@ -272,29 +324,42 @@ const closeModal = () => setIsModalOpen(false);
 const refreshFloors = () => queryClient.invalidateQueries(["campuses", campus._id]);
 
 const LocationMarker = () => {
+  const [isSliderOpen] = useState(false);
+  const isSliderOpenRef = useRef(isSliderOpen);
+
+  useEffect(() => {
+    isSliderOpenRef.current = isSliderOpen;
+  }, [isSliderOpen]);
+
   useMapEvents({
     click(e) {
-      const { lat, lng } = e.latlng;
-      setCoordinates({ lat, lng });
+      // Enhanced check - verify this is a direct map click
+      if (!isSliderOpenRef.current && e.originalEvent.target === e.target._container) {
+        const { lat, lng } = e.latlng;
+        setCoordinates({ lat, lng });
+      }
     },
   });
 
-  
-  const icon = getIcon(selectedCategory); // Get updated icon based on category
+  const icon = getIcon(selectedCategory);
 
   return coordinates.lat ? (
     <Marker 
       position={[coordinates.lat, coordinates.lng]}
-      icon={icon} // Use dynamic icon
+      icon={icon} 
+      eventHandlers={{
+        click: (e) => e.originalEvent.stopPropagation() // Prevent marker clicks from bubbling
+      }}
     />
   ) : null;
 };
 
-
 const handleAddMarkerClick = () => {
   setAddMarkerModalOpen(true);
+  setHideMarkers(true);
   toggleSlider();
 };
+
 
 const toggleEditMode = async () => {
   if (isEditing) {
@@ -492,8 +557,11 @@ const handleProceedRemoveMarker = async () => {
 const floors = updatedCampus?.floors || [];
 const totalFloors = floors.length;
 
-const filteredFloors = floors?.filter((floor) =>
-  floor.floor_name.toLowerCase().includes(searchQuery.toLowerCase())
+// Replace the filteredFloors logic with this:
+const filteredMarkers = floors?.flatMap(floor => 
+  floor.markers?.filter(marker => 
+    marker.marker_name.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || []
 );
 
 const updateFloorsOrder = (newFloors) => {
@@ -536,7 +604,7 @@ const handleDrop = (e, targetFloor) => {
   setDraggedFloor(null);
   setDragOverFloor(null);
 };
- 
+
   return (
     
       <StrictMode>
@@ -561,12 +629,18 @@ const handleDrop = (e, targetFloor) => {
           <HeaderSection className="" university={university} updatedCampus={updatedCampus} />
           <div className=" flex flex-col gap-3">
             <div className="relative px-6">
-              <Input
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-5" 
-              />
+            <div className="relative w-full">
+            <Input
+              placeholder={selectedFloor ? "Search location" : "Select a floor first"}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full pr-5 ${!selectedFloor ? "bg-gray-100 text-gray-400" : ""}`}
+              disabled={!selectedFloor}
+            />
+              {!selectedFloor && (
+                <div className="absolute inset-0 bg-gray-100 bg-opacity-50 cursor-not-allowed rounded-md" />
+              )}
+            </div>
             </div>
             <div className="flex justify-between items-center pl-6">
               <p className="text-sm">List of Floors</p>
@@ -613,7 +687,7 @@ const handleDrop = (e, targetFloor) => {
 
           <div className="max-h-[360px] group w-[100%]">
             <div className={`max-h-[360px] pl-6 pr-6 overflow-y-auto ${isRemove ? "max-h-[460px]" : "max-h-[340px]"}`}>
-            {filteredFloors?.map((floor) => (
+            {floors?.map((floor) => (
               <div key={floor._id} className="flex flex-col justify-between w-[100%]">
                 {isEditing ? (
                   <div
@@ -692,26 +766,30 @@ const handleDrop = (e, targetFloor) => {
                       }`}
                     >
                       <div className="pl-[50px]">
-                        {floor.markers?.map((marker) => (
-                          <div
-                            key={marker._id}
-                            className="relative flex-col h-[100%] flex pl-3 items-center group"
-                          >
-                            <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
-                              <p className="text-md flex items-center">{marker.marker_name}</p>
-                              <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
-                                <FaPen
-                                  onClick={() => handleMarkerClick(marker)}
-                                  className="h-[16px] w-[16px] cursor-pointer"
-                                />
-                                <RiDeleteBin5Fill
-                                  onClick={() => confirmRemoveMarker(marker)}
-                                  className="cursor-pointer h-[18px] w-[18px] text-accent-100"
-                                />
-                              </div>
+                      {floor.markers
+                      ?.filter(marker => 
+                        marker.marker_name.toLowerCase().includes(searchQuery.toLowerCase())
+                      )
+                      ?.map((marker) => (
+                        <div
+                          key={marker._id}
+                          className="relative flex-col h-[100%] flex pl-3 items-center group"
+                        >
+                          <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
+                            <p className="text-md flex items-center">{marker.marker_name}</p>
+                            <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
+                              <FaPen
+                                onClick={() => handleMarkerClick(marker)}
+                                className="h-[16px] w-[16px] cursor-pointer"
+                              />
+                              <RiDeleteBin5Fill
+                                onClick={() => confirmRemoveMarker(marker)}
+                                className="cursor-pointer h-[18px] w-[18px] text-accent-100"
+                              />
                             </div>
                           </div>
-                        ))}
+                        </div>
+                    ))}
                       </div>
                       <button
                         onClick={handleAddMarkerClick}
@@ -748,7 +826,7 @@ const handleDrop = (e, targetFloor) => {
         <div className="py-5 flex gap-2 px-6">
           <Link
             className="flex justify-center items-center h-[45px] rounded-md px-[50px] w-[50%] text-base-200 hover:bg-secondary-350"
-            to="/virtual-tour/build-mode-Ii"
+            to="/virtual-tour/build-mode"
           >
             <button>Return View</button>
           </Link>
@@ -804,10 +882,13 @@ const handleDrop = (e, targetFloor) => {
                   zIndex: 0,
                   cursor: "crosshair"
                 }}
-                crs={L.CRS.Simple}
+                maxBounds={[
+                  [14.479, 121.183], // Southwest (bottom-left) boundary
+                  [14.490, 121.195], // Northeast (top-right) boundary
+                ]}
               >
                 <ImageOverlay className="z-0" url={selectedFloor.floor_photo_url} bounds={bounds} />
-
+                
                 {!hideMarkers && currentMarkers.map((marker, index) => {
 
                   const categoryToUse = marker._id === "temp_marker" ? selectedCategory : marker.category;
@@ -820,13 +901,28 @@ const handleDrop = (e, targetFloor) => {
                       icon={icon}
                       
                     >
-                      <Popup className="custom-popup" closeButton={false}>
-                      <div className={`px-3 rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center border border-white ${categoryConfig[marker.category]?.color || "bg-base-200"}`}>
-                        <p className="text-[16px] text-center font-bold">
-                              {marker.marker_name}
-                        </p>
+                      {!isAddMarkerModalOpen && (
+                        <Popup className="custom-popup" closeButton={false}>
+                        <div className={`p-3 border ${categoryConfig[marker.category]?.borderColor || "border-base-200"} ${categoryConfig[marker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
+                          <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
+                          <p className={`${categoryConfig[marker.category]?.textColor || "text-base-200"} tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{marker.marker_name}</p>
+                          {marker.marker_photo_url && (
+                            <button
+                              onClick={() => showPanorama(marker)}
+                              className={`p-3 rounded-md text-[15px] text-white ${categoryConfig[marker.category]?.color || "bg-base-200"}`}
+                            >
+                            <Label
+                            className={`text-[14px] tracking-wider cursor-pointer`}
+                            >
+                              PREVIEW
+                            </Label>
+                            </button>
+                          )}
+                          </div>
                         </div>
-                        </Popup>
+                      </Popup>
+                      )}
+                      
                       </Marker>
                   );
                 })}
@@ -870,6 +966,19 @@ const handleDrop = (e, targetFloor) => {
             </div>
           )}
         </div>
+
+        {isPanorama &&  (
+        <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
+          <div ref={modalRef} className="relative">
+            <PreviewPanorama imageUrl={previewImage} 
+            markerDescription={markerDescription} 
+            markerName={markerName} 
+            markerCategory={markerCategory} 
+            categoryConfig={categoryConfig}  
+            />
+          </div>
+        </div>
+        )}
       
         {isModalOpen && (
           <AddFloorModal 

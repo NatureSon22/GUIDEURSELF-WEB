@@ -11,7 +11,7 @@ import "@/quillCustom.css";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQuery and useQueryClient
 import { getUniversityData } from "@/api/component-info";
 
-const HistoryField = () => {
+const AboutField = () => {
   const { toast } = useToast();
   const modules = {
     toolbar: [
@@ -36,17 +36,17 @@ const HistoryField = () => {
     queryFn: getUniversityData,
   });
 
-  const [history, setHistory] = useState("");
+  const [about, setAbout] = useState("");
 
-  // Sync the `history` state with the fetched data
+  // Sync the `about` state with the fetched data
   useEffect(() => {
     if (university) {
-      setHistory(university.university_history);
+        setAbout(university.university_about);
     }
   }, [university]);
 
   const handleEditorChange = (content) => {
-    setHistory(content);
+    setAbout(content);
   };
 
   const handleClickUpdate = async () => {
@@ -59,38 +59,38 @@ const HistoryField = () => {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ university_history: history }),
+          body: JSON.stringify({ university_about: about }),
         }
       );
 
       if (response.ok) {
         toast({
           title: "Success",
-          description: "University history successfully updated",
+          description: "University about successfully updated",
         });
         setEdit(false);
 
         // Invalidate and refetch the "universitysettings" query to get the latest data
         await queryClient.invalidateQueries(["universitysettings"]);
       } else {
-        console.error("Failed to update university history");
-        alert("Failed to update university history. Please try again.");
+        console.error("Failed to update university about");
+        alert("Failed to update university about. Please try again.");
       }
     } catch (error) {
-      console.error("Error updating university history:", error);
-      alert("Error updating university history. Please try again.");
+      console.error("Error updating university about:", error);
+      alert("Error updating university about. Please try again.");
     }
   };
 
   const handleCancel = () => {
     setEdit(false);
-    setHistory(university?.university_history || ""); // Reset to the original value
+    setAbout(university?.university_about || ""); // Reset to the original value
   };
 
   return (
     <Layout
-      title={"University History"}
-      subtitle={"Overview of the History of the university"}
+      title={"University About"}
+      subtitle={"Overview of the About of the university"}
       toggleEditMode={setEdit}
     >
       {isLoading || !university ? (
@@ -104,11 +104,11 @@ const HistoryField = () => {
             <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
               <div className="bg-white p-6 rounded-md h-[700px] w-[60%] flex flex-col gap-3">
                 <div>
-                  <p className="font-bold">University History</p>
-                  <p>Overview of the History of the university.</p>
+                  <p className="font-bold">University About</p>
+                  <p>Overview of the About of the university.</p>
                 </div>
                 <ReactQuill
-                  value={history}
+                  value={about}
                   onChange={handleEditorChange}
                   className="h-[74%] text-lg"
                   modules={modules}
@@ -130,7 +130,7 @@ const HistoryField = () => {
               <hr />
               <div className="ql-editor list-disc list-outside p-4">
                 <div
-                  dangerouslySetInnerHTML={{ __html: university.university_history }}
+                  dangerouslySetInnerHTML={{ __html: university.university_about }}
                   className="p-4 h-full w-full text-gray-700 text-justify leading-relaxed"
                 ></div>
               </div>
@@ -142,8 +142,8 @@ const HistoryField = () => {
   );
 };
 
-HistoryField.propTypes = {
+AboutField.propTypes = {
   isLoading: PropTypes.bool,
 };
 
-export default HistoryField;
+export default AboutField;

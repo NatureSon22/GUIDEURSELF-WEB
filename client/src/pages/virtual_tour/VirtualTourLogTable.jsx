@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import formatDateTime from "@/utils/formatDateTime";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fetchVirtualTourLogs = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/virtualtourlogs`, {
@@ -19,7 +20,7 @@ const VirtualTourLogTable = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Skeleton className="rounded-md mt-4 bg-secondary-200/40 py-24" />;
   }
 
   if (isError) {

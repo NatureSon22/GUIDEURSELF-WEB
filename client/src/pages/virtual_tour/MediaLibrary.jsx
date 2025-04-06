@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import Header from "@/components/Header";
@@ -8,8 +8,25 @@ import { loggedInUser } from "@/api/auth";
 import { FaListUl } from "react-icons/fa";
 import { GrNext, GrPrevious } from "react-icons/gr";
 import { CiSearch } from "react-icons/ci";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import PreviewPanorama from "./PreviewPanorama";
 import { Input } from "@/components/ui/input";
+import { BsDoorOpenFill } from "react-icons/bs";
+import { PiOfficeChairFill } from "react-icons/pi";
+import { FaGraduationCap } from "react-icons/fa";
+import { FaFlag } from "react-icons/fa";
+import { ImManWoman } from "react-icons/im";  
+import { MdWidgets } from "react-icons/md";
+
+const categoryConfig = {
+  "Academic Spaces": { color: "bg-yellow-500", textColor: "text-yellow-500", borderColor: "border-yellow-500", icon: BsDoorOpenFill },
+  "Administrative Offices": { color: "bg-red-500", textColor: "text-red-500", borderColor: "border-red-500", icon: PiOfficeChairFill },
+  "Student Services": { color: "bg-blue-500", textColor: "text-blue-500", borderColor: "border-blue-500", icon: FaGraduationCap },
+  "Campus Attraction": { color: "bg-green-500", textColor: "text-green-500", borderColor: "border-green-500", icon: FaFlag },
+  "Utility Areas": { color: "bg-pink-500", textColor: "text-pink-500", borderColor: "border-pink-500", icon: ImManWoman },
+  "Others (Miscellaneous)": { color: "bg-blue-400", textColor: "text-blue-500", borderColor: "border-blue-400", icon: MdWidgets },
+};
 
 const fetchMarkers = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/markers`, {
@@ -44,13 +61,41 @@ const fetchCampuses = async () => {
 
 const MediaLibrary = () => {
   const [selectedCampus, setSelectedCampus] = useState("");
-  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [previewImage, setPreviewImage] = useState("");
+  const [markerName, setMarkerName] = useState("");
+  const [markerDescription, setMarkerDescription] = useState("");
   const [clickIcon, setClickIcon] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const markersPerPage = 6;
+  const [isPanorama, setIsPanorama] = useState(false);
+  const modalRef = useRef(null);
+  const [markerCategory, setMarkerCategory] = useState("");
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsPanorama(false); // Close when clicking outside
+      }
+    };
 
+    if (isPanorama) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isPanorama]);
+
+  const showPanorama = (marker) => {
+    setPreviewImage(marker.marker_photo_url);
+    setMarkerName(marker.marker_name);
+    setMarkerDescription(marker.marker_description);
+    setMarkerCategory(marker.category);
+    setIsPanorama(true);
+    setIsPanorama(true);
+  };
 
   const showList = () => {
     setClickIcon(true);
@@ -65,9 +110,18 @@ const MediaLibrary = () => {
     queryFn: fetchMarkers,
   });
 
-  const { data: campuses, isLoading: campusesLoading, error: campusesError } = useQuery({
-    queryKey: ["campuses"],
-    queryFn: fetchCampuses,
+  const { data: campuses, campusesLoading, error: campusesError } = useQuery({
+    queryKey: ["campuses-with-photos"],
+    queryFn: async () => {
+      const allCampuses = await fetchCampuses();
+      return allCampuses.filter(campus => 
+        campus.floors?.some(floor => 
+          floor.markers?.some(marker => 
+            marker.marker_photo_url
+          )
+        )
+      );
+    },
   });
 
   const { data: user, isLoading: userLoading } = useQuery({
@@ -125,7 +179,6 @@ const MediaLibrary = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <CiSearch />
           </div>
           <div className="flex justify-end gap-4 pr-2">
             {isMultiCampus && (
@@ -137,11 +190,17 @@ const MediaLibrary = () => {
                 onChange={(e) => setSelectedCampus(e.target.value)}
               >
                 <option value="">All Campuses</option>
-                {campuses.map((campus) => (
-                  <option key={campus._id} value={campus._id}>
-                    {campus.campus_name}
-                  </option>
-                ))}
+                {campusesLoading ? (
+                  <option disabled>Loading campuses...</option>
+                ) : campusesError ? (
+                  <option disabled>Error loading campuses</option>
+                ) : (
+                  campuses?.map((campus) => (
+                    <option key={campus._id} value={campus._id}>
+                      {campus.campus_name}
+                    </option>
+                  )) ?? [] // Fallback empty array if campuses is undefined
+                )}
               </select>
             )}
             
@@ -161,23 +220,34 @@ const MediaLibrary = () => {
         {!clickIcon ? (
               <div className="flex justify-between flex-col h-[100%]">
               <div className="grid grid-cols-3 gap-4">
-                {currentMarkers.map((marker) => (
-                  <div
-                    key={marker._id}
-                    className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[320px] border-gray-300 rounded-md shadow-md bg-white"
-                  >
-                    <LazyMediaPanoramicViewer imageUrl={marker.marker_photo_url} />
-                    <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
-                      <p className="marker-name text-sm">{marker.marker_name}</p>
-                      <p className="text-sm text-gray-500">
-                        {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
-                          "about ",
-                          ""
-                        )}
-                      </p>
+              {currentMarkers.map((marker) => (
+                <div
+                      key={marker._id}
+                      className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[325px] border-gray-300 rounded-md shadow-md bg-white overflow-hidden"
+                    >
+                      <div className="relative w-full h-[100%]">
+                        <LazyMediaPanoramicViewer imageUrl={marker.marker_photo_url} />
+                        <div className="flex justify-center items-center bg-black w-full h-full rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400 absolute top-0 left-0">
+                          <Button 
+                            type="button" 
+                            onClick={() => showPanorama(marker)} 
+                            className="text-white h-[40px] z-10"
+                          >
+                            Click to Preview
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
+                        <p className="marker-name text-sm">{marker.marker_name}</p>
+                        <p className="text-sm text-gray-500">
+                          {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
+                            "about ",
+                            ""
+                          )}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
         
               {/* Pagination */}
@@ -230,6 +300,19 @@ const MediaLibrary = () => {
           </>
         )}
       </div>
+              {isPanorama && (
+              <div className="bg-black absolute z-50 flex justify-center items-center w-[100%] h-[100%] top-0 left-0 bg-opacity-60">
+                <div ref={modalRef} className="relative">
+                 <PreviewPanorama 
+                 imageUrl={previewImage} 
+                 markerDescription={markerDescription} 
+                 markerName={markerName} 
+                 markerCategory={markerCategory} 
+                 categoryConfig={categoryConfig}  
+                  />
+                </div>
+              </div>
+              )}
     </div>
   );
 };

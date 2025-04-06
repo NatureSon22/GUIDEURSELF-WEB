@@ -285,78 +285,88 @@ const EditKeyOfficials = () => {
           <p className="text-gray-600">Error loading officials.</p>
         ) : filteredOfficials.length > 0 ? (
           <div>
-      {/* Officials Grid */}
-          <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-5">
-            {paginatedOfficials.map((official, index) => (
-              <div
-                key={index}
-                className="flex h-[100%] w-[270px] flex-col items-center justify-between rounded-md border border-gray-300 bg-white p-4 shadow-md"
-              >
-                <div className="flex flex-col items-center">
-                  <img
-                    src={official.key_official_photo_url}
-                    alt={official.name}
-                    className="h-[200px] w-[200px] rounded-md object-cover"
-                  />
-                  <h3 className="text-md font-cizel-decor mt-4 text-center font-bold text-gray-800">
-                    {official.name}
-                  </h3>
-                  <p className="mt-2 font-cizel text-center text-gray-600">
-                    {official.position_name}
-                  </p>
-                </div>
-
-                <div className="flex w-[100%] justify-end gap-[10px] pt-[10px]">
-                  <FeaturePermission
-                    module="Manage Key Officials"
-                    access="edit key official"
+            {/* Officials Grid */}
+            <div className="mt-12 py-6 px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {paginatedOfficials.map((official, index) => (
+                  <div
+                    key={index}
+                    className="box-shadow-200 flex justify-between flex-col rounded-md border border-secondary-200/30 bg-white"
                   >
-                    <button onClick={() => openEditModal(official)}>
-                      <img className="h-[18px]" src={Pen} alt="" />
-                    </button>
-                  </FeaturePermission>
+                    <div className="flex flex-col items-center px-2 py-4">
+                      <img
+                        src={official.key_official_photo_url}
+                        alt={official.name}
+                        className="h-[200px] w-[210px] rounded-md object-cover"
+                        loading="lazy"
+                      />
+                      <h3 className="mt-5 px-4 text-center font-cizel-decor text-[1.05rem] font-bold text-gray-800">
+                        {official.name}
+                      </h3>
+                      <p className="mt-2 text-center font-cizel text-gray-600">
+                        {official.position_name}
+                      </p>
+                    </div>
 
-                  <FeaturePermission
-                    module="Manage Key Officials"
-                    access="archive key official"
-                  >
-                    <button onClick={() => handleArchiveClick(official)}>
-                      <img className="h-[25px]" src={Bin} alt="" />
-                    </button>
-                  </FeaturePermission>
-                </div>
+                    {/* Action Buttons */}
+                    <div className="flex w-full justify-end gap-2 p-3">
+                      <FeaturePermission
+                        module="Manage Key Officials"
+                        access="edit key official"
+                      >
+                        <button 
+                          onClick={() => openEditModal(official)}
+                          className="p-1 hover:bg-gray-100 rounded"
+                        >
+                          <img className="h-[18px]" src={Pen} alt="Edit" />
+                        </button>
+                      </FeaturePermission>
+
+                      <FeaturePermission
+                        module="Manage Key Officials"
+                        access="archive key official"
+                      >
+                        <button 
+                          onClick={() => handleArchiveClick(official)}
+                          className="p-1 hover:bg-gray-100 rounded"
+                        >
+                          <img className="h-[20px]" src={Bin} alt="Delete" />
+                        </button>
+                      </FeaturePermission>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Pagination Controls */}
-          <div className="flex justify-end gap-4 mt-4">
-            <Button
-              variant="outline"
-              className="font-semibold text-secondary-100-75"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <GrPrevious />
-              Previous
-            </Button>
-              <Input
-                type="number"
-                min="1"
-                value={currentPage}
-                className="w-16 rounded border p-1 text-center"
-              />
-            <Button
-              variant="outline"
-              className="font-semibold text-secondary-100-75"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-              <GrNext />
-            </Button>
+              {/* Pagination Controls (unchanged) */}
+              <div className="mt-4 flex justify-end gap-4">
+                <Button
+                  variant="outline"
+                  className="font-semibold text-secondary-100-75"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  <GrPrevious />
+                  Previous
+                </Button>
+                <Input
+                  type="number"
+                  min="1"
+                  value={currentPage}
+                  className="w-16 rounded border p-1 text-center"
+                />
+                <Button
+                  variant="outline"
+                  className="font-semibold text-secondary-100-75"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <GrNext />
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
         ) : (
           <p className="text-gray-600">No key officials found.</p>
         )}
@@ -366,7 +376,7 @@ const EditKeyOfficials = () => {
       >
       <Header
         className="mb-4"
-        title={"Key Official Log"}
+        title={"Recent Changes"}
         subtitle={"This section lists the most recent updates and changes made by administration for different key officials."}
         />
       <KeyOfficialLogTable />

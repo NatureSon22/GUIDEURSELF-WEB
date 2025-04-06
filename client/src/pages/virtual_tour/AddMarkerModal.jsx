@@ -197,6 +197,13 @@ const AddMarkerModal = ({
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
+    
+
+    if (!markerDescription.trim()) {
+      setErrorMessage("Location description is required.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
 
     if (imageFile && imageFile.size > maxSize) {
       setErrorMessage("File size too large. Maximum is 10MB.");
@@ -293,7 +300,7 @@ const AddMarkerModal = ({
             ) : (
               <div className="flex justify-end items-center gap-4">
                 <Button type="button" variant="destructive" onClick={unshowPreview}>
-                  Remove Hotspot
+                  Hide Hotspot
                 </Button>
               </div>
             )}

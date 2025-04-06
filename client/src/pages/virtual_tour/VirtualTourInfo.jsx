@@ -69,7 +69,7 @@ const VirtualTourInfo = () => {
       setTimeout(() => {
         setLoadingVisible(false);
         navigate("/virtual-tour/build-mode");
-    }, 3000);
+    }, 6000);
   };
 
     return (
@@ -100,7 +100,7 @@ const VirtualTourInfo = () => {
                             <p className="text-[2rem] font-bold text-base-200">{totalFloors}</p>
                             <TbMap2 className="text-4xl text-base-200"/>
                         </div>
-                        <p>Featured Locations</p>
+                        <p>Featured Floors</p>
                     </div>
                     <div>
                         <div className="flex flex-row items-center justify-center gap-3">

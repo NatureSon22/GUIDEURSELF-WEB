@@ -43,7 +43,7 @@ const LazyMediaPanoramicViewer = ({ imageUrl }) => {
     };
   }, [isVisible, imageUrl]);
 
-  return <div ref={viewerRef} className="h-[400px] w-full rounded-md bg-gray-200"></div>;
+  return <div ref={viewerRef} className="h-[100%] w-full rounded-md bg-gray-200"></div>;
 };
 
 export default LazyMediaPanoramicViewer;

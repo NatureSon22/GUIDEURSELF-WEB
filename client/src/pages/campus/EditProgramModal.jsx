@@ -164,8 +164,11 @@ const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => 
                 value={selectedMajor}
                 onChange={(e) => setSelectedMajor(e.target.value)}
                 className="w-full h-10 border border-gray-300 rounded-md p-2"
-              >
-                <option value="" hidden>SELECT MAJOR NAME</option>
+                disabled={!selectedProgram || majorNames.length === 0}
+                >
+              <option value="" hidden>
+                {majorNames.length === 0 ? "NO MAJORS AVAILABLE" : "SELECT MAJOR NAME"}
+              </option>
                 {majorNames.map((major) => (
                   <option key={major._id} value={major.majorname}>
                     {major.majorname}
@@ -176,6 +179,7 @@ const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => 
                 type="button"
                 className="!w-[25%] border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
                 onClick={handleAddMajor}
+                disabled={!selectedMajor} 
                >
                 <FaPlus />
                 Add Major

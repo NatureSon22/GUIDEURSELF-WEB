@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
-import { getAllCampuses, getAllRoleTypes, getAllFeedback } from "@/api/component-info";
+import { getAllCampuses, getLowRoleTypes, getAllFeedback } from "@/api/component-info";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import Header from "@/components/Header";
@@ -43,7 +43,7 @@ const FeedbackReport = () => {
 
   const { data: allRoles } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
+    queryFn: getLowRoleTypes,
   });
 
   const filteredFeedbacks = useMemo(() => {
@@ -85,31 +85,35 @@ const FeedbackReport = () => {
     const doc = new jsPDF({ orientation: "landscape" });
     const today = new Date().toLocaleDateString("en-US");
 
-const imgWidth = 17; 
-    const imgHeight = 17; 
+    const imgWidth = 17; 
+    const imgHeight = 18;
 
     const addHeader = () => {
-      doc.addImage(logoUrl, "PNG", 93, 16, imgWidth, imgHeight);
+      doc.addImage(logoUrl, "PNG", 83, 16, 16.5, 18.5);
   
-      doc.setFontSize(12);
+      doc.setFontSize(15);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(80);
-      doc.text("Republic of the Philippines", 100 + imgWidth + 10, 21);
+      doc.text("Republic of the Philippines", 96.3 + imgWidth + 10, 21);
     
-      doc.setFontSize(15);
+      doc.setFontSize(17);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(60);
-      doc.text("UNIVERSITY OF RIZAL SYSTEM", 82 + imgWidth + 10, 27.7);
+      doc.text("University of Rizal System", 90 + imgWidth + 10, 27.7);
     
-      doc.setFontSize(12);
+      doc.setFontSize(12.5);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(80);
-      doc.text("Nurturing Tomorrow's Noblest", 97 + imgWidth + 10, 33.3);
+      doc.text("Nurturing Tomorrow's Noblest", 97.6 + imgWidth + 10, 33.3);
     
-      doc.addImage(vectorUrl, "PNG", 190, 16, imgWidth, imgHeight);
+      doc.addImage(vectorUrl, "PNG", 210, 16, imgWidth, imgHeight);
 
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(0.1);
     doc.line(14, 40, 285, 40);
+    
+    doc.setLineWidth(0.1);
+    doc.line(14, 39.3, 285, 39.3);
+
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");

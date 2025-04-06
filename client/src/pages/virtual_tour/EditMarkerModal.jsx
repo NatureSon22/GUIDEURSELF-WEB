@@ -183,9 +183,15 @@ const EditMarkerModal =
     if (!markerName.trim()) {
       toast({
         title: "Error",
-        description: "Please enter a marker name.",
+        description: "Please enter a location name.",
         type: "destructive",
       });
+      return;
+    }
+
+    if (!markerDescription.trim()) {
+      setErrorMessage("Location description is required.");
+      setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
   

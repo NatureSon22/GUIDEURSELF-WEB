@@ -215,23 +215,26 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram, existingPrograms }) =>
           {/* Major Name Select */}
           <div className="flex flex-col border border-gray-300 rounded-md p-4">
             <div className="flex gap-4">
-              <select
-                value={selectedMajor}
-                onChange={(e) => setSelectedMajor(e.target.value)}
-                className="w-[75%] h-10 border border-gray-300 rounded-md p-2"
-                disabled={!selectedProgram} // Disable if no program name is selected
-              >
-                <option value="" hidden>SELECT MAJOR NAME</option>
-                {majorNames.map((major) => (
-                  <option key={major._id} value={major.majorname}>
-                    {major.majorname}
-                  </option>
-                ))}
-              </select>
+            <select
+            value={selectedMajor}
+            onChange={(e) => setSelectedMajor(e.target.value)}
+            className="w-[75%] h-10 border border-gray-300 rounded-md p-2"
+            disabled={!selectedProgram || majorNames.length === 0} // Disable if no program is selected OR no majors available
+            >
+            <option value="" hidden>
+              {majorNames.length === 0 ? "NO MAJORS AVAILABLE" : "SELECT MAJOR NAME"}
+            </option>
+            {majorNames.map((major) => (
+              <option key={major._id} value={major.majorname}>
+                {major.majorname}
+              </option>
+            ))}
+          </select>
               <Button
                 type="button"
                 className="!w-[25%] border border-base-200 bg-base-200 text-white w-[100px] p-2 rounded-md hover:bg-base-200"
                 onClick={handleAddMajor}
+                disabled={!selectedMajor} 
               >
                 <FaPlus />
                 Add Major

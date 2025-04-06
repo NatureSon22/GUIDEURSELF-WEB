@@ -5,7 +5,7 @@ import { TbMap2 } from "react-icons/tb";
 import { RiCameraLensLine } from "react-icons/ri";
 import { MdTouchApp } from "react-icons/md";
 
-const CampusCard = ({ campus, onClose }) => {
+const CampusCard = ({ campus, closePopup }) => {
 
     const { data: university } = useQuery({
       queryKey: ["universitysettings"],
@@ -40,17 +40,17 @@ const CampusCard = ({ campus, onClose }) => {
     }, 0) || 0;
   
     return (
-      <div className="fixed inset-3 flex h-[550px] justify-end z-10 gap-4">
-        <div className="bg-white p-4 rounded-md shadow-lg w-full sm:w-[90%] md:w-[70%] lg:w-[22%] min-w-[250px] flex flex-col gap-3">
+      <div className="flex z-10 gap-4 h-[550px] w-[440px]">
+        <div className="bg-white p-4 rounded-md shadow-lg flex flex-col gap-3">
 
-          <div className="flex w-[100%] justify-center gap-3">
+          <div className="flex justify-center gap-3">
             <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
               <img className="h-[60px]" src={university?.university_vector_url} alt="" />
               <img className="h-[60px]" src={university?.university_logo_url} alt="" />
             </div>
             <div className="flex flex-col justify-center">
-              <h2 className="font-bold  font-cizel-decor text-lg">{campus.campus_name} Campus</h2>
-              <h3 className="text-sm  font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+              <h2 className="font-bold text-base-400 font-cizel-decor text-xl">{campus.campus_name} Campus</h2>
+              <h3 className="text-md text-secondary-200-80 font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
             </div>
           </div>
           <div className="h-[200px]">
@@ -59,34 +59,34 @@ const CampusCard = ({ campus, onClose }) => {
               src={campus.campus_cover_photo_url} alt="" />
           </div>
           <hr />
-          <div className="py-6 flex items-center justify-center gap-6">
+          <div className="flex items-center justify-around py-3">
             <div>
               <div className="flex flex-row items-center justify-center gap-2">
-                <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
+                <p className="text-[1.5rem] font-bold text-base-200 !my-3">{totalFloors}</p>
                 <TbMap2 className="text-4xl text-base-200 mb-1"/>
               </div>  
-              <p className="text-center text-sm mt-2">Featured Locations</p>
+              <p className="text-center text-base-400 text-[15px] !my-3">Featured Floors</p>
             </div>
             <div>
               <div className="flex flex-row items-center justify-center gap-2">
-                <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
+                <p className="text-[1.5rem] font-bold text-base-200 !my-3">{totalMarkerPhotos}</p>
                 <RiCameraLensLine className="text-4xl text-base-200 mb-1"/>
               </div>
-              <p className="text-center text-sm mt-2">Panoramic View</p>
+              <p className="text-center text-base-400 text-sm !my-3">Panoramic View</p>
             </div>
             <div>
               <div className="flex flex-row items-center justify-center gap-2">
-                <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
+                <p className="text-[1.5rem] font-bold text-base-200 !my-3">{totalCategories}</p>
                 <MdTouchApp className="text-4xl text-base-200 mb-2"/>
               </div>
-              <p className="text-center text-sm mt-2">Hotspots</p>
+              <p className="text-center text-base-400 text-sm !my-3">Hotspots</p>
             </div>
           </div>
           <hr />
           <div className="flex gap-4">
               <button
-              onClick={onClose}
-              className="text-base-200 w-[50%] h-[50px] rounded-md hover:bg-secondary-350"
+              className="text-base-200 w-[50%] h-[50px] text-[20px] rounded-md hover:bg-secondary-350"
+              onClick={closePopup}
               >
                   Close
               </button>
@@ -95,9 +95,8 @@ const CampusCard = ({ campus, onClose }) => {
                 pathname: `/virtual-tour/edit-mode/${campus._id}`,
               }}
               state={{ campus }}
-              className="bg-base-200 w-[50%] text-white h-[50px] flex justify-center items-center rounded-md">
+              className="bg-base-200 w-[50%] !text-white text-[20px] h-[50px] flex justify-center items-center rounded-md">
                   <button
-                  onClick={onClose}
                   >
                       Edit
                   </button>

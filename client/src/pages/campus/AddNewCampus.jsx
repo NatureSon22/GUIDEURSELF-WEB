@@ -10,6 +10,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import AddProgramModal from "./AddNewProgramModal";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
+import { getUniversityData } from "@/api/component-info";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import "@/fluttermap.css";
@@ -28,7 +29,7 @@ const defaultIcon = L.icon({
   iconAnchor: [15, 40],
 });
 
-const newIconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="green"/>);
+const newIconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="red"/>);
 const newIconUrl = `data:image/svg+xml;base64,${btoa(newIconSvg)}`;
  
 const newDefaultIcon = L.icon({
@@ -71,6 +72,12 @@ const AddNewCampus = () => {
     queryFn: loggedInUser,
     refetchOnWindowFocus: false,
   });
+
+
+      const { data: university } = useQuery({
+        queryKey: ["universitysettings"],
+        queryFn: getUniversityData,
+      });
 
   const logActivityMutation = useMutation({
     mutationFn: async (logData) => {
@@ -393,6 +400,12 @@ const AddNewCampus = () => {
                   name="campus_name"
                   value={campusData.campus_name}
                   onChange={(e) => setCampusData({...campusData, campus_name: e.target.value})}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
+                    }
+                  }}
                   placeholder="Campus Name"
                   className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
@@ -408,6 +421,12 @@ const AddNewCampus = () => {
                   const value = e.target.value;
                   if (/^\+?[0-9\s]*$/.test(value)) {
                     setCampusData({ ...campusData, campus_phone_number: value });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevents form submission
+                    e.stopPropagation(); // Stops event bubbling
                   }
                 }}
                 placeholder="+63 2 123 4567"
@@ -434,6 +453,12 @@ const AddNewCampus = () => {
                         setCampusData({ ...campusData, campus_code: value.toUpperCase() });
                       }
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault(); // Prevents form submission
+                        e.stopPropagation(); // Stops event bubbling
+                      }
+                    }}
                     placeholder="ABC"
                     className="w-[10%] h-[40px] outline-none text-center border border-gray-300 rounded-md"
                     type="text"
@@ -450,6 +475,12 @@ const AddNewCampus = () => {
                   placeholder="contact@urs.edu.ph"
                   className="w-[100%] h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
+                    }
+                  }}
                 />
 
               </div>
@@ -467,6 +498,12 @@ const AddNewCampus = () => {
                   placeholder="Campus Address"
                   className="w-[100%] mt-3 h-[40px] pl-2 pr-2 outline-none border border-gray-300 rounded-md"
                   type="text"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Prevents form submission
+                      e.stopPropagation(); // Stops event bubbling
+                    }
+                  }}
                 />
             </div>
             <div className="border border-gray-300 rounded-md">
@@ -501,11 +538,16 @@ const AddNewCampus = () => {
                                   icon={defaultIcon}
                                 >
                                   <Popup className="custom-popup" closeButton={false}>
-                                    <div className="px-3  box-shadow shadow-2xl drop-shadow-2xl rounded-md flex justify-center items-center bg-white text-black border border-black">
-                                      <p className="text-[16px] text-center font-bold">
-                                          {campus.campus_name}
-                                      </p>
+                                  <div className="border border-grey w-[450px] px-3 py-1 rounded-md bg-white flex justify-center gap-3">
+                                    <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
+                                      <img className="h-[60px]" src={university?.university_vector_url} alt="" />
+                                      <img className="h-[60px]" src={university?.university_logo_url} alt="" />
                                     </div>
+                                    <div className="flex flex-col justify-center">
+                                      <h2 className="font-bold text-base-400 font-cizel-decor text-lg">{campus.campus_name} Campus</h2>
+                                      <h3 className="text-sm text-secondary-200-80 font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                                    </div>
+                                  </div>
                                   </Popup>
                                 </Marker>
                               ))
@@ -538,6 +580,12 @@ const AddNewCampus = () => {
                 accept="image/*"
                 className="mt-2 py-1 cursor-pointer"
                 onChange={handleImageUpload}  
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevents form submission
+                    e.stopPropagation(); // Stops event bubbling
+                  }
+                }}
               />
             </div>
 
