@@ -96,7 +96,7 @@ const ProgramTypeField = () => {
   };
 
   return (
-    <div className="box-shadow-100 h-[320px] space-y-4 border border-secondary-200/40 rounded-lg bg-white p-4">
+    <div className="box-shadow-100 space-y-4 border border-secondary-200/40 rounded-lg bg-white p-4">
       <div className="flex justify-between flex-col gap-4">
         <div>
           <p className="text-[0.95rem] font-semibold">Program Type</p>
@@ -123,7 +123,7 @@ const ProgramTypeField = () => {
           </Button>
         </div>
 
-        <div className="mt-4 h-[200px] flex flex-col justify-between overflow-y-auto">
+        <div className="mt-4 flex flex-col justify-between overflow-y-auto">
           {isLoading ? (
             <p>Loading program type...</p>
           ) : isError ? (
