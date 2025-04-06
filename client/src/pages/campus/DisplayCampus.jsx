@@ -26,16 +26,32 @@ const defaultIcon = L.icon({
 });
 
 const fetchCampuses = async () => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
-    method: "GET",
-    credentials: "include",
-  });
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
+      method: "GET",
+      credentials: "include",
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch campuses");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Fetch failed:", errorText);
+      throw new Error("Failed to fetch campuses");
+    }
+
+    const data = await response.json();
+
+    return data.sort((a, b) =>
+      a.campus_name.localeCompare(b.campus_name, undefined, {
+        sensitivity: "base",
+      })
+    );
+  } catch (err) {
+    console.error("Error inside fetchCampuses:", err);
+    throw err;
   }
-  return response.json();
 };
+
+
 
 const DisplayCampus = () => {
   const [mapCenter, setMapCenter] = useState([14.530440, 121.22608]); // Default center position
@@ -55,8 +71,8 @@ const DisplayCampus = () => {
   } = useQuery({
     queryKey: ["campuses"],
     queryFn: fetchCampuses,
-  });
-
+  });  
+  
   const { data: university } = useQuery({
     queryKey: ["universitysettings"],
     queryFn: getUniversityData,
