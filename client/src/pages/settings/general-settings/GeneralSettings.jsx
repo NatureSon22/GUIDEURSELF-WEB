@@ -14,8 +14,8 @@ const GeneralSettings = () => {
   return (
     <div className="h-[1000px] pr-4 space-y-5 flex flex-col scroll">
       <Header
-        title="University Management"
-        subtitle="Set up university details, branding, and administrative roles."
+        title="General Settings"
+        subtitle="Set up general settings, branding, and application about."
       />
       <SystemLogoField
         isLoading={isLoading}
