@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import { FaEllipsis } from "react-icons/fa6";
+import formatDateTime from "@/utils/formatDateTime";
 
 const handleEditClick = (row, navigate) => {
   navigate(`/accounts/edit-account/${row.original._id}`);
@@ -95,6 +96,12 @@ const columns = ({ navigate, handleVerifyAccount, hasAction = true }) => {
       accessorKey: "date_created",
       header: "Date Created",
       cell: ({ row }) => formatDate(row.original.date_created),
+      filterFn: "dateBetweenFilterFn",
+    },
+    {
+      accessorKey: "date_updated",
+      header: "Date and Time Modified",
+      cell: ({ row }) => formatDateTime(row.original.date_updated),
       filterFn: "dateBetweenFilterFn",
     },
     {

@@ -10,10 +10,7 @@ import DataTable from "@/components/DataTable";
 import columns from "@/components/columns/RolesPermissions";
 import { useNavigate } from "react-router-dom";
 import Loading from "@/components/Loading";
-import {
-  getAllCampuses,
-  getAllRoleTypes,
-} from "@/api/component-info";
+import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import { GrPowerReset } from "react-icons/gr";
 import MultiCampus from "@/layer/MultiCampus";
 
@@ -30,15 +27,11 @@ const Roles = () => {
   });
   const { data: accountRoles, isLoading } = useQuery({
     queryKey: ["accountRoles"],
-    queryFn: () => getAllAccounts(),
+    queryFn: () => getAllAccounts("", ["student"]),
   });
-  // const { data: allStatus } = useQuery({
-  //   queryKey: ["allStatus"],
-  //   queryFn: getAllStatus,
-  // });
   const { data: allRoles } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
+    queryFn: () => getAllRoleTypes(["student"]),
   });
 
   const navigate = useNavigate();

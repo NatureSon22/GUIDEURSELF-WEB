@@ -253,7 +253,7 @@ const ArchiveAccount = () => {
       </DialogContainer>
 
       <DialogContainer openDialog={openDialog}>
-        <div className="flex flex-col items-center gap-5">
+        <div className="flex w-full flex-col items-center gap-5">
           <FaCircleExclamation className="text-[2.5rem] text-base-200" />
           <p className="text-[0.95rem] font-semibold">
             Do you want to activate this account?

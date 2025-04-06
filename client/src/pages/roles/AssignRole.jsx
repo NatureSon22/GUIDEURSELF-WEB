@@ -18,11 +18,12 @@ const AssignRole = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const { data: accountRoles, isLoading } = useQuery({
     queryKey: ["accountRoles"],
-    queryFn: getAllAccounts,
+    queryFn: () => getAllAccounts("", ["super administrator", "administrator"]),
   });
   const navigate = useNavigate();
   const [rowSelection, setRowSelection] = useState({});
   const [reset, setReset] = useState(false);
+  const selectedAccountIds = Object.keys(rowSelection);
 
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
@@ -30,8 +31,6 @@ const AssignRole = () => {
   });
 
   const handleAssignRoleClick = () => {
-    const selectedAccountIds = Object.keys(rowSelection);
-
     navigate("/roles-permissions/edit-assign-role", {
       state: {
         accountIds: selectedAccountIds,
@@ -65,7 +64,10 @@ const AssignRole = () => {
           onClick={handleAssignRoleClick}
           disabled={Object.keys(rowSelection).length === 0}
         >
-          Select & Continue
+          Confirm Selection
+          {selectedAccountIds.length > 0 && (
+            <span className="font-bold">( {selectedAccountIds.length} )</span>
+          )}
         </Button>
       </div>
 

@@ -82,6 +82,16 @@ const AllDocuments = () => {
     },
   });
 
+  const changeValue = (value) => {
+    const filterVal = {
+      uploaded: "uploaded-document",
+      created: "created-document",
+      imported: "imported-web",
+    };
+
+    return filterVal[value] || value;
+  };
+
   const filteredDocuments = useMemo(() => {
     const documentsList = type === "drafts" ? draftedDocuments : allDocuments;
     if (!documentsList) return [];
@@ -89,15 +99,23 @@ const AllDocuments = () => {
     return documentsList.filter((doc) => {
       // Ensure all filters match
       const matchesFilters = filters.every((filter) => {
-        if (!filter.value) return true; // Skip empty filters
+        if (!filter.value) return true;
 
         // Support nested keys like "campus_id.campus_name"
         const docValue = filter.id
           .split(".")
           .reduce((obj, key) => obj?.[key], doc);
 
+        console.log(
+          String(docValue)
+            .toLowerCase()
+            .includes(changeValue(filter.value.toLowerCase())),
+        );
+
         return docValue
-          ? String(docValue).toLowerCase().includes(filter.value.toLowerCase())
+          ? String(docValue)
+              .toLowerCase()
+              .includes(changeValue(filter.value.toLowerCase()))
           : false;
       });
 
@@ -126,8 +144,6 @@ const AllDocuments = () => {
     setFromDate("");
     setToDate("");
   };
-
-  console.log(filters);
 
   const handleClose = () => setOpen(false);
 

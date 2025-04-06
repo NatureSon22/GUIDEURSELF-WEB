@@ -1,4 +1,5 @@
 import formatDateTime from "@/utils/formatDateTime";
+import formatTitle from "@/utils/formatTitle";
 import { Link } from "react-router-dom";
 
 const column = () => [
@@ -38,6 +39,7 @@ const column = () => [
     accessorKey: "type",
     header: "State",
     filterFn: "equalsString",
+    cell: ({ row }) => formatTitle(row.original.type),
   },
   {
     accessorKey: "status",

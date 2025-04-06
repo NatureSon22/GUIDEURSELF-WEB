@@ -107,7 +107,7 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => {
                   >
                     <MdDelete className="text-accent-100 group-hover:text-white" />
                     <p className="text-accent-100 group-hover:text-white">
-                      Delete
+                      Archive
                     </p>
                   </Button>
                 )}

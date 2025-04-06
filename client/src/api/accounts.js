@@ -1,16 +1,9 @@
-const getAllAccounts = async (recent = "") => {
-  console.trace("Received recent:", recent, "Type:", typeof recent); // Debugging
-
-  if (typeof recent === "object") {
-    console.warn(
-      "Warning: recent should be a string or number, but got an object.",
-    );
-    recent = ""; // Prevent issues
-  }
-
-  const url = recent
-    ? `${import.meta.env.VITE_API_URL}/accounts?recent=${recent}`
-    : `${import.meta.env.VITE_API_URL}/accounts`;
+const getAllAccounts = async (recent = "", filterRoles = []) => {
+  const roleParams = filterRoles.length
+    ? `&roles=${filterRoles.join(",")}`
+    : "";
+  console.log(roleParams);
+  const url = `${import.meta.env.VITE_API_URL}/accounts?recent=${recent}${roleParams}`;
 
   const response = await fetch(url, {
     method: "GET",
@@ -18,15 +11,19 @@ const getAllAccounts = async (recent = "") => {
   });
 
   if (!response.ok) {
-    const { message } = await response.json();
-    throw new Error(message);
+    const errorResponse = await response.json().catch(() => ({
+      message: "Unknown error occurred.",
+    }));
+    throw new Error(errorResponse.message || "Failed to fetch accounts.");
   }
 
   const { users } = await response.json();
 
-  return (users || []).sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-  );
+  return (users || []).sort((a, b) => {
+    const dateA = new Date(a.createdAt || "1970-01-01");
+    const dateB = new Date(b.createdAt || "1970-01-01");
+    return dateB - dateA;
+  });
 };
 
 const getAccount = async (accountId) => {
@@ -243,6 +240,28 @@ const deleteAccount = async (accountIds) => {
   return data.message;
 };
 
+const archiveAccount = async (accountIds) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/accounts/archive-accounts`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountIds }),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to archive accounts");
+  }
+
+  return data.message;
+};
+
 export {
   addAccount,
   addBulkAccount,
@@ -256,4 +275,5 @@ export {
   getAllInactiveAccount,
   activateAccount,
   deleteAccount,
+  archiveAccount,
 };

@@ -13,6 +13,7 @@ import {
   resetPassword,
   getAllInactiveAccount,
   activateAccount,
+  archiveAccounts,
 } from "../controller/accounts.js";
 import multer from "multer";
 import verifyToken from "../middleware/verifyToken.js";
@@ -88,5 +89,6 @@ accountRouter.delete(
   upload.none(),
   deleteAccounts
 );
+accountRouter.put("/archive-accounts", verifyToken, archiveAccounts);
 
 export default accountRouter;

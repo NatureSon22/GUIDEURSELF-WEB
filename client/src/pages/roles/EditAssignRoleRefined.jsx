@@ -29,7 +29,7 @@ const EditAssignRole = () => {
   // Fetch all available roles
   const { data: allRoles = [], isError: allRolesError } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
+    queryFn: () => getAllRoleTypes(["super administrator", "administrator"]),
   });
 
   // Fetch role details for the selected role

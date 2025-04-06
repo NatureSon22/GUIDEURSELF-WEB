@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
 import { getAllCampuses, getAllRoleTypes, getAllFeedback } from "@/api/component-info";

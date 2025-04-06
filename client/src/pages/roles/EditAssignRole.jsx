@@ -29,7 +29,7 @@ const EditAssignRole = () => {
 
   const { data: allRoles, isError: allRolesError } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: getAllRoleTypes,
+    queryFn: () => getAllRoleTypes(["student"]),
   });
 
   const {

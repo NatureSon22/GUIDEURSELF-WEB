@@ -21,7 +21,7 @@ const RecentAccounts = () => {
   if (isError) {
     return (
       <div className="grid h-52 place-items-center text-secondary-100-75">
-        <p>Failed to fetch activity logs</p>
+        <p>Failed to fetch recent accounts</p>
       </div>
     );
   }

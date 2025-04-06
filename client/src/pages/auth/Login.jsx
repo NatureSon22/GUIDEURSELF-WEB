@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import logo from "../../assets/home-logo.png";
-import { login } from "../../api/auth";
+import { login, sendVerificationCode } from "../../api/auth";
 import {
   Form,
   FormControl,
@@ -13,12 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Link,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import useAuthStore from "../../context/useAuthStore";
 import { useState } from "react";
@@ -39,7 +34,6 @@ const formSchema = z.object({
 
 const Login = () => {
   const [searchParams] = useSearchParams();
-
   const email = searchParams.get("email");
   const password = searchParams.get("password");
 
@@ -55,13 +49,42 @@ const Login = () => {
       rememberMe: false,
     },
   });
+  const { mutate: handleSendVerification, isPending: isPendingVerification } =
+    useMutation({
+      mutationFn: ({ email, password }) =>
+        sendVerificationCode(email, password),
+      onSuccess: (data) => {
+        navigate("/email-verification", {
+          state: {
+            email: form.getValues("email"),
+            password: form.getValues("password"),
+            verificationCode: data,
+            isAuthenticated: true,
+          },
+        });
+        setIsAuthenticated(true);
+      },
+      onError: (error) => {
+        setError(error.message);
+      },
+    });
+
   const { mutate: handleLogin, isPending } = useMutation({
-    mutationFn: (data) => login(data),
+    mutationFn: () =>
+      login({
+        email: form.getValues("email"),
+        password: form.getValues("password"),
+      }),
     onSuccess: () => {
-      navigate("/dashboard");
-      setIsAuthenticated(true);
+      // Trigger verification only after successful login
+      handleSendVerification({
+        email: form.getValues("email"),
+        password: form.getValues("password"),
+      });
     },
-    onError: (error) => setError(error.message),
+    onError: (error) => {
+      setError(error.message);
+    },
   });
 
   return (
@@ -78,7 +101,7 @@ const Login = () => {
             </div>
 
             {error ? (
-              <p className="rounded-md bg-accent-100/5 py-5 text-center text-[0.85rem] text-accent-100 px-4">
+              <p className="rounded-md bg-accent-100/5 px-4 py-5 text-center text-[0.85rem] text-accent-100">
                 {error}
               </p>
             ) : (
@@ -126,16 +149,19 @@ const Login = () => {
                           autoComplete="on"
                           type={showPassword ? "text" : "password"}
                           {...field}
+                          aria-describedby="passwordHelp"
                         />
                         {!showPassword ? (
                           <FaEyeSlash
                             onClick={() => setPassword(!showPassword)}
                             className="cursor-pointer text-[1.5rem] text-secondary-100/50"
+                            aria-label="Show password"
                           />
                         ) : (
                           <IoEyeSharp
                             onClick={() => setPassword(!showPassword)}
                             className="cursor-pointer text-[1.5rem] text-secondary-100/50"
+                            aria-label="Hide password"
                           />
                         )}
                       </div>
@@ -147,32 +173,9 @@ const Login = () => {
             </div>
 
             <div className="flex items-center justify-between">
-              <FormField
-                control={form.control}
-                name="rememberMe"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        className="border-secondary-200"
-                        id="rememberMe"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel
-                      htmlFor="rememberMe"
-                      className="text-[0.85rem] font-normal"
-                    >
-                      Remember me for 30 days
-                    </FormLabel>
-                  </FormItem>
-                )}
-              />
-
               <Link
                 to="/forgot-password"
-                className="text-sm font-semibold text-base-200 hover:underline"
+                className="ml-auto text-sm font-semibold text-base-200 hover:underline"
               >
                 Forgot Password?
               </Link>
@@ -181,9 +184,11 @@ const Login = () => {
             <Button
               type="submit"
               className="mt-5 w-full bg-base-200 py-6 text-[1rem] font-semibold"
-              disabled={isPending}
+              disabled={isPending || isPendingVerification}
             >
-              {isPending ? "Logging in..." : "Login"}
+              {isPending || isPendingVerification
+                ? "Sending Code ..."
+                : "Send Verification Code"}
             </Button>
           </form>
         </Form>

@@ -18,7 +18,7 @@ const RecentDocumentsTable = () => {
   return (
     <div className="mt-6 flex flex-1 flex-col gap-4">
       <Header
-        title="Recently Added"
+        title="Recent Documents"
         subtitle="This section lists the most recent documents uploaded to the system. You can review, edit, or manage these files to ensure they are properly prepared for use."
       />
 

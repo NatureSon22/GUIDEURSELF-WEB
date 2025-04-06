@@ -186,7 +186,7 @@ const getAllRoleTypes = async (filter = []) => {
 
   if (filter.length > 0) {
     allRoleTypes = allRoleTypes.filter(
-      (roleType) => !filter.includes(roleType.label),
+      (roleType) => !filter.includes(roleType.label.toLowerCase()),
     );
   }
 

@@ -8,7 +8,11 @@ import sendPasswordResendEmail from "../service/reset-password.js";
 
 const getAllAccounts = async (req, res, next) => {
   try {
+    const { roles } = req.query;
     const { recent } = req.query; // Use query params for filtering
+    const rolesFilter = roles
+      ? roles.split(",").map((role) => role.trim().toLowerCase())
+      : [];
     const userId = req.user?.userId;
     const campusId = req.user?.campusId;
     const isMultiCampus = req.user?.isMultiCampus;
@@ -30,12 +34,12 @@ const getAllAccounts = async (req, res, next) => {
 
     const aggregationPipeline = [
       matchStage,
+      // Lookup role information
       {
         $match: {
-          status: { $ne: "inactive" }, // Exclude inactive users
+          status: { $ne: "deleted" }, // Exclude deleted users
         },
       },
-      // Lookup role information
       {
         $lookup: {
           from: "roles",
@@ -101,7 +105,13 @@ const getAllAccounts = async (req, res, next) => {
       aggregationPipeline.push({ $limit: parseInt(recent, 10) || 10 }); // Limit results
     }
 
-    const users = await UserModel.aggregate(aggregationPipeline);
+    let users = await UserModel.aggregate(aggregationPipeline);
+
+    if (rolesFilter.length > 0) {
+      users = users.filter(
+        (user) => !rolesFilter.includes(user.role_type.toLowerCase())
+      );
+    }
 
     res.status(200).json({ users });
   } catch (error) {
@@ -541,7 +551,6 @@ const verifyAccount = async (req, res) => {
 const deleteAccounts = async (req, res) => {
   try {
     const { accountIds } = req.body;
-    console.log(accountIds);
 
     if (!accountIds || !Array.isArray(accountIds) || accountIds.length === 0) {
       return res.status(400).json({ message: "Invalid account IDs" });
@@ -565,7 +574,7 @@ const resetPassword = async (req, res) => {
   try {
     const { email, device = "web" } = req.body;
 
-    const user = await UserModel.findOne({ email});
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(200).json({
@@ -601,7 +610,7 @@ const getAllInactiveAccount = async (req, res) => {
     const { isMultiCampus, campusId } = req.user;
     console.log(isMultiCampus);
 
-    const filter = { status: "inactive" };
+    const filter = { status: "deleted" };
 
     if (!isMultiCampus) {
       filter.campus_id = campusId;
@@ -631,11 +640,35 @@ const activateAccount = async (req, res) => {
       {
         $set: {
           status: "active",
+          date_updated: new Date(),
         },
       }
     );
 
     res.status(200).json({ message: "User activated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const archiveAccounts = async (req, res) => {
+  try {
+    const { accountIds } = req.body;
+
+    if (!accountIds || !Array.isArray(accountIds) || accountIds.length === 0) {
+      return res.status(400).json({ message: "Invalid account IDs" });
+    }
+
+    const updateResult = await UserModel.updateMany(
+      { _id: { $in: accountIds } },
+      { $set: { status: "deleted" } }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(404).json({ message: "No matching accounts found" });
+    }
+
+    res.status(200).json({ message: "Accounts archived successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -655,4 +688,5 @@ export {
   resetPassword,
   getAllInactiveAccount,
   activateAccount,
+  archiveAccounts,
 };

@@ -1,17 +1,17 @@
 import { MdPeopleAlt } from "react-icons/md";
 import { BsFillBuildingFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaFolder } from "react-icons/fa";
 import { ImUserPlus } from "react-icons/im";
 import { IoIosArrowForward } from "react-icons/io";
 import { HiOutlineFolderAdd } from "react-icons/hi";
-import {fetchCampuses} from "@/api/component-info.js"
+import { fetchCampuses } from "@/api/component-info.js";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/api/accounts";
 import { getAllDocuments } from "@/api/documents";
 
 const OverViewSummary = () => {
-
+  const navigate = useNavigate();
   const { data: campuses = [] } = useQuery({
     queryKey: ["campuses"],
     queryFn: fetchCampuses,
@@ -19,7 +19,7 @@ const OverViewSummary = () => {
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["accounts"],
-    queryFn: () => getAllAccounts()
+    queryFn: () => getAllAccounts(),
   });
 
   const { data: allDocuments = [] } = useQuery({
@@ -27,13 +27,20 @@ const OverViewSummary = () => {
     queryFn: () => getAllDocuments(),
   });
 
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
   const totalCampuses = campuses.length;
   const totalAccounts = accounts.length;
   const totalDocuments = allDocuments.length;
 
   return (
     <div className="flex gap-5">
-      <div className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10">
+      <div
+        className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10"
+        onClick={() => handleNavigate("/accounts")}
+      >
         <div className="space-y-2">
           <p className="w-min text-[0.92rem]">Total Users</p>
           <p className="text-3xl font-semibold">{totalAccounts}</p>
@@ -44,7 +51,10 @@ const OverViewSummary = () => {
         </div>
       </div>
 
-      <div className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10">
+      <div
+        className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10"
+        onClick={() => handleNavigate("/campus")}
+      >
         <div className="space-y-2">
           <p className="w-min text-[0.95rem]">Total Campuses</p>
           <p className="text-3xl font-semibold">{totalCampuses}</p>
@@ -54,7 +64,10 @@ const OverViewSummary = () => {
         </div>
       </div>
 
-      <div className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10">
+      <div
+        className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10"
+        onClick={() => handleNavigate("/documents/all-documents")}
+      >
         <div className="space-y-2">
           <p className="max-w-[8rem] text-[0.95rem]">
             Total Uploaded Documents
@@ -73,15 +86,14 @@ const OverViewSummary = () => {
               <ImUserPlus className="text-3xl text-base-200" />
             </div>
             <div>
-              
-            <Link to="/accounts/add-account">
-              <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
-                Add New User
-              </p>
-              <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
-                To add or create a new user, just click here
-              </p>
-            </Link>
+              <Link to="/accounts/add-account">
+                <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
+                  Add New User
+                </p>
+                <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
+                  To add or create a new user, just click here
+                </p>
+              </Link>
             </div>
           </div>
 
@@ -95,14 +107,13 @@ const OverViewSummary = () => {
             </div>
             <div>
               <Link to="/documents/write-document">
-              <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
-                Add New Document
-              </p>
-              
-              <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
-                To add or create a new document, just click here
-              </p>
-              
+                <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
+                  Add New Document
+                </p>
+
+                <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
+                  To add or create a new document, just click here
+                </p>
               </Link>
             </div>
           </div>

@@ -16,8 +16,22 @@ const SideBar = () => {
   const currentUser = useUserStore((state) => state.currentUser);
   const { setPath } = useBreadCrumbStore();
 
+  // Find the first accessible module
+  const firstAccessibleModule =
+    SideBarElements.flatMap((section) =>
+      section.modules.filter((module) =>
+        currentUser?.permissions?.some(
+          (permission) =>
+            permission.module.toLowerCase() === module.module.toLowerCase(),
+        ),
+      ),
+    )[0]?.path || "/";
+
+  console.log(firstAccessibleModule);
+
+  // Initialize `chosen` state with either the current location or the first accessible module
   const [chosen, setSchosen] = useState(
-    location ? `/${location}` : "/dashboard",
+    location ? `/${location}` : firstAccessibleModule,
   );
 
   const {
@@ -32,12 +46,13 @@ const SideBar = () => {
   useEffect(() => {
     if (location) {
       setSchosen(`/${location}`);
+    } else {
+      setSchosen(firstAccessibleModule);
     }
-  }, [location]);
+  }, [location, firstAccessibleModule]);
 
   useEffect(() => {
     const paths = pathname.split("/").filter(Boolean);
-
     const filteredPaths = paths.filter((path) => path !== "view");
 
     const processedPath = filteredPaths.map((path, index) => {
@@ -55,11 +70,12 @@ const SideBar = () => {
   }, [pathname, setPath]);
 
   const userHasAccess = (modules) => {
-    return modules.some((module) => {
-      return currentUser?.permissions?.some((permission) => {
-        return permission.module.toLowerCase() === module.module.toLowerCase();
-      });
-    });
+    return modules.some((module) =>
+      currentUser?.permissions?.some(
+        (permission) =>
+          permission.module.toLowerCase() === module.module.toLowerCase(),
+      ),
+    );
   };
 
   return (
@@ -68,12 +84,12 @@ const SideBar = () => {
         {isLoading ? (
           <Skeleton className="mt-5 w-full rounded-md py-10"></Skeleton>
         ) : isError ? (
-          <img src={logo} />
+          <img src={logo} alt="GuideURSelf logo" />
         ) : (
           <img
             className="h-[135px] object-cover"
             src={general.general_logo_url}
-            alt={"GuideURSelf logo"}
+            alt="GuideURSelf logo"
           />
         )}
       </div>

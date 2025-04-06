@@ -31,7 +31,10 @@ const AccountForm = ({
   });
   const { data: allRoleTypes } = useQuery({
     queryKey: ["allRoleTypes"],
-    queryFn: () => getAllRoleTypes( type === "edit" ? [] : ["Super Administrator", "Administrator"]),
+    queryFn: () =>
+      getAllRoleTypes(
+        type === "edit" ? [] : ["Super Administrator", "Administrator"],
+      ),
     refetchOnMount: true,
   });
 
@@ -116,8 +119,8 @@ const AccountForm = ({
               {RenderField(
                 form,
                 "user_number",
-                "User Number",
-                <Input placeholder="Enter user number" className="bg-white" />,
+                "User ID",
+                <Input placeholder="Enter user ID" className="bg-white" />,
               )}
               {RenderField(
                 form,

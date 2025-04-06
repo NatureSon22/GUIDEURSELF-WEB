@@ -93,8 +93,6 @@ const UserSummary = () => {
     return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
   }, [chartData]);
 
-  console.log("TOTAL VISITORS: " + totalVisitors);
-
   return (
     <Card className="flex h-full flex-col px-7 py-5 shadow-none">
       <div className="mt-2 flex items-center justify-between">

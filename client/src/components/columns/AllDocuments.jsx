@@ -27,7 +27,12 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
     header: "Filename",
     filterFn: "equalsString",
     cell: ({ row }) => (
-      <p>
+      <p
+        className="hover:underline cursor-pointer"
+        onClick={() => {
+          navigate(`/documents/view/${row.original._id}`);
+        }}
+      >
         {row.original.file_name.length > 20
           ? row.original.file_name.slice(0, 20) + "..."
           : row.original.file_name}
@@ -155,7 +160,9 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
                 }}
               >
                 <MdDelete className="text-accent-100 group-hover:text-white" />
-                <p className="text-accent-100 group-hover:text-white">Delete</p>
+                <p className="text-accent-100 group-hover:text-white">
+                  Archive
+                </p>
               </Button>
             )}
           </DropdownMenuContent>

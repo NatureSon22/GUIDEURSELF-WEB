@@ -7,12 +7,32 @@ config();
 
 const getMessages = async (req, res) => {
   try {
+    // Fetch messages from DB
+    // const messages = await MessageModel.find().sort({ createdAt: 1 }); // Ensure proper order
+
+    // const formattedMessages = [];
+    // let currentPair = {};
+
+    // messages.forEach((msg) => {
+    //   if (!msg.is_machine_generated) {
+    //     // User's query
+    //     currentPair = { message: msg };
+    //   } else {
+    //     // Machine-generated response
+    //     currentPair.response = msg;
+    //     formattedMessages.push(currentPair); // Push the completed pair
+    //     currentPair = {}; // Reset for next pair
+    //   }
+    // });
+
     const messages = await MessageModel.find({
       is_machine_generated: true,
       is_helpful: { $exists: true, $in: [true, false] },
     });
 
-    res.status(200).json(messages);
+    //res.status(200).json(messages);
+
+    res.status(200).json({ messages });
   } catch (error) {
     res.status(500).json({ error: "Server error", details: error.message });
   }
@@ -33,10 +53,8 @@ const sendMessage = async (req, res) => {
     const response = await fetch(CODY_URLS.CREATE_MESSAGE(), {
       method: "POST",
       headers: HEADERS,
-      body: JSON.stringify({ content, conversation_id }),
+      body: JSON.stringify({ content: `WEB: ${content}`, conversation_id }),
     });
-
-    console.log(process.env.CODY_API_KEY);
 
     if (!response.ok) {
       const errorData = await response.json();

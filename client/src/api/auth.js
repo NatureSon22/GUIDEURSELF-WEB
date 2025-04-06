@@ -66,4 +66,58 @@ const logout = async () => {
   return response.json();
 };
 
-export { login, isAuthenticated, logout, loggedInUser };
+const sendVerificationCode = async (email, password) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/send-verification-code`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { verificationCode } = await response.json();
+  return verificationCode;
+};
+
+const loginVerification = async (email, password, verificationCodeInput) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/verify-code`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        email,
+        password,
+        verificationCodeInput,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
+export {
+  login,
+  isAuthenticated,
+  logout,
+  loggedInUser,
+  sendVerificationCode,
+  loginVerification,
+};

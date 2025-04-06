@@ -1,6 +1,5 @@
 import Header from "@/components/Header";
-import ComboBox from "@/components/ComboBox";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { getMessages } from "@/api/message";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
@@ -164,7 +163,7 @@ const MessageReport = () => {
         head: [["MESSAGE", "DATE CREATED"]],
         body: chunk,
         startY: 90,
-        didDrawPage: (data) => addFooter(doc.internal.getNumberOfPages()),
+        didDrawPage: () => addFooter(doc.internal.getNumberOfPages()),
       });
     }
 

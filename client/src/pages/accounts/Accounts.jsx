@@ -3,13 +3,13 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RiAddLargeFill } from "react-icons/ri";
-import { MdUpload } from "react-icons/md";
+import { MdDelete, MdUpload } from "react-icons/md";
 import DataTable from "@/components/DataTable";
 import ComboBox from "@/components/ComboBox";
 import columns from "../../components/columns/Accounts";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getAllAccounts, verifyAccount } from "@/api/accounts";
+import { archiveAccount, getAllAccounts, verifyAccount } from "@/api/accounts";
 import VerifyAccountDialog from "./VerifyAccountDialog";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import Loading from "@/components/Loading";
@@ -17,6 +17,8 @@ import { GrPowerReset } from "react-icons/gr";
 import FeaturePermission from "@/layer/FeaturePermission";
 import MultiCampus from "@/layer/MultiCampus";
 import { FaCheckCircle } from "react-icons/fa";
+import AccountDialog from "./AccountDialog";
+import { useToast } from "@/hooks/use-toast";
 
 const status = [
   {
@@ -26,6 +28,10 @@ const status = [
   {
     value: "pending",
     label: "Pending",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
   },
 ];
 
@@ -38,6 +44,9 @@ const Accounts = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [rowSelection, setRowSelection] = useState({});
+  const [open, setOpen] = useState(false);
+  const [activeDialog, setActiveDialog] = useState("");
+  const { toast } = useToast();
 
   const {
     data: allAccounts,
@@ -46,7 +55,6 @@ const Accounts = () => {
   } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => getAllAccounts(),
-    refetchOnWindowFocus: false,
   });
 
   const { data: allCampuses } = useQuery({
@@ -59,20 +67,50 @@ const Accounts = () => {
     queryFn: getAllRoleTypes,
   });
 
-  const { mutateAsync: handleVerifyAccount, isPending } = useMutation({
-    mutationFn: (data) => verifyAccount(data),
-    onMutate: () => setOpenDialog(true),
-    onSuccess: () => {
-      setTimeout(() => {
-        setOpenDialog(false);
+  const { mutateAsync: handleVerifyAccount, isPending: isVerifying } =
+    useMutation({
+      mutationFn: (data) => verifyAccount(data),
+      onMutate: () => {
+        setOpenDialog(true);
+        setOpen(false);
+      },
+      onSuccess: () => {
+        setTimeout(() => {
+          setOpenDialog(false);
+          refetch();
+        }, 1000);
+        setRowSelection({});
+        setActiveDialog("");
+      },
+      onError: () => setOpenDialog(false),
+      onSettled: () => {
+        setRowSelection({});
+      },
+    });
+
+  const { mutateAsync: handleArchiveAccounts, isPending: isArchiving } =
+    useMutation({
+      mutationFn: () => archiveAccount(Object.keys(rowSelection)),
+      onSuccess: () => {
         refetch();
-      }, 1000);
-    },
-    onError: () => setOpenDialog(false),
-    onSettled: () => {
-      setRowSelection({});
-    },
-  });
+        toast({
+          title: "Accounts Archived",
+          description: "Accounts have been archived successfully",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to archive accounts",
+          variant: "destructive",
+        });
+      },
+      onSettled: () => {
+        setRowSelection({});
+        setActiveDialog("");
+        setOpen(false);
+      },
+    });
 
   const filteredAccounts = useMemo(() => {
     if (!allAccounts) return [];
@@ -113,9 +151,18 @@ const Accounts = () => {
     setToDate("");
   };
 
+  const handleOpenSetDialog = (type) => {
+    setOpen(true);
+    setActiveDialog(type);
+  };
+
   const handleSelectedVerifyAccounts = () => {
     const selectedAccounts = Object.keys(rowSelection);
     handleVerifyAccount(selectedAccounts);
+  };
+
+  const handleSelectedDeactivateAccounts = () => {
+    handleArchiveAccounts();
   };
 
   return (
@@ -216,15 +263,23 @@ const Accounts = () => {
         </div>
 
         {hasSelected && (
-          <div>
+          <div className="space-x-3">
             <Button
               className={
                 "bg-base-200 text-[0.75rem] text-white shadow-none hover:bg-base-200/10 hover:text-base-200"
               }
-              onClick={handleSelectedVerifyAccounts}
+              onClick={() => handleOpenSetDialog("verify")}
             >
               <FaCheckCircle className="mr-1" />
-              Verify Accounts
+              Verify
+            </Button>
+
+            <Button
+              className="bg-accent-100 hover:bg-accent-100/15 hover:text-accent-100"
+              onClick={() => handleOpenSetDialog("archive")}
+            >
+              <MdDelete />
+              Archive
             </Button>
           </div>
         )}
@@ -249,7 +304,27 @@ const Accounts = () => {
       <VerifyAccountDialog
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}
-        isPending={isPending}
+        isPending={isVerifying}
+      />
+
+      <AccountDialog
+        label={
+          activeDialog === "verify"
+            ? `Are you sure you want to verify ${Object.keys(rowSelection).length} selected account(s)? `
+            : `Are you sure you want to archive ${Object.keys(rowSelection).length} selected account(s)?`
+        }
+        openDialog={open}
+        isLoading={activeDialog === "verify" ? isVerifying : isArchiving}
+        onCancelClick={() => {
+          setOpen(false);
+          setRowSelection({});
+          setActiveDialog("");
+        }}
+        onConfirmClick={
+          activeDialog === "verify"
+            ? handleSelectedVerifyAccounts
+            : handleSelectedDeactivateAccounts
+        }
       />
     </div>
   );
