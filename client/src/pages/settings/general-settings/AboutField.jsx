@@ -108,8 +108,8 @@ const AboutField = ({ isLoading }) => {
             <div className="fixed inset-0 flex items-center justify-center bg-[#000000cc]">
               <div className="flex h-[700px] w-[60%] flex-col gap-3 rounded-md bg-white p-6">
                 <div>
-                  <p className="font-bold">Privacy Policy</p>
-                  <p>Adjust privacy settings to ensure compliance.</p>
+                  <p className="font-bold">Application the About</p>
+                  <p>Edit the description to provide insight into the application's purpose and functionality.</p>
                 </div>
                 <ReactQuill
                   value={about}
