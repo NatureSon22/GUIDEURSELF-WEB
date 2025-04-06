@@ -4,6 +4,7 @@ import { getMajorData } from "@/api/component-info";
 import { useToast } from "@/hooks/use-toast";
 import AddMajorModal from "./AddMajorModal";
 import EditMajorModal from "./EditMajorModal";
+import { GrNext, GrPrevious } from "react-icons/gr";
 import { BiSolidEdit } from "react-icons/bi";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
@@ -23,13 +24,26 @@ const MajorField = () => {
   const [selectedMajor, setSelectedMajor] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); 
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
   const filteredMajors = majors
-  ? majors.filter(
-      (major) =>
-        major.majorname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        major.programname.toLowerCase().includes(searchTerm.toLowerCase())
+  ? majors.filter((major) =>
+      (major?.majorname || "").toLowerCase().includes(searchTerm.toLowerCase())
     )
   : [];
+
+  const totalPages = Math.ceil(filteredMajors.length / itemsPerPage);
+  const paginatedMajors = filteredMajors.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const handleDeleteMajor = async (id) => {
     try {
@@ -80,7 +94,7 @@ const MajorField = () => {
   };
 
   return (
-    <div className="box-shadow-100 space-y-4 rounded-lg bg-white p-4">
+    <div className="box-shadow-100 border border-secondary-200/40 space-y-4 rounded-lg bg-white p-4">
       <div className="flex justify-between flex-col gap-4">
         <div>
           <p className="text-[0.95rem] font-semibold">Major List</p>
@@ -92,7 +106,10 @@ const MajorField = () => {
           <Input
             placeholder="Search..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} 
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
           />
           <Button
             variant="outline"
@@ -103,7 +120,7 @@ const MajorField = () => {
           </Button>
         </div>
 
-        <div className="mt-4 h-[300px] overflow-y-auto">
+        <div className="mt-4 h-[320px] flex flex-col justify-between overflow-y-auto">
           {isLoading ? (
             <p>Loading all major...</p>
           ) : isError ? (
@@ -120,7 +137,7 @@ const MajorField = () => {
               </thead>
               <tbody>
                 {filteredMajors.length > 0 ? (
-                  filteredMajors.map((major) => (
+                  paginatedMajors.map((major) => (
                     <tr key={major._id}>
                       <td className="p-2 border text-[0.9rem]">{major.programname}</td>
                       <td className="p-2 border text-center text-[0.9rem]">
@@ -129,10 +146,10 @@ const MajorField = () => {
                       <td className="p-2 border text-center text-[0.9rem]">
                         {formatDateTime(major.date_added)}
                       </td>
-                      <td className="p-2 border text-[0.9rem] flex gap-2">
+                      <td className="flex items-center justify-center gap-5 p-2">
                         <Button
                           variant="secondary"
-                          className="bg-base-200/10 w-full text-base-200"
+                        className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
                           onClick={() => handleOpenEditModal(major)}
                         >
                           <BiSolidEdit />
@@ -140,10 +157,10 @@ const MajorField = () => {
                         </Button>
                         <Button
                           variant="destructive"
-                          className="p-1 bg-red-500 w-full text-white rounded-md"
+                          className="group rounded-full bg-accent-100/10 px-[0.65rem]"
                           onClick={() => handleDeleteMajor(major._id)}
                         >
-                          <MdDelete />
+                          <MdDelete className="text-accent-100 group-hover:text-white" />
                         </Button>
                       </td>
                     </tr>
@@ -158,6 +175,32 @@ const MajorField = () => {
               </tbody>
             </table>
           )}
+                    {filteredMajors.length > 0 && (
+                    <div className="mb-0 mt-auto flex items-center justify-between pt-7">
+                      <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+                      {`Showing ${currentPage} of ${totalPages} ${
+                        totalPages > 1 ? "pages" : "page"
+                      }`}
+                    </p>
+          
+                      <div className="flex items-center gap-2">
+                      <Button variant="outline" className="font-semibold text-secondary-100-75" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+                      <GrPrevious />
+                       Prev
+                      </Button>
+                       <Input
+                          type="number"
+                          min="1"
+                          value={currentPage}
+                          className="w-16 rounded border p-1 text-center"
+                        />
+                      <Button variant="outline" className="font-semibold text-secondary-100-75"onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                        Next
+                        <GrNext />
+                      </Button>
+                    </div>
+                    </div>
+                    )}
         </div>
       </div>
 

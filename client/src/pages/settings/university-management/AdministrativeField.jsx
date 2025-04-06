@@ -6,6 +6,7 @@ import { addPosition } from "@/api/university-settings";
 import { useToast } from "@/hooks/use-toast";
 import EditPositionModal from "./EditPositionModal";
 import { BiSolidEdit } from "react-icons/bi";
+import { GrNext, GrPrevious } from "react-icons/gr";
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,27 @@ const AdministrativeField = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
+  const filteredPositions = positions
+    ? positions.filter((position) =>
+        position.position_name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
+    const totalPages = Math.ceil(filteredPositions.length / itemsPerPage);
+  const paginatedPositions = filteredPositions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   // Format date function
   const formatDate = (dateString) => {
@@ -70,15 +92,8 @@ const AdministrativeField = () => {
     setSelectedPosition(null);
   };
 
-  // Filter positions based on search term
-  const filteredPositions = positions
-    ? positions.filter((position) =>
-        position.position_name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : [];
-
   return (
-    <div className="box-shadow-100 space-y-4 rounded-lg bg-white p-4">
+    <div className="box-shadow-100 space-y-4 border border-secondary-200/40 rounded-lg bg-white p-4">
       <div className="flex justify-between flex-col gap-4">
         <div>
           <p className="text-[0.95rem] font-semibold">Administrative Position</p>
@@ -92,14 +107,18 @@ const AdministrativeField = () => {
             type="text"
             placeholder="Search by position name"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
+             // Update search term
           />
           <Button variant="outline" className="text-secondary-100-75" onClick={openModal}>
             Add Position
           </Button>
         </div>
 
-        <div className="mt-4 h-[300px] overflow-y-auto">
+        <div className="mt-4 h-[330px] flex flex-col justify-between overflow-y-auto">
           {isLoading ? (
             <p>Loading positions...</p>
           ) : isError ? (
@@ -115,7 +134,7 @@ const AdministrativeField = () => {
               </thead>
               <tbody>
                 {filteredPositions.length > 0 ? (
-                  filteredPositions.map((position) => (
+                  paginatedPositions.map((position) => (
                     <tr key={position._id}>
                       <td className="p-2 border text-[0.9rem] w-[702px]">
                         {position.position_name}
@@ -123,10 +142,10 @@ const AdministrativeField = () => {
                       <td className="p-2 border text-center text-[0.9rem]">
                         {formatDate(position.date_added)}
                       </td>
-                      <td className="p-2 border text-[0.9rem] flex gap-2">
+                      <td className="flex items-center justify-center border gap-5 p-2">
                         <Button
-                          variant="secondary"
-                          className="bg-base-200/10 w-full text-base-200"
+                        variant="secondary"
+                        className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
                           onClick={() => handleOpenEditModal(position)}
                         >
                           <BiSolidEdit />
@@ -134,10 +153,10 @@ const AdministrativeField = () => {
                         </Button>
                         <Button
                           variant="destructive"
-                          className="p-1 bg-red-500 w-full text-white rounded-md"
+                          className="group rounded-full bg-accent-100/10 px-[0.65rem]"
                           onClick={() => handleDeletePosition(position._id)}
                         >
-                          <MdDelete />
+                          <MdDelete className="text-accent-100 group-hover:text-white" />
                         </Button>
                       </td>
                     </tr>
@@ -151,6 +170,34 @@ const AdministrativeField = () => {
                 )}
               </tbody>
             </table>
+          )}
+          {filteredPositions.length > 0 && (
+
+            
+          <div className="mb-0 mt-auto flex items-center justify-between pt-7">
+            <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+            {`Showing ${currentPage} of ${totalPages} ${
+              totalPages > 1 ? "pages" : "page"
+            }`}
+          </p>
+
+            <div className="flex items-center gap-2">
+            <Button variant="outline" className="font-semibold text-secondary-100-75" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+            <GrPrevious />
+             Prev
+            </Button>
+             <Input
+                type="number"
+                min="1"
+                value={currentPage}
+                className="w-16 rounded border p-1 text-center"
+              />
+            <Button variant="outline" className="font-semibold text-secondary-100-75"onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>
+              Next
+              <GrNext />
+            </Button>
+          </div>
+          </div>
           )}
         </div>
       </div>
