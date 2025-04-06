@@ -10,7 +10,7 @@ const RoleManagement = () => {
     <div>
       <div className="flex gap-4">
         <Input
-          placeholder="Name of the user type"
+          placeholder="Search"
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />

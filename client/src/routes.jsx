@@ -259,19 +259,19 @@ const routes = [
             element: <Reports />,
           },
           {
-            path: "/reports/account",
+            path: "/reports/user-account-report",
             element: <AccountReports />,
           },
           {
-            path: "/reports/feedback",
+            path: "/reports/feedback-report",
             element: <FeedbackReport />,
           },
           {
-            path: "/reports/user-activity-log",
+            path: "/reports/user-activity-log-report",
             element: <UserActivityReport />,
           },
           {
-            path: "/reports/messages",
+            path: "/reports/response-review-report",
             element: <MessageReport />,
           },
         ],

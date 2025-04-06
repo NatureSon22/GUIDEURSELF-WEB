@@ -12,7 +12,7 @@ const UserTypeManagement = () => {
         <Input
           value={type}
           onChange={(e) => setType(e.target.value)}
-          placeholder="Name of the user type"
+          placeholder="Search"
         />
         <CreateUserType />
       </div>

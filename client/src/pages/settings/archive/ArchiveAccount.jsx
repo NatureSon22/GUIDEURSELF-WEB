@@ -190,7 +190,7 @@ const ArchiveAccount = () => {
 
         <ComboBox
           options={roleTypes || []}
-          placeholder="select role"
+          placeholder="select user type"
           filter="role_id.role_type"
           setFilters={setFilters}
           reset={reset}

@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import ComboBox from "@/components/ComboBox";
 import { useState, useMemo } from "react";
 import { getLowAccounts } from "@/api/accounts";
-import { getAllCampuses, getLowRoleTypes, getAllRoleTypes } from "@/api/component-info";
+import { getAllCampuses, getLowRoleTypes } from "@/api/component-info";
 import { useQuery } from "@tanstack/react-query";
 import formatDate from "@/utils/formatDate";
 import accountStatus from "@/utils/accountStatus";

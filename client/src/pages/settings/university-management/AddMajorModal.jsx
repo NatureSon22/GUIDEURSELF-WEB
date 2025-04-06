@@ -99,7 +99,7 @@ const AddMajorModal = ({ onClose, queryClient }) => {
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent className="grid gap-5 sm:max-w-[525px] [&>button]:hidden">
           <DialogHeader>
-            <DialogTitle>Add New Major</DialogTitle>
+            <DialogTitle>Add Major</DialogTitle>
             <DialogDescription>
               Create a new program name.
             </DialogDescription>

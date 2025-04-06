@@ -116,7 +116,7 @@ const MajorField = () => {
             className="text-secondary-100-75"
             onClick={openModal}
           >
-            Add New Major
+            Add Major
           </Button>
         </div>
 

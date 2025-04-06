@@ -10,7 +10,7 @@ const ReportsTabInfo = [
     ),
     title: "User Account",
     subtitle: "Access, review, and generate reports on user account records",
-    path: "account",
+    path: "user-account-report",
   },
   {
     icon: (
@@ -18,7 +18,7 @@ const ReportsTabInfo = [
     ),
     title: "Feedback",
     subtitle: "Access, review, and generate reports on user feedback",
-    path: "feedback",
+    path: "feedback-report",
   },
   {
     icon: (
@@ -26,7 +26,7 @@ const ReportsTabInfo = [
     ),
     title: "User Activity Log",
     subtitle: "Access, review, and generate reports on user activity logs",
-    path: "user-activity-log",
+    path: "user-activity-log-report",
   },
   {
     icon: (
@@ -34,7 +34,7 @@ const ReportsTabInfo = [
     ),
     title: "Response Review", // a better title?
     subtitle: "Generate reports on chatbot response effectiveness", // review the bot response
-    path: "messages",
+    path: "response-review-report",
   },
 ];
 
