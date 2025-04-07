@@ -59,3 +59,6 @@
     font-family: "Poppins", serif;
   }
   
+  .ql-toolbar.ql-snow + .ql-container.ql-snow {
+    border: none !important;
+  }
