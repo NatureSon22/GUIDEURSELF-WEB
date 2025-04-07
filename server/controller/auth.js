@@ -106,7 +106,7 @@ const sendVerificationCode = async (req, res) => {
 
     const existingCode = await LoginCode.findOne({
       user_id: user._id,
-      status: "pending",
+      status: { $in: ["used", "pending"] },
     });
 
     if (existingCode) {

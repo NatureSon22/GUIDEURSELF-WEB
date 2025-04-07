@@ -87,8 +87,9 @@ const Verification = () => {
   useEffect(() => {
     if (failedAttempts === 4) {
       setTime(0);
+      form.reset();
     }
-  }, [failedAttempts]);
+  }, [failedAttempts, form]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -175,7 +176,7 @@ const Verification = () => {
               />
 
               <div className="space-y-2 pt-4">
-                {(failedAttempts < 4 || time === 0) && (
+                {(failedAttempts < 4 || time != 0) && (
                   <Button
                     type="submit"
                     className="w-full bg-base-200 py-6 text-[1rem] font-semibold"
@@ -189,10 +190,10 @@ const Verification = () => {
                   type="button"
                   className="w-full border border-base-200 bg-base-200/10 py-6 text-[0.95rem] font-medium text-base-200 hover:bg-base-200/10"
                   onClick={time === 0 ? () => navigate("/login") : resend}
-                  disabled={isPendingVerification || isPending}
+                  disabled={time !== 0}
                 >
                   {time === 0 ? (
-                    <p className="font-semibold">Retry login</p>
+                    <p className="font-semibold">Return</p>
                   ) : (
                     <>
                       Didn&apos;t receive a code?{" "}

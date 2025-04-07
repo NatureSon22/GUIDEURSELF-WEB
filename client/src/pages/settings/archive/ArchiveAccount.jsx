@@ -157,7 +157,7 @@ const ArchiveAccount = () => {
           onClick={() => setOpenDeleteDialog(true)}
         >
           <MdDelete />
-          Delete
+          Clear
         </Button>
       </div>
 

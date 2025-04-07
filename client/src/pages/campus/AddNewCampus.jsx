@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import L from "leaflet";
@@ -14,7 +14,7 @@ import { getUniversityData } from "@/api/component-info";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import "@/fluttermap.css";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditNewProgramModal";
