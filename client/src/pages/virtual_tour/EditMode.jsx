@@ -67,10 +67,10 @@ const MarkerIcon = ({ bgColor, IconComponent }) => (
 // Create a default version of MarkerIcon
 const DefaultMarkerIcon = () => (
   <div className="relative">
-    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] bg-blue-500 relative z-10`}>
+    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] bg-base-200 relative z-10`}>
       <FaInfo color="white" size={25} className="" />
     </div>
-    <div className={`absolute top-[5px] left-[5px] w-[35px] h-[35px] rounded-full bg-blue-500 opacity-100 animate-ping`}></div>
+    <div className={`absolute top-[5px] left-[5px] w-[35px] h-[35px] rounded-full bg-base-200 opacity-100 animate-ping`}></div>
   </div>
 );
 
