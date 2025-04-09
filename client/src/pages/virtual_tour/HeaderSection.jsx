@@ -39,7 +39,7 @@ import { MdTouchApp } from "react-icons/md";
           <img className="h-[60px]" src={university?.university_logo_url} alt="" />
         </div>
         <div className="flex flex-col w-[70%] justify-center  ">
-          <h2 className="font-bold  font-cizel-decor text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>
+          <h2 className="font-bold  font-cizel-decor text-lg">University Of Rizal System</h2>
           <h3 className="text-sm font-cizel">{updatedCampus.campus_name} Campus</h3>
         </div>
       </div>

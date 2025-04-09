@@ -89,9 +89,9 @@ const DisplayingKeyOfficials = () => {
       </div>
 
       <div className="mt-4 flex w-full flex-col items-center justify-center">
-        <h2 className="font-cizel-decor text-xl font-bold">
-          University of Rizal System
-        </h2>
+      <h2 className="text-[25px] font-cizel font-bold">
+      <span className="font-cizel-decor">U</span>niversity of <span className="font-cizel-decor">R</span>izal <span className="font-cizel-decor">S</span>ystem
+    </h2>
         <p className="font-cizel text-lg">
           Nurturing Tomorrow&apos;s Noblest
         </p>

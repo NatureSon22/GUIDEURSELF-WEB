@@ -947,7 +947,7 @@ const handleDrop = (e, targetFloor) => {
                 />
               </div>
               <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                <h2 className="font-bold font-cizel-decor text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
+                <h2 className="font-bold font-cizel-decor text-xl">University Of Rizal SystemUNIVERSITY OF RIZAL SYSTEM</h2>
                 <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
               </div>
               { (totalFloors == 0) ? (
