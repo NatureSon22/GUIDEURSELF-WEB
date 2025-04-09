@@ -52,7 +52,7 @@ const categoryConfig = {
   "Student Services": { color: "bg-blue-500", textColor: "text-blue-500", borderColor: "border-blue-500", icon: FaGraduationCap },
   "Campus Attraction": { color: "bg-green-500", textColor: "text-green-500", borderColor: "border-green-500", icon: FaFlag },
   "Utility Areas": { color: "bg-pink-500", textColor: "text-pink-500", borderColor: "border-pink-500", icon: ImManWoman },
-  "Others (Miscellaneous)": { color: "bg-blue-400", textColor: "text-blue-500", borderColor: "border-blue-400", icon: MdWidgets },
+  "Others (Miscellaneous)": { color: "bg-orange-400", textColor: "text-orange-500", borderColor: "border-orange-400", icon: MdWidgets },
 };
 
 const MarkerIcon = ({ bgColor, IconComponent }) => (
