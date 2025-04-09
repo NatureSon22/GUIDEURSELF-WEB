@@ -27,7 +27,7 @@ import {
 import DocumentIcon from "./DocumentIcon";
 import Loading from "@/components/Loading";
 
-const ACCEPTED_FILE_TYPES = ["pdf", "doc", "pptx"];
+const ACCEPTED_FILE_TYPES = ["pdf", "doc", "pptx", "docx"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const uploadSchema = z.object({

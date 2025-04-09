@@ -9,7 +9,7 @@ config();
 
 const login = async (req, res) => {
   try {
-    const { email, password, device = "mobile" } = req.body;
+    const { email, password, rememberMe, device = "mobile" } = req.body;
 
     const user = await UserModel.findOne({ email }).populate({
       path: "role_id",
@@ -106,7 +106,7 @@ const sendVerificationCode = async (req, res) => {
 
     const existingCode = await LoginCode.findOne({
       user_id: user._id,
-      status: "pending",
+      status: { $in: ["used", "pending"] },
     });
 
     if (existingCode) {

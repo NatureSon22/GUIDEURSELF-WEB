@@ -100,7 +100,7 @@ const AboutField = ({ isLoading }) => {
     >
       {isLoading || !general ? (
         <div>
-          <Skeleton className="h-[300px]" ></Skeleton>
+          <Skeleton className="h-[300px]"></Skeleton>
         </div>
       ) : (
         <div className="space-y-4">
@@ -109,8 +109,12 @@ const AboutField = ({ isLoading }) => {
               <div className="flex h-[700px] w-[60%] flex-col gap-3 rounded-md bg-white p-6">
                 <div>
                   <p className="font-bold">About the Application</p>
-                  <p>Edit the description to provide insight into the application's purpose and functionality.</p>
+                  <p>
+                    Edit the description to provide insight into the
+                    application&apos;s purpose and functionality.
+                  </p>
                 </div>
+
                 <ReactQuill
                   value={about}
                   onChange={handleInputChange}

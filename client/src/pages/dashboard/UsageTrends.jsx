@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
+// import { startOfToday, addDays, format } from "date-fns";
 
 import {
   ChartContainer,
@@ -31,12 +32,24 @@ const chartConfig = {
 };
 
 const UsageTrends = () => {
-  const [filter, setFilter] = useState([{ id: "date", value: "week" }]);
+  const [filter, setFilter] = useState([{ id: "date", value: "This week" }]);
   const [reset, setReset] = useState(false);
   const { data: dataTrend, isLoading } = useQuery({
     queryKey: ["usage", filter[0].value],
     queryFn: () => getTrends(filter),
   });
+
+  // const normalizedTrend =
+  //   filter[0].value === "This week" && Array.isArray(dataTrend)
+  //     ? Array.from({ length: 7 }, (_, i) => {
+  //         const date = format(addDays(startOfToday(), i), "yyyy-MM-dd");
+  //         const existing = dataTrend.find((d) => d.date === date);
+  //         return {
+  //           date,
+  //           usage: existing ? existing.usage : 0,
+  //         };
+  //       })
+  //     : dataTrend;
 
   return (
     <Card className="flex flex-col px-7 py-7 shadow-none">
@@ -55,7 +68,7 @@ const UsageTrends = () => {
             className="ml-auto text-secondary-100-75"
             variant="outline"
             onClick={() => {
-              setFilter([{ id: "date", value: "week" }]);
+              setFilter([{ id: "date", value: "This week" }]);
               setReset((prev) => !prev);
             }}
           >

@@ -255,7 +255,7 @@ const ArchiveCampus = () => {
           onClick={openConfirmationModal}
         >
           <MdDelete />
-          Clear Archives
+          Clear
         </Button>
       </div>
 
