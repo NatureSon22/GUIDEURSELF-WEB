@@ -7,7 +7,7 @@ import AddFloorModal from "./AddFloorModal";
 import EditFloorModal from "./EditFloorModal";
 import HeaderSection from "./HeaderSection";
 import useUserStore from "@/context/useUserStore";
-import { MapContainer, ImageOverlay, Marker, useMapEvents,Rectangle , TileLayer, Popup } from "react-leaflet";
+import { MapContainer, ImageOverlay, Marker, useMapEvents,Rectangle , TileLayer, useMap , Popup } from "react-leaflet";
 import { useState, useEffect, StrictMode, useRef, Suspense  } from "react";
 import L from "leaflet"; 
 import AddMarkerModal from "./AddMarkerModal";
@@ -53,6 +53,7 @@ const categoryConfig = {
   "Campus Attraction": { color: "bg-green-500", textColor: "text-green-500", borderColor: "border-green-500", icon: FaFlag },
   "Utility Areas": { color: "bg-pink-500", textColor: "text-pink-500", borderColor: "border-pink-500", icon: ImManWoman },
   "Others (Miscellaneous)": { color: "bg-orange-400", textColor: "text-orange-500", borderColor: "border-orange-400", icon: MdWidgets },
+
 };
 
 const MarkerIcon = ({ bgColor, IconComponent }) => (
@@ -65,52 +66,71 @@ const MarkerIcon = ({ bgColor, IconComponent }) => (
 );
 
 // Create a default version of MarkerIcon
-const DefaultMarkerIcon = () => (
+const DefaultMarkerIcon = ({ bgColor = "bg-base-200" }) => (
   <div className="relative">
-    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] bg-base-200 relative z-10`}>
+    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] ${bgColor} relative z-10`}>
       <FaInfo color="white" size={25} className="" />
     </div>
-    <div className={`absolute top-[5px] left-[5px] w-[35px] h-[35px] rounded-full bg-base-200 opacity-100 animate-ping`}></div>
+    <div className={`absolute top-[5px] left-[5px] w-[35px] h-[35px] rounded-full ${bgColor} opacity-100 animate-ping`}></div>
   </div>
 );
 
-const createIcon = (category) => {
+
+const createIcon = (category, isSelected = false) => {
+  const grayColor = "bg-gray-500"; // Gray color for selected marker
+  
+  // If no category is provided
   if (!category) {
-    // Return default icon as divIcon to match custom icons
+    // If the marker is selected, set it to gray, else use the default color
+    const defaultColor = isSelected ? grayColor : "bg-base-200";
     return L.divIcon({
-      html: renderToString(<DefaultMarkerIcon />),
+      html: renderToString(<DefaultMarkerIcon bgColor={defaultColor} />),
       className: "custom-marker",
       iconSize: [35, 35],
       iconAnchor: [25, 20],
     });
   }
 
-  const { color, icon: IconComponent } = categoryConfig[category] || {}; 
-  if (!IconComponent) {
-    return L.divIcon({
-      html: renderToString(<DefaultMarkerIcon />),
-      className: "custom-marker",
-      iconSize: [35, 35],
-      iconAnchor: [25, 20],
-    });
-  }
+  // If there's a category, retrieve its color
+  const { color, icon: IconComponent } = categoryConfig[category] || {};
+
+  // If no icon, fallback to gray for selected markers
+  const finalColor = isSelected ? grayColor : color || "bg-base-200"; // Default to base color if no category
 
   return L.divIcon({
-    html: renderToString(<MarkerIcon bgColor={color} IconComponent={IconComponent} />),
+    html: renderToString(
+      <MarkerIcon bgColor={finalColor} IconComponent={IconComponent || FaInfo} />
+    ),
     className: "custom-marker",
     iconSize: [35, 35],
-    iconAnchor: [25, 20], 
+    iconAnchor: [25, 20],
   });
 };
 
-const getIcon = (category) => {
-  return createIcon(category);
+const getIcon = (category, isSelected = false) => {
+  return createIcon(category, isSelected);
 };
 
 const customIcons = new Proxy({}, {
   get: (target, category) => target[category] || (target[category] = createIcon(category))
 });
 
+const FlyToSelectedMarker = ({ selectedMarker }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectedMarker) {
+      const lat = parseFloat(selectedMarker.latitude);
+      const lng = parseFloat(selectedMarker.longitude);
+
+      map.flyTo([lat, lng], 19, {
+        duration: 1.5, // smooth 1.5 second fly
+      });
+    }
+  }, [selectedMarker, map]);
+
+  return null;
+};
 
 const fetchCampusData = async (campusId) => {
 
@@ -336,7 +356,7 @@ const LocationMarker = () => {
       // Enhanced check - verify this is a direct map click
       if (!isSliderOpenRef.current && e.originalEvent.target === e.target._container) {
         const { lat, lng } = e.latlng;
-        setCoordinates({ lat, lng });
+        setCoordinates({ lat, lng }); // Update coordinates when map is clicked
       }
     },
   });
@@ -345,13 +365,31 @@ const LocationMarker = () => {
 
   return coordinates.lat ? (
     <Marker 
-      position={[coordinates.lat, coordinates.lng]}
+      position={[coordinates.lat, coordinates.lng]}  // Dynamically set position using coordinates
       icon={icon} 
       eventHandlers={{
         click: (e) => e.originalEvent.stopPropagation() // Prevent marker clicks from bubbling
       }}
-    />
-  ) : null;
+    >
+      {selectedMarker && (
+        <Popup className="custom-popup" closeButton={false}>
+          <div className={`p-3 border border-gray-500 ${categoryConfig[selectedMarker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>
+            <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around">
+              <p className={`text-gray-500 tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{selectedMarker.marker_name}</p>
+              {selectedMarker.marker_photo_url && (
+                <button
+                  onClick={() => showPanorama(selectedMarker)}
+                  className={`p-3 rounded-md text-[15px] text-white bg-gray-500`}
+                >
+                  <Label className={`text-[14px] tracking-wider cursor-pointer`}>PREVIEW</Label>
+                </button>
+              )}
+            </div>
+          </div>
+        </Popup>
+      )}
+    </Marker>
+  ) : null; // Render marker only if coordinates are set
 };
 
 const handleAddMarkerClick = () => {
@@ -887,20 +925,27 @@ const handleDrop = (e, targetFloor) => {
                   [14.490, 121.195], // Northeast (top-right) boundary
                 ]}
               >
+
+                <FlyToSelectedMarker selectedMarker={selectedMarker} />
+
                 <ImageOverlay className="z-0" url={selectedFloor.floor_photo_url} bounds={bounds} />
                 
-                {!hideMarkers && currentMarkers.map((marker, index) => {
+                {!hideMarkers &&
+                  currentMarkers
+                    .filter(marker => marker._id !== selectedMarker?._id)
+                    .map((marker, index) => {
+                      const categoryToUse = marker._id === "temp_marker"
+                        ? selectedCategory
+                        : marker.category;
 
-                  const categoryToUse = marker._id === "temp_marker" ? selectedCategory : marker.category;
-                  const icon = getIcon(categoryToUse);
+                      const icon = getIcon(categoryToUse, false);
 
-                  return (
-                    <Marker
-                      key={index}
-                      position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
-                      icon={icon}
-                      
-                    >
+                      return (
+                        <Marker
+                          key={index}
+                          position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
+                          icon={icon}
+                        >
                       {!isAddMarkerModalOpen && (
                         <Popup className="custom-popup" closeButton={false}>
                         <div className={`p-3 border ${categoryConfig[marker.category]?.borderColor || "border-base-200"} ${categoryConfig[marker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
@@ -926,6 +971,39 @@ const handleDrop = (e, targetFloor) => {
                       </Marker>
                   );
                 })}
+
+                {selectedMarker && (
+                  <Marker
+                    key={"selected-marker"}
+                    position={[
+                      parseFloat(selectedMarker.latitude),
+                      parseFloat(selectedMarker.longitude),
+                    ]}
+                    icon={getIcon(selectedMarker.category, true)}
+                  >
+                    {!isAddMarkerModalOpen && (
+                      <Popup className="custom-popup" closeButton={false}>
+                       <div className={`p-3 border border-gray-500 ${categoryConfig[selectedMarker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
+                          <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
+                          <p className={`text-gray-500 tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{selectedMarker.marker_name}</p>
+                          {selectedMarker.marker_photo_url && (
+                            <button
+                              onClick={() => showPanorama(selectedMarker)}
+                              className={`p-3 rounded-md text-[15px] text-white bg-gray-500`}
+                            >
+                            <Label
+                            className={`text-[14px] tracking-wider cursor-pointer`}
+                            >
+                              PREVIEW
+                            </Label>
+                            </button>
+                          )}
+                          </div>
+                        </div>
+                      </Popup>
+                    )}
+                  </Marker>
+                )}
 
                 {!isSliderOpen && <LocationMarker setCoordinates={setCoordinates} />}
               </MapContainer>
