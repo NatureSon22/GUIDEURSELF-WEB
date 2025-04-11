@@ -897,28 +897,10 @@ const handleDrop = (e, targetFloor) => {
         }`}
         >
           
-          <div  className={`absolute flex w-[80px] top-[75px]  z-50 p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-1000 ease-in-out ${isSliderOpen ? "left-[530px] translate-x-[100%]" : "left-[-5px]  translate-x-[0%]"}`}>
-              <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
-                {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
-              </button>
-          </div>
 
           {selectedFloor ? (
             <div className="">
-              {!isRemove && (
-                <div className={`absolute flex w-[660px] top-10 left-[350px] z-50 p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-white transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-100"}`}>
-                  <div className="flex w-[90%] gap-6 items-center">
-                    <button>
-                    <IoAlertCircle className="text-base-200 h-[45px] w-[45px]"/>
-                    </button>
-                    <p className="text-base-200 text-sm w-[100%] justify-center">
-                      You are now {isAddMarkerModalOpen ? "adding" : "editing"} at <b className="text-[1rem]">{selectedFloor.floor_name}</b> <br /> Pin a location anywhere on the screen to add or edit a featured location
-                    </p>
-                  </div>
-                </div>
-              )}
               
-
               <MapContainer
                 center={[14.484750, 121.189000]}
                 zoom={18}
@@ -937,6 +919,25 @@ const handleDrop = (e, targetFloor) => {
                 ]}
               >
 
+              {!isRemove && (
+                <div className={`absolute flex w-[660px] top-10 left-[350px] z-[1000000] p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-white transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-100"}`}>
+                  <div className="flex w-[90%] gap-6 items-center">
+                    <button>
+                    <IoAlertCircle className="text-base-200 h-[45px] w-[45px]"/>
+                    </button>
+                    <p className="text-base-200 text-sm w-[100%] justify-center">
+                      You are now {isAddMarkerModalOpen ? "adding" : "editing"} at <b className="text-[1rem]">{selectedFloor.floor_name}</b> <br /> Pin a location anywhere on the screen to add or edit a featured location
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+                
+                <div  className={`absolute flex w-[80px] top-[75px] z-[1000000] p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-1000 ease-in-out ${isSliderOpen ? "left-[-80px] translate-x-[100%]" : "left-[-5px]  translate-x-[0%]"}`}>
+                    <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
+                      {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
+                    </button>
+                </div>
 
                 <FlyToSelectedMarker selectedMarker={selectedMarker} />
                 <FlyToSelectMarker selectMarker={selectMarker} markerRefs={markerRefs}/>
