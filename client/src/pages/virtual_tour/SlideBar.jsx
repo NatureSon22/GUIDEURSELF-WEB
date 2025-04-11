@@ -79,6 +79,8 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
     .filter((campus) => campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
+    
+
   const handleCampusClick = (campus) => {
     onCampusSelect(campus);
   };

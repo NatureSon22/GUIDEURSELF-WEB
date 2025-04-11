@@ -40,6 +40,7 @@ import { FaInfo } from "react-icons/fa6";
 import { loggedInUser } from "@/api/auth";
 import Loading from "@/components/Loading";
 import "@/fluttermap.css";
+import { FaStar } from "react-icons/fa6";
 
 const tailwindClasses = `
   bg-yellow-500 bg-red-500 bg-blue-500 bg-green-500 bg-pink-500 bg-blue-400
@@ -52,8 +53,8 @@ const categoryConfig = {
   "Student Services": { color: "bg-blue-500", textColor: "text-blue-500", borderColor: "border-blue-500", icon: FaGraduationCap },
   "Campus Attraction": { color: "bg-green-500", textColor: "text-green-500", borderColor: "border-green-500", icon: FaFlag },
   "Utility Areas": { color: "bg-pink-500", textColor: "text-pink-500", borderColor: "border-pink-500", icon: ImManWoman },
-  "Others (Miscellaneous)": { color: "bg-orange-400", textColor: "text-orange-500", borderColor: "border-orange-400", icon: MdWidgets },
-
+  "Multi-Purpose": { color: "bg-orange-400", textColor: "text-orange-500", borderColor: "border-orange-400", icon: FaStar },
+  "Others (Miscellaneous)": { color: "bg-purple-400", textColor: "text-purple-500", borderColor: "border-purple-400", icon: MdWidgets },
 };
 
 const MarkerIcon = ({ bgColor, IconComponent }) => (
@@ -77,7 +78,7 @@ const DefaultMarkerIcon = ({ bgColor = "bg-base-200" }) => (
 
 
 const createIcon = (category, isSelected = false) => {
-  const grayColor = "bg-gray-500"; // Gray color for selected marker
+  const grayColor = "bg-base-450"; // Gray color for selected marker
   
   // If no category is provided
   if (!category) {
@@ -385,10 +386,11 @@ const LocationMarker = () => {
       if (!isSliderOpenRef.current && e.originalEvent.target === e.target._container) {
         const { lat, lng } = e.latlng;
         setCoordinates({ lat, lng });
+        removeAlert();
       }
     },
   });
-
+  
   const icon = getIcon(selectedCategory);
 
   return coordinates.lat ? (
@@ -663,7 +665,7 @@ const handleDrop = (e, targetFloor) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
             <Loading />
-            <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
+            <p className="text-xl font-semibold text-base-450">{loadingMessage}</p>
           </div>
         </div>
         )}
@@ -682,11 +684,11 @@ const handleDrop = (e, targetFloor) => {
               placeholder={selectedFloor ? "Search location" : "Select a floor first"}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pr-5 ${!selectedFloor ? "bg-gray-100 text-gray-400" : ""}`}
+              className={`w-full pr-5 ${!selectedFloor ? "bg-base-450 text-base-450" : ""}`}
               disabled={!selectedFloor}
             />
               {!selectedFloor && (
-                <div className="absolute inset-0 bg-gray-100 bg-opacity-50 cursor-not-allowed rounded-md" />
+                <div className="absolute inset-0 bg-base-450 bg-opacity-50 cursor-not-allowed rounded-md" />
               )}
             </div>
             </div>
@@ -894,30 +896,28 @@ const handleDrop = (e, targetFloor) => {
           isSliderOpen ? "ml-[0%]" : "ml-[-30%]"
         }`}
         >
+          
+          <div  className={`absolute flex w-[80px] top-[75px]  z-50 p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-1000 ease-in-out ${isSliderOpen ? "left-[530px] translate-x-[100%]" : "left-[-5px]  translate-x-[0%]"}`}>
+              <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
+                {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
+              </button>
+          </div>
 
           {selectedFloor ? (
             <div className="">
               {!isRemove && (
-                <div className={`absolute flex w-[660px] top-10 left-[350px] z-50 p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-blue-200 transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-100"}`}>
+                <div className={`absolute flex w-[660px] top-10 left-[350px] z-50 p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-white transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-100"}`}>
                   <div className="flex w-[90%] gap-6 items-center">
                     <button>
-                    <IoAlertCircle className="text-base-200 h-[25px] w-[25px]"/>
+                    <IoAlertCircle className="text-base-200 h-[45px] w-[45px]"/>
                     </button>
                     <p className="text-base-200 text-sm w-[100%] justify-center">
-                      You are adding at <b className="text-[1rem]">{selectedFloor.floor_name}</b> <br /> Pin a location anywhere on the screen to add or edit a featured location
+                      You are now {isAddMarkerModalOpen ? "adding" : "editing"} at <b className="text-[1rem]">{selectedFloor.floor_name}</b> <br /> Pin a location anywhere on the screen to add or edit a featured location
                     </p>
                   </div>
-
-                  <button onClick={removeAlert} className="w-[10%] justify-end flex items-center">
-                    <MdClose className="text-base-200 h-[20px] w-[20px]" />
-                  </button>
                 </div>
               )}
-              <div  className={`absolute flex w-[80px] top-[75px] left-[-5px] z-50 p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-1000 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
-              <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
-                {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
-              </button>
-              </div>
+              
 
               <MapContainer
                 center={[14.484750, 121.189000]}
@@ -936,6 +936,7 @@ const handleDrop = (e, targetFloor) => {
                   [14.490, 121.195], // Northeast (top-right) boundary
                 ]}
               >
+
 
                 <FlyToSelectedMarker selectedMarker={selectedMarker} />
                 <FlyToSelectMarker selectMarker={selectMarker} markerRefs={markerRefs}/>
@@ -1005,13 +1006,13 @@ const handleDrop = (e, targetFloor) => {
                   >
                     {!isAddMarkerModalOpen && (
                       <Popup className="custom-popup" closeButton={false} >
-                       <div className={`p-3 border border-gray-500 ${categoryConfig[selectedMarker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
+                       <div className={`p-3 border border-base-450 ${categoryConfig[selectedMarker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
                           <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
-                          <p className={`text-gray-500 tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{selectedMarker.marker_name}</p>
+                          <p className={`text-base-450 tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{selectedMarker.marker_name}</p>
                           {selectedMarker.marker_photo_url && (
                             <button
                               onClick={() => showPanorama(selectedMarker)}
-                              className={`p-3 rounded-md text-[15px] text-white bg-gray-500`}
+                              className={`p-3 rounded-md text-[15px] text-white bg-base-450`}
                             >
                             <Label
                             className={`text-[14px] tracking-wider cursor-pointer`}

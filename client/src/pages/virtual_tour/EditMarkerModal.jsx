@@ -283,6 +283,18 @@ const EditMarkerModal =
                 />
               </div>
 
+              
+            
+              <div className="mt-4">
+                            <Label className="text-[16px]">Description</Label>
+                            <Textarea
+                              placeholder="Type your marker description here."
+                              className="resize-none bg-white mt-2 h-[200px]"
+                              value={markerDescription}
+                              onChange={(e) => setMarkerDescription(e.target.value)}
+                            />
+                          </div>
+
               <div className="mt-4">
                 <Label className="text-[16px]">Upload Panoramic Photo</Label>
                 <div className="flex justify-between mt-2 w-[100%]">
@@ -342,16 +354,6 @@ const EditMarkerModal =
                               ))}
                             </div>
 
-                          </div>
-            
-                          <div className="mt-4">
-                            <Label className="text-[16px]">Description</Label>
-                            <Textarea
-                              placeholder="Type your marker description here."
-                              className="resize-none bg-white mt-2 h-[200px]"
-                              value={markerDescription}
-                              onChange={(e) => setMarkerDescription(e.target.value)}
-                            />
                           </div>
                         </div>
                         )}
