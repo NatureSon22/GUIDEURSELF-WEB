@@ -300,7 +300,7 @@ const AddMarkerModal = ({
             ) : (
               <div className="flex justify-end items-center gap-4">
                 <Button type="button" variant="destructive" onClick={unshowPreview}>
-                  Hide Hotspot
+                  Remove Hotspot
                 </Button>
               </div>
             )}
