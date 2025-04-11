@@ -115,7 +115,7 @@ const customIcons = new Proxy({}, {
   get: (target, category) => target[category] || (target[category] = createIcon(category))
 });
 
-const FlyToSelectedMarker = ({ selectedMarker }) => {
+const FlyToSelectedMarker = ({ selectedMarker  }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -124,10 +124,30 @@ const FlyToSelectedMarker = ({ selectedMarker }) => {
       const lng = parseFloat(selectedMarker.longitude);
 
       map.flyTo([lat, lng], 19, {
-        duration: 1.5, // smooth 1.5 second fly
+        duration: 1, // smooth 1.5 second fly
       });
+      
     }
   }, [selectedMarker, map]);
+
+  return null;
+};
+
+const FlyToSelectMarker = ({ selectMarker, markerRefs }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectMarker && markerRefs.current[selectMarker._id]) {
+      const marker = markerRefs.current[selectMarker._id];
+      const lat = parseFloat(selectMarker.latitude);
+      const lng = parseFloat(selectMarker.longitude);
+
+      map.flyTo([lat, lng], 19, {
+        duration: 1, // smooth 1.5 second fly
+      });
+      setTimeout(() => marker.openPopup(), 300);
+    }
+  }, [selectMarker, map]);
 
   return null;
 };
@@ -170,6 +190,7 @@ const [draggedFloor, setDraggedFloor] = useState(null);
 const [dragOverFloor, setDragOverFloor] = useState(null);
 const [selectedFloor, setSelectedFloor] = useState(null);
 const [selectedMarker, setSelectedMarker] = useState(null);
+const [selectMarker, setSelectMarker] = useState(null);
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [isEditing, setIsEditing] = useState(false);
 const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -181,6 +202,7 @@ const [currentMarkers, setCurrentMarkers] = useState([]);
 const [isAddMarkerModalOpen, setAddMarkerModalOpen] = useState(false);
 const [loadingVisible, setLoadingVisible] = useState(false);
 const [isRemove, setIsRemove] = useState(false);
+const [popupInstance, setPopupInstance] = useState(null);
 const [expandedFloor, setExpandedFloor] = useState(null);
 const [isSliderOpen, setIsSliderOpen] = useState(true);
 const [searchQuery, setSearchQuery] = useState("");
@@ -190,6 +212,7 @@ const [previewImage, setPreviewImage] = useState("");
 const [markerName, setMarkerName] = useState("");
 const [markerDescription, setMarkerDescription] = useState("");
 const [markerCategory, setMarkerCategory] = useState("");
+  const markerRefs = useRef({});
 
 const showPanorama = (marker) => {
   setPreviewImage(marker.marker_photo_url);
@@ -264,6 +287,11 @@ const handleMarkerClick = (marker) => {
   setSelectedMarker(marker);
   setHideMarkers(true);
   toggleSlider();
+};
+
+
+const handleMarkerClicked = (marker) => { 
+  setSelectMarker(marker);
 };
 
 const handleCloseEditMarkerModal = () => {
@@ -356,7 +384,7 @@ const LocationMarker = () => {
       // Enhanced check - verify this is a direct map click
       if (!isSliderOpenRef.current && e.originalEvent.target === e.target._container) {
         const { lat, lng } = e.latlng;
-        setCoordinates({ lat, lng }); // Update coordinates when map is clicked
+        setCoordinates({ lat, lng });
       }
     },
   });
@@ -365,31 +393,13 @@ const LocationMarker = () => {
 
   return coordinates.lat ? (
     <Marker 
-      position={[coordinates.lat, coordinates.lng]}  // Dynamically set position using coordinates
+      position={[coordinates.lat, coordinates.lng]}
       icon={icon} 
       eventHandlers={{
         click: (e) => e.originalEvent.stopPropagation() // Prevent marker clicks from bubbling
       }}
-    >
-      {selectedMarker && (
-        <Popup className="custom-popup" closeButton={false}>
-          <div className={`p-3 border border-gray-500 ${categoryConfig[selectedMarker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>
-            <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around">
-              <p className={`text-gray-500 tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{selectedMarker.marker_name}</p>
-              {selectedMarker.marker_photo_url && (
-                <button
-                  onClick={() => showPanorama(selectedMarker)}
-                  className={`p-3 rounded-md text-[15px] text-white bg-gray-500`}
-                >
-                  <Label className={`text-[14px] tracking-wider cursor-pointer`}>PREVIEW</Label>
-                </button>
-              )}
-            </div>
-          </div>
-        </Popup>
-      )}
-    </Marker>
-  ) : null; // Render marker only if coordinates are set
+    />
+  ) : null;
 };
 
 const handleAddMarkerClick = () => {
@@ -813,7 +823,8 @@ const handleDrop = (e, targetFloor) => {
                           key={marker._id}
                           className="relative flex-col h-[100%] flex pl-3 items-center group"
                         >
-                          <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
+                          <div className="cursor-pointer flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3"
+                          onClick={() => handleMarkerClicked(marker)}>
                             <p className="text-md flex items-center">{marker.marker_name}</p>
                             <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
                               <FaPen
@@ -927,6 +938,7 @@ const handleDrop = (e, targetFloor) => {
               >
 
                 <FlyToSelectedMarker selectedMarker={selectedMarker} />
+                <FlyToSelectMarker selectMarker={selectMarker} markerRefs={markerRefs}/>
 
                 <ImageOverlay className="z-0" url={selectedFloor.floor_photo_url} bounds={bounds} />
                 
@@ -945,9 +957,19 @@ const handleDrop = (e, targetFloor) => {
                           key={index}
                           position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
                           icon={icon}
+                          ref={(ref) => {
+                            if (ref) {
+                              markerRefs.current[marker._id] = ref;
+                            }
+                          }}
                         >
                       {!isAddMarkerModalOpen && (
-                        <Popup className="custom-popup" closeButton={false}>
+                        <Popup className="custom-popup" closeButton={false} 
+                        eventHandlers={{
+                          add: (e) => {
+                            setPopupInstance(e.target);
+                          },
+                        }}>
                         <div className={`p-3 border ${categoryConfig[marker.category]?.borderColor || "border-base-200"} ${categoryConfig[marker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
                           <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
                           <p className={`${categoryConfig[marker.category]?.textColor || "text-base-200"} tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{marker.marker_name}</p>
@@ -982,7 +1004,7 @@ const handleDrop = (e, targetFloor) => {
                     icon={getIcon(selectedMarker.category, true)}
                   >
                     {!isAddMarkerModalOpen && (
-                      <Popup className="custom-popup" closeButton={false}>
+                      <Popup className="custom-popup" closeButton={false} >
                        <div className={`p-3 border border-gray-500 ${categoryConfig[selectedMarker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
                           <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
                           <p className={`text-gray-500 tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{selectedMarker.marker_name}</p>
