@@ -360,7 +360,7 @@ const EditDisplayCampus = () => {
                 <img className="h-[18px] w-auto" src={Pen} alt="Edit" />
               </Link>
 
-              <FeaturePermission module="Manage Campus" access="archive campus">
+              <FeaturePermission module="Manage Campus" access="delete campus">
                 <button onClick={() => handleDeleteClick(campus)}>
                   <img className="h-[25px] w-auto" src={Bin} alt="Delete" />
                 </button>

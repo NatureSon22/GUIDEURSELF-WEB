@@ -4,19 +4,27 @@ import ArchiveVirtualTour from "./ArchiveVirtualTour";
 import ArchiveKeyOfficials from "./ArchiveKeyOfficials";
 import ArchiveCampus from "./ArchiveCampus";
 import ArchiveAccount from "./ArchiveAccount";
-
-const tabs = [
-  "Accounts",
-  "Documents",
-  "Virtual Tour",
-  "Key Officials",
-  "Campus",
-];
+import { useQuery } from "@tanstack/react-query";
+import { loggedInUser } from "@/api/auth";
 
 const Archive = () => {
   const [selectedArchive, setSelectedArchive] = useState(0);
 
+    const { data, isLoading } = useQuery({
+      queryKey: ["user"],
+      queryFn: loggedInUser,
+      refetchOnWindowFocus: false,
+    });
+
   const handleSelectedArchive = (index) => [setSelectedArchive(index)];
+
+  const tabs = [
+    "Accounts",
+    "Documents",
+    "Virtual Tour",
+    "Key Officials",
+    ...(data?.isMultiCampus ? ["Campus"] : []),
+  ];
 
   return (
     <div className="flex h-full flex-col gap-5">
@@ -36,9 +44,9 @@ const Archive = () => {
 
       {selectedArchive === 0 && <ArchiveAccount />}
       {selectedArchive === 1 && <ArchiveDocuments />}
-      {selectedArchive === 2 && <ArchiveVirtualTour />}
+      {selectedArchive === 2 && <ArchiveVirtualTour userData={data} />}
       {selectedArchive === 3 && <ArchiveKeyOfficials />}
-      {selectedArchive === 4 && <ArchiveCampus />}
+      {selectedArchive === 4 &&  <ArchiveCampus />}
     </div>
   );
 };

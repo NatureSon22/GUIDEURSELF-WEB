@@ -14,7 +14,17 @@ import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 
-const ArchiveVirtualTour = () => {
+
+const fetchUserRole = async (roleType) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types?name=${roleType}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Failed to fetch role data");
+  return response.json();
+};
+
+const ArchiveVirtualTour = ({userData}) => {
   const { currentUser } = useUserStore((state) => state);
   const [globalFilter, setGlobalFilter] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -27,6 +37,14 @@ const ArchiveVirtualTour = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
   const searchValue = globalFilter?.toLowerCase() || "";
+
+  const { data: userRole } = useQuery({
+    queryKey: ["userRole", userData.role_type],
+    queryFn: () => fetchUserRole(userData.role_type),
+    enabled: !!userData.role_type, // Only fetch if `role_type` is defined
+  });
+
+  const isMultiCampus = userData.isMultiCampus ?? false;
 
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
@@ -83,7 +101,7 @@ const ArchiveVirtualTour = () => {
 
   const filteredItems = useMemo(() => {
     if (!archivedItems) return [];
-
+  
     const transformedItems = archivedItems.map((item) => ({
       ...item,
       item_name:
@@ -91,8 +109,15 @@ const ArchiveVirtualTour = () => {
           ? item.floor_data?.floor_name || "N/A"
           : item.location_data?.marker_name || "N/A",
     }));
+  
 
     return transformedItems.filter((item) => {
+      // If user is not multiCampus, filter by campus._id
+     if (!isMultiCampus && item.campus_name !== userData.campus_name) {
+      return false;
+    }
+
+  
       // Global text search
       const matchesGlobalSearch =
         !globalFilter ||
@@ -103,24 +128,25 @@ const ArchiveVirtualTour = () => {
             value.toLowerCase().includes(searchValue)
           );
         });
-
+  
       // Filters (e.g., campus filter)
       const matchesFilters = filters.every((filter) => {
         if (!filter.value) return true;
         return item[filter.id]?.toLowerCase() === filter.value.toLowerCase();
       });
-
+  
       // Date range filtering
       const itemDate = new Date(item.date_last_modified);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
-
+  
       const matchesDateRange =
         (!from || itemDate >= from) && (!to || itemDate <= to);
-
+  
       return matchesGlobalSearch && matchesFilters && matchesDateRange;
     });
-  }, [archivedItems, filters, fromDate, toDate, globalFilter]);
+  }, [archivedItems, filters, fromDate, toDate, globalFilter, isMultiCampus, userData.campus_id]);
+  
 
   const handleUnarchiveItem = async (itemId, itemName) => {
     try {

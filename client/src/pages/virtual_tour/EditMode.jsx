@@ -665,7 +665,7 @@ const handleDrop = (e, targetFloor) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
             <Loading />
-            <p className="text-xl font-semibold text-base-450">{loadingMessage}</p>
+            <p className="text-xl font-semibold text-black">{loadingMessage}</p>
           </div>
         </div>
         )}
@@ -684,12 +684,9 @@ const handleDrop = (e, targetFloor) => {
               placeholder={selectedFloor ? "Search location" : "Select a floor first"}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pr-5 ${!selectedFloor ? "bg-base-450 text-base-450" : ""}`}
+              className={`w-full pr-5 ${!selectedFloor ? "bg-white text-base-450" : ""}`}
               disabled={!selectedFloor}
             />
-              {!selectedFloor && (
-                <div className="absolute inset-0 bg-base-450 bg-opacity-50 cursor-not-allowed rounded-md" />
-              )}
             </div>
             </div>
             <div className="flex justify-between items-center pl-6">
