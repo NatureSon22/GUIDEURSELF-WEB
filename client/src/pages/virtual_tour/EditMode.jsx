@@ -7,7 +7,7 @@ import AddFloorModal from "./AddFloorModal";
 import EditFloorModal from "./EditFloorModal";
 import HeaderSection from "./HeaderSection";
 import useUserStore from "@/context/useUserStore";
-import { MapContainer, ImageOverlay, Marker, useMapEvents,Rectangle , TileLayer, Popup } from "react-leaflet";
+import { MapContainer, ImageOverlay, Marker, useMapEvents,Rectangle , TileLayer, useMap , Popup } from "react-leaflet";
 import { useState, useEffect, StrictMode, useRef, Suspense  } from "react";
 import L from "leaflet"; 
 import AddMarkerModal from "./AddMarkerModal";
@@ -40,6 +40,7 @@ import { FaInfo } from "react-icons/fa6";
 import { loggedInUser } from "@/api/auth";
 import Loading from "@/components/Loading";
 import "@/fluttermap.css";
+import { FaStar } from "react-icons/fa6";
 
 const tailwindClasses = `
   bg-yellow-500 bg-red-500 bg-blue-500 bg-green-500 bg-pink-500 bg-blue-400
@@ -52,7 +53,8 @@ const categoryConfig = {
   "Student Services": { color: "bg-blue-500", textColor: "text-blue-500", borderColor: "border-blue-500", icon: FaGraduationCap },
   "Campus Attraction": { color: "bg-green-500", textColor: "text-green-500", borderColor: "border-green-500", icon: FaFlag },
   "Utility Areas": { color: "bg-pink-500", textColor: "text-pink-500", borderColor: "border-pink-500", icon: ImManWoman },
-  "Others (Miscellaneous)": { color: "bg-blue-400", textColor: "text-blue-500", borderColor: "border-blue-400", icon: MdWidgets },
+  "Multi-Purpose": { color: "bg-orange-400", textColor: "text-orange-500", borderColor: "border-orange-400", icon: FaStar },
+  "Others (Miscellaneous)": { color: "bg-purple-400", textColor: "text-purple-500", borderColor: "border-purple-400", icon: MdWidgets },
 };
 
 const MarkerIcon = ({ bgColor, IconComponent }) => (
@@ -65,52 +67,91 @@ const MarkerIcon = ({ bgColor, IconComponent }) => (
 );
 
 // Create a default version of MarkerIcon
-const DefaultMarkerIcon = () => (
+const DefaultMarkerIcon = ({ bgColor = "bg-base-200" }) => (
   <div className="relative">
-    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] bg-blue-500 relative z-10`}>
+    <div className={`flex items-center justify-center w-[45px] h-[45px] rounded-full pl-[2px] ${bgColor} relative z-10`}>
       <FaInfo color="white" size={25} className="" />
     </div>
-    <div className={`absolute top-[5px] left-[5px] w-[35px] h-[35px] rounded-full bg-blue-500 opacity-100 animate-ping`}></div>
+    <div className={`absolute top-[5px] left-[5px] w-[35px] h-[35px] rounded-full ${bgColor} opacity-100 animate-ping`}></div>
   </div>
 );
 
-const createIcon = (category) => {
+
+const createIcon = (category, isSelected = false) => {
+  const grayColor = "bg-base-450"; // Gray color for selected marker
+  
+  // If no category is provided
   if (!category) {
-    // Return default icon as divIcon to match custom icons
+    // If the marker is selected, set it to gray, else use the default color
+    const defaultColor = isSelected ? grayColor : "bg-base-200";
     return L.divIcon({
-      html: renderToString(<DefaultMarkerIcon />),
+      html: renderToString(<DefaultMarkerIcon bgColor={defaultColor} />),
       className: "custom-marker",
       iconSize: [35, 35],
       iconAnchor: [25, 20],
     });
   }
 
-  const { color, icon: IconComponent } = categoryConfig[category] || {}; 
-  if (!IconComponent) {
-    return L.divIcon({
-      html: renderToString(<DefaultMarkerIcon />),
-      className: "custom-marker",
-      iconSize: [35, 35],
-      iconAnchor: [25, 20],
-    });
-  }
+  // If there's a category, retrieve its color
+  const { color, icon: IconComponent } = categoryConfig[category] || {};
+
+  // If no icon, fallback to gray for selected markers
+  const finalColor = isSelected ? grayColor : color || "bg-base-200"; // Default to base color if no category
 
   return L.divIcon({
-    html: renderToString(<MarkerIcon bgColor={color} IconComponent={IconComponent} />),
+    html: renderToString(
+      <MarkerIcon bgColor={finalColor} IconComponent={IconComponent || FaInfo} />
+    ),
     className: "custom-marker",
     iconSize: [35, 35],
-    iconAnchor: [25, 20], 
+    iconAnchor: [25, 20],
   });
 };
 
-const getIcon = (category) => {
-  return createIcon(category);
+const getIcon = (category, isSelected = false) => {
+  return createIcon(category, isSelected);
 };
 
 const customIcons = new Proxy({}, {
   get: (target, category) => target[category] || (target[category] = createIcon(category))
 });
 
+const FlyToSelectedMarker = ({ selectedMarker  }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectedMarker) {
+      const lat = parseFloat(selectedMarker.latitude);
+      const lng = parseFloat(selectedMarker.longitude);
+
+      map.flyTo([lat, lng], 19, {
+        duration: 1, // smooth 1.5 second fly
+      });
+      
+    }
+  }, [selectedMarker, map]);
+
+  return null;
+};
+
+const FlyToSelectMarker = ({ selectMarker, markerRefs }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectMarker && markerRefs.current[selectMarker._id]) {
+      const marker = markerRefs.current[selectMarker._id];
+      const lat = parseFloat(selectMarker.latitude);
+      const lng = parseFloat(selectMarker.longitude);
+
+      map.flyTo([lat, lng], 19, {
+        duration: 1, // smooth 1.5 second fly
+      });
+      setTimeout(() => marker.openPopup(), 300);
+    }
+  }, [selectMarker, map]);
+
+  return null;
+};
 
 const fetchCampusData = async (campusId) => {
 
@@ -150,6 +191,7 @@ const [draggedFloor, setDraggedFloor] = useState(null);
 const [dragOverFloor, setDragOverFloor] = useState(null);
 const [selectedFloor, setSelectedFloor] = useState(null);
 const [selectedMarker, setSelectedMarker] = useState(null);
+const [selectMarker, setSelectMarker] = useState(null);
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [isEditing, setIsEditing] = useState(false);
 const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -161,6 +203,7 @@ const [currentMarkers, setCurrentMarkers] = useState([]);
 const [isAddMarkerModalOpen, setAddMarkerModalOpen] = useState(false);
 const [loadingVisible, setLoadingVisible] = useState(false);
 const [isRemove, setIsRemove] = useState(false);
+const [popupInstance, setPopupInstance] = useState(null);
 const [expandedFloor, setExpandedFloor] = useState(null);
 const [isSliderOpen, setIsSliderOpen] = useState(true);
 const [searchQuery, setSearchQuery] = useState("");
@@ -170,6 +213,7 @@ const [previewImage, setPreviewImage] = useState("");
 const [markerName, setMarkerName] = useState("");
 const [markerDescription, setMarkerDescription] = useState("");
 const [markerCategory, setMarkerCategory] = useState("");
+  const markerRefs = useRef({});
 
 const showPanorama = (marker) => {
   setPreviewImage(marker.marker_photo_url);
@@ -244,6 +288,11 @@ const handleMarkerClick = (marker) => {
   setSelectedMarker(marker);
   setHideMarkers(true);
   toggleSlider();
+};
+
+
+const handleMarkerClicked = (marker) => { 
+  setSelectMarker(marker);
 };
 
 const handleCloseEditMarkerModal = () => {
@@ -337,10 +386,11 @@ const LocationMarker = () => {
       if (!isSliderOpenRef.current && e.originalEvent.target === e.target._container) {
         const { lat, lng } = e.latlng;
         setCoordinates({ lat, lng });
+        removeAlert();
       }
     },
   });
-
+  
   const icon = getIcon(selectedCategory);
 
   return coordinates.lat ? (
@@ -615,7 +665,7 @@ const handleDrop = (e, targetFloor) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 w-[400px] flex flex-col justify-center items-center gap-4 rounded-md shadow-md text-center">
             <Loading />
-            <p className="text-xl font-semibold text-gray-800">{loadingMessage}</p>
+            <p className="text-xl font-semibold text-black">{loadingMessage}</p>
           </div>
         </div>
         )}
@@ -634,12 +684,9 @@ const handleDrop = (e, targetFloor) => {
               placeholder={selectedFloor ? "Search location" : "Select a floor first"}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pr-5 ${!selectedFloor ? "bg-gray-100 text-gray-400" : ""}`}
+              className={`w-full pr-5 ${!selectedFloor ? "bg-white text-base-450" : ""}`}
               disabled={!selectedFloor}
             />
-              {!selectedFloor && (
-                <div className="absolute inset-0 bg-gray-100 bg-opacity-50 cursor-not-allowed rounded-md" />
-              )}
             </div>
             </div>
             <div className="flex justify-between items-center pl-6">
@@ -775,7 +822,8 @@ const handleDrop = (e, targetFloor) => {
                           key={marker._id}
                           className="relative flex-col h-[100%] flex pl-3 items-center group"
                         >
-                          <div className="flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3">
+                          <div className="cursor-pointer flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3"
+                          onClick={() => handleMarkerClicked(marker)}>
                             <p className="text-md flex items-center">{marker.marker_name}</p>
                             <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
                               <FaPen
@@ -845,31 +893,11 @@ const handleDrop = (e, targetFloor) => {
           isSliderOpen ? "ml-[0%]" : "ml-[-30%]"
         }`}
         >
+          
 
           {selectedFloor ? (
             <div className="">
-              {!isRemove && (
-                <div className={`absolute flex w-[660px] top-10 left-[350px] z-50 p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-blue-200 transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-100"}`}>
-                  <div className="flex w-[90%] gap-6 items-center">
-                    <button>
-                    <IoAlertCircle className="text-base-200 h-[25px] w-[25px]"/>
-                    </button>
-                    <p className="text-base-200 text-sm w-[100%] justify-center">
-                      You are adding at <b className="text-[1rem]">{selectedFloor.floor_name}</b> <br /> Pin a location anywhere on the screen to add or edit a featured location
-                    </p>
-                  </div>
-
-                  <button onClick={removeAlert} className="w-[10%] justify-end flex items-center">
-                    <MdClose className="text-base-200 h-[20px] w-[20px]" />
-                  </button>
-                </div>
-              )}
-              <div  className={`absolute flex w-[80px] top-[75px] left-[-5px] z-50 p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-1000 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-70"}`}>
-              <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
-                {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
-              </button>
-              </div>
-
+              
               <MapContainer
                 center={[14.484750, 121.189000]}
                 zoom={18}
@@ -887,22 +915,60 @@ const handleDrop = (e, targetFloor) => {
                   [14.490, 121.195], // Northeast (top-right) boundary
                 ]}
               >
+
+              {!isRemove && (
+                <div className={`absolute flex w-[660px] top-10 left-[350px] z-[1000000] p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-white transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-100"}`}>
+                  <div className="flex w-[90%] gap-6 items-center">
+                    <button>
+                    <IoAlertCircle className="text-base-200 h-[45px] w-[45px]"/>
+                    </button>
+                    <p className="text-base-200 text-sm w-[100%] justify-center">
+                      You are now {isAddMarkerModalOpen ? "adding" : "editing"} at <b className="text-[1rem]">{selectedFloor.floor_name}</b> <br /> Pin a location anywhere on the screen to add or edit a featured location
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+                
+                <div  className={`absolute flex w-[80px] top-[75px] z-[1000000] p-4 pl-6 mb-4 h-[90px] transition-opacity transition-transform duration-1000 ease-in-out ${isSliderOpen ? "left-[-80px] translate-x-[100%]" : "left-[-5px]  translate-x-[0%]"}`}>
+                    <button onClick={() => setHideMarkers((prev) => !prev)} className="text-2xl">
+                      {hideMarkers ? <FaRegEyeSlash /> : <FaRegEye />}
+                    </button>
+                </div>
+
+                <FlyToSelectedMarker selectedMarker={selectedMarker} />
+                <FlyToSelectMarker selectMarker={selectMarker} markerRefs={markerRefs}/>
+
                 <ImageOverlay className="z-0" url={selectedFloor.floor_photo_url} bounds={bounds} />
                 
-                {!hideMarkers && currentMarkers.map((marker, index) => {
+                {!hideMarkers &&
+                  currentMarkers
+                    .filter(marker => marker._id !== selectedMarker?._id)
+                    .map((marker, index) => {
+                      const categoryToUse = marker._id === "temp_marker"
+                        ? selectedCategory
+                        : marker.category;
 
-                  const categoryToUse = marker._id === "temp_marker" ? selectedCategory : marker.category;
-                  const icon = getIcon(categoryToUse);
+                      const icon = getIcon(categoryToUse, false);
 
-                  return (
-                    <Marker
-                      key={index}
-                      position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
-                      icon={icon}
-                      
-                    >
+                      return (
+                        <Marker
+                          key={index}
+                          position={[parseFloat(marker.latitude), parseFloat(marker.longitude)]}
+                          icon={icon}
+                          ref={(ref) => {
+                            if (ref) {
+                              markerRefs.current[marker._id] = ref;
+                            }
+                          }}
+                        >
                       {!isAddMarkerModalOpen && (
-                        <Popup className="custom-popup" closeButton={false}>
+                        <Popup className="custom-popup" closeButton={false} 
+                        eventHandlers={{
+                          add: (e) => {
+                            setPopupInstance(e.target);
+                          },
+                        }}>
                         <div className={`p-3 border ${categoryConfig[marker.category]?.borderColor || "border-base-200"} ${categoryConfig[marker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
                           <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
                           <p className={`${categoryConfig[marker.category]?.textColor || "text-base-200"} tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{marker.marker_name}</p>
@@ -927,6 +993,39 @@ const handleDrop = (e, targetFloor) => {
                   );
                 })}
 
+                {selectedMarker && (
+                  <Marker
+                    key={"selected-marker"}
+                    position={[
+                      parseFloat(selectedMarker.latitude),
+                      parseFloat(selectedMarker.longitude),
+                    ]}
+                    icon={getIcon(selectedMarker.category, true)}
+                  >
+                    {!isAddMarkerModalOpen && (
+                      <Popup className="custom-popup" closeButton={false} >
+                       <div className={`p-3 border border-base-450 ${categoryConfig[selectedMarker.category]?.textColor || "bg-base-200"} rounded-md box-shadow shadow-2xl drop-shadow-2xl flex justify-center items-center bg-white`}>                 
+                          <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
+                          <p className={`text-base-450 tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{selectedMarker.marker_name}</p>
+                          {selectedMarker.marker_photo_url && (
+                            <button
+                              onClick={() => showPanorama(selectedMarker)}
+                              className={`p-3 rounded-md text-[15px] text-white bg-base-450`}
+                            >
+                            <Label
+                            className={`text-[14px] tracking-wider cursor-pointer`}
+                            >
+                              PREVIEW
+                            </Label>
+                            </button>
+                          )}
+                          </div>
+                        </div>
+                      </Popup>
+                    )}
+                  </Marker>
+                )}
+
                 {!isSliderOpen && <LocationMarker setCoordinates={setCoordinates} />}
               </MapContainer>
 
@@ -947,7 +1046,7 @@ const handleDrop = (e, targetFloor) => {
                 />
               </div>
               <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                <h2 className="font-bold font-cizel-decor text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
+                <h2 className="font-bold font-cizel-decor text-xl">University Of Rizal SystemUNIVERSITY OF RIZAL SYSTEM</h2>
                 <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
               </div>
               { (totalFloors == 0) ? (

@@ -79,6 +79,8 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
     .filter((campus) => campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
+    
+
   const handleCampusClick = (campus) => {
     onCampusSelect(campus);
   };
@@ -94,7 +96,7 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
                 <img className="h-[60px]" src={university?.university_logo_url} alt="" />
               </div>
               <div className="flex flex-col w-[70%] justify-center">
-                <h2 className="font-bold font-cizel-decor text-lg">UNIVERSITY OF RIZAL SYSTEM</h2>
+                <h2 className="font-bold font-cizel-decor text-lg">University Of Rizal System</h2>
                 <h3 className="text-sm font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
               </div>
             </div>

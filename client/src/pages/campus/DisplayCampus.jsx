@@ -224,7 +224,7 @@ const DisplayCampus = () => {
             </div>
             <div className="flex w-[70%] flex-col justify-center">
               <h2 className="font-cizel-decor text-lg font-bold">
-                UNIVERSITY OF RIZAL SYSTEM
+                University Of Rizal System
               </h2>
               <h3 className="font-cizel text-sm">
                 NURTURING TOMORROW&apos;S NOBLEST

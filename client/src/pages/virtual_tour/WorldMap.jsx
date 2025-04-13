@@ -26,6 +26,15 @@ const defaultIcon = L.icon({
   iconAnchor: [15, 40],
 });
 
+const fetchUserRole = async (roleType) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types?name=${roleType}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Failed to fetch role data");
+  return response.json();
+};
+
 const fetchCampuses = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
     method: "GET",
@@ -61,11 +70,19 @@ const MapEffect = ({ campus, markerRefs }) => {
 };
 
 
-const WorldMap = ({ campus, onClose }) => {
+const WorldMap = ({ campus, onClose, userData }) => {
   const [position] = useState([14.46644, 121.22608]);
   const [searchTerm, setSearchTerm] = useState("");
   const [popupInstance, setPopupInstance] = useState(null);
   const markerRefs = useRef({});
+
+    const { data: userRole } = useQuery({
+      queryKey: ["userRole", userData.role_type],
+      queryFn: () => fetchUserRole(userData.role_type),
+      enabled: !!userData.role_type, // Only fetch if `role_type` is defined
+    });
+    // Use `isMultiCampus` from `userData` or fallback to `false`
+    const isMultiCampus = userData.isMultiCampus ?? false;
 
   const { data: campuses = [], isLoading, isError } = useQuery({
     queryKey: ["campuses"],
@@ -75,9 +92,10 @@ const WorldMap = ({ campus, onClose }) => {
   if (isLoading) 
       return <Skeleton className="rounded-md mt-4 bg-secondary-200/40 py-24" />;
 
-  const filteredCampuses = campuses.filter((campus) =>
-    campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCampuses = campuses
+  .filter((campus) => (isMultiCampus ? true : campus._id === userData.campus_id)) // Filter by campus access
+  .filter((campus) => campus.campus_name.toLowerCase().includes(searchTerm.toLowerCase())) // Filter by search term
+  .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
   const handleClosePopup = () => {
     if (popupInstance) {

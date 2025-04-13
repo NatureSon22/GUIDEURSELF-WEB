@@ -267,6 +267,18 @@ const AddMarkerModal = ({
               disabled={!isMarkerPositioned} // Disable if marker not positioned
             />
           </div>
+
+          
+          <div className="mt-4">
+                  <Label className="text-[16px]">Description</Label>
+                  <Textarea
+                    placeholder="Type your marker description here."
+                    className="resize-none bg-white mt-2 h-[200px]"
+                    value={markerDescription}
+                    onChange={(e) => setMarkerDescription(e.target.value)}
+                    disabled={!isMarkerPositioned} // Disable if marker not positioned
+                  />
+                </div>
   
           <div className="mt-4">
             <Label className="text-[16px]">Upload Panoramic Photo</Label>
@@ -300,7 +312,7 @@ const AddMarkerModal = ({
             ) : (
               <div className="flex justify-end items-center gap-4">
                 <Button type="button" variant="destructive" onClick={unshowPreview}>
-                  Hide Hotspot
+                  Remove Hotspot
                 </Button>
               </div>
             )}
@@ -331,16 +343,6 @@ const AddMarkerModal = ({
                   </div>
                 </div>
   
-                <div className="mt-4">
-                  <Label className="text-[16px]">Description</Label>
-                  <Textarea
-                    placeholder="Type your marker description here."
-                    className="resize-none bg-white mt-2 h-[200px]"
-                    value={markerDescription}
-                    onChange={(e) => setMarkerDescription(e.target.value)}
-                    disabled={!isMarkerPositioned} // Disable if marker not positioned
-                  />
-                </div>
               </div>
             )}
           </div>

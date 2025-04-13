@@ -324,7 +324,7 @@ const EditKeyOfficials = () => {
 
                       <FeaturePermission
                         module="Manage Key Officials"
-                        access="archive key official"
+                        access="delete key official"
                       >
                         <button 
                           onClick={() => handleArchiveClick(official)}

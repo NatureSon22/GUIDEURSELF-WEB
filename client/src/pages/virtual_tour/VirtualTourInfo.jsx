@@ -89,7 +89,7 @@ const VirtualTourInfo = () => {
                         <img className="h-[70px]" src={university?.university_logo_url} alt="" />
                     </div>
                     <div className="flex flex-col justify-center">
-                        <h2 className="font-bold font-cizel-decor text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
+                        <h2 className="font-bold font-cizel-decor text-xl">University Of Rizal System</h2>
                         <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
                     </div>
                 </div>
@@ -139,7 +139,7 @@ const VirtualTourInfo = () => {
                     <img className="h-[160px]" src={university?.university_logo_url} alt="" />
                 </div>
                 <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                    <h2 className="font-bold font-cizel-decor text-xl">UNIVERSITY OF RIZAL SYSTEM</h2>
+                    <h2 className="font-bold font-cizel-decor text-xl">University Of Rizal System</h2>
                     <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
                 </div>
             </div>
