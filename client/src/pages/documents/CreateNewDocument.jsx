@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   createDocument,
@@ -41,6 +41,7 @@ const CreateNewDocument = () => {
   const { toast } = useToast();
   const [action, setAction] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const queryClient = useQueryClient();
 
   // Initialize the form
   const {
@@ -94,6 +95,7 @@ const CreateNewDocument = () => {
   const { mutateAsync: handleSaveAsDraft, isPending: isSaving } = useMutation({
     mutationFn: saveAsDraft,
     onSuccess: (data) => {
+      queryClient.invalidateQueries([""]);
       toast({
         title: "Success",
         description: data.message,
@@ -114,6 +116,7 @@ const CreateNewDocument = () => {
   const { mutateAsync: handleUpdateDocument } = useMutation({
     mutationFn: updateCreateDocument,
     onSuccess: () => {
+      
       toast({
         title: "Document updated successfully",
         description: "Operation completed successfully",

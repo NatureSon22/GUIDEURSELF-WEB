@@ -11,6 +11,7 @@ import { dirname } from "path";
 import { config } from "dotenv";
 import documentParser from "./documentParser.js";
 import activitylog from "./activitylog.js";
+import extractReadableText from "../service/web-scrape.js";
 
 config();
 
@@ -187,11 +188,11 @@ const getAllDocuments = async (req, res) => {
     }
 
     // Sorting configuration
-    const sortQuery = isRecent ? { date_and_time: -1 } : {};
+    //const sortQuery = isRecent ? { date_and_time: -1 } : {};
 
     // Fetch documents
     const documents = await DocumentModel.find(params)
-      .sort(sortQuery)
+      .sort({ date_and_time: -1 })
       .populate("campus_id", "campus_name");
 
     // Collect user IDs for enrichment
@@ -253,7 +254,13 @@ const getDocument = async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    if (document?.content_url) {
+    //console.log("document: " + document);
+
+    if (
+      document?.document_id &&
+      document?.content_url &&
+      document?.document_url
+    ) {
       const contentUrl = document.content_url.trim();
       if (!contentUrl) {
         return res.status(400).json({ message: "Invalid content URL" });
@@ -493,19 +500,49 @@ const saveAsDraftCreatedDocument = async (req, res) => {
 
 const getContentURL = async (filename) => {
   try {
-    const alldocuments = await fetch(CODY_URLS.LIST_DOCUMENT(), {
+    // First fetch to get total_pages
+    const initialResponse = await fetch(CODY_URLS.LIST_DOCUMENT(1), {
       method: "GET",
       headers: HEADERS,
     });
 
-    const { data } = await alldocuments.json();
+    if (!initialResponse.ok) {
+      throw new Error("Failed to fetch documents.");
+    }
 
-    const doc = data.find((doc) => doc.name === filename);
-    console.log(doc);
+    const initialData = await initialResponse.json();
+    const totalPages = initialData.meta?.pagination?.total_pages || 1;
 
-    return doc ? { content_url: doc.content_url, id: doc.id } : {};
+    // Search the first page
+    let foundDoc = initialData.data.find((doc) => doc.name === filename);
+    if (foundDoc) {
+      return { content_url: foundDoc.content_url, id: foundDoc.id };
+    }
+
+    // Loop through remaining pages
+    for (let page = 2; page <= totalPages; page++) {
+      const response = await fetch(CODY_URLS.LIST_DOCUMENT(page), {
+        method: "GET",
+        headers: HEADERS,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch documents on page ${page}`);
+      }
+
+      const { data } = await response.json();
+
+      foundDoc = data.find((doc) => doc.name === filename);
+      if (foundDoc) {
+        return { content_url: foundDoc.content_url, id: foundDoc.id };
+      }
+    }
+
+    // If no document found
+    return {};
   } catch (error) {
-    throw new Error(error);
+    console.error("Error in getContentURL:", error.message);
+    throw new Error("Failed to fetch document content URL.");
   }
 };
 
@@ -839,27 +876,54 @@ const uploadWebPage = async (req, res) => {
         .json({ message: "Document unarchived successfully" });
     }
 
-    const uploadResponse = await fetch(CODY_URLS.UPLOAD_WEBPAGE(), {
+    // get the content
+
+    const content = await extractReadableText(url);
+
+    if (!content) {
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch webpage content" });
+    }
+
+    // const uploadResponse = await fetch(CODY_URLS.UPLOAD_WEBPAGE(), {
+    //   method: "POST",
+    //   headers: HEADERS,
+    //   body: JSON.stringify({
+    //     folder_id: FOLDER_ID,
+    //     url,
+    //   }),
+    // });
+
+    // if (!uploadResponse.ok) {
+    //   const errorText = await uploadResponse.text();
+
+    //   return res.status(uploadResponse.status).json({
+    //     message: "Failed to upload webpage. Please try again later.",
+    //     error: errorText,
+    //   });
+    // }
+
+    const response = await fetch(CODY_URLS.CREATE_DOCUMENT(), {
       method: "POST",
       headers: HEADERS,
       body: JSON.stringify({
+        name: content.title,
         folder_id: FOLDER_ID,
-        url,
+        content: content.text,
       }),
     });
 
-    if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text();
-
-      return res.status(uploadResponse.status).json({
-        message: "Failed to upload webpage. Please try again later.",
-        error: errorText,
-      });
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res
+        .status(response.status)
+        .json({ message: "Failed to upload webpage", error: errorText });
     }
 
     const {
-      data: { content_url, name, id },
-    } = await uploadResponse.json();
+      data: { content_url, id },
+    } = await response.json();
 
     const metadata = {
       url,
@@ -867,7 +931,7 @@ const uploadWebPage = async (req, res) => {
     };
 
     const documentData = {
-      file_name: title || name,
+      file_name: content.title,
       metadata,
       content_url,
       document_id: id,
@@ -875,6 +939,7 @@ const uploadWebPage = async (req, res) => {
       type: "published",
       date_last_modified: new Date(),
       visibility,
+      is_deleted: false,
     };
 
     if (documentId) {
@@ -924,6 +989,7 @@ const saveAsDraftUploadWebPage = async (req, res) => {
           $set: {
             file_name: title,
             metadata,
+            visibility,
             date_last_modified: new Date(),
           },
         }
@@ -965,7 +1031,6 @@ const saveAsDraftUploadWebPage = async (req, res) => {
 const syncDocument = async (req, res) => {
   try {
     const { documentId } = req.params;
-    console.log("DocumentID " + documentId);
 
     // Fetch the document from the database
     const existingDoc = await DocumentModel.findById(documentId);
@@ -1001,6 +1066,7 @@ const deleteDocument = async (req, res) => {
   try {
     const { documentId } = req.params;
     const doc = await DocumentModel.findById(documentId);
+    console.log("doc: " + doc);
 
     if (!doc) {
       return res.status(404).json({ message: "Document not found" });
@@ -1070,6 +1136,7 @@ const deleteDocument = async (req, res) => {
 const deleteDocuments = async (req, res) => {
   try {
     const { documentIds } = req.body;
+
     if (
       !documentIds ||
       !Array.isArray(documentIds) ||

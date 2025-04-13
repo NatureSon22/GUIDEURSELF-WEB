@@ -35,7 +35,6 @@ const Verification = () => {
   const [error, setError] = useState("");
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [success, setSuccess] = useState("");
-
   const location = useLocation();
   const { isAuthenticated = false, email, password } = location.state || {};
 
@@ -176,31 +175,45 @@ const Verification = () => {
               />
 
               <div className="space-y-2 pt-4">
-                {(failedAttempts < 4 || time != 0) && (
+                {time != 0 && failedAttempts < 4 && (
                   <Button
                     type="submit"
                     className="w-full bg-base-200 py-6 text-[1rem] font-semibold"
-                    disabled={isPendingVerification || isPending}
+                    disabled={isPending}
                   >
                     {isPending ? "Verifying..." : "Verify"}
                   </Button>
                 )}
 
-                <Button
-                  type="button"
-                  className="w-full border border-base-200 bg-base-200/10 py-6 text-[0.95rem] font-medium text-base-200 hover:bg-base-200/10"
-                  onClick={time === 0 ? () => navigate("/login") : resend}
-                  disabled={time !== 0}
-                >
-                  {time === 0 ? (
-                    <p className="font-semibold">Return</p>
-                  ) : (
-                    <>
-                      Didn&apos;t receive a code?{" "}
-                      <span className="font-semibold">Resend in {time}s</span>
-                    </>
-                  )}
-                </Button>
+                {failedAttempts < 4 ? (
+                  <Button
+                    type="button"
+                    className="w-full border border-base-200 bg-base-200/10 py-6 text-[0.95rem] font-medium text-base-200 hover:bg-base-200/10"
+                    onClick={() => {
+                      if (time === 0) {
+                        setTime(60);
+                      }
+                      resend();
+                    }}
+                    disabled={time !== 0 || isPendingVerification }
+                  >
+                    {time === 0 ? (
+                      <p className="font-semibold">Resend</p>
+                    ) : (
+                      <>
+                        Didn&apos;t receive a code?
+                        <span className="font-semibold">Resend in {time}s</span>
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full border border-base-200 bg-base-200/10 py-6 text-[0.95rem] font-medium text-base-200 hover:bg-base-200/10"
+                    onClick={() => navigate("/login")}
+                  >
+                    Return
+                  </Button>
+                )}
               </div>
             </form>
           </Form>

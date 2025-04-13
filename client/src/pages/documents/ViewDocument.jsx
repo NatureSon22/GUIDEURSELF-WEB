@@ -17,6 +17,7 @@ const ViewDocument = () => {
     queryKey: ["document", docId],
     queryFn: () => getDocument(docId),
   });
+  console.log(docId);
 
   const [open, setOpen] = useState(false);
 

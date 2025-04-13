@@ -69,9 +69,8 @@ const createDocument = async (data) => {
 
   if (!response.ok) {
     const { message } = await response.json();
-    throw new Error(message);
-  }
-
+    throw new Error(message);  }
+ 
   return response.json();
 };
 

@@ -12,7 +12,7 @@ import ComboBox from "@/components/ComboBox";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import { useQuery } from "@tanstack/react-query";
-import { getTrends } from "@/api/trend";
+import { getTrends } from "@/api/trend"; 
 import { Skeleton } from "@/components/ui/skeleton";
 
 const usage_summary = [

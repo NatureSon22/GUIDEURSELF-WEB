@@ -253,7 +253,8 @@ const UploadDocument = () => {
       return;
     }
 
-    const hasExistingDocument = documentData?.document_url;
+    const hasExistingDocument =
+      documentData?.document_url || documentData?.document_url;
     if (hasExistingDocument) {
       formData.append("documentId", documentData._id);
       formData.append("document_url", documentData.document_url);
@@ -282,7 +283,11 @@ const UploadDocument = () => {
           ? handleUploadDocument(formData)
           : handleCreateDocument(formData));
       } else {
-        await handleSaveDraft(formData);
+        if (hasExistingDocument) {
+          await handleUpdateDocument(formData);
+        } else {
+          await handleSaveDraft(formData);
+        }
       }
     } catch (error) {
       console.error("Form submission error:", error);
@@ -363,7 +368,6 @@ const UploadDocument = () => {
           key={index}
           className="flex items-center gap-5 rounded-md border bg-secondary-200/20 px-5 py-3"
         >
-          {/* <FaFile className="text-lg" /> */}
           <p className="text-sm">{file.name}</p>
 
           <div
@@ -425,7 +429,7 @@ const UploadDocument = () => {
         <div>
           <h2 className="font-medium">File Upload</h2>
           <p className="text-base text-gray-600">
-            Upload your documents in PDF, DOC, or PPTX format. Maximum file size
+            Upload your document in PDF, DOC, or PPTX format. Maximum file size
             is <span className="font-semibold">10MB</span>
           </p>
         </div>
@@ -473,7 +477,7 @@ const UploadDocument = () => {
       </div>
 
       <div className="ml-auto flex gap-3">
-        {!documentId && (
+        {!documentData?.document_id && (
           <Button
             type="submit"
             variant="ghost"

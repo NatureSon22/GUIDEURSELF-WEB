@@ -101,7 +101,9 @@ const Login = () => {
             </div>
 
             {error ? (
-              <p className="rounded-md bg-accent-100/5 px-4 py-5 text-center text-[0.85rem] text-accent-100">
+              <p
+                className={`rounded-md bg-accent-100/5 px-10 py-5 text-center text-[0.85rem] text-accent-100`}
+              >
                 {error}
               </p>
             ) : (
@@ -176,6 +178,7 @@ const Login = () => {
               <Link
                 to="/forgot-password"
                 className="ml-auto text-sm font-semibold text-base-200 hover:underline"
+                aria-disabled={isPendingVerification || isPending}
               >
                 Forgot Password?
               </Link>

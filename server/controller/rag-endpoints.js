@@ -2,6 +2,8 @@ import { config } from "dotenv";
 
 config();
 
+const folderId = process.env.CODY_FOLDER_ID;
+
 const CODY_URLS = {
   CREATE_FOLDER: () => "https://getcody.ai/api/v1/folders",
   UPDATE_FOLDER: (id) => `https://getcody.ai/api/v1/folders/${id}`,
@@ -14,7 +16,8 @@ const CODY_URLS = {
   CREATE_UPLOAD: () => "https://getcody.ai/api/v1/documents/file",
   GET_DOCUMENT: (id) => `https://getcody.ai/api/v1/documents?folder_id=${id}`,
   UPLOAD_WEBPAGE: () => "https://getcody.ai/api/v1/documents/webpage",
-  LIST_DOCUMENT: () => "https://getcody.ai/api/v1/documents",
+  LIST_DOCUMENT: (page) =>
+    `https://getcody.ai/api/v1/documents?folder_id=${folderId}&page=${page}`,
   DELETE_DOCUMENT: (id) => `https://getcody.ai/api/v1/documents/${id}`,
 };
 

@@ -125,6 +125,7 @@ documentRouter.put(
   upload.none(),
   updateCreatedDocument
 );
+
 documentRouter.put(
   "/edit-upload-document",
   verifyToken,
