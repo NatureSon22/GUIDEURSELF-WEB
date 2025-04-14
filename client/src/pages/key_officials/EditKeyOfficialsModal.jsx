@@ -7,11 +7,25 @@ import { useToast } from "@/hooks/use-toast";
 import useUserStore from "@/context/useUserStore";
 import { loggedInUser } from "@/api/auth";
 
+const fetchCampuses = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch campuses");
+  }
+  return response.json();
+}
+
 const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   const { currentUser } = useUserStore((state) => state);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [position, setPosition] = useState(official?.position_name || "");
+  const [campus, setCampus] = useState(official?.campus_name || "");
+  const [college, setCollege] = useState(official?.college_name || "");
   const [name, setName] = useState(official?.name || "");
   const [date, setDate] = useState(official?.date_added || Date.now());
   const [image, setImage] = useState(null);
@@ -23,6 +37,15 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
             queryFn: loggedInUser,
             refetchOnWindowFocus: false,
         });
+
+
+          const {
+            data: campuses = [],
+            isError,
+          } = useQuery({
+            queryKey: ["campuses"],
+            queryFn: fetchCampuses,
+          });
 
   // Fetch administrative positions
   const { data: positions = [], error } = useQuery({
@@ -148,6 +171,8 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("position_name", position);
+    formData.append("campus_name", campus);
+    formData.append("college_name", college);
     if (image) formData.append("image", image);
 
     
@@ -182,7 +207,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
               onChange={(e) => setPosition(e.target.value)}
               className="font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
             >
-              <option className="font-normal text-[0.875rem]" value="" disabled>
+              <option className="font-normal text-[0.875rem]" disabled hidden  value="">
                 Select new position
               </option>
               {positions.map((pos) => (
@@ -192,6 +217,34 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
               ))}
             </select>
           </div>
+
+<div className="mt-4">
+                                <Label className="text-lg">Campus</Label>
+                                <select
+                                    value={campus}
+                                    onChange={(e) => setCampus(e.target.value)}
+                                    className="font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
+                                >
+                                    <option className="font-normal text-[0.875rem]" disabled hidden value="">Select Campus</option>
+                                    {campuses.map((cam) => (
+                                        <option className="font-normal text-[0.875rem]" key={cam._id} value={cam.campus_name}>
+                                            {cam.campus_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mt-4">
+                                <Label className="text-lg">College</Label>
+                                <Input
+                                    type="text"
+                                    value={college}
+                                    onChange={(e) => setCollege(e.target.value)}
+                                    className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+                                    placeholder="Enter name of the college"
+                                    disabled={!campus} // ✅ works as expected now
+                                />
+                            </div>
 
           {/* Image Upload */}
           <div className="mt-4">

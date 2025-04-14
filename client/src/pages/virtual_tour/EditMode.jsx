@@ -973,16 +973,30 @@ const handleDrop = (e, targetFloor) => {
                           <div className="flex gap-3 w-[100%] flex-col h-[100%] justify-around ">
                           <p className={`${categoryConfig[marker.category]?.textColor || "text-base-200"} tracking-wider text-center text-[18px] !my-[0%] font-bold`}>{marker.marker_name}</p>
                           {marker.marker_photo_url && (
-                            <button
-                              onClick={() => showPanorama(marker)}
-                              className={`p-3 rounded-md text-[15px] text-white ${categoryConfig[marker.category]?.color || "bg-base-200"}`}
-                            >
-                            <Label
-                            className={`text-[14px] tracking-wider cursor-pointer`}
-                            >
-                              PREVIEW
-                            </Label>
-                            </button>
+                            <div className="flex gap-4">
+                               <button
+                                  onClick={() => showPanorama(marker)}
+                                  className={`p-3  w-[100%] rounded-md text-[15px] text-white ${categoryConfig[marker.category]?.color || "bg-base-200"}`}
+                                >
+                                <Label
+                                className={`text-[14px] tracking-wider cursor-pointer`}
+                                >
+                                  PREVIEW
+                                </Label>
+                                </button> 
+                              <div className="flex gap-2  flex items-center group-hover:opacity-100 transition-opacity duration-300">
+                                  <FaPen
+                                    onClick={() => handleMarkerClick(marker)}
+                                    className="h-[20px] w-[20px] cursor-pointer text-black"
+                                  />
+                                  <RiDeleteBin5Fill
+                                    onClick={() => confirmRemoveMarker(marker)}
+                                    className="cursor-pointer h-[22px] w-[22px] text-accent-100"
+                                  />
+                                </div>
+                                
+                               
+                            </div>
                           )}
                           </div>
                         </div>

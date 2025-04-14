@@ -213,12 +213,12 @@ const DisplayCampus = () => {
             <div className="flex w-[30%] items-center justify-center gap-3">
               <img
                 className="h-[60px]"
-                src={university?.university_vector_url}
+                src={university?.university_logo_url}
                 alt=""
               />
               <img
                 className="h-[60px]"
-                src={university?.university_logo_url}
+                src={university?.university_vector_url}
                 alt=""
               />
             </div>

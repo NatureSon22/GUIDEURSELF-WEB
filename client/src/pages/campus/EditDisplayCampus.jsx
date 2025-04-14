@@ -321,13 +321,13 @@ const EditDisplayCampus = () => {
               <div className="flex w-[30%] items-center justify-center gap-2">
                 <img
                   className="h-[50px] w-auto"
-                  src={university?.university_vector_url}
-                  alt="University Vector"
+                  src={university?.university_logo_url}
+                  alt="University Logo"
                 />
                 <img
                   className="h-[50px] w-auto"
-                  src={university?.university_logo_url}
-                  alt="University Logo"
+                  src={university?.university_vector_url}
+                  alt="University Vector"
                 />
               </div>
 
@@ -360,7 +360,7 @@ const EditDisplayCampus = () => {
                 <img className="h-[18px] w-auto" src={Pen} alt="Edit" />
               </Link>
 
-              <FeaturePermission module="Manage Campus" access="delete campus">
+              <FeaturePermission module="Manage Campus" access="archive campus">
                 <button onClick={() => handleDeleteClick(campus)}>
                   <img className="h-[25px] w-auto" src={Bin} alt="Delete" />
                 </button>

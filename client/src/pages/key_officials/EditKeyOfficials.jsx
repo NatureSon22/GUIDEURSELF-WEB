@@ -304,8 +304,10 @@ const EditKeyOfficials = () => {
                         {official.name}
                       </h3>
                       <p className="mt-2 text-center font-cizel text-gray-600">
-                        {official.position_name}
-                      </p>
+                      {official.position_name}
+                      {official.college_name ? ` - ${official.college_name}` : ''}
+                    </p>
+
                     </div>
 
                     {/* Action Buttons */}
@@ -324,7 +326,7 @@ const EditKeyOfficials = () => {
 
                       <FeaturePermission
                         module="Manage Key Officials"
-                        access="delete key official"
+                        access="archive key official"
                       >
                         <button 
                           onClick={() => handleArchiveClick(official)}

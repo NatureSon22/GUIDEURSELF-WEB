@@ -13,8 +13,11 @@ const keyOfficialSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  campus_id: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  campus_name: { 
+    type: String,
+    required: true },
+  college_name: { 
+    type: String,
     required: true },
   date_added: { 
     type: Date,  

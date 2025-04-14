@@ -6,11 +6,25 @@
     import useUserStore from "@/context/useUserStore";
     import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
     import { loggedInUser } from "@/api/auth";
+
+    const fetchCampuses = async () => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
+          method: "GET",
+          credentials: "include",
+        });
+      
+        if (!response.ok) {
+          throw new Error("Failed to fetch campuses");
+        }
+        return response.json();
+      }
     
     const Modal = ({ closeModal, addOfficial }) => {
         const { currentUser } = useUserStore((state) => state);
         const [positions, setPositions] = useState([]);
+        const [campus, setCampus] = useState("");
         const [name, setName] = useState("");
+        const [college, setCollege] = useState("");
         const [date, setDate] = useState(Date.now());
         const [position, setPosition] = useState("");
         const [image, setImage] = useState(null);
@@ -19,6 +33,14 @@
         const [loadingMessage, setLoadingMessage] = useState("");
         const [isLoading, setIsLoading] = useState(false);
         const { toast } = useToast();
+        
+          const {
+            data: campuses = [],
+            isError,
+          } = useQuery({
+            queryKey: ["campuses"],
+            queryFn: fetchCampuses,
+          });
 
         const { data } = useQuery({
             queryKey: ["user"],
@@ -97,8 +119,9 @@
             const formData = new FormData();
             formData.append("image", image);
             formData.append("name", name);
-            formData.append("campus_id", "675cd6ff56f690410f1473af");
             formData.append("position_name", position);
+            formData.append("campus_name", campus);
+            formData.append("college_name", college);
             formData.append("date_added", date);
         
             try {
@@ -193,7 +216,7 @@
                                 <select
                                     value={position}
                                     onChange={(e) => setPosition(e.target.value)}
-                                    className="font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
+                                    className="cursor-pointer font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
                                 >
                                     <option className="font-normal text-[0.875rem]" value="">Select Position</option>
                                     {positions.map((pos) => (
@@ -204,6 +227,41 @@
                                 </select>
                             </div>
 
+                            <div className="mt-4">
+                            <Label className="text-lg">Campus</Label>
+                            <select
+                                value={campus}
+                                onChange={(e) => setCampus(e.target.value)} // ✅ corrected here
+                                className="cursor-pointer font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
+                            >
+                                <option className="font-normal text-[0.875rem]" disabled hidden value="">
+                                Select Campus
+                                </option>
+                                {campuses.map((cam) => (
+                                <option
+                                    className="font-normal text-[0.875rem]"
+                                    key={cam._id}
+                                    value={cam.campus_name}
+                                >
+                                    {cam.campus_name}
+                                </option>
+                                ))}
+                            </select>
+                            </div>
+
+                            <div className="mt-4">
+                            <Label className="text-lg">College</Label>
+                            <Input
+                                type="text"
+                                value={college}
+                                onChange={(e) => setCollege(e.target.value)}
+                                className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+                                placeholder="Enter name of the college"
+                                disabled={!campus} // ✅ works as expected now
+                            />
+                            </div>
+
+
                             {/* Image Upload */}
                             <div className="mt-4">
                                 <Label className="text-lg">Upload Image</Label>
@@ -211,7 +269,8 @@
                                     type="file"
                                     accept="image/*"
                                     onChange={handleImageUpload}
-                                    className="mt-2 py-1"
+                                    className="mt-2 py-1 cursor-pointer "
+                                    required
                                 />
                             </div>
 

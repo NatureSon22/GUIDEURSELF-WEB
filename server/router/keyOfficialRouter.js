@@ -17,7 +17,7 @@ const router = express.Router();
 // POST route to save key official data (including image upload)
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    const { name, position_name, campus_id, date_added } = req.body;
+    const { name, position_name, campus_name, college_name, date_added } = req.body;
     const userId = req.user?.userId; 
 
     if (!req.file) {
@@ -43,7 +43,8 @@ router.post('/', upload.single('image'), async (req, res) => {
       name,
       position_name,
       key_official_photo_url: imageUrl,
-      campus_id,
+      campus_name,
+      college_name,
       date_added,
       is_deleted: false,
     });
@@ -108,7 +109,8 @@ router.post("/unarchive/:id", async (req, res) => {
       position_name: archivedOfficial.position_name,
       name: archivedOfficial.name,
       key_official_photo_url: archivedOfficial.key_official_photo_url,
-      campus_id: archivedOfficial.campus_id,
+      campus_name: archivedOfficial.campus_name,
+      college_name: archivedOfficial.college_name,
       date_added: archivedOfficial.date_added,
     });
 
@@ -184,7 +186,8 @@ router.post("/archive/:id", async (req, res) => {
       position_name: official.position_name,
       name: official.name,
       key_official_photo_url: official.key_official_photo_url,
-      campus_id: official.campus_id,
+      campus_name: official.campus_name,
+      college_name: official.college_name,
       date_added: official.date_added,
     });
 
@@ -211,11 +214,11 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     console.log("Request Body:", req.body); // Log the body to ensure other fields are being received
 
     const { id } = req.params;
-    const { name, position_name } = req.body;  
+    const { name, position_name, campus_name, college_name } = req.body;  
     const userId = req.user?.userId; 
 
     // Prepare the update object
-    const updatedData = { name, position_name };
+    const updatedData = { name, position_name, campus_name, college_name };
 
     // Check if an image was uploaded
     if (req.file) {
