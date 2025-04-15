@@ -1,6 +1,6 @@
 import formatDate from "@/utils/formatDate";
 
-const columns = () => [
+const columns = ({ truncateResponse = false }) => [
   // {
   //   accessorKey: "content", // Access content from the message
   //   header: "Message",
@@ -13,12 +13,17 @@ const columns = () => [
   {
     accessorKey: "content", // Access content from the response
     header: "Response",
-    cell: ({ row }) => (
-      <div className="py-2">
-        <p>{row.original.content}</p>
-        {/* Display the machine's response */}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const response = truncateResponse
+        ? row.original.content.slice(0, 170) + "..."
+        : row.original.content;
+      return (
+        <div className="py-2">
+          <p>{response}</p>
+          {/* Display the machine's response */}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "is_helpful", // Access the helpful flag from the response

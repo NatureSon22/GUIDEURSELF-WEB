@@ -4,6 +4,9 @@ import { config } from "dotenv";
 config();
 
 const sendLoginVerificationCode = async (email, username, verificationCode) => {
+  console.log(email);
+  console.log(username);
+  console.log(verificationCode);
   try {
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -15,7 +18,7 @@ const sendLoginVerificationCode = async (email, username, verificationCode) => {
       body: JSON.stringify({
         sender: {
           name: "GUIDEURSELF",
-          email: "sonn99797@gmail.com",
+          email: "bantajio22@gmail.com",
         },
         to: [{ email: email, name: username }],
         subject: "Your Login Verification Code",

@@ -9,6 +9,7 @@ import { fetchCampuses } from "@/api/component-info.js";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/api/accounts";
 import { getAllDocuments } from "@/api/documents";
+import TallyReportSummary from "./TallyReportSummary";
 
 const OverViewSummary = () => {
   const navigate = useNavigate();
@@ -37,90 +38,94 @@ const OverViewSummary = () => {
 
   return (
     <div className="flex gap-5">
-      <div
-        className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10"
-        onClick={() => handleNavigate("/accounts")}
-      >
-        <div className="space-y-2">
-          <p className="w-min text-[0.92rem]">Total Users</p>
-          <p className="text-3xl font-semibold">{totalAccounts}</p>
-        </div>
-
-        <div>
-          <MdPeopleAlt className="text-6xl text-base-200" />
-        </div>
-      </div>
-
-      <div
-        className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10"
-        onClick={() => handleNavigate("/campus")}
-      >
-        <div className="space-y-2">
-          <p className="w-min text-[0.95rem]">Total Campuses</p>
-          <p className="text-3xl font-semibold">{totalCampuses}</p>
-        </div>
-        <div>
-          <BsFillBuildingFill className="text-5xl text-base-200" />
-        </div>
-      </div>
-
-      <div
-        className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white pl-7 pr-10"
-        onClick={() => handleNavigate("/documents/all-documents")}
-      >
-        <div className="space-y-2">
-          <p className="max-w-[8rem] text-[0.95rem]">
-            Total Uploaded Documents
-          </p>
-          <p className="text-3xl font-semibold">{totalDocuments}</p>
-        </div>
-        <div>
-          <FaFolder className="text-5xl text-base-200" />
-        </div>
-      </div>
-
-      <div className="flex-3 flex min-w-[520px] flex-col gap-4">
-        <div className="group flex cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white px-8 py-3">
-          <div className="flex items-center gap-5">
-            <div>
-              <ImUserPlus className="text-3xl text-base-200" />
+      <div className="flex w-[63%] flex-col gap-4">
+        <div className="flex gap-5">
+          <div
+            className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white py-7 pl-7 pr-10"
+            onClick={() => handleNavigate("/accounts")}
+          >
+            <div className="space-y-2">
+              <p className="w-min text-[0.92rem]">Total Users</p>
+              <p className="text-3xl font-semibold">{totalAccounts}</p>
             </div>
+
             <div>
-              <Link to="/accounts/add-account">
-                <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
-                  Add New User
-                </p>
-                <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
-                  To add or create a new user, just click here
-                </p>
-              </Link>
+              <MdPeopleAlt className="text-6xl text-base-200" />
             </div>
           </div>
-
-          <IoIosArrowForward className="text-xl text-secondary-100-75" />
-        </div>
-
-        <div className="group flex cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white px-8 py-3">
-          <div className="flex items-center gap-5">
-            <div>
-              <HiOutlineFolderAdd className="text-4xl text-base-200" />
+          <div
+            className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white py-7 pl-7 pr-10"
+            onClick={() => handleNavigate("/campus")}
+          >
+            <div className="space-y-2">
+              <p className="w-min text-[0.95rem]">Total Campuses</p>
+              <p className="text-3xl font-semibold">{totalCampuses}</p>
             </div>
             <div>
-              <Link to="/documents/write-document">
-                <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
-                  Add New Document
-                </p>
-
-                <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
-                  To add or create a new document, just click here
-                </p>
-              </Link>
+              <BsFillBuildingFill className="text-5xl text-base-200" />
             </div>
           </div>
+          <div
+            className="flex flex-1 cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white py-7 pl-7 pr-10"
+            onClick={() => handleNavigate("/documents/all-documents")}
+          >
+            <div className="space-y-2">
+              <p className="max-w-[8rem] text-[0.95rem]">
+                Total Uploaded Documents
+              </p>
+              <p className="text-3xl font-semibold">{totalDocuments}</p>
+            </div>
+            <div>
+              <FaFolder className="text-5xl text-base-200" />
+            </div>
+          </div>
+        </div>
 
-          <IoIosArrowForward className="text-xl text-secondary-100-75" />
+        <div className="flex gap-4">
+          <div className="group flex w-full cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white px-8 py-3">
+            <div className="flex items-center gap-5">
+              <div>
+                <ImUserPlus className="text-3xl text-base-200" />
+              </div>
+              <div>
+                <Link to="/accounts/add-account">
+                  <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
+                    Add New User
+                  </p>
+                  <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
+                    Click here to add or create a new user
+                  </p>
+                </Link>
+              </div>
+            </div>
+
+            <IoIosArrowForward className="text-xl text-secondary-100-75" />
+          </div>
+
+          <div className="group flex w-full cursor-pointer items-center justify-between rounded-xl border border-secondary-200/50 bg-white px-8 py-3">
+            <div className="flex items-center gap-5">
+              <div>
+                <HiOutlineFolderAdd className="text-4xl text-base-200" />
+              </div>
+              <div>
+                <Link to="/documents/write-document">
+                  <p className="text-[0.9rem] font-semibold transition-all duration-150 group-hover:text-base-200">
+                    Add New Document
+                  </p>
+
+                  <p className="text-[0.85rem] transition-all duration-150 group-hover:text-base-200">
+                    Click here to add or create a new document
+                  </p>
+                </Link>
+              </div>
+            </div>
+
+            <IoIosArrowForward className="text-xl text-secondary-100-75" />
+          </div>
         </div>
       </div>
+
+      <TallyReportSummary />
     </div>
   );
 };

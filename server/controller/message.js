@@ -113,15 +113,51 @@ const reviewMessage = async (req, res) => {
     res.status(500).json({ message: "Failed to send a review", error });
   }
 };
-
 const tallyReview = async (req, res) => {
+  const { filter } = req.query;
+  console.log("filter: " + filter);
+  console.log("run");
+
+  const now = new Date();
+  let startDate = null;
+
+  switch (filter) {
+    case "Today":
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
+    case "This week": {
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+      startDate = new Date(now.setDate(diff));
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    }
+    case "This month":
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    case "This year":
+      startDate = new Date(now.getFullYear(), 0, 1);
+      break;
+    case "none":
+    default:
+      // If no filter is provided, do not filter by date
+      startDate = null;
+      break;
+  }
+
   try {
+    const matchStage = {
+      is_machine_generated: true,
+      is_helpful: { $in: [true, false] },
+    };
+
+    if (startDate !== null) {
+      matchStage.date_added = { $gte: startDate };
+    }
+
     const result = await MessageModel.aggregate([
       {
-        $match: {
-          is_machine_generated: true,
-          is_helpful: { $in: [true, false] }, // Ensures only reviewed messages are counted
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -157,9 +193,10 @@ const tallyReview = async (req, res) => {
       unhelpfulPercentage: (unhelpfulMessages / totalMessages) * 100,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to tally review", error: error.message });
+    res.status(500).json({
+      message: "Failed to tally review",
+      error: error.message,
+    });
   }
 };
 
