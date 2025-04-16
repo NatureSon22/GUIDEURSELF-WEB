@@ -10,6 +10,7 @@ const DocumentCreateFieldInfo = [
       <FaPenNib className="text-4xl transition-all duration-200 group-hover:text-base-200" />
     ),
     path: "/write-document",
+    access: "write document",
   },
   {
     title: "Upload",
@@ -18,6 +19,7 @@ const DocumentCreateFieldInfo = [
       <FaUpload className="text-4xl transition-all duration-200 group-hover:text-base-200" />
     ),
     path: "/upload-document",
+    access: "upload file",
   },
   {
     title: "Import",
@@ -26,6 +28,7 @@ const DocumentCreateFieldInfo = [
       <FaLink className="text-4xl transition-all duration-200 group-hover:text-base-200" />
     ),
     path: "/import-website",
+    access: "import website",
   },
 ];
 

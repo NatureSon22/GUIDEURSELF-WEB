@@ -28,6 +28,8 @@ const getMessages = async (req, res) => {
     const messages = await MessageModel.find({
       is_machine_generated: true,
       is_helpful: { $exists: true, $in: [true, false] },
+    }).sort({
+      date_added: -1,
     });
 
     //res.status(200).json(messages);

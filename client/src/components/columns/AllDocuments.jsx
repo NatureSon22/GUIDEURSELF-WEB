@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import { FaEye } from "react-icons/fa";
+import FeaturePermission from "@/layer/FeaturePermission";
 
 const handleNavigate = (navigate, type, id) => {
   const routes = {
@@ -28,7 +29,7 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
     filterFn: "equalsString",
     cell: ({ row }) => (
       <p
-        className="hover:underline cursor-pointer"
+        className="cursor-pointer hover:underline"
         onClick={() => {
           navigate(`/documents/view/${row.original._id}`);
         }}
@@ -133,22 +134,24 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
               <p className="">View</p>
             </Button>
 
-            {(editable || isOwner) && (
-              <Button
-                variant="ghost"
-                className="w-full bg-secondary-200/10 text-[0.85rem] text-secondary-100-75"
-                onClick={() =>
-                  handleNavigate(
-                    navigate,
-                    row.original.document_type,
-                    row.original._id,
-                  )
-                }
-              >
-                <BiSolidEdit />
-                <p className="">Edit</p>
-              </Button>
-            )}
+            <FeaturePermission module="Manage Documents" access="edit file">
+              {(editable || isOwner) && (
+                <Button
+                  variant="ghost"
+                  className="w-full bg-secondary-200/10 text-[0.85rem] text-secondary-100-75"
+                  onClick={() =>
+                    handleNavigate(
+                      navigate,
+                      row.original.document_type,
+                      row.original._id,
+                    )
+                  }
+                >
+                  <BiSolidEdit />
+                  <p className="">Edit</p>
+                </Button>
+              )}
+            </FeaturePermission>
 
             {isOwner && (
               <Button

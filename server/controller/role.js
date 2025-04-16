@@ -50,6 +50,8 @@ const updateRolePermissions = async (req, res) => {
     const { role_id, permissions, isMultiCampus } = req.body;
     const parsedPermissions = JSON.parse(permissions);
 
+    console.log(" Parsed permissions: " + parsedPermissions);
+
     if (!Array.isArray(parsedPermissions)) {
       return res.status(400).json({ message: "Invalid permissions format" });
     }

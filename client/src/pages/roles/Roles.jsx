@@ -13,6 +13,7 @@ import Loading from "@/components/Loading";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import { GrPowerReset } from "react-icons/gr";
 import MultiCampus from "@/layer/MultiCampus";
+import FeaturePermission from "@/layer/FeaturePermission";
 
 const Roles = () => {
   const [filters, setFilters] = useState([]);
@@ -88,14 +89,16 @@ const Roles = () => {
         />
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="text-secondary-100-75"
-            onClick={handleAssignRoleClick}
-          >
-            <BsPersonFillAdd />
-            Assign Role
-          </Button>
+          <FeaturePermission module="Manage Roles and Permissions" access="assign role" >
+            <Button
+              variant="outline"
+              className="text-secondary-100-75"
+              onClick={handleAssignRoleClick}
+            >
+              <BsPersonFillAdd />
+              Assign Role
+            </Button>
+          </FeaturePermission>
         </div>
       </div>
 
