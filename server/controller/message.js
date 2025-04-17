@@ -101,20 +101,22 @@ const sendMessage = async (req, res) => {
 
 const reviewMessage = async (req, res) => {
   try {
-    const { id, is_helpful } = req.body;
+    const { id, is_helpful, reason } = req.body;
 
-    await MessageModel.updateOne(
-      { _id: id },
-      { $set: { is_helpful } },
-      { new: true }
-    );
+    const fields = {};
+
+    if (typeof is_helpful === "boolean") fields.is_helpful = is_helpful;
+    if (reason) fields.reason = reason;
+
+    await MessageModel.updateOne({ _id: id }, { $set: fields }, { new: true });
 
     res.status(200).json({ message: "Message updated successfully" });
   } catch (error) {
-    console.error("Error sending message:", error);
+    console.error("Error updating message:", error);
     res.status(500).json({ message: "Failed to send a review", error });
   }
 };
+
 const tallyReview = async (req, res) => {
   const { filter } = req.query;
   console.log("filter: " + filter);
