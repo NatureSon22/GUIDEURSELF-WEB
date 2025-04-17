@@ -440,6 +440,8 @@ const updateAccount = async (req, res) => {
 
 const updatePhoto = async (req, res) => {
   try {
+    const { username } = req.body;
+
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
@@ -465,7 +467,13 @@ const updatePhoto = async (req, res) => {
 
     const user = await UserModel.findOneAndUpdate(
       { _id: accountId },
-      { $set: { user_photo_url: photoUrl, date_updated: new Date() } },
+      {
+        $set: {
+          username: username,
+          user_photo_url: photoUrl,
+          date_updated: new Date(),
+        },
+      },
       { new: true, runValidators: true } // Ensure the updated user is returned
     );
 
