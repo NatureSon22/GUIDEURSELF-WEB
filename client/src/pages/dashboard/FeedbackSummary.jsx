@@ -20,7 +20,7 @@ const FeedbackSummary = () => {
   };
 
   return (
-    <div className="space-y-5 rounded-xl border border-secondary-200/50 bg-white px-7 py-7">
+    <div className="space-y-5 flex-1 rounded-xl border border-secondary-200/50 bg-white px-7 py-7">
       <p className="font-medium">Feedback Summary</p>
 
       <div className="space-y-6 px-5">

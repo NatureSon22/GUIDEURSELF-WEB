@@ -1,7 +1,7 @@
 import logo from "../assets/guideURSelfLOGO 1.png";
 import SideBarElements from "./SideBarElements";
 import SideBarTab from "./SideBarTab";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ModulePermission from "@/layer/ModulePermission";
 import useUserStore from "@/context/useUserStore";
@@ -10,29 +10,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import useBreadCrumbStore from "@/context/useBreadCrumbStore";
 
+const sideBarAccessPath = {
+  "Manage Dashboard": "/dashboard",
+  "Manage Documents": "/documents",
+  "Manage Virtual Tour": "/virtual-tour",
+  "Manage Chats": "/chats",
+  "Manage Campus": "/campus",
+  "Manage Accounts": "/accounts",
+  "Manage Roles and Permissions": "/roles-and-permissions",
+  "Manage Reports": "/reports",
+  "Manage System Settings": "/settings",
+};
+
 const SideBar = () => {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const location = pathname.split("/")[1];
   const currentUser = useUserStore((state) => state.currentUser);
   const { setPath } = useBreadCrumbStore();
 
-  // Find the first accessible module
-  const firstAccessibleModule =
-    SideBarElements.flatMap((section) =>
-      section.modules.filter((module) =>
-        currentUser?.permissions?.some(
-          (permission) =>
-            permission.module.toLowerCase() === module.module.toLowerCase(),
-        ),
-      ),
-    )[0]?.path || "/";
-
-  console.log(firstAccessibleModule);
+  const firstAccessibleModule = currentUser?.permissions[0];
 
   // Initialize `chosen` state with either the current location or the first accessible module
-  const [chosen, setSchosen] = useState(
-    location ? `/${location}` : firstAccessibleModule,
-  );
+  const [chosen, setSchosen] = useState("/dashboard");
 
   const {
     data: general,
@@ -44,10 +44,18 @@ const SideBar = () => {
   });
 
   useEffect(() => {
-    if (location) {
-      setSchosen(`/${location}`);
-    } else {
-      setSchosen(firstAccessibleModule);
+    // Prioritize location from URL if available
+    const pathFromLocation = location ? `/${location}` : null;
+    const fallbackPath = firstAccessibleModule?.module
+      ? sideBarAccessPath[firstAccessibleModule.module]
+      : "/dashboard";
+
+    const finalPath = pathFromLocation || fallbackPath;
+
+    if (finalPath) {
+      console.log("Setting path to:", finalPath);
+      setSchosen(finalPath);
+      navigate(finalPath, { replace: true });
     }
   }, [location, firstAccessibleModule]);
 

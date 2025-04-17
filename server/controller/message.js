@@ -28,6 +28,8 @@ const getMessages = async (req, res) => {
     const messages = await MessageModel.find({
       is_machine_generated: true,
       is_helpful: { $exists: true, $in: [true, false] },
+    }).sort({
+      date_added: -1,
     });
 
     //res.status(200).json(messages);
@@ -99,29 +101,67 @@ const sendMessage = async (req, res) => {
 
 const reviewMessage = async (req, res) => {
   try {
-    const { id, is_helpful } = req.body;
+    const { id, is_helpful, reason } = req.body;
 
-    await MessageModel.updateOne(
-      { _id: id },
-      { $set: { is_helpful } },
-      { new: true }
-    );
+    const fields = {};
+
+    if (typeof is_helpful === "boolean") fields.is_helpful = is_helpful;
+    if (reason) fields.reason = reason;
+
+    await MessageModel.updateOne({ _id: id }, { $set: fields }, { new: true });
 
     res.status(200).json({ message: "Message updated successfully" });
   } catch (error) {
-    console.error("Error sending message:", error);
+    console.error("Error updating message:", error);
     res.status(500).json({ message: "Failed to send a review", error });
   }
 };
 
 const tallyReview = async (req, res) => {
+  const { filter } = req.query;
+  console.log("filter: " + filter);
+  console.log("run");
+
+  const now = new Date();
+  let startDate = null;
+
+  switch (filter) {
+    case "Today":
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
+    case "This week": {
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+      startDate = new Date(now.setDate(diff));
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    }
+    case "This month":
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    case "This year":
+      startDate = new Date(now.getFullYear(), 0, 1);
+      break;
+    case "none":
+    default:
+      // If no filter is provided, do not filter by date
+      startDate = null;
+      break;
+  }
+
   try {
+    const matchStage = {
+      is_machine_generated: true,
+      is_helpful: { $in: [true, false] },
+    };
+
+    if (startDate !== null) {
+      matchStage.date_added = { $gte: startDate };
+    }
+
     const result = await MessageModel.aggregate([
       {
-        $match: {
-          is_machine_generated: true,
-          is_helpful: { $in: [true, false] }, // Ensures only reviewed messages are counted
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -157,9 +197,10 @@ const tallyReview = async (req, res) => {
       unhelpfulPercentage: (unhelpfulMessages / totalMessages) * 100,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to tally review", error: error.message });
+    res.status(500).json({
+      message: "Failed to tally review",
+      error: error.message,
+    });
   }
 };
 

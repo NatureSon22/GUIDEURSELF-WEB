@@ -127,6 +127,7 @@ const sendVerificationCode = async (req, res) => {
 
     // Generate and save new code
     const verificationCode = generateVerificationCode();
+    console.log("VERIFICATION CODE: " + verificationCode);
     const newCode = new LoginCode({
       user_id: user._id,
       verification_code: verificationCode,

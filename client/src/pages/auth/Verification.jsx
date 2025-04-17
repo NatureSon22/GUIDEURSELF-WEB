@@ -50,7 +50,7 @@ const Verification = () => {
     onSuccess: () => {
       setError("");
       setFailedAttempts(0); // reset on success
-      navigate("/dashboard");
+      navigate("/");
     },
     onError: (error) => {
       setFailedAttempts((prev) => prev + 1);

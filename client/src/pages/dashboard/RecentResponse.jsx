@@ -1,17 +1,17 @@
+import { getMessages } from "@/api/message";
 import DataTable from "@/components/DataTable";
-import Accounts from "@/components/columns/Accounts";
 import { useQuery } from "@tanstack/react-query";
-import { getAllAccounts } from "@/api/accounts";
+import columns from "@/components/columns/MessageReport";
 import Loading from "@/components/Loading";
 
-const RecentAccounts = () => {
+const RecentResponse = () => {
   const {
-    data: allAccounts,
+    data: allMessages,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["recent-accounts"],
-    queryFn: () => getAllAccounts(10),
+    queryKey: ["messages"],
+    queryFn: getMessages,
     refetchOnWindowFocus: false,
   });
 
@@ -33,12 +33,12 @@ const RecentAccounts = () => {
 
   return (
     <DataTable
-      data={allAccounts || []}
-      columns={Accounts}
-      columnActions={{ hasAction: false }}
+      data={allMessages} // Use filteredFeedbacks instead of allFeedback
+      columns={() => columns({ truncateResponse: true })}
+      pageSize={10}
       showFooter={false}
     />
   );
 };
 
-export default RecentAccounts;
+export default RecentResponse;

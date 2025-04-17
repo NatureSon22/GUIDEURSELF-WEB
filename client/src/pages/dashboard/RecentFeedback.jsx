@@ -1,24 +1,23 @@
+import { getAllFeedback } from "@/api/component-info";
 import DataTable from "@/components/DataTable";
-import Accounts from "@/components/columns/Accounts";
 import { useQuery } from "@tanstack/react-query";
-import { getAllAccounts } from "@/api/accounts";
+import columns from "@/components/columns/FeedbackReport";
 import Loading from "@/components/Loading";
 
-const RecentAccounts = () => {
+const RecentFeedback = () => {
   const {
-    data: allAccounts,
+    data: allFeedback,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["recent-accounts"],
-    queryFn: () => getAllAccounts(10),
-    refetchOnWindowFocus: false,
+    queryKey: ["feedback"],
+    queryFn: getAllFeedback,
   });
 
   if (isError) {
     return (
       <div className="grid h-52 place-items-center text-secondary-100-75">
-        <p>Failed to fetch recent accounts</p>
+        <p>Failed to fetch recent feedback</p>
       </div>
     );
   }
@@ -33,12 +32,11 @@ const RecentAccounts = () => {
 
   return (
     <DataTable
-      data={allAccounts || []}
-      columns={Accounts}
-      columnActions={{ hasAction: false }}
+      data={allFeedback} // Use filteredFeedbacks instead of allFeedback
+      columns={columns}
       showFooter={false}
     />
   );
 };
 
-export default RecentAccounts;
+export default RecentFeedback;

@@ -440,38 +440,55 @@ const updateAccount = async (req, res) => {
 
 const updatePhoto = async (req, res) => {
   try {
-    if (!req.file) {
+    const { username, accountId, device = "web" } = req.body;
+
+    // Reject if web and no image uploaded
+    if (!req.file && device === "web") {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
     let photoUrl;
-    try {
-      const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: "profiles",
-        resource_type: "image",
-      });
-      photoUrl = result.secure_url;
-    } catch (error) {
-      return res.status(500).json({
-        message: "Failed to upload profile photo",
-        error: error.message,
-      });
+
+    // Upload photo if present (optional for mobile)
+    if (req.file) {
+      try {
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "profiles",
+          resource_type: "image",
+        });
+        photoUrl = result.secure_url;
+      } catch (error) {
+        return res.status(500).json({
+          message: "Failed to upload profile photo",
+          error: error.message,
+        });
+      }
     }
 
-    const { accountId } = req.body;
     if (!accountId) {
       return res.status(400).json({ message: "Account ID is required" });
     }
 
+    // Build update fields dynamically
+    const updateFields = {
+      date_updated: new Date(),
+    };
+
+    if (username) updateFields.username = username;
+    if (photoUrl) updateFields.user_photo_url = photoUrl;
+
     const user = await UserModel.findOneAndUpdate(
       { _id: accountId },
-      { $set: { user_photo_url: photoUrl, date_updated: new Date() } },
-      { new: true, runValidators: true } // Ensure the updated user is returned
+      { $set: updateFields },
+      { new: true, runValidators: true }
     );
 
-    fs.unlinkSync(req.file.path);
+    // Safely delete temp file if it exists
+    if (req.file?.path) {
+      fs.unlinkSync(req.file.path);
+    }
 
-    res.status(200).json({ message: "Photo updated successfully", user });
+    res.status(200).json({ message: "Profile updated successfully", user });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

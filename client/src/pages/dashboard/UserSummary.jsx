@@ -94,7 +94,7 @@ const UserSummary = () => {
   }, [chartData]);
 
   return (
-    <Card className="flex h-full flex-col px-7 py-5 shadow-none">
+    <Card className="flex flex-1 flex-col px-7 py-5 shadow-none">
       <div className="mt-2 flex items-center justify-between">
         <p className="font-medium">User Summary</p>
 
