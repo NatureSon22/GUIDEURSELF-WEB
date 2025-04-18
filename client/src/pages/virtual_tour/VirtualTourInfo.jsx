@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { getUniversityData } from "@/api/component-info";
 import { TbMap2 } from "react-icons/tb";
 import { RiCameraLensLine } from "react-icons/ri";
+import { MdOutlinePermMedia } from "react-icons/md";
 import { MdTouchApp } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -127,7 +128,7 @@ const VirtualTourInfo = () => {
                     </div>        
                     <Link to="/virtual-tour/media-library" className="w-[100%] h-[50px]">
                         <button className="w-[100%] text-md h-[100%] flex justify-center gap-4 font-medium items-center border-base-200 outline-none focus-none border-[1.5px] rounded-md">
-                        
+                        <MdOutlinePermMedia  className="text-lg text-base-200"/>
                         <p className="text-base-200 font-medium">Media Library</p>
                         </button>
                     </Link>
