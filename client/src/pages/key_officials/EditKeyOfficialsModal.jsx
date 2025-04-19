@@ -19,7 +19,16 @@ const fetchCampuses = async () => {
   return response.json();
 }
 
-const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
+const fetchUserRole = async (roleType) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types?name=${roleType}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Failed to fetch role data");
+    return response.json();
+  };
+
+const EditKeyOfficialsModal = ({ official, closeModal, onUpdate, userData }) => {
   const { currentUser } = useUserStore((state) => state);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -31,6 +40,14 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(official?.key_official_photo_url || "");
   const [isLoading, setIsLoading] = useState(false);
+
+          const { data: userRole } = useQuery({
+            queryKey: ["userRole", userData.role_type],
+            queryFn: () => fetchUserRole(userData.role_type),
+            enabled: !!userData.role_type, // Only fetch if `role_type` is defined
+          });
+
+          const isMultiCampus = userData.isMultiCampus ?? false;
 
         const { data } = useQuery({
             queryKey: ["user"],
@@ -183,6 +200,12 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
 
   if (error) return <p>Error fetching positions</p>;
 
+  
+  // Filter and sort campuses alphabetically
+  const filteredCampuses = campuses
+  .filter((campus) => (isMultiCampus ? true : campus._id === userData.campus_id))
+  .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
+
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
       <div className="bg-white p-6 rounded-md w-1/3">
@@ -225,8 +248,8 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate }) => {
                                     onChange={(e) => setCampus(e.target.value)}
                                     className="font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
                                 >
-                                    <option className="font-normal text-[0.875rem]" disabled hidden value="">Select Campus</option>
-                                    {campuses.map((cam) => (
+                                    <option className="font-normal text-[0.875rem]"   value="">Select Campus</option>
+                                    {filteredCampuses.map((cam) => (
                                         <option className="font-normal text-[0.875rem]" key={cam._id} value={cam.campus_name}>
                                             {cam.campus_name}
                                         </option>

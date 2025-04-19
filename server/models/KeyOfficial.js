@@ -15,10 +15,10 @@ const keyOfficialSchema = new mongoose.Schema({
   },
   campus_name: { 
     type: String,
-    required: true },
+  },
   college_name: { 
     type: String,
-    required: true },
+  },
   date_added: { 
     type: Date,  
     required: true 

@@ -219,6 +219,7 @@ const EditKeyOfficials = () => {
       (currentPage - 1) * ITEMS_PER_PAGE,
       currentPage * ITEMS_PER_PAGE
     );
+    
 
   return (
     <div className="w-full">
@@ -440,6 +441,7 @@ const EditKeyOfficials = () => {
       {/* Modals */}
       {isModalOpen && (
         <Modal
+          userData={data}
           closeModal={() => setIsModalOpen(false)}
           addOfficial={handleAddOfficial}
         />
@@ -447,6 +449,7 @@ const EditKeyOfficials = () => {
       {isEditModalOpen && (
         <EditKeyOfficialsModal
           official={selectedOfficial}
+          userData={data}
           closeModal={() => setIsEditModalOpen(false)}
           onUpdate={() => {
             queryClient.invalidateQueries(["keyofficials"]); // Refetch data after update
