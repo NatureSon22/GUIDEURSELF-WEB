@@ -166,7 +166,6 @@ const getHighRoleTypes = async () => {
   return filteredRoleTypes || [];
 };
 
-
 const getLowRoleTypes = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
     method: "GET",
@@ -194,7 +193,10 @@ const getLowRoleTypes = async () => {
   return filteredRoleTypes || [];
 };
 
-const getAllRoleTypes = async (filter = []) => {
+const getAllRoleTypes = async (
+  filter = [],
+  removeWithoutPermissions = false,
+) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
     method: "GET",
     credentials: "include",
@@ -210,11 +212,18 @@ const getAllRoleTypes = async (filter = []) => {
   let allRoleTypes = roleTypes.map((roleType) => ({
     value: roleType._id,
     label: formatTitle(roleType.role_type),
+    permissionLength: roleType.permissions.length,
   }));
 
   if (filter.length > 0) {
     allRoleTypes = allRoleTypes.filter(
       (roleType) => !filter.includes(roleType.label.toLowerCase()),
+    );
+  }
+
+  if (removeWithoutPermissions) {
+    allRoleTypes = allRoleTypes.filter(
+      (roleType) => roleType.permissionLength > 0,
     );
   }
 

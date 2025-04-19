@@ -29,7 +29,7 @@ const EditAssignRole = () => {
 
   const { data: allRoles, isError: allRolesError } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: () => getAllRoleTypes(["student"]),
+    queryFn: () => getAllRoleTypes([], true),
   });
 
   const {
@@ -39,6 +39,7 @@ const EditAssignRole = () => {
   } = useQuery({
     queryKey: ["roleDetails", roleType, accountId],
     queryFn: () => getRoleById(roleType),
+    enabled: !!roleType, // Only fetch if roleType is selected
   });
 
   const { data: accountDetails, isLoading: accountLoading } = useQuery({
@@ -55,9 +56,12 @@ const EditAssignRole = () => {
           grantedPermissions,
           revokedPermissions,
         ),
-      onSuccess: (data) => {
-        toast({ title: "Success", description: data });
-        navigate("/roles-permissions");
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "User permissions updated successfully",
+        });
+        navigate("/user-permissions");
       },
       onError: (error) => {
         toast({
@@ -67,6 +71,15 @@ const EditAssignRole = () => {
         });
       },
     });
+
+  // Reset permissions when the selected role changes
+  useEffect(() => {
+    setCustomize(false);
+    setGroundPermissions([]);
+    setPermissions([]);
+    setGrantedPermissions([]);
+    setRevokedPermissions([]);
+  }, [roleType]);
 
   // Set initial ground permissions from role details
   useEffect(() => {
@@ -85,7 +98,6 @@ const EditAssignRole = () => {
   }, [accountLoading, accountDetails]);
 
   //Update permissions when ground permissions, granted, or revoked permissions change
-
   useEffect(() => {
     if (!groundPermissions.length) return;
 
@@ -130,8 +142,6 @@ const EditAssignRole = () => {
       }
     });
 
-    console.log(updatedPermissions);
-
     // ✅ Step 3: Ensure revoked modules are fully removed if no permissions remain
     updatedPermissions = updatedPermissions.filter(
       (module) => module.access.length > 0,
@@ -139,6 +149,15 @@ const EditAssignRole = () => {
 
     setPermissions(updatedPermissions);
   }, [groundPermissions, grantedPermissions, revokedPermissions]);
+
+  const handleReset = () => {
+    setCustomize(false);
+    if (roleDetails?.permissions) {
+      setGroundPermissions(roleDetails.permissions);
+    }
+    setGrantedPermissions([]);
+    setRevokedPermissions([]);
+  };
 
   const handleSetPermissions = (module, access, checked) => {
     if (!customize) return;
@@ -228,7 +247,7 @@ const EditAssignRole = () => {
     }
   };
 
-  const handleReturnClick = () => navigate("/roles-permissions");
+  const handleReturnClick = () => navigate("/user-permissions");
 
   if (allRolesError || roleDetailsError) {
     return (
@@ -241,11 +260,12 @@ const EditAssignRole = () => {
   return (
     <div className="flex h-full flex-col gap-7">
       <div className="space-y-2">
-        <p className="font-medium">Role</p>
+        <p className="font-medium">Edit Permissions</p>
         <div className="space-y-2">
-          <p className="text-[0.9rem] text-base-300/50">
-            Update the role for the user and customize their permissions to
-            manage specific areas or tasks as needed.
+          <p className="mb-[2px] text-[0.9rem] text-base-300/50">
+            Assign and customize permissions for each user type to manage
+            specific areas or tasks within the system based on their
+            responsibilities
           </p>
           <ComboBox
             options={allRoles}
@@ -259,13 +279,18 @@ const EditAssignRole = () => {
       <div className="flex flex-1 flex-col">
         <div className="flex justify-between">
           <p className="font-medium">Permissions</p>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              className="border-secondary-200"
-              checked={customize}
-              onCheckedChange={setCustomize}
-            />
-            <Label>Customize permissions</Label>
+
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                className="border-secondary-200"
+                checked={customize}
+                onCheckedChange={setCustomize}
+              />
+              <Label>Customize permissions</Label>
+            </div>
+
+            <Button onClick={handleReset}>Reset</Button>
           </div>
         </div>
 

@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
 import {
   deleteRolePermission,
   getRoleById,
@@ -63,14 +62,14 @@ const EditDialog = ({ type, role_id, children }) => {
       ]);
       toast({
         title: "Permissions Updated",
-        description: "Role permissions updated successfully",
+        description: "User permissions updated successfully",
       });
     },
     onError: () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update role permissions",
+        description: "Failed to update user permissions",
       });
     },
     onSettled: () => {
@@ -88,14 +87,14 @@ const EditDialog = ({ type, role_id, children }) => {
       ]);
       toast({
         title: "Permissions Deleted",
-        description: "Role permissions deleted successfully",
+        description: "User permissions deleted successfully",
       });
     },
     onError: () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete role permissions",
+        description: "Failed to delete user permissions",
       });
     },
     onSettled: () => {
@@ -189,7 +188,7 @@ const EditDialog = ({ type, role_id, children }) => {
           <DialogDescription>
             {type === "delete"
               ? "Are you sure you want to delete this role? This action cannot be undone."
-              : "Edit permissions for this role"}
+              : "Edit permissions for this user type"}
           </DialogDescription>
         </DialogHeader>
 

@@ -36,6 +36,21 @@ const columns = ({ truncateResponse = false }) => [
     ),
   },
   {
+    accessorKey: "reason", // Access the helpful flag from the response
+    header: "Reason",
+    cell: ({ row }) => {
+      const hasReason = row.original?.reason ? true : false;
+      return (
+        <div
+          className={`min-w-[70px] ${!hasReason ? "text-secondary-100-75/50" : ""} `}
+        >
+          <p>{hasReason ? row.original.reason : "— —"}</p>
+          {/* Display helpfulness */}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "date_added", // Access date from the response
     header: "Date Created",
     cell: ({ row }) => (

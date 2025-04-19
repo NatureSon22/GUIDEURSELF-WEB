@@ -51,7 +51,7 @@ const getAllAccounts = async (req, res, next) => {
                 isDeleted: { $ne: true }, // Filter out deleted roles
               },
             },
-            { $project: { role_type: 1 } },
+            { $project: { role_type: 1, permissions: 1 } },
           ],
           as: "role",
         },
@@ -88,6 +88,7 @@ const getAllAccounts = async (req, res, next) => {
           middlename: 1,
           lastname: 1,
           role_type: "$role.role_type",
+          permissions: "$role.permissions",
           role_id: 1,
           campus_name: "$campus.campus_name",
           date_created: 1,

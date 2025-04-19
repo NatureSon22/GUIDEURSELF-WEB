@@ -66,8 +66,8 @@ const SideBarElements = [
         icon: <IoPerson />,
       },
       {
-        title: "Roles & Permissions",
-        path: "/roles-permissions",
+        title: "User Permissions",
+        path: "/user-permissions",
         module: "Manage Roles and Permissions",
         icon: <BsPersonFillAdd />,
       },

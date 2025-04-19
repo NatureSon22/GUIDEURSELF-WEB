@@ -105,9 +105,9 @@ const CreateRole = () => {
           <DialogHeader>
             <DialogTitle>Set Default Permissions</DialogTitle>
             <DialogDescription>
-              Control access and permissions for roles.
-              <span className="ml-1 text-secondary-200">
-                Note: Only roles without assigned permissions will be displayed.
+              Control access and permissions for user types.
+              <span className="ml-1 font-medium text-secondary-100-75/40">
+                Note: Only types without assigned permissions will be displayed.
               </span>
             </DialogDescription>
           </DialogHeader>
@@ -115,7 +115,7 @@ const CreateRole = () => {
           <div>
             <ComboBox
               options={roles}
-              placeholder="Select Role"
+              placeholder="Select user type"
               onChange={setRoleId}
               value={roleId}
             />

@@ -18,7 +18,7 @@ const UserManagement = () => {
     <div className="space-y-5">
       <Header
         title="User Management"
-        subtitle="Organize user roles, types, and permissions within the system"
+        subtitle="Organize user types and permissions within the system"
       ></Header>
 
       <Layout
@@ -30,8 +30,8 @@ const UserManagement = () => {
       </Layout>
 
       <Layout
-        title="Roles & Permissions"
-        subtitle="Manage user roles, permissions, and access"
+        title="User Permissions"
+        subtitle="Manage user type permissions and access"
         isEditable={false}
       >
         <RoleManagement />

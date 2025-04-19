@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { BiEdit } from "react-icons/bi";
 
 const handleEditClick = (navigate, id, role_id) => {
-  navigate(`/roles-permissions/edit-assign-role/${id}`, {
+  navigate(`/user-permissions/edit-permissions/${id}`, {
     state: { roleId: role_id },
   });
 };

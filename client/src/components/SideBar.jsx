@@ -2,7 +2,7 @@ import logo from "../assets/guideURSelfLOGO 1.png";
 import SideBarElements from "./SideBarElements";
 import SideBarTab from "./SideBarTab";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import ModulePermission from "@/layer/ModulePermission";
 import useUserStore from "@/context/useUserStore";
 import { getGeneralData } from "@/api/component-info";
@@ -12,12 +12,12 @@ import useBreadCrumbStore from "@/context/useBreadCrumbStore";
 
 const sideBarAccessPath = {
   "Manage Dashboard": "/dashboard",
-  "Manage Documents": "/documents",
+  "Manage Documents": "/documents", 
   "Manage Virtual Tour": "/virtual-tour",
   "Manage Chats": "/chats",
   "Manage Campus": "/campus",
   "Manage Accounts": "/accounts",
-  "Manage Roles and Permissions": "/roles-and-permissions",
+  "Manage Permissions": "/user-permissions",
   "Manage Reports": "/reports",
   "Manage System Settings": "/settings",
 };
@@ -25,14 +25,15 @@ const sideBarAccessPath = {
 const SideBar = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const location = pathname.split("/")[1];
   const currentUser = useUserStore((state) => state.currentUser);
   const { setPath } = useBreadCrumbStore();
 
-  const firstAccessibleModule = currentUser?.permissions[0];
+  // Initialize chosen state with the current path
+  const [chosen, setChosen] = useState("/dashboard");
 
-  // Initialize `chosen` state with either the current location or the first accessible module
-  const [chosen, setSchosen] = useState("/dashboard");
+  const firstAccessibleModule = useMemo(() => {
+    return currentUser?.permissions?.[0];
+  }, [currentUser?.permissions]);
 
   const {
     data: general,
@@ -43,22 +44,35 @@ const SideBar = () => {
     queryFn: getGeneralData,
   });
 
+  // Handle initial navigation based on permissions
   useEffect(() => {
-    // Prioritize location from URL if available
-    const pathFromLocation = location ? `/${location}` : null;
-    const fallbackPath = firstAccessibleModule?.module
-      ? sideBarAccessPath[firstAccessibleModule.module]
-      : "/dashboard";
+    // Extract the base path from the current URL pathname
+    const basePath = `/${pathname.split("/")[1]}`;
 
-    const finalPath = pathFromLocation || fallbackPath;
+    // Check if the current path is valid
+    const isValidPath = basePath !== "/";
 
-    if (finalPath) {
-      console.log("Setting path to:", finalPath);
-      setSchosen(finalPath);
-      navigate(finalPath, { replace: true });
+    // If we have a valid path, use it
+    if (isValidPath) {
+      setChosen(basePath);
+      return;
     }
-  }, [location, firstAccessibleModule]);
 
+    // Fall back to the first accessible module path if no valid path
+    if (firstAccessibleModule?.module) {
+      const fallbackPath = sideBarAccessPath[firstAccessibleModule.module];
+      if (fallbackPath) {
+        setChosen(fallbackPath);
+        navigate(fallbackPath, { replace: true });
+      }
+    } else {
+      // Default fallback if no permissions are available
+      setChosen("/dashboard");
+      navigate("/dashboard", { replace: true });
+    }
+  }, [pathname, firstAccessibleModule, navigate]);
+
+  // Update breadcrumbs whenever pathname changes
   useEffect(() => {
     const paths = pathname.split("/").filter(Boolean);
     const filteredPaths = paths.filter((path) => path !== "view");
@@ -77,14 +91,17 @@ const SideBar = () => {
     setPath(processedPath);
   }, [pathname, setPath]);
 
-  const userHasAccess = (modules) => {
-    return modules.some((module) =>
-      currentUser?.permissions?.some(
-        (permission) =>
-          permission.module.toLowerCase() === module.module.toLowerCase(),
-      ),
-    );
-  };
+  // Optimize permission check with useMemo
+  const accessibleSections = useMemo(() => {
+    return SideBarElements.filter((section) => {
+      return section.modules.some((module) =>
+        currentUser?.permissions?.some(
+          (permission) =>
+            permission.module.toLowerCase() === module.module.toLowerCase(),
+        ),
+      );
+    });
+  }, [currentUser?.permissions]);
 
   return (
     <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
@@ -103,36 +120,30 @@ const SideBar = () => {
       </div>
 
       <div className="space-y-2">
-        {SideBarElements.map((section) => {
-          return (
-            userHasAccess(section.modules) && (
-              <div key={section.sectionTitle}>
-                <p className="mb-1 ml-4 text-[0.8rem] text-secondary-100-75">
-                  {section.sectionTitle}
-                </p>
+        {accessibleSections.map((section) => (
+          <div key={section.sectionTitle}>
+            <p className="mb-1 ml-4 text-[0.8rem] text-secondary-100-75">
+              {section.sectionTitle}
+            </p>
 
-                <div>
-                  {section.modules.map((module) => {
-                    return (
-                      <ModulePermission
-                        key={module.title}
-                        required={{
-                          module: module.module,
-                        }}
-                      >
-                        <SideBarTab
-                          {...module}
-                          setSchosen={setSchosen}
-                          chosen={chosen}
-                        />
-                      </ModulePermission>
-                    );
-                  })}
-                </div>
-              </div>
-            )
-          );
-        })}
+            <div>
+              {section.modules.map((module) => (
+                <ModulePermission
+                  key={module.title}
+                  required={{
+                    module: module.module,
+                  }}
+                >
+                  <SideBarTab
+                    {...module}
+                    setSchosen={setChosen}
+                    chosen={chosen}
+                  />
+                </ModulePermission>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

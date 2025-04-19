@@ -2,7 +2,6 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMemo, useState } from "react";
-import { BsPersonFillAdd } from "react-icons/bs";
 import ComboBox from "@/components/ComboBox";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/api/accounts";
@@ -13,7 +12,6 @@ import Loading from "@/components/Loading";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import { GrPowerReset } from "react-icons/gr";
 import MultiCampus from "@/layer/MultiCampus";
-import FeaturePermission from "@/layer/FeaturePermission";
 
 const Roles = () => {
   const [filters, setFilters] = useState([]);
@@ -28,11 +26,11 @@ const Roles = () => {
   });
   const { data: accountRoles, isLoading } = useQuery({
     queryKey: ["accountRoles"],
-    queryFn: () => getAllAccounts("", ["student"]),
+    queryFn: () => getAllAccounts("", [], true),
   });
   const { data: allRoles } = useQuery({
     queryKey: ["allRoles"],
-    queryFn: () => getAllRoleTypes(["student"]),
+    queryFn: () => getAllRoleTypes([], true),
   });
 
   const navigate = useNavigate();
@@ -61,9 +59,9 @@ const Roles = () => {
     });
   }, [accountRoles, filters, fromDate, toDate]);
 
-  const handleAssignRoleClick = () => {
-    navigate("/roles-permissions/assign-role");
-  };
+  // const handleAssignRoleClick = () => {
+  //   navigate("/roles-permissions/assign-role");
+  // };
 
   const handleReset = () => {
     setFilters([]);
@@ -76,8 +74,8 @@ const Roles = () => {
   return (
     <div className={`flex flex-1 flex-col gap-5 ${isLoading ? "h-full" : ""} `}>
       <Header
-        title="Roles & Permissions"
-        subtitle="Manage roles and permissions by selecting a staff member, assigning their campus and designation, defining their role and customizing their access levels within the system based on their responsibilities"
+        title="User Permissions"
+        subtitle="Assign permissions to users by selecting their user type, campus, and designation, and customize their access to match their responsibilities"
       />
 
       <div className="flex items-center gap-5">
@@ -88,7 +86,7 @@ const Roles = () => {
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
 
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <FeaturePermission module="Manage Roles and Permissions" access="assign role" >
             <Button
               variant="outline"
@@ -99,7 +97,7 @@ const Roles = () => {
               Assign Role
             </Button>
           </FeaturePermission>
-        </div>
+        </div> */}
       </div>
 
       <div className="flex items-center gap-5">
@@ -131,7 +129,7 @@ const Roles = () => {
 
         <ComboBox
           options={allRoles}
-          placeholder="select role"
+          placeholder="select user type"
           filter="role_type"
           setFilters={setFilters}
           reset={reset}

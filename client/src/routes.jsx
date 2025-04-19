@@ -221,7 +221,7 @@ const routes = [
         ],
       },
       {
-        path: "/roles-permissions",
+        path: "/user-permissions",
         element: (
           <NetworkLayer>
             <Container />
@@ -233,15 +233,15 @@ const routes = [
             element: <Roles />,
           },
           {
-            path: "/roles-permissions/edit-assign-role/:accountId",
+            path: "/user-permissions/edit-permissions/:accountId",
             element: <EditAssignRole />,
           },
           {
-            path: "/roles-permissions/edit-assign-role",
+            path: "/user-permissions/edit-assign-role",
             element: <EditAssignRoleRefined />,
           },
           {
-            path: "/roles-permissions/assign-role",
+            path: "/user-permissions/assign-role",
             element: <AssignRole />,
           },
         ],

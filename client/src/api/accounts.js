@@ -1,9 +1,13 @@
-const getAllAccounts = async (recent = "", filterRoles = []) => {
-  const roleParams = filterRoles.length
-    ? `&roles=${filterRoles.join(",")}`
-    : "";
-  console.log(roleParams);
-  const url = `${import.meta.env.VITE_API_URL}/accounts?recent=${recent}${roleParams}`;
+const getAllAccounts = async (
+  recent = "",
+  filterRoles = [],
+  removeWithoutPermissions = false,
+) => {
+  const params = new URLSearchParams();
+  if (recent) params.append("recent", recent);
+  if (filterRoles.length) params.append("roles", filterRoles.join(","));
+
+  const url = `${import.meta.env.VITE_API_URL}/accounts?${params.toString()}`;
 
   const response = await fetch(url, {
     method: "GET",
@@ -19,7 +23,11 @@ const getAllAccounts = async (recent = "", filterRoles = []) => {
 
   const { users } = await response.json();
 
-  return (users || []).sort((a, b) => {
+  const filtered = removeWithoutPermissions
+    ? (users || []).filter((user) => user.permissions.length > 0)
+    : users || [];
+
+  return filtered.sort((a, b) => {
     const dateA = new Date(a.createdAt || "1970-01-01");
     const dateB = new Date(b.createdAt || "1970-01-01");
     return dateB - dateA;
@@ -54,9 +62,9 @@ const getLowAccounts = async (recent = "") => {
 
   // Filter out Super Administrators and Administrators
   const filteredUsers = (users || []).filter(
-    (user) => 
-      user.role_type !== "Super Administrator" && 
-      user.role_type !== "Administrator"
+    (user) =>
+      user.role_type !== "Super Administrator" &&
+      user.role_type !== "Administrator",
   );
 
   return filteredUsers.sort(
