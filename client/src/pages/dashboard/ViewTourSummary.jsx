@@ -44,7 +44,7 @@ const ViewTourSummary = () => {
             <p className="text-3xl font-semibold">{totalFloors}</p>
             <TbMap2 className="text-4xl text-base-200" />
           </div>
-          <p className="text-[0.9rem]">Total Locations Featured</p>
+          <p className="text-[0.9rem]">Total Floors Featured</p>
         </div>
 
         <div className="grid place-items-center space-y-2">

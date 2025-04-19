@@ -89,6 +89,7 @@ const EditMarkerModal =
   const [imageFile, setImageFile] = useState(marker.marker_photo_url);
   const [newImagePreview, setNewImagePreview] = useState(null);
   const [isMutating, setIsMutating] = useState(false);
+  const [categoryDescription, setCategoryDescription] = useState("");
   const [isShowed, setIsShowed] = useState(true);
   const [isAllowed, setIsAllowed] = useState(false);
   const [isPanorama, setIsPanorama] = useState(false);
@@ -100,6 +101,42 @@ const EditMarkerModal =
     setSelectedCategory(selectedCategory);
     setLocalSelectedCategory(selectedCategory); // Update local state if the prop changes
   }, [selectedCategory]);
+
+  
+    useEffect(() => {
+    if (localSelectedCategory == "Academic Spaces") {
+      setCategoryDescription("Areas dedicated to learning, including classrooms, lecture halls, and study zones.");
+    }
+  
+    if (localSelectedCategory == "Administrative Offices") {
+      setCategoryDescription("Offices where faculty and staff manage campus operations and student affairs.");
+    }
+  
+    if (localSelectedCategory == "Student Services") {
+      setCategoryDescription("Facilities that support student needs, such as counseling, career centers, and advisories.");
+    }
+  
+    if (localSelectedCategory == "Campus Attraction") {
+      setCategoryDescription("Key locations that highlight the vibrant and historic aspects of the campus.");
+    }
+  
+    if (localSelectedCategory == "Utility Areas") {
+      setCategoryDescription("Essential service areas, such as restrooms, maintenance rooms, and storage spaces.");
+    }
+  
+    if (localSelectedCategory == "Multi-Purpose") {
+      setCategoryDescription("A flexible space for meetings, events, and student activities.");
+    }
+  
+    if (localSelectedCategory == "Others (Miscellaneous)") {
+      setCategoryDescription("Uncategorized areas or locations with unique purposes within the campus.");
+    }
+  
+    if (localSelectedCategory == "") {
+      setCategoryDescription("");
+    }
+    
+  },);
   
   const handleCategoryChange = (cat) => {
     setLocalSelectedCategory(cat); // Update local state
@@ -332,7 +369,7 @@ const EditMarkerModal =
                           )}
                           {isAllowed && (
                           <div>
-                          <div className="mt-4">
+                          <div className="mt-4 flex flex-col">
                             <Label className="text-[16px]">Area Categories</Label>
                             <Input
                               type="text"
@@ -353,7 +390,7 @@ const EditMarkerModal =
                                 />
                               ))}
                             </div>
-
+                            <Label className="text-[14px] pl-2 !mt-4 text-secondary-100-75">{categoryDescription}</Label>
                           </div>
                         </div>
                         )}

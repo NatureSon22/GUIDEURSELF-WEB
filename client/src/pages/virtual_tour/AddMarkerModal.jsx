@@ -74,6 +74,7 @@ const AddMarkerModal = ({
   const [isMutating, setIsMutating] = useState(false);
   const [isAllowed, setIsAllowed] = useState(false);
   const [isShowed, setIsShowed] = useState(true);
+  const [categoryDescription, setCategoryDescription] = useState("");
   const queryClient = useQueryClient();
   const { currentUser } = useUserStore((state) => state);
   const { toast } = useToast();
@@ -85,6 +86,41 @@ const AddMarkerModal = ({
     queryFn: loggedInUser,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+  if (selectedCategory == "Academic Spaces") {
+    setCategoryDescription("Areas dedicated to learning, including classrooms, lecture halls, and study zones.");
+  }
+
+  if (selectedCategory == "Administrative Offices") {
+    setCategoryDescription("Offices where faculty and staff manage campus operations and student affairs.");
+  }
+
+  if (selectedCategory == "Student Services") {
+    setCategoryDescription("Facilities that support student needs, such as counseling, career centers, and advisories.");
+  }
+
+  if (selectedCategory == "Campus Attraction") {
+    setCategoryDescription("Key locations that highlight the vibrant and historic aspects of the campus.");
+  }
+
+  if (selectedCategory == "Utility Areas") {
+    setCategoryDescription("Essential service areas, such as restrooms, maintenance rooms, and storage spaces.");
+  }
+
+  if (selectedCategory == "Multi-Purpose") {
+    setCategoryDescription("A flexible space for meetings, events, and student activities.");
+  }
+
+  if (selectedCategory == "Others (Miscellaneous)") {
+    setCategoryDescription("Uncategorized areas or locations with unique purposes within the campus.");
+  }
+
+  if (selectedCategory == "") {
+    setCategoryDescription("");
+  }
+  
+},);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -141,6 +177,7 @@ const AddMarkerModal = ({
       setIsMutating(false);
       queryClient.invalidateQueries(["campuses", campusId._id]);
       closeModal();
+      setCategoryDescription("");
     },
     onError: (error) => {
       console.error("Error adding marker:", error);
@@ -160,6 +197,7 @@ const AddMarkerModal = ({
 
   const unshowPreview = () => {
     setIsAllowed(false);
+    setCategoryDescription("");
     setIsShowed(true);
     setSelectedCategory("");
     setMarkerDescription("");
@@ -319,12 +357,11 @@ const AddMarkerModal = ({
   
             {isAllowed && (
               <div>
-                <div className="mt-4">
+                <div className="mt-4 flex flex-col">
                   <Label className="text-[16px]">Area Categories</Label>
                   <Input
                     type="text"
                     value={selectedCategory}
-                    disabled
                     className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
                     placeholder="Choose category"
                   />
@@ -341,6 +378,7 @@ const AddMarkerModal = ({
                   ))}
 
                   </div>
+                  <Label className="text-[14px] pl-2 !mt-4 text-secondary-100-75">{categoryDescription}</Label>
                 </div>
   
               </div>

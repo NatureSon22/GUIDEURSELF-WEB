@@ -106,15 +106,37 @@
         const handleSave = async () => {
             setIsLoading(true);
         
-            if (!name || !position || !image) {
+            if (!name) {
                 toast({
                     title: "Missing Fields",
-                    description: "All fields are required.",
+                    description: "name field is required.",
                     variant: "destructive",
                 });
                 setIsLoading(false);
                 return;
             }
+
+            if (!image) {
+                toast({
+                    title: "Missing Fields",
+                    description: "image field is required.",
+                    variant: "destructive",
+                });
+                setIsLoading(false);
+                return;
+            }
+        
+
+            if (!position) {
+                toast({
+                    title: "Missing Fields",
+                    description: "position field is required.",
+                    variant: "destructive",
+                });
+                setIsLoading(false);
+                return;
+            }
+        
         
             const formData = new FormData();
             formData.append("image", image);

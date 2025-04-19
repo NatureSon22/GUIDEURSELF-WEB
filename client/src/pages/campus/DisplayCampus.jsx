@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaPen } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
-// import "@/fluttermap.css";
+import "./fluttermap.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
 const iconSvg = renderToStaticMarkup(

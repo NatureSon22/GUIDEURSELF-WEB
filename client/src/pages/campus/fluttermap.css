@@ -1,0 +1,38 @@
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    width: 40px !important;
+    height: 40px !important;
+    padding-top: 7px;
+    font-size: 25px !important;
+}
+
+.scrolling-container {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.custom-dialog {
+    border-radius: 15px !important;
+  }
+
+  :root {
+    --radius: 15px !important;
+  }
+  
+  .leaflet-popup-content-wrapper {
+    background-color: rgba(0, 0, 0, 0) !important; /* Change this to your desired color */
+    color: white !important; /* Adjust text color for visibility */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    padding: 10px;
+  }
+  
+  .leaflet-popup-tip {
+    background-color: rgba(0, 0, 0, 0) !important; /* Matches the popup background */
+    box-shadow: none !important;
+  }
+
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    box-shadow: none !important;
+  }
+  
+  .leaflet-marker-icon{
+  }
