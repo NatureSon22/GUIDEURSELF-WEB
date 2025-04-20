@@ -6,7 +6,7 @@
     import useUserStore from "@/context/useUserStore";
     import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
     import { loggedInUser } from "@/api/auth";
-
+        
     const fetchCampuses = async () => {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
           method: "GET",
@@ -18,8 +18,18 @@
         }
         return response.json();
       }
+
+    const fetchUserRole = async (roleType) => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types?name=${roleType}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (!response.ok) throw new Error("Failed to fetch role data");
+        return response.json();
+      };
+      
     
-    const Modal = ({ closeModal, addOfficial }) => {
+    const Modal = ({ closeModal, addOfficial, userData }) => {
         const { currentUser } = useUserStore((state) => state);
         const [positions, setPositions] = useState([]);
         const [campus, setCampus] = useState("");
@@ -33,7 +43,15 @@
         const [loadingMessage, setLoadingMessage] = useState("");
         const [isLoading, setIsLoading] = useState(false);
         const { toast } = useToast();
-        
+
+          const { data: userRole } = useQuery({
+            queryKey: ["userRole", userData.role_type],
+            queryFn: () => fetchUserRole(userData.role_type),
+            enabled: !!userData.role_type, // Only fetch if `role_type` is defined
+          });
+
+          const isMultiCampus = userData.isMultiCampus ?? false;
+
           const {
             data: campuses = [],
             isError,
@@ -206,7 +224,12 @@
                 });
             }
             setIsLoading(false);
-        };        
+        };
+        
+  // Filter and sort campuses alphabetically
+  const filteredCampuses = campuses
+  .filter((campus) => (isMultiCampus ? true : campus._id === userData.campus_id))
+  .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
         return (
             <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
@@ -256,10 +279,10 @@
                                 onChange={(e) => setCampus(e.target.value)} // ✅ corrected here
                                 className="cursor-pointer font-normal text-[0.875rem] w-full h-10 border border-gray-300 rounded-md p-2"
                             >
-                                <option className="font-normal text-[0.875rem]" disabled hidden value="">
+                                <option className="font-normal text-[0.875rem]" value="">
                                 Select Campus
                                 </option>
-                                {campuses.map((cam) => (
+                                {filteredCampuses.map((cam) => (
                                 <option
                                     className="font-normal text-[0.875rem]"
                                     key={cam._id}
