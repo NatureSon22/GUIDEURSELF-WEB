@@ -206,11 +206,11 @@ const bulkAddAccount = async (req, res) => {
     if (bulkUsers.length > 0) {
       const result = await UserModel.insertMany(bulkUsers, { ordered: false });
 
-      await Promise.all(
-        result.map(async (user) => {
-          await sendVerificationEmail(user.email, user.password);
-        })
-      );
+      // await Promise.all(
+      //   result.map(async (user) => {
+      //     await sendVerificationEmail(user.email, user.password);
+      //   })
+      // );
 
       return res.status(200).json({
         message: `${result.length} users created successfully`,

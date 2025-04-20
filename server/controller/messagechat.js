@@ -63,7 +63,11 @@ const chatHeads = async (req, res) => {
       })
         .populate("role_id")
         .then((users) =>
-          users.filter((user) => user.role_id.role_type !== "Student")
+          users.filter(
+            (user) =>
+              user.role_id.role_type !== "Student" ||
+              user.role_id.role_type === "super administrator"
+          )
         );
     } else {
       // Fetch users in the same campus with different role_id
