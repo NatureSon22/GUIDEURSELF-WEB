@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import RenderField from "@/components/RenderField";
 import accountStatus from "@/utils/accountStatus";
 import MultiCampus from "@/layer/MultiCampus";
+import { useState } from "react";
+import { IoEyeSharp } from "react-icons/io5";
+import { FaEyeSlash } from "react-icons/fa6";
 
 const AccountForm = ({
   formSchema,
@@ -37,6 +40,8 @@ const AccountForm = ({
       ),
     refetchOnMount: true,
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const onSubmit = (data) => {
     const formData = new FormData();
@@ -155,26 +160,50 @@ const AccountForm = ({
                 "Email",
                 <Input placeholder="Enter email" className="bg-white" />,
               )}
-              {RenderField(
-                form,
-                "password",
-                "Password",
-                <Input
-                  type="password"
-                  placeholder="Enter password"
-                  className="bg-white"
-                />,
-              )}
-              {RenderField(
-                form,
-                "confirmPassword",
-                "Confirm Password",
-                <Input
-                  type="password"
-                  placeholder="Confirm password"
-                  className="bg-white"
-                />,
-              )}
+
+              <div className="flex items-end gap-2">
+                {RenderField(
+                  form,
+                  "password",
+                  "Password",
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    className="bg-white"
+                  />,
+                )}
+
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="bg-base-300/10 text-secondary-100-75"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <IoEyeSharp /> : <FaEyeSlash />}
+                </Button>
+              </div>
+
+              <div className="flex items-end gap-2">
+                {RenderField(
+                  form,
+                  "confirmPassword",
+                  "Confirm Password",
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password"
+                    className="bg-white"
+                  />,
+                )}
+
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="bg-base-300/10 text-secondary-100-75"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <IoEyeSharp /> : <FaEyeSlash />}
+                </Button>
+              </div>
             </div>
           </div>
 
