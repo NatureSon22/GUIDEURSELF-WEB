@@ -6,9 +6,8 @@ import LazyMediaPanoramicViewer from "./MediaPanoramicViewer";
 import { MdOutlinePermMedia } from "react-icons/md";
 import { loggedInUser } from "@/api/auth";
 import { FaListUl } from "react-icons/fa";
+import { FaStar } from "react-icons/fa6";
 import { GrNext, GrPrevious } from "react-icons/gr";
-import { CiSearch } from "react-icons/ci";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import PreviewPanorama from "./PreviewPanorama";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,7 @@ const categoryConfig = {
   "Student Services": { color: "bg-blue-500", textColor: "text-blue-500", borderColor: "border-blue-500", icon: FaGraduationCap },
   "Campus Attraction": { color: "bg-green-500", textColor: "text-green-500", borderColor: "border-green-500", icon: FaFlag },
   "Utility Areas": { color: "bg-pink-500", textColor: "text-pink-500", borderColor: "border-pink-500", icon: ImManWoman },
+  "Multi-Purpose": { color: "bg-orange-400", textColor: "text-orange-500", borderColor: "border-orange-400", icon: FaStar },
   "Others (Miscellaneous)": { color: "bg-blue-400", textColor: "text-blue-500", borderColor: "border-blue-400", icon: MdWidgets },
 };
 

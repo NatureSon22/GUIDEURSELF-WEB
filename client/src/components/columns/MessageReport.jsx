@@ -30,7 +30,8 @@ const columns = ({ truncateResponse = false }) => [
     header: "Helpful",
     cell: ({ row }) => (
       <div className="min-w-[70px]">
-        <p>{row.original.is_helpful ? "Yes" : "No"}</p>{" "}
+        <p>{row.original.is_helpful
+         ? "Yes" : "No"}</p>{" "}
         {/* Display helpfulness */}
       </div>
     ),
