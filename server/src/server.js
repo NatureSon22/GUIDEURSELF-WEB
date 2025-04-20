@@ -51,7 +51,7 @@ app.use(
 );
 const io = new Server(server, {
   cors: {
-    origin: ["https://guide-urself.netlify.app", "http://localhost:5173", "*"],
+    origin: ["https://guide-urself.netlify.app", "http://localhost:5173", "https://guideurself.com",  "*"],
   },
   methods: ["GET", "POST"],
   credentials: true,
