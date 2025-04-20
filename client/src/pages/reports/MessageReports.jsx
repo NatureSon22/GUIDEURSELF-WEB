@@ -50,7 +50,7 @@ const MessageReport = () => {
         return messageValue && messageValue.toLowerCase() === filter.value.toLowerCase();
       });
 
-      const messageDate = new Date(message.date);
+      const messageDate = new Date(message.date_added);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
 
@@ -148,10 +148,12 @@ doc.text(text3, xPos3, 33);
 
     const tableData = filteredMessages.map((message) => [
         message.content,
-        formatDate(message.date),
+        message.is_helpful
+         ? "Yes" : "No",
+        formatDate(message.date_added),
     ]);
 
-    const rowsPerPage = 12;
+    const rowsPerPage = 3;
     const totalPages = Math.ceil(tableData.length / rowsPerPage);
 
     for (let i = 0; i < totalPages; i++) {
@@ -162,13 +164,12 @@ doc.text(text3, xPos3, 33);
 
       const chunk = tableData.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
       doc.autoTable({
-        head: [["MESSAGE", "DATE CREATED"]],
+        head: [["MESSAGE", "HELPFUL", "DATE CREATED"]],
         body: chunk,
         startY: 55,
         didDrawPage: () => addFooter(doc.internal.getNumberOfPages()),
 
-        styles: {
-          halign: 'center', // Center the text in cells
+        styles: { // Center the text in cells
           valign: 'middle', // Vertical alignment (optional)
           lineWidth: 0.2, // Border line width
           lineColor: [0, 0, 0], // Black border
@@ -181,7 +182,6 @@ doc.text(text3, xPos3, 33);
           fillColor: [222, 234, 246],
         }, 
         bodyStyles: {
-          halign: 'center', // Center the body text
           fillColor: [255, 255, 255], // Set body rows background color to white (RGB)
         },
         tableWidth: 'auto',
@@ -219,7 +219,16 @@ doc.text(text3, xPos3, 33);
         </div>
       </div>
 
-      {isLoading ? <Loading /> : <DataTable data={filteredMessages} columns={columns} filters={filters} setFilters={setFilters} pageSize={11} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />}
+      {isLoading ? <Loading /> 
+      : <DataTable 
+      data={filteredMessages} 
+      columns={() => columns({ truncateResponse: true })}
+      filters={filters} 
+      setFilters={setFilters} 
+      pageSize={11} 
+      globalFilter={globalFilter} 
+      setGlobalFilter={setGlobalFilter} 
+      />}
 
       {pdfPreviewUrl && <PdfPreviewModal pdfUrl={pdfPreviewUrl} onClose={() => setPdfPreviewUrl(null)} />}
     </div>
