@@ -43,7 +43,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["https://guide-urself.netlify.app", "http://localhost:5173", "*"],
+    origin: ["https://guide-urself.netlify.app", "http://localhost:5173", "www.guideurself.com", "guideurself.com", "*"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     // methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
