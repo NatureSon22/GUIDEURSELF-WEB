@@ -71,8 +71,8 @@ const sendMessage = async (req, res) => {
       data: { id: responseId, content: responseContent, machine },
     } = await response.json();
 
-    const classification = await classifyText(responseContent);
-    console.log(classification);
+    // const classification = await classifyText(responseContent);
+    // console.log(classification);
 
     const userMessage = await MessageModel.create({
       content,
@@ -82,7 +82,7 @@ const sendMessage = async (req, res) => {
     const botMessage = await MessageModel.create({
       content: responseContent,
       is_machine_generated: true,
-      category: classification.text_classification.category,
+      //category: classification.text_classification.category,
     });
 
     await ConversationModel.findOneAndUpdate(
