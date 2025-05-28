@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 
 const RoleSchema = new Schema({
   role_type: { type: String, required: true },
+  categories: [{ type: Schema.Types.ObjectId, ref: "CategoryRole" }],
   permissions: [
     {
       module: { type: String, default: "" },

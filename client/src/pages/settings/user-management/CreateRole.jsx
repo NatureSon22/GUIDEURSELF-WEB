@@ -97,7 +97,7 @@ const CreateRole = () => {
         className="text-secondary-100-75"
         onClick={() => setOpenDialog(true)}
       >
-        <RiAddLargeFill /> Create
+        <RiAddLargeFill /> Add Permission
       </Button>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>

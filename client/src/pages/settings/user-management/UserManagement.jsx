@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import UserTypeManagement from "./UserTypeManagement";
 import RoleManagement from "./RoleManagement";
 import Layout from "@/components/Layout";
+import UserCategoryTypeManagement from "./UserCategoryTypeManagement";
 const UserManagement = () => {
   //   {
   //      "_id": {"$oid":"67659bcb685b0e8c2f8beeb0"},
@@ -27,6 +28,14 @@ const UserManagement = () => {
         isEditable={false}
       >
         <UserTypeManagement />
+      </Layout>
+
+      <Layout
+        title="Role Categories"
+        subtitle="Define role categories under each user type"
+        isEditable={false}
+      >
+        <UserCategoryTypeManagement />
       </Layout>
 
       <Layout

@@ -7,6 +7,7 @@ import { FaFileAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import RecentFeedback from "./RecentFeedback";
 import RecentResponse from "./RecentResponse";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const tabs = ["User Logs", "Accounts", "Feedback", "Response Review"];
 const report = [
@@ -22,6 +23,7 @@ const AccountActivityList = () => {
   const handleSelectedReportsetSelectedReport = (index) => [
     setSelectedReportsetSelectedReport(index),
   ];
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   return (
     <div className="space-y-4">
@@ -31,7 +33,7 @@ const AccountActivityList = () => {
             return (
               <div
                 key={tab}
-                className={`cursor-pointer rounded-t-lg px-5 py-3 text-[0.95rem] transition-colors duration-150 ${setSelectedReport === tabIndex ? "border-b-4 border-base-200 bg-base-200/10 text-base-200" : "hover:bg-secondary-200/30"}`}
+                className={`cursor-pointer rounded-t-lg px-5 py-3 text-[0.95rem] transition-colors duration-150 ${setSelectedReport === tabIndex ? "border-b-4 border-base-200 bg-base-200/10 text-base-200" : isDarkMode ? "text-dark-text-base-300-75 hover:bg-secondary-200/30" : "hover:bg-secondary-200/30"}`}
                 onClick={() => handleSelectedReportsetSelectedReport(tabIndex)}
               >
                 {tab}
@@ -48,7 +50,9 @@ const AccountActivityList = () => {
         </Button>
       </div>
 
-      <Card className="flex flex-col px-7 py-7 shadow-none">
+      <Card
+        className={`flex flex-col px-7 py-7 shadow-none ${isDarkMode ? "border-dark-text-base-300-75/50 bg-dark-base-bg" : ""} transition-colors duration-150`}
+      >
         {setSelectedReport === 0 && <UserLogs />}
         {setSelectedReport === 1 && <RecentAccounts />}
         {setSelectedReport === 2 && <RecentFeedback />}

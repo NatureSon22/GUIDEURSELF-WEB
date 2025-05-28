@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { GrNext, GrPrevious } from "react-icons/gr";
 import PropTypes from "prop-types";
 import { fuzzyFilter, dateBetweenFilterFn } from "@/utils/fuzzysort";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const DataTable = forwardRef(
   (
@@ -41,6 +42,7 @@ const DataTable = forwardRef(
       pageIndex: 0,
       pageSize,
     });
+    const { isDarkMode } = useToggleTheme((state) => state);
 
     // Memoized values
     const memoizedData = useMemo(() => data, [data]);
@@ -100,7 +102,7 @@ const DataTable = forwardRef(
           <TableRow>
             <TableCell
               colSpan={memoizedColumns.length}
-              className="py-4 text-center"
+              className={`py-4 text-center ${isDarkMode ? "text-dark-text-base-300-75" : ""} `}
             >
               No matching data found.
             </TableCell>
@@ -109,7 +111,10 @@ const DataTable = forwardRef(
       }
 
       return table.getRowModel().rows.map((row) => (
-        <TableRow key={row.id}>
+        <TableRow
+          key={row.id}
+          className={` ${isDarkMode ? "border-dark-text-base-300-75/30 text-dark-text-base-300-75 hover:bg-secondary-200/30" : ""} `}
+        >
           {row.getVisibleCells().map((cell) => (
             <TableCell key={cell.id}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -122,13 +127,15 @@ const DataTable = forwardRef(
     return (
       <div className="flex h-full flex-1 flex-col">
         <Table className="mt-3 flex-1 overflow-x-auto border-b border-t border-secondary-200-60">
-          <TableHeader className="border-collapse bg-secondary-400">
+          <TableHeader
+            className={`border-collapse ${isDarkMode ? "bg-dark-secondary-200" : "bg-secondary-400"} transition-colors duration-150`}
+          >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={`border text-base-300 ${
+                    className={`border text-base-300 ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} ${
                       ["Action", "status"].includes(header.column.id)
                         ? "text-center"
                         : ""
@@ -179,7 +186,7 @@ const DataTable = forwardRef(
                     table.setPageIndex(page);
                   }
                 }}
-                className="w-16 rounded border p-1 text-center"
+                className={`w-16 rounded border p-1 text-center ${isDarkMode ? "border-dark-secondary-100-75 text-dark-text-base-300" : ""} `}
               />
 
               <Button

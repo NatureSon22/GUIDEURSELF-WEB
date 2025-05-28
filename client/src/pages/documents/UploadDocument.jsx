@@ -26,6 +26,7 @@ import {
 } from "@/api/documents";
 import DocumentIcon from "./DocumentIcon";
 import Loading from "@/components/Loading";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ACCEPTED_FILE_TYPES = ["pdf", "doc", "pptx", "docx"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -60,6 +61,7 @@ const UploadDocument = () => {
   const { documentId } = useParams();
   const inputRef = useRef(null);
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -348,13 +350,15 @@ const UploadDocument = () => {
       onDragOver={handleDragEvents}
       onDragLeave={handleDragEvents}
       onDrop={handleDragEvents}
-      className={`grid w-full cursor-pointer place-items-center rounded-lg border-4 border-dashed ${isDragging ? "border-primary-500 bg-primary-100/30" : "border-secondary-100/20"} ${files.length > 0 ? "py-20" : "py-24"} ${isProcessing ? "cursor-not-allowed opacity-50" : ""}`}
+      className={`grid w-full cursor-pointer place-items-center rounded-lg border-4 border-dashed ${isDragging ? "border-primary-500 bg-primary-100/30" : isDarkMode ? "border-dark-secondary-100-75" : "border-secondary-100/20"} ${files.length > 0 ? "py-20" : "py-24"} ${isProcessing ? "cursor-not-allowed opacity-50" : ""}`}
     >
       <div className="grid place-items-center gap-1 text-secondary-100/50">
         <MdCloudUpload
-          className={`text-4xl ${isDragging ? "text-primary-500" : ""}`}
+          className={`text-4xl ${isDragging ? "text-primary-500" : "text-dark-text-base-300-75"}`}
         />
-        <p className="text-base">
+        <p
+          className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-base"}`}
+        >
           {isDragging ? "Drop files here" : "Upload files or drag and drop"}
         </p>
       </div>
@@ -368,10 +372,14 @@ const UploadDocument = () => {
           key={index}
           className="flex items-center gap-5 rounded-md border bg-secondary-200/20 px-5 py-3"
         >
-          <p className="text-sm">{file.name}</p>
+          <p
+            className={`text-sm ${isDarkMode ? "text-dark-text-base-300-75" : ""} `}
+          >
+            {file.name}
+          </p>
 
           <div
-            className="cursor-pointer rounded-md bg-secondary-210/30 px-3 py-1 text-[0.95rem] font-bold hover:bg-secondary-100-75/20"
+            className={`cursor-pointer rounded-md bg-secondary-210/30 px-3 py-1 text-[0.95rem] font-bold hover:bg-secondary-100-75/20 ${isDarkMode ? "text-dark-text-base-300-75" : ""} `}
             onClick={() => {
               if (!isProcessing) {
                 setFiles((prev) => prev.filter((_, i) => i !== index));
@@ -427,8 +435,14 @@ const UploadDocument = () => {
 
       <div className="grid gap-4">
         <div>
-          <h2 className="font-medium">File Upload</h2>
-          <p className="text-base text-gray-600">
+          <h2
+            className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+          >
+            File Upload
+          </h2>
+          <p
+            className={`text-base ${isDarkMode ? "text-dark-text-base-300-75" : "text-gray-600"}`}
+          >
             Upload your document in PDF, DOC, or PPTX format. Maximum file size
             is <span className="font-semibold">10MB</span>
           </p>
@@ -448,10 +462,11 @@ const UploadDocument = () => {
 
       <div className="space-y-4">
         <div>
-          <h2 className="font-medium">Visibility Settings</h2>
-          <p className="text-base text-gray-600">
-            Control who can access this document.
-          </p>
+          <h2
+            className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+          >
+            Visibility Settings
+          </h2>
         </div>
 
         <RadioGroup
@@ -463,12 +478,34 @@ const UploadDocument = () => {
           disabled={isProcessing}
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="onlyMe" id="r1" disabled={isProcessing} />
-            <Label htmlFor="r1">Only me</Label>
+            <RadioGroupItem
+              value="onlyMe"
+              id="r1"
+              className={`${isDarkMode ? "border-dark-text-base-300" : ""}`}
+              fillbase={isDarkMode ? "fill-white" : "fill-base-300"}
+              disabled={isProcessing}
+            />
+            <Label
+              htmlFor="r1"
+              className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+            >
+              Only me
+            </Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="viewOnly" id="r2" disabled={isProcessing} />
-            <Label htmlFor="r2">Allow others to view</Label>
+            <RadioGroupItem
+              value="viewOnly"
+              id="r2"
+              className={`${isDarkMode ? "border-dark-text-base-300" : ""}`}
+              fillbase={isDarkMode ? "fill-white" : "fill-base-300"}
+              disabled={isProcessing}
+            />
+            <Label
+              htmlFor="r2"
+              className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+            >
+              Allow others to view
+            </Label>
           </div>
         </RadioGroup>
         {errors.visibility && (

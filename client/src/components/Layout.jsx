@@ -10,7 +10,7 @@ const Layout = ({
   children,
 }) => {
   return (
-    <div className="space-y-4 rounded-lg border border-secondary-200/40 bg-white p-4 shadow-sm">
+    <div className="space-y-4 rounded-lg border border-secondary-200/40 p-4 shadow-sm">
       {withHeader && (
         <div className="flex justify-between">
           <div>

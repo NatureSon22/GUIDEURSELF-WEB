@@ -1,8 +1,10 @@
+import useToggleTheme from "@/context/useToggleTheme";
 import PropTypes from "prop-types";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
 const FeedbackSummaryReviews = ({ data }) => {
-  const { averageRating = 0 , totalFeedbacks = 0 } = data;
+  const { averageRating = 0, totalFeedbacks = 0 } = data;
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const renderStars = () => {
     const stars = [];
@@ -22,7 +24,9 @@ const FeedbackSummaryReviews = ({ data }) => {
 
   return (
     <div className="w-full">
-      <div className="grid place-items-center space-y-2">
+      <div
+        className={`grid place-items-center space-y-2 ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+      >
         <p className="text-6xl font-semibold">{averageRating.toFixed(1)}</p>
 
         {/* Dynamically Render Stars */}

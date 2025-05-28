@@ -12,8 +12,9 @@ import ComboBox from "@/components/ComboBox";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import { useQuery } from "@tanstack/react-query";
-import { getTrends } from "@/api/trend"; 
+import { getTrends } from "@/api/trend";
 import { Skeleton } from "@/components/ui/skeleton";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const usage_summary = [
   { value: "week", label: "This week" },
@@ -38,6 +39,7 @@ const UsageTrends = () => {
     queryKey: ["usage", filter[0].value],
     queryFn: () => getTrends(filter),
   });
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   // const normalizedTrend =
   //   filter[0].value === "This week" && Array.isArray(dataTrend)
@@ -52,9 +54,15 @@ const UsageTrends = () => {
   //     : dataTrend;
 
   return (
-    <Card className="flex flex-col px-7 py-7 shadow-none">
+    <Card
+      className={`flex flex-col px-7 py-7 shadow-none ${isDarkMode ? "border-dark-text-base-300-75/50 bg-dark-base-bg" : "bg-white"} transition-colors duration-150`}
+    >
       <div className="flex justify-between">
-        <p className="font-medium">Usage Trends</p>
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
+          Usage Trends
+        </p>
         <div className="flex items-center gap-3">
           <ComboBox
             options={usage_summary}
@@ -65,7 +73,7 @@ const UsageTrends = () => {
           />
 
           <Button
-            className="ml-auto text-secondary-100-75"
+            className={`ml-auto text-secondary-100-75 ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-base-bg text-dark-text-base-300-75 hover:bg-dark-base-bg hover:text-dark-text-base-300-75" : ""}`}
             variant="outline"
             onClick={() => {
               setFilter([{ id: "date", value: "This week" }]);
@@ -114,7 +122,6 @@ const UsageTrends = () => {
                 tickMargin={10}
                 axisLine={false}
               />
-
               <ChartTooltip
                 content={
                   <ChartTooltipContent

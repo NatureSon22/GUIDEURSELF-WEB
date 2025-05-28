@@ -20,7 +20,7 @@ const DocumentIcon = ({ name, setOpen }) => {
 
   return (
     <div
-      className="flex w-fit cursor-pointer flex-col items-center gap-2 my-4"
+      className="my-4 flex w-fit cursor-pointer flex-col items-center gap-2"
       onClick={setOpen}
     >
       <div className="flex aspect-square h-24 w-20 overflow-hidden">

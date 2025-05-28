@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import DialogContainer from "@/components/DialogContainer";
 import Loading from "@/components/Loading";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const formSchema = z.object({
   title: z.string().optional(),
@@ -56,6 +57,7 @@ const WebDocument = () => {
   });
 
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const [action, setAction] = useState("publish");
   const [openDialog, setOpenDialog] = useState(false);
   const { mutateAsync: handleUploadFromWeb, isPending } = useMutation({
@@ -185,8 +187,14 @@ const WebDocument = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       {/* Title Field */}
       <div className="space-y-1">
-        <p className="font-medium">Title</p>
-        <p className="text-[0.95rem]">
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
+          Title
+        </p>
+        <p
+          className={`pb-1 text-[0.95rem] ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
           This field will auto-populate with the website’s title, but you can
           edit it to better match the purpose of the content being imported.
         </p>
@@ -197,7 +205,7 @@ const WebDocument = () => {
             <Input
               {...register("title")}
               placeholder="Auto-filled/Editable"
-              className="bg-white"
+              className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
             />
             {errors.title && (
               <p className="mt-1 text-sm text-red-500">
@@ -210,8 +218,14 @@ const WebDocument = () => {
 
       {/* Website URL Field */}
       <div className="space-y-1">
-        <p className="font-medium">Website URL</p>
-        <p className="text-[0.95rem]">
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
+          Website URL
+        </p>
+        <p
+          className={`pb-1 text-[0.95rem] ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
           Enter the full URL of the website you want to import. Ensure the link
           is accessible and contains relevant content for the chatbot.
         </p>
@@ -222,7 +236,7 @@ const WebDocument = () => {
             <Input
               {...register("websiteURL")}
               placeholder="Copy and paste your URL link here"
-              className={`bg-white ${isEditing ? "bg-gray-200 text-gray-800" : ""}`}
+              className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
               disabled={isEditing}
             />
             {errors.websiteURL && (
@@ -236,8 +250,14 @@ const WebDocument = () => {
 
       {/* Author Field */}
       <div className="space-y-1">
-        <p className="font-medium">Author/Source</p>
-        <p className="text-[0.95rem]">
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
+          Author/Source
+        </p>
+        <p
+          className={`pb-1 text-[0.95rem] ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
           The field will auto-populate based on the website’s metadata, but you
           can edit it to properly credit the original source.
         </p>
@@ -249,7 +269,7 @@ const WebDocument = () => {
             <Input
               {...register("author")}
               placeholder="Author-filled/Editable"
-              className="bg-white"
+              className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
             />
             {errors.author && (
               <p className="mt-1 text-sm text-red-500">
@@ -261,7 +281,9 @@ const WebDocument = () => {
       </div>
 
       {/* Note Section */}
-      <p className="mt-1 text-[0.9rem] text-secondary-100-75">
+      <p
+        className={`mt-1 text-[0.9rem] ${isDarkMode ? "text-dark-secondary-100-75" : "text-secondary-100-75"} `}
+      >
         Note: Ensure the website you’re importing from allows scraping or
         copying of text content. Review the extracted text for accuracy, as some
         websites may include extraneous information not relevant for chatbot
@@ -270,8 +292,14 @@ const WebDocument = () => {
 
       {/* Visibility Field */}
       <div className="grid gap-1">
-        <p className="font-medium">Visibility</p>
-        <p className="text-[0.95rem]">
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
+          Visibility
+        </p>
+        <p
+          className={`text-[0.95rem] ${isDarkMode ? "text-dark-text-base-300-75" : ""} `}
+        >
           Define the visibility of this document. Decide who should be able to
           edit this document.
         </p>
@@ -290,14 +318,30 @@ const WebDocument = () => {
               onValueChange={(value) => setValue("visibility", value)}
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="onlyMe" id="r1" />
-                <Label className="text-secondary-100-75" htmlFor="r1">
+                <RadioGroupItem
+                  value="onlyMe"
+                  id="r1"
+                  className={`${isDarkMode ? "border-dark-text-base-300" : ""}`}
+                  fillbase={isDarkMode ? "fill-white" : "fill-base-300"}
+                />
+                <Label
+                  className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+                  htmlFor="r1"
+                >
                   Only me
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="viewOnly" id="r2" />
-                <Label className="text-secondary-100-75" htmlFor="r2">
+                <RadioGroupItem
+                  value="viewOnly"
+                  id="r2"
+                  className={`${isDarkMode ? "border-dark-text-base-300" : ""}`}
+                  fillbase={isDarkMode ? "fill-white" : "fill-base-300"}
+                />
+                <Label
+                  className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+                  htmlFor="r2"
+                >
                   Allow others to View
                 </Label>
               </div>

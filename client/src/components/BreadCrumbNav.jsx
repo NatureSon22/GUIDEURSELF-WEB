@@ -14,6 +14,7 @@ import { BsGearFill, BsPersonCircle, BsPersonFillAdd } from "react-icons/bs";
 import { FaFileAlt } from "react-icons/fa";
 import { BiSolidMessage } from "react-icons/bi";
 import { IoPerson } from "react-icons/io5";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const icons = {
   Dashboard: <MdDashboard />,
@@ -31,6 +32,7 @@ const icons = {
 const BreadCrumbNav = () => {
   const crumbs = useBreadCrumbStore((state) => state.crumbs);
   const navigate = useNavigate();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const handleBreadcrumbClick = (path) => {
     navigate(path, { replace: true });
@@ -43,7 +45,7 @@ const BreadCrumbNav = () => {
           <Fragment key={i}>
             <BreadcrumbItem>
               <div
-                className={`flex items-center gap-2 ${i == 0 ? "text-base-200" : ""}`}
+                className={`flex items-center gap-2 ${i == 0 ? "text-base-200" : isDarkMode ? "text-dark-text-base-300-75" : ""}`}
               >
                 {i == 0 && (
                   <span className="text-[1.1rem]">{icons[crumb.label]}</span>
@@ -64,7 +66,11 @@ const BreadCrumbNav = () => {
               </div>
             </BreadcrumbItem>
 
-            {i < crumbs.length - 1 && <BreadcrumbSeparator />}
+            {i < crumbs.length - 1 && (
+              <BreadcrumbSeparator
+                className={`${isDarkMode ? "text-dark-text-base-300-75" : ""}`}
+              />
+            )}
           </Fragment>
         ))}
       </BreadcrumbList>

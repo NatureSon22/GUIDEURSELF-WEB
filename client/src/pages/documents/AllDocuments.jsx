@@ -23,6 +23,7 @@ import documentStatus from "@/data/documentStatus";
 import documentTypes from "@/data/doc_types";
 import useUserStore from "@/context/useUserStore";
 import MultiCampus from "@/layer/MultiCampus";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const AllDocuments = () => {
   const { toast } = useToast();
@@ -35,6 +36,7 @@ const AllDocuments = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentUser = useUserStore((state) => state.currentUser);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const { data: allDocuments, isLoading: isLoadingAllDocuments } = useQuery({
     queryKey: ["all-documents"],
@@ -160,13 +162,14 @@ const AllDocuments = () => {
             type="text"
             placeholder="Search"
             value={globalFilter || ""}
+            className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
             onChange={(e) => setGlobalFilter(e.target.value)}
           />
 
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              className="text-secondary-100-75"
+              className={` ${isDarkMode ? "border-transparent bg-base-200 text-white" : "text-secondary-100-75"} `}
               onClick={() => handleNavigate(-1)}
             >
               <RiAddLargeFill /> Create Document
@@ -175,18 +178,20 @@ const AllDocuments = () => {
         </div>
 
         <div className="flex items-center gap-5">
-          <p>Filters:</p>
+          <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
+            Filters:
+          </p>
 
           <div className="flex gap-2">
             <Input
               type="date"
-              className="w-[170px]"
+              className={`w-[170px] ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300-75" : ""} `}
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
             />
             <Input
               type="date"
-              className="w-[170px]"
+              className={`w-[170px] ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300-75" : ""} `}
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
             />
@@ -221,7 +226,7 @@ const AllDocuments = () => {
           )}
 
           <Button
-            className="ml-auto text-secondary-100-75"
+            className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
             variant="outline"
             onClick={handleReset}
           >
@@ -249,12 +254,15 @@ const AllDocuments = () => {
               setOpen,
               setSelectedDocument,
               currentUser,
+              isDarkMode,
             }}
           />
         )}
       </div>
 
-      <div className="max-w-[300px] flex-1 space-y-4 border-l border-secondary-200-60 bg-white px-7 py-6">
+      <div
+        className={`max-w-[300px] flex-1 space-y-4 border-l border-secondary-200-60 px-7 py-6 ${isDarkMode ? "bg-dark-base-bg" : "bg-white"} transition-colors duration-150`}
+      >
         <div
           className={`cursor-pointer border-l-4 pl-4 text-[0.9rem] ${type === "all-documents" && "border-base-200"}`}
           onClick={() => handleTypeChange("all-documents")}
@@ -263,7 +271,9 @@ const AllDocuments = () => {
             className={
               type === "all-documents"
                 ? "font-semibold text-base-200"
-                : "text-secondary-100-75"
+                : isDarkMode
+                  ? "text-dark-text-base-300-75"
+                  : "text-secondary-100-75"
             }
           >
             All Documents
@@ -278,7 +288,9 @@ const AllDocuments = () => {
             className={
               type === "drafts"
                 ? "font-semibold text-base-200"
-                : "text-secondary-100-75"
+                : isDarkMode
+                  ? "text-dark-text-base-300-75"
+                  : "text-secondary-100-75"
             }
           >
             Drafts

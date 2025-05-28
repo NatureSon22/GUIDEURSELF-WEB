@@ -3,6 +3,7 @@ import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js";
 import "@/quillCustom.css";
 import PropTypes from "prop-types";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const modules = {
   toolbar: [
@@ -18,12 +19,16 @@ const modules = {
 };
 
 const TextEditor = ({ content, setContent }) => {
+  const { isDarkMode } = useToggleTheme((state) => state);
+
   return (
-    <div className="flex h-[400px] flex-col gap-3 rounded-md border border-secondary-100-75/20 bg-white shadow-sm">
+    <div
+      className={`flex h-[400px] flex-col gap-3 rounded-md border shadow-sm ${isDarkMode ? "border-dark-secondary-100-75 bg-dark-base-bg" : "border-secondary-100-75/20 bg-white"} transition-colors duration-150`}
+    >
       <ReactQuill
         value={content}
         onChange={setContent}
-        className="font h-[85%] text-lg"
+        className={`font h-[85%] text-lg ${isDarkMode ? "!text-dark-text-base-300" : ""} `}
         modules={modules}
         style={{
           borderRadius: "8px",

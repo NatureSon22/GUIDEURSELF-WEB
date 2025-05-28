@@ -6,6 +6,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import PropTypes from "prop-types";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const chartConfig = {
   // Add default configuration if necessary
@@ -14,6 +15,7 @@ const chartConfig = {
 // FeedbackSummaryChart component
 const FeedbackSummaryChart = ({ data }) => {
   const { total = {} } = data;
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   // Ensure data is formatted correctly
   const chartData =
@@ -25,7 +27,9 @@ const FeedbackSummaryChart = ({ data }) => {
       : [];
 
   return (
-    <Card className="flex-1 border-none shadow-none">
+    <Card
+      className={`flex-1 border-none shadow-none ${isDarkMode ? "bg-dark-base-bg" : "bg-white"} transition-colors duration-150`}
+    >
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px]">
           <BarChart
@@ -40,15 +44,17 @@ const FeedbackSummaryChart = ({ data }) => {
             <XAxis
               type="number"
               dataKey="total"
+              className="text-red-600"
+              color="rgba(217, 217, 217, 0.75)"
               allowDecimals={false} // Prevent decimal values
             />
             <YAxis
               dataKey="rate"
               type="category"
               tickLine={false}
+              color="rgba(217, 217, 217, 0.75)"
               tickMargin={10}
               axisLine={false}
-            
             />
             <ChartTooltip
               cursor={false}

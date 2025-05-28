@@ -1,4 +1,5 @@
 const recordTrend = async () => {
+  console.log("record trend")
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/trend/record-trend`,
     {

@@ -11,9 +11,6 @@ const createConversation = async (req, res) => {
       body: JSON.stringify({ name: "sample", bot_id: process.env.CODY_BOT_ID }),
     });
 
-    console.log("process.env.CODY_API_KEY " + process.env.CODY_API_KEY);
-    console.log("process.env.CODY_BOT_ID" + process.env.CODY_BOT_ID);
-
     if (!response.ok) {
       return res
         .status(response.status)
@@ -34,16 +31,11 @@ const createMessage = async (req, res) => {
   try {
     const { conversation_id, message } = req.body;
 
-    console.log(conversation_id, message);
-
     const response = await fetch(CODY_URLS.CREATE_MESSAGE(), {
       method: "POST",
       headers: HEADERS,
       body: JSON.stringify({ content: message, conversation_id }),
     });
-
-    console.log("process.env.CODY_API_KEY " + process.env.CODY_API_KEY);
-    console.log("process.env.CODY_BOT_ID " + process.env.CODY_BOT_ID);
 
     if (!response.ok) {
       const errorData = await response.json();

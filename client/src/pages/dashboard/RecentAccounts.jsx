@@ -3,6 +3,7 @@ import Accounts from "@/components/columns/Accounts";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/api/accounts";
 import Loading from "@/components/Loading";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const RecentAccounts = () => {
   const {
@@ -14,6 +15,7 @@ const RecentAccounts = () => {
     queryFn: () => getAllAccounts(10),
     refetchOnWindowFocus: false,
   });
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   if (isError) {
     return (
@@ -35,7 +37,7 @@ const RecentAccounts = () => {
     <DataTable
       data={allAccounts || []}
       columns={Accounts}
-      columnActions={{ hasAction: false }}
+      columnActions={{ hasAction: false, isDarkMode }}
       showFooter={false}
     />
   );

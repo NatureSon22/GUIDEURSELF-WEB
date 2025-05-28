@@ -19,7 +19,12 @@ const handleNavigate = (navigate, type, id) => {
   navigate(route);
 };
 
-const column = ({ navigate, setOpen, setSelectedDocument }) => {
+const column = ({
+  navigate,
+  setOpen,
+  setSelectedDocument,
+  isDarkMode = false,
+}) => {
   return [
     {
       accessorKey: "file_name",
@@ -73,16 +78,21 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => {
           <div className="grid place-items-center">
             <DropdownMenu>
               <DropdownMenuTrigger className="" asChild>
-                <Button variant="outline" className="mx-auto">
+                <Button
+                  variant="outline"
+                  className={`mx-4 py-1 ${isDarkMode ? "border-dark-secondary-100-75 bg-dark-base-bg" : ""} `}
+                >
                   <FaEllipsis />
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="grid w-[135px] gap-1 rounded-md bg-white p-3 shadow-md">
+              <DropdownMenuContent
+                className={`mt-1 grid w-[135px] gap-1 rounded-md p-3 shadow-md ${isDarkMode ? "border border-dark-text-base-300 bg-dark-base-bg" : "bg-white"} `}
+              >
                 {(editable || isOwner) && (
                   <Button
                     variant="ghost"
-                    className="w-full bg-secondary-200/10 text-[0.85rem] text-secondary-100-75"
+                    className={`w-full bg-secondary-200/10 text-[0.85rem] ${isDarkMode ? "text-dark-text-base-300" : "text-secondary-100-75"} `}
                     onClick={() =>
                       handleNavigate(
                         navigate,

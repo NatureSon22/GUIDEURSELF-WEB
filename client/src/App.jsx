@@ -6,18 +6,25 @@ import { Toaster } from "./components/ui/toaster";
 import { useEffect } from "react";
 import { recordTrend } from "./api/trend";
 import { createSession } from "./api/session";
+import useToggleTheme from "./context/useToggleTheme";
 
 const App = () => {
+  const { setIsDarkMode } = useToggleTheme((state) => state);
+
   useEffect(() => {
     const initApp = async () => {
       try {
         const sessionExists = sessionStorage.getItem("sessionCreated");
+        const isDarkMode = localStorage.getItem("isDarkMode") === "true";
 
+        // is my logic in here correct?
         if (!sessionExists) {
           await recordTrend();
           await createSession();
           sessionStorage.setItem("sessionCreated", "true");
         }
+
+        setIsDarkMode(isDarkMode);
       } catch (error) {
         console.error("Error initializing app:", error);
       }
@@ -27,7 +34,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden transition-colors duration-300">
       <SideBar />
       <div className="flex flex-1 flex-col">
         <NavBar />

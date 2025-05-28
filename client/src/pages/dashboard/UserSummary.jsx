@@ -14,6 +14,7 @@ import { getAllAccounts } from "@/api/accounts";
 import { Button } from "@/components/ui/button";
 import { GrPowerReset } from "react-icons/gr";
 import { Skeleton } from "@/components/ui/skeleton";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const COLORS = [
   "rgba(14, 70, 163, 1)",
@@ -39,6 +40,7 @@ const UserSummary = () => {
     queryKey: ["accounts"],
     queryFn: getAllAccounts,
   });
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const chartData = useMemo(() => {
     const startDate = new Date();
@@ -94,9 +96,15 @@ const UserSummary = () => {
   }, [chartData]);
 
   return (
-    <Card className="flex flex-1 flex-col px-7 py-5 shadow-none">
+    <Card
+      className={`flex flex-1 flex-col px-7 py-5 shadow-none ${isDarkMode ? "border-dark-text-base-300-75/50 bg-dark-base-bg" : ""} transition-colors duration-150`}
+    >
       <div className="mt-2 flex items-center justify-between">
-        <p className="font-medium">User Summary</p>
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+        >
+          User Summary
+        </p>
 
         <div className="flex items-center gap-3">
           <ComboBox
@@ -108,7 +116,7 @@ const UserSummary = () => {
           />
 
           <Button
-            className="ml-auto text-secondary-100-75"
+            className={`ml-auto text-secondary-100-75 ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-base-bg text-dark-text-base-300-75 hover:bg-dark-base-bg hover:text-dark-text-base-300-75" : ""}`}
             variant="outline"
             onClick={() => {
               setFilter([]);
@@ -156,14 +164,25 @@ const UserSummary = () => {
                             <tspan
                               x={viewBox.cx}
                               y={viewBox.cy}
-                              className="fill-foreground text-5xl font-semibold"
+                              color="rgba(255, 99, 132, 1)"
+                              fill={
+                                isDarkMode
+                                  ? "rgba(217, 217, 217)"
+                                  : "rgba(50, 50, 50, 1)"
+                              }
+                              className="text-5xl font-bold"
                             >
                               {totalVisitors.toLocaleString()}
                             </tspan>
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) + 40}
-                              className="fill-muted-foreground text-sm"
+                              fill={
+                                isDarkMode
+                                  ? "rgba(217, 217, 217, 0.75)"
+                                  : "rgba(50, 50, 50, 1)"
+                              }
+                              className={`text-sm`}
                             >
                               Total Users
                             </tspan>
@@ -177,7 +196,11 @@ const UserSummary = () => {
             </ChartContainer>
           ) : (
             <div className="flex h-full items-center justify-center">
-              <p className="text-lg text-muted-foreground">No Data Found</p>
+              <p
+                className={`text-lg ${isDarkMode ? "text-dark-text-base-300" : "text-muted-foreground"} `}
+              >
+                No Data Found
+              </p>
             </div>
           )}
         </CardContent>
@@ -199,10 +222,10 @@ const UserSummary = () => {
 
               return (
                 <div
-                  className="mx-5 flex items-center justify-between"
+                  className={`mx-5 flex items-center justify-between ${isDarkMode ? "text-dark-text-base-300" : ""} `}
                   key={index}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className={`flex items-center gap-3`}>
                     <GoDotFill style={{ color: fill }} className="text-2xl" />
                     <div>{label}</div>
                   </div>

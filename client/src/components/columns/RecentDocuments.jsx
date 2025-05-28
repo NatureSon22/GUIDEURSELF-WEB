@@ -2,7 +2,7 @@ import formatDateTime from "@/utils/formatDateTime";
 import formatTitle from "@/utils/formatTitle";
 import { Link } from "react-router-dom";
 
-const column = () => [
+const column = ({ isDarkMode }) => [
   {
     accessorKey: "file_name",
     header: "Filename",
@@ -49,11 +49,17 @@ const column = () => [
       <div className="grid place-items-center">
         <span
           className={`w-[85px] rounded-full px-2 py-2 text-center text-xs font-medium ${
-            row.original.status === "synced"
-              ? "bg-accent-400 text-accent-300"
-              : row.original.status === "syncing"
-                ? "bg-accent-700 text-accent-600"
-                : "bg-accent-200 text-accent-100"
+            isDarkMode
+              ? row.original.status === "synced"
+                ? "bg-accent-300 text-accent-400"
+                : row.original.status === "syncing"
+                  ? "bg-accent-600 text-accent-700"
+                  : "bg-accent-100 text-accent-200"
+              : row.original.status === "synced"
+                ? "bg-accent-400 text-accent-300"
+                : row.original.status === "syncing"
+                  ? "bg-accent-700 text-accent-600"
+                  : "bg-accent-200 text-accent-100"
           }`}
         >
           {row.original.status}

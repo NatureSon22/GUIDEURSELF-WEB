@@ -9,10 +9,11 @@ import { getGeneralData } from "@/api/component-info";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import useBreadCrumbStore from "@/context/useBreadCrumbStore";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const sideBarAccessPath = {
   "Manage Dashboard": "/dashboard",
-  "Manage Documents": "/documents", 
+  "Manage Documents": "/documents",
   "Manage Virtual Tour": "/virtual-tour",
   "Manage Chats": "/chats",
   "Manage Campus": "/campus",
@@ -26,6 +27,7 @@ const SideBar = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const currentUser = useUserStore((state) => state.currentUser);
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { setPath } = useBreadCrumbStore();
 
   // Initialize chosen state with the current path
@@ -104,7 +106,9 @@ const SideBar = () => {
   }, [currentUser?.permissions]);
 
   return (
-    <div className="sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5">
+    <div
+      className={`sticky top-0 flex min-w-[300px] flex-col gap-4 border-r border-secondary-200-60 pb-5 ${isDarkMode ? "bg-dark-base-bg" : ""} transition-colors duration-150`}
+    >
       <div className="grid place-items-center px-5">
         {isLoading ? (
           <Skeleton className="mt-5 w-full rounded-md py-10"></Skeleton>
@@ -122,7 +126,9 @@ const SideBar = () => {
       <div className="space-y-2">
         {accessibleSections.map((section) => (
           <div key={section.sectionTitle}>
-            <p className="mb-1 ml-4 text-[0.8rem] text-secondary-100-75">
+            <p
+              className={`mb-1 ml-4 text-[0.8rem] ${isDarkMode ? "text-dark-secondary-100-75" : "text-secondary-100-75"}`}
+            >
               {section.sectionTitle}
             </p>
 

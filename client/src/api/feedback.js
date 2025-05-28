@@ -1,6 +1,6 @@
-const getTotalFeedback = async (filter) => {
+const getTotalFeedback = async (filter, type) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/feedback/total-feedback?filter=${filter}`,
+    `${import.meta.env.VITE_API_URL}/feedback/total-feedback?filter=${filter}&type=${type}`,
     {
       method: "GET",
       credentials: "include",

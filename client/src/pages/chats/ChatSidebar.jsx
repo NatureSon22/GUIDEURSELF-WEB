@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import useChatStore from "@/context/useChatStore";
 import useSocketStore from "@/context/useSocketStore";
+import useToggleTheme from "@/context/useToggleTheme";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
@@ -11,6 +12,7 @@ const ChatSidebar = () => {
   const { hasNewMessage, resetNewMessage } = useSocketStore((state) => state);
   const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   // ✅ Fetch chat heads (without `hasNewMessage` in queryKey)
   const { data: chatHeads = [], isLoading } = useQuery({
@@ -45,11 +47,15 @@ const ChatSidebar = () => {
   return (
     <div className="w-full max-w-[380px] space-y-3 overflow-y-auto border-r border-gray-200 pr-3">
       <div className="space-y-2">
-        <p className="text-[1.05rem] font-semibold">Active Chats</p>
+        <p
+          className={`text-[1.05rem] font-semibold ${isDarkMode ? "text-dark-text-base-300" : ""}`}
+        >
+          Active Chats
+        </p>
         <Input
           type="text"
           placeholder="Search"
-          className="bg-white focus-visible:ring-0"
+          className={`focus-visible:ring-0 ${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -98,7 +104,11 @@ const ChatSidebar = () => {
           })
         ) : (
           <div className="my-20 grid place-items-center">
-            <p className="text-sm text-gray-500">No chats found</p>
+            <p
+              className={`text-sm ${isDarkMode ? "text-dark-text-base-300-75" : "text-gray-500"} `}
+            >
+              No chats found
+            </p>
           </div>
         )}
       </div>

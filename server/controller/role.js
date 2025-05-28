@@ -1,15 +1,36 @@
+import CategoryRoleModel from "../models/categoryrole.js";
 import RoleModel from "../models/role.js";
 import UserModel from "../models/user.js";
 
 const getAllRoleTypes = async (req, res) => {
   try {
-    const roleTypes = await RoleModel.find();
+    const roleTypes = await RoleModel.find().populate("categories");
 
     const filteredRoleTypes = roleTypes.filter((role) => !role.isDeleted);
 
     res.status(200).json({ roleTypes: filteredRoleTypes });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getCategoryRole = async (req, res) => {
+  const { role_id } = req.params;
+
+  if (!role_id) {
+    return res.status(400).json({ message: "Missing role ID" });
+  }
+
+  try {
+    const role = await RoleModel.findById(role_id).populate("categories");
+
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+
+    res.status(200).json({ categories: role.categories });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", details: error.message });
   }
 };
 
@@ -30,6 +51,128 @@ const addRoleType = async (req, res) => {
     res.status(200).json({ message: "Role type added successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+const addCategoryRole = async (req, res) => {
+  const { role_id, categoryName } = req.body;
+
+  if (!role_id || !categoryName) {
+    return res
+      .status(400)
+      .json({ message: "Missing role ID or category name" });
+  }
+
+  try {
+    let existingCategory = await CategoryRoleModel.findOne({
+      name: categoryName,
+    });
+
+    if (!existingCategory) {
+      existingCategory = await new CategoryRoleModel({
+        name: categoryName,
+      }).save();
+    }
+
+    const role = await RoleModel.findById(role_id);
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+
+    const categoryAlreadyExists = role.categories.some(
+      (catId) => catId.toString() === existingCategory._id.toString()
+    );
+
+    if (categoryAlreadyExists) {
+      return res
+        .status(400)
+        .json({ message: "Category already exists in this role" });
+    }
+
+    await RoleModel.findByIdAndUpdate(role_id, {
+      $addToSet: { categories: existingCategory._id },
+    });
+
+    return res.status(200).json({
+      message: "Category successfully added to role.",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
+const updateCategoryRole = async (req, res) => {
+  const { role_id, categories } = req.body;
+
+  const categoryArr = categories.map((category) => JSON.parse(category));
+
+  try {
+    const categoriesToBeDeleted = categoryArr.filter(
+      (category) => category.isDeleted
+    );
+    const categoriesToBeUpdated = categoryArr.filter(
+      (category) => category.isUpdated
+    );
+
+    if (categoriesToBeDeleted.length > 0) {
+      await Promise.all(
+        categoriesToBeDeleted.map((category) =>
+          Promise.all([
+            CategoryRoleModel.findByIdAndDelete(category._id),
+            RoleModel.findByIdAndUpdate(role_id, {
+              $pull: { categories: category._id },
+            }),
+          ])
+        )
+      );
+    }
+
+    if (categoriesToBeUpdated.length > 0) {
+      const existingChecks = categoriesToBeUpdated.map(async (category) => {
+        const record = await CategoryRoleModel.findOne({
+          name: { $regex: new RegExp(`^${category.name}$`, "i") },
+        });
+
+        if (record && category._id !== record._id.toString()) {
+          return {
+            conflict: true,
+            name: category.name,
+            existingId: record._id.toString(),
+          };
+        }
+
+        return { conflict: false };
+      });
+
+      const existingRecord = await Promise.all(existingChecks);
+      const filteredExistingRecord = existingRecord.filter(
+        (record) => record.conflict
+      );
+
+      if (filteredExistingRecord.length > 0) {
+        const names = filteredExistingRecord
+          .map((record) => record.name)
+          .join(", ");
+
+        return res.status(400).json({ message: `${names} already exists!` });
+      }
+
+      await Promise.all(
+        categoriesToBeUpdated.map((category) =>
+          CategoryRoleModel.findByIdAndUpdate(category._id, {
+            name: category.name,
+          })
+        )
+      );
+    }
+
+    res.status(200).json({
+      message: "Role categories updated successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", details: error.message });
   }
 };
 
@@ -168,7 +311,10 @@ const deleteRolePermission = async (req, res) => {
 export {
   getAllRoleTypes,
   getRoleById,
+  getCategoryRole,
   addRoleType,
+  addCategoryRole,
+  updateCategoryRole,
   updateRolePermissions,
   updateRoleName,
   deleteRole,

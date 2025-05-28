@@ -5,9 +5,11 @@ import RecentDocumentsTable from "./RecentDocumentsTable";
 import { Button } from "@/components/ui/button";
 import { HiChatBubbleLeftRight } from "react-icons/hi2";
 import FeaturePermission from "@/layer/FeaturePermission";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const CampusDocument = () => {
   const navigate = useNavigate();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const handleClick = (path) => {
     navigate(`/documents${path}`);
@@ -31,7 +33,7 @@ const CampusDocument = () => {
               <div
                 role="button"
                 tabIndex={0}
-                className="group flex-1 cursor-pointer space-y-4 rounded-lg border border-x-secondary-200/90 bg-white px-7 pb-7 pt-10"
+                className={`group flex-1 cursor-pointer space-y-4 rounded-lg border px-7 pb-7 pt-10 ${isDarkMode ? "border-secondary-200/70 bg-dark-base-bg text-dark-text-base-300" : "border-x-secondary-200/90 bg-white"} transition-colors duration-150`}
                 onClick={() => handleClick(info.path)}
                 onKeyDown={(e) => e.key === "Enter" && handleClick(info.path)}
               >
@@ -40,7 +42,9 @@ const CampusDocument = () => {
                   <p className="text-[1.1rem] font-semibold transition-all duration-200 group-hover:text-base-200">
                     {info.title}
                   </p>
-                  <p className="text-[0.9rem] text-secondary-100-75 transition-all duration-200 group-hover:text-base-200">
+                  <p
+                    className={`text-[0.9rem] transition-all duration-200 group-hover:text-base-200 ${isDarkMode ? "text-dark-secondary-100-75" : "text-secondary-100-75"} `}
+                  >
                     {info.subtitle}
                   </p>
                 </div>
@@ -62,7 +66,7 @@ const CampusDocument = () => {
 
           <Button
             variant="outline"
-            className="text-secondary-100-75"
+            className={` ${isDarkMode ? "border-dark-text-base-300-75 bg-dark-base-bg text-dark-text-base-300" : "text-secondary-100-75"}`}
             onClick={() => navigate("/documents/all-documents")}
           >
             Show All Documents

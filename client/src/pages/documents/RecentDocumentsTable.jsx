@@ -6,6 +6,7 @@ import columns from "@/components/columns/RecentDocuments";
 import { useQuery } from "@tanstack/react-query";
 import { getAllDocuments } from "@/api/documents";
 import Loading from "@/components/Loading";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const RecentDocumentsTable = () => {
   const [filters, setFilters] = useState([]);
@@ -14,6 +15,7 @@ const RecentDocumentsTable = () => {
     queryKey: ["documents"],
     queryFn: () => getAllDocuments("", "", false, true),
   });
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   return (
     <div className="mt-6 flex flex-1 flex-col gap-4">
@@ -25,6 +27,7 @@ const RecentDocumentsTable = () => {
       <Input
         type="text"
         placeholder="Search"
+        className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
         value={globalFilter || ""}
         onChange={(e) => setGlobalFilter(e.target.value)}
       />
@@ -38,7 +41,7 @@ const RecentDocumentsTable = () => {
             columns={columns}
             filters={filters}
             setFilters={setFilters}
-            columnActions={{}}
+            columnActions={{ isDarkMode }}
             globalFilter={globalFilter}
             setGlobalFilter={setGlobalFilter}
             pageSize={5}

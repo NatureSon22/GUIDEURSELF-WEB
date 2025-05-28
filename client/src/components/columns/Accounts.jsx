@@ -21,7 +21,12 @@ const handleVerifyClick = async (accountId, verifyAccount) => {
   await verifyAccount([accountId]);
 };
 
-const columns = ({ navigate, handleVerifyAccount, hasAction = true }) => {
+const columns = ({
+  navigate,
+  handleVerifyAccount,
+  hasAction = true,
+  isDarkMode = false,
+}) => {
   const baseColumns = [];
 
   // ✅ Correctly Add Checkbox Column Conditionally
@@ -113,10 +118,21 @@ const columns = ({ navigate, handleVerifyAccount, hasAction = true }) => {
         const status = row.original.status.toLowerCase();
 
         const statusColors = {
-          active: "bg-green-200/80  text-accent-300",
-          inactive: "bg-gray-200/80 text-gray-500",
-          pending: "bg-yellow-200/80 text-yellow-500",
-          blocked: "bg-red-200/80 text-red-500",
+          active: isDarkMode
+            ? "bg-green-500 text-white"
+            : "bg-green-200/80 text-green-800",
+
+          inactive: isDarkMode
+            ? "bg-gray-600 text-gray-100"
+            : "bg-gray-200/80 text-gray-600",
+
+          pending: isDarkMode
+            ? "bg-yellow-400 text-gray-700"
+            : "bg-yellow-200/80 text-yellow-700",
+
+          blocked: isDarkMode
+            ? "bg-red-500 text-white"
+            : "bg-red-200/80 text-red-600",
         };
 
         return (

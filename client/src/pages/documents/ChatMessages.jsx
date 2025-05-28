@@ -3,9 +3,11 @@ import ChatLoader from "@/components/ChatLoader";
 import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ChatMessages = ({ messages = [], loading = false }) => {
   const messagesEndRef = useRef(null);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -19,12 +21,15 @@ const ChatMessages = ({ messages = [], loading = false }) => {
             key={message.id}
             className={`prose prose-xs max-w-[600px] rounded-[19px] px-5 pb-1 pt-4 text-[0.85rem] ${
               message.machine
-                ? "mr-auto bg-base-300/10 text-black"
+                ? isDarkMode
+                  ? "mr-auto bg-dark-secondary-200 text-dark-text-base-300"
+                  : "mr-auto bg-base-300/10 text-black"
                 : "ml-auto bg-base-200 text-white"
             }`}
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
+              // when isDarkMode is true i want other fontcolor
               components={{
                 h1: ({ children }) => (
                   <h1 className="mb-3 mt-2 text-lg font-bold">{children}</h1>
@@ -93,7 +98,11 @@ const ChatMessages = ({ messages = [], loading = false }) => {
         ))
       ) : (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-secondary-100-75">Start messaging . . .</p>
+          <p
+            className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+          >
+            Start messaging . . .
+          </p>
         </div>
       )}
 

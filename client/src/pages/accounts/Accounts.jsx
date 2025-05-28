@@ -19,6 +19,7 @@ import MultiCampus from "@/layer/MultiCampus";
 import { FaCheckCircle } from "react-icons/fa";
 import AccountDialog from "./AccountDialog";
 import { useToast } from "@/hooks/use-toast";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const status = [
   {
@@ -47,6 +48,7 @@ const Accounts = () => {
   const [open, setOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState("");
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const {
     data: allAccounts,
@@ -140,7 +142,7 @@ const Accounts = () => {
     navigate(path);
   };
 
-  const columnActions = { navigate, handleVerifyAccount };
+  const columnActions = { navigate, handleVerifyAccount, isDarkMode };
   const hasSelected = Object.keys(rowSelection).length > 0;
 
   const handleReset = () => {
@@ -180,13 +182,14 @@ const Accounts = () => {
           placeholder="Search"
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
         />
 
         <div className="flex items-center gap-2">
           <FeaturePermission module="Manage Accounts" access="add account">
             <Button
               variant="outline"
-              className="text-secondary-100-75"
+              className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
               onClick={() => handleNavigate("/accounts/add-account")}
             >
               <RiAddLargeFill /> Add Account
@@ -196,7 +199,7 @@ const Accounts = () => {
           <FeaturePermission module="Manage Accounts" access="import account">
             <Button
               variant="outline"
-              className="text-secondary-100-75"
+              className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
               onClick={() => handleNavigate("/accounts/import-add-account")}
             >
               <MdUpload />
@@ -210,18 +213,20 @@ const Accounts = () => {
         <div
           className={`flex items-center gap-5 ${hasSelected ? "" : "flex-1"} `}
         >
-          <p>Filters:</p>
+          <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
+            Filters:
+          </p>
 
           <div className="flex gap-2">
             <Input
               type="date"
-              className="w-[170px]"
+              className={`w-[170px] ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300-75" : ""} `}
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
             />
             <Input
               type="date"
-              className="w-[170px]"
+              className={`w-[170px] ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300-75" : ""} `}
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
             />
@@ -254,7 +259,7 @@ const Accounts = () => {
           />
 
           <Button
-            className="ml-auto text-secondary-100-75"
+            className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
             variant="outline"
             onClick={handleReset}
           >

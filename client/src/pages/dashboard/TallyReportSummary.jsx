@@ -8,29 +8,36 @@ import { BiSolidDislike } from "react-icons/bi";
 import { useQuery } from "@tanstack/react-query";
 import { getResponseReview } from "@/api/feedback";
 import { Skeleton } from "@/components/ui/skeleton";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const TallyReportSummary = () => {
   // Declare state hooks FIRST
   const [filter, setFilter] = useState([]);
   const [reset, setReset] = useState(false);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   // NOW useQuery can safely access 'filter'
-  const { data, isLoading, isError, error } = useQuery({ // Also consider adding error handling
+  const { data, isLoading, isError, error } = useQuery({
+    // Also consider adding error handling
     queryKey: ["tally_summary", filter],
     queryFn: () => getResponseReview(filter),
   });
 
   // Optional: Add basic error handling display
   if (isError) {
-     return <div>Error fetching summary: {error.message}</div>;
+    return <div>Error fetching summary: {error.message}</div>;
   }
 
   return (
-    <div className="flex-1 space-y-8 rounded-xl border border-secondary-200/50 bg-white px-7 py-5">
-      {/* ... rest of the component remains the same ... */}
-
+    <div
+      className={`flex-1 space-y-8 rounded-xl border border-secondary-200/50 px-7 py-5 ${isDarkMode ? "bg-dark-base-bg" : "bg-white"} transition-colors duration-150`}
+    >
       <div className="flex items-center justify-between">
-        <p className="font-medium">Review Summary</p>
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+        >
+          Review Summary
+        </p>
         <div className="flex items-center gap-3">
           <ComboBox
             options={tally_summary}
@@ -40,7 +47,7 @@ const TallyReportSummary = () => {
             reset={reset}
           />
           <Button
-            className="ml-auto text-secondary-100-75"
+            className={`ml-auto text-secondary-100-75 ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-base-bg text-dark-text-base-300-75 hover:bg-dark-base-bg hover:text-dark-text-base-300-75" : ""}`}
             variant="outline"
             onClick={() => {
               setFilter([]);
@@ -59,12 +66,16 @@ const TallyReportSummary = () => {
             {isLoading ? (
               <Skeleton className="h-[60px] w-20" />
             ) : (
-              <p className="text-[2.5rem] font-semibold">
+              <p
+                className={`text-[2.5rem] font-semibold ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+              >
                 {data?.helpfulMessages || 0}
               </p>
             )}
           </div>
-          <p className="text-[0.95rem] font-semibold tracking-wider text-secondary-100-75/50">
+          <p
+            className={`text-[0.95rem] font-semibold tracking-wider ${isDarkMode ? "text-dark-secondary-100-75" : "text-secondary-100-75/50"} `}
+          >
             HELPFUL
           </p>
         </div>
@@ -75,12 +86,16 @@ const TallyReportSummary = () => {
             {isLoading ? (
               <Skeleton className="h-[60px] w-20" />
             ) : (
-              <p className="text-[2.5rem] font-semibold">
+              <p
+                className={`text-[2.5rem] font-semibold ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+              >
                 {data?.unhelpfulMessages || 0}
               </p>
             )}
           </div>
-          <p className="text-[0.95rem] font-semibold tracking-wider text-secondary-100-75/50">
+          <p
+            className={`text-[0.95rem] font-semibold tracking-wider ${isDarkMode ? "text-dark-secondary-100-75" : "text-secondary-100-75/50"} `}
+          >
             NOT HELPFUL
           </p>
         </div>

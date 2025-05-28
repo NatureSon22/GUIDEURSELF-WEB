@@ -15,6 +15,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ComboBox = React.forwardRef(
   (
@@ -32,6 +33,7 @@ const ComboBox = React.forwardRef(
   ) => {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
+    const { isDarkMode } = useToggleTheme((state) => state);
 
     const selectedValue = propValue ?? value;
 
@@ -81,7 +83,7 @@ const ComboBox = React.forwardRef(
               selectedValue
                 ? "text-base-300"
                 : "uppercase text-secondary-100-75"
-            }`}
+            } ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-base-bg text-dark-text-base-300-75 hover:bg-dark-base-bg hover:text-dark-text-base-300-75" : "bg-white"} transition-colors duration-150`}
           >
             {selectedValue
               ? options.find((opt) => opt.value === selectedValue)?.label
@@ -91,7 +93,9 @@ const ComboBox = React.forwardRef(
         </PopoverTrigger>
         <PopoverContent className={`${style?.width || "w-[200px]"} p-0`}>
           <Command>
-            <CommandList>
+            <CommandList
+              className={`${isDarkMode ? "bg-dark-base-bg text-dark-text-base-300" : ""}`}
+            >
               <CommandEmpty>No results found</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => (
@@ -99,6 +103,7 @@ const ComboBox = React.forwardRef(
                     key={option.value}
                     value={option.value}
                     onSelect={() => handleSelect(option.value, option.label)}
+                    className={` ${isDarkMode ? "text-dark-text-base-300 hover:!bg-secondary-200/30 data-[selected=true]:bg-secondary-200/40 data-[selected=true]:text-dark-text-base-300" : ""}`}
                   >
                     {option.label}
                     <Check

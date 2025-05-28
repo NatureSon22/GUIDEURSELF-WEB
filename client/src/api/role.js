@@ -14,6 +14,24 @@ const getAllRoles = async () => {
   return roleTypes;
 };
 
+const getAllRolesWithCategories = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { roleTypes } = await response.json();
+  const filteredRoleTypes = roleTypes.filter(
+    (role) => role.categories.length > 0,
+  );
+  return filteredRoleTypes;
+};
+
 const getAllRolesWithoutPermissions = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types`, {
     method: "GET",
@@ -79,9 +97,46 @@ const getRoleById = async (id) => {
   return role;
 };
 
+const getCategoryRoles = async (role_id) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/role-types/category-role/${role_id}`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { categories } = await response.json();
+  const selectedTypeCategories = categories.map((category) => category.name);
+  return selectedTypeCategories;
+};
+
 const addRole = async (data) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/role-types/add-role`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: data,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  return response.json();
+};
+
+const addCategoryRole = async (data) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/role-types/add-category-role`,
     {
       method: "POST",
       credentials: "include",
@@ -122,6 +177,26 @@ const updateRoleName = async (form) => {
       method: "PUT",
       credentials: "include",
       body: form,
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { message } = await response.json();
+
+  return message;
+};
+
+const updateCategoryRole = async (data) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/role-types/update-category-role`,
+    {
+      method: "PUT",
+      credentials: "include",
+      body: data,
     },
   );
 
@@ -177,11 +252,15 @@ const deleteRolePermission = async (form) => {
 
 export {
   getAllRoles,
+  getAllRolesWithCategories,
   getRoleById,
   getAllRolesWithoutPermissions,
   getAllRolesWithPermissions,
+  getCategoryRoles,
   addRole,
+  addCategoryRole,
   updateRolePermissions,
+  updateCategoryRole,
   updateRoleName,
   deleteRoleType,
   deleteRolePermission,

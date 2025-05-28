@@ -102,7 +102,7 @@ const recordTrend = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    await TrendModel.create({ user_id: userId });
+    await new TrendModel({ user_id: userId }).save();
 
     res.status(200).json({ message: "Trend recorded successfully" });
   } catch (error) {

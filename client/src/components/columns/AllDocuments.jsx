@@ -22,7 +22,12 @@ const handleNavigate = (navigate, type, id) => {
   navigate(route, { state: { isEditing: Boolean(true) } });
 };
 
-const column = ({ navigate, setOpen, setSelectedDocument }) => [
+const column = ({
+  navigate,
+  setOpen,
+  setSelectedDocument,
+  isDarkMode = false,
+}) => [
   {
     accessorKey: "file_name",
     header: "Filename",
@@ -95,11 +100,17 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
       <div className="grid place-items-center">
         <span
           className={`w-[85px] rounded-full px-2 py-2 text-center text-xs font-medium ${
-            row.original.status === "synced"
-              ? "bg-accent-400 text-accent-300"
-              : row.original.status === "syncing"
-                ? "bg-accent-700 text-accent-600"
-                : "bg-accent-200 text-accent-100"
+            isDarkMode
+              ? row.original.status === "synced"
+                ? "bg-accent-300 text-accent-400"
+                : row.original.status === "syncing"
+                  ? "bg-accent-600 text-accent-700"
+                  : "bg-accent-100 text-accent-200"
+              : row.original.status === "synced"
+                ? "bg-accent-400 text-accent-300"
+                : row.original.status === "syncing"
+                  ? "bg-accent-700 text-accent-600"
+                  : "bg-accent-200 text-accent-100"
           }`}
         >
           {row.original.status}
@@ -116,15 +127,20 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="mx-4 py-1">
+            <Button
+              variant="outline"
+              className={`mx-4 py-1 ${isDarkMode ? "border-dark-secondary-100-75 bg-dark-base-bg" : ""} `}
+            >
               <FaEllipsis />
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="grid w-[135px] gap-1 rounded-md bg-white p-3 shadow-md">
+          <DropdownMenuContent
+            className={`mt-1 grid w-[135px] gap-1 rounded-md p-3 shadow-md ${isDarkMode ? "border border-dark-text-base-300 bg-dark-base-bg" : "bg-white"} `}
+          >
             <Button
               variant="ghost"
-              className="w-full bg-secondary-200/10 text-[0.85rem] text-secondary-100-75"
+              className={`w-full bg-secondary-200/10 text-[0.85rem] ${isDarkMode ? "text-dark-text-base-300" : "text-secondary-100-75"} `}
               onClick={() => {
                 navigate(`/documents/view/${row.original._id}`);
               }}
@@ -138,7 +154,7 @@ const column = ({ navigate, setOpen, setSelectedDocument }) => [
               {(editable || isOwner) && (
                 <Button
                   variant="ghost"
-                  className="w-full bg-secondary-200/10 text-[0.85rem] text-secondary-100-75"
+                  className={`w-full bg-secondary-200/10 text-[0.85rem] ${isDarkMode ? "text-dark-text-base-300" : "text-secondary-100-75"} `}
                   onClick={() =>
                     handleNavigate(
                       navigate,

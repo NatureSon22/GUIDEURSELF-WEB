@@ -1,14 +1,18 @@
 import useChatStore from "@/context/useChatStore";
 import MessageInput from "./MessageInput";
 import MessageList from "./MessageList";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const Messages = () => {
   const { selectedChat } = useChatStore((state) => state);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   if (!selectedChat) {
     return (
       <div className="grid h-full place-items-center">
-        <div className="h-full w-full rounded-lg bg-secondary-200-60/10"></div>
+        <div
+          className={`h-full w-full rounded-lg ${isDarkMode ? "bg-dark-secondary-200/20" : "bg-secondary-200-60/10"} transition-colors duration-150`}
+        ></div>
       </div>
     );
   }

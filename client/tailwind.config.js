@@ -6,7 +6,7 @@ export default {
     extend: {
       fontFamily: {
         "cizel-decor": ["Cinzel Decorative", "sans-serif"],
-        "cizel": ["Cinzel", "sans-serif"],
+        cizel: ["Cinzel", "sans-serif"],
       },
       colors: {
         "base-100": "rgba(14, 70, 163, 1)",
@@ -44,6 +44,11 @@ export default {
         "chart-200": "rgba(128, 202, 238, 1)",
         "chart-300": "rgba(60, 80, 224, 1)",
         "chart-400": "rgba(18, 165, 188, 1)",
+        "dark-base-bg": "rgb(20, 27, 28)",
+        "dark-text-base-300": "rgb(217, 217, 217)",
+        "dark-text-base-300-75": "rgba(217, 217, 217, 0.75)",
+        "dark-secondary-100-75": "rgba(186, 186, 186, 0.75)",
+        "dark-secondary-200": "rgb(46, 69, 72)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

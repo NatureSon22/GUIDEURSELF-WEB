@@ -23,6 +23,7 @@ import TextEditor from "@/components/TextEditor";
 import Loading from "@/components/Loading";
 import DialogContainer from "@/components/DialogContainer";
 import { useLocation } from "react-router-dom";
+import useToggleTheme from "@/context/useToggleTheme";
 
 // Form validation schema
 const formSchema = z.object({
@@ -61,6 +62,7 @@ const CreateNewDocument = () => {
 
   const visibility = watch("visibility");
   const content = watch("content"); // To keep track of the content field
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   // Fetch document if editing
   const { data: documentData, isLoading } = useQuery({
@@ -116,7 +118,6 @@ const CreateNewDocument = () => {
   const { mutateAsync: handleUpdateDocument } = useMutation({
     mutationFn: updateCreateDocument,
     onSuccess: () => {
-      
       toast({
         title: "Document updated successfully",
         description: "Operation completed successfully",
@@ -186,7 +187,9 @@ const CreateNewDocument = () => {
       className="flex flex-1 flex-col gap-7"
     >
       {/* Title Field */}
-      <div className="space-y-1">
+      <div
+        className={`space-y-1 ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+      >
         <p className="font-medium">Title</p>
         <p className="text-[0.95rem]">
           Enter a clear, descriptive title for the document.
@@ -198,7 +201,7 @@ const CreateNewDocument = () => {
             <Input
               {...register("title")}
               placeholder="Enter the title of the document"
-              className="bg-white"
+              className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
             />
             {errors.title && (
               <p className="mt-1 text-sm text-red-500">
@@ -209,7 +212,9 @@ const CreateNewDocument = () => {
         )}
       </div>
 
-      <div className="grid gap-1">
+      <div
+        className={`grid gap-1 ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+      >
         <p className="font-medium">Content</p>
         <p className="text-[0.95rem]">
           Write the main content that the chatbot will use.
@@ -241,7 +246,11 @@ const CreateNewDocument = () => {
 
       {/* Visibility Options */}
       <div className="grid gap-1">
-        <p className="font-medium">Visibility</p>
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+        >
+          Visibility
+        </p>
         {isLoading ? (
           <div className="ml-5 mt-3 space-y-3">
             {Array.from({ length: 3 }).map((_, index) => (
@@ -254,21 +263,45 @@ const CreateNewDocument = () => {
             value={visibility}
             onValueChange={(value) => setValue("visibility", value)}
           >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="onlyMe" id="r1" />
-              <Label className="text-secondary-100-75" htmlFor="r1">
+            <div className={"flex items-center space-x-2"}>
+              <RadioGroupItem
+                value="onlyMe"
+                className={`${isDarkMode ? "border-dark-text-base-300" : ""}`}
+                fillbase={isDarkMode ? "fill-white" : "fill-base-300"}
+                id="r1"
+              />
+              <Label
+                className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+                htmlFor="r1"
+              >
                 Only me
               </Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="viewOnly" id="r2" />
-              <Label className="text-secondary-100-75" htmlFor="r2">
+              <RadioGroupItem
+                value="viewOnly"
+                className={`${isDarkMode ? "border-dark-text-base-300" : ""}`}
+                fillbase={isDarkMode ? "fill-white" : "fill-base-300"}
+                id="r2"
+              />
+              <Label
+                className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+                htmlFor="r2"
+              >
                 Allow others to View
               </Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="viewAndEdit" id="r3" />
-              <Label className="text-secondary-100-75" htmlFor="r3">
+              <RadioGroupItem
+                value="viewAndEdit"
+                className={`${isDarkMode ? "border-dark-text-base-300" : ""}`}
+                fillbase={isDarkMode ? "fill-white" : "fill-base-300"}
+                id="r3"
+              />
+              <Label
+                className={` ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+                htmlFor="r3"
+              >
                 Allow others to View and Edit
               </Label>
             </div>

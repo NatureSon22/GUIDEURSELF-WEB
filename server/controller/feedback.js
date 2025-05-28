@@ -46,11 +46,12 @@ const getEveryFeedback = async (req, res) => {
 
 const addFeedback = async (req, res) => {
   try {
-    const { rating, feedback } = req.body;
+    const { rating, feedback, type } = req.body;
     const newFeedback = new FeedbackModel({
       user_id: req.user.userId,
       rating,
       feedback,
+      type,
     });
     const savedFeedback = await newFeedback.save();
 
@@ -61,7 +62,7 @@ const addFeedback = async (req, res) => {
 };
 
 const getTotalFeedback = async (req, res) => {
-  const { filter = "All" } = req.query; // Default to "All"
+  const { filter = "All", type } = req.query;
   const { isMultiCampus, campusId } = req.user;
 
   try {
@@ -76,7 +77,6 @@ const getTotalFeedback = async (req, res) => {
         },
       },
       { $unwind: "$user" },
-
       // Second lookup - get role information
       {
         $lookup: {
@@ -87,6 +87,7 @@ const getTotalFeedback = async (req, res) => {
         },
       },
       { $unwind: "$role" }, // Assuming each user has exactly one role
+      // { $match: { type } },
     ];
 
     // Filter by campus if not multi-campus
