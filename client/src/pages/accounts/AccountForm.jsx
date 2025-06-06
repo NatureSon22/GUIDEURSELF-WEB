@@ -15,6 +15,8 @@ import MultiCampus from "@/layer/MultiCampus";
 import { useState } from "react";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaEyeSlash } from "react-icons/fa6";
+import { getCategoryRoles } from "@/api/component-info";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const AccountForm = ({
   formSchema,
@@ -27,6 +29,7 @@ const AccountForm = ({
     defaultValues: { ...defaultValues },
   });
   const navigate = useNavigate();
+  const userType = form.watch("userType");
   const { data: allCampuses } = useQuery({
     queryKey: ["allCampuses"],
     queryFn: getAllCampuses,
@@ -40,8 +43,14 @@ const AccountForm = ({
       ),
     refetchOnMount: true,
   });
+  const { data: categoryRoles } = useQuery({
+    queryKey: ["categoryRoles", userType],
+    queryFn: () => getCategoryRoles(userType),
+    enabled: !!userType,
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const onSubmit = (data) => {
     const formData = new FormData();
@@ -107,6 +116,19 @@ const AccountForm = ({
                 />,
               )}
 
+              {RenderField(
+                form,
+                "",
+                "Category Roles",
+                <ComboBox
+                  options={categoryRoles}
+                  placeholder="Select user type"
+                  {...form.register("categoryRole", {
+                    required: categoryRoles?.length > 0,
+                  })}
+                />,
+              )}
+
               <MultiCampus>
                 {RenderField(
                   form,
@@ -125,31 +147,31 @@ const AccountForm = ({
                 form,
                 "user_number",
                 "User ID",
-                <Input placeholder="Enter user ID" className="bg-white" />,
+                <Input placeholder="Enter user ID" />,
               )}
               {RenderField(
                 form,
                 "username",
                 "Username",
-                <Input placeholder="Enter username" className="bg-white" />,
+                <Input placeholder="Enter username" />,
               )}
               {RenderField(
                 form,
                 "firstName",
                 "First Name",
-                <Input placeholder="Enter first name" className="bg-white" />,
+                <Input placeholder="Enter first name" />,
               )}
               {RenderField(
                 form,
                 "middleName",
                 "Middle Name",
-                <Input placeholder="Enter middle name" className="bg-white" />,
+                <Input placeholder="Enter middle name" />,
               )}
               {RenderField(
                 form,
                 "lastName",
                 "Last Name",
-                <Input placeholder="Enter last name" className="bg-white" />,
+                <Input placeholder="Enter last name" />,
               )}
             </div>
 
@@ -158,7 +180,7 @@ const AccountForm = ({
                 form,
                 "email",
                 "Email",
-                <Input placeholder="Enter email" className="bg-white" />,
+                <Input placeholder="Enter email" />,
               )}
 
               <div className="flex items-end gap-2">
@@ -169,14 +191,13 @@ const AccountForm = ({
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter password"
-                    className="bg-white"
                   />,
                 )}
 
                 <Button
                   variant="ghost"
                   type="button"
-                  className="bg-base-300/10 text-secondary-100-75"
+                  className={`bg-base-300/10 ${isDarkMode ? "bg-dark-secondary-200 text-dark-text-base-300-75" : "text-secondary-100-75"}`}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <IoEyeSharp /> : <FaEyeSlash />}
@@ -191,7 +212,6 @@ const AccountForm = ({
                   <Input
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm password"
-                    className="bg-white"
                   />,
                 )}
 

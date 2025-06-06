@@ -6,6 +6,8 @@ import UserSummary from "./UserSummary";
 import UsageTrends from "./UsageTrends";
 import AccountActivityList from "./AccountActivityList.jsx";
 import useToggleTheme from "@/context/useToggleTheme";
+import BotUsage from "./BotUsage";
+import ClassificationSummary from "./ClassificationSummary";
 
 const Dashboard = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -42,6 +44,11 @@ const Dashboard = () => {
       </div>
 
       <UsageTrends />
+
+      <div className="flex h-[500px] gap-5">
+        <ClassificationSummary />
+        <BotUsage />
+      </div>
 
       <AccountActivityList />
     </div>

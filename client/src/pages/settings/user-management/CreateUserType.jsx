@@ -13,12 +13,14 @@ import { addRole } from "@/api/role";
 import { useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { RiAddLargeFill } from "react-icons/ri";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const CreateUserType = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
   const inputRef = useRef(null);
   const queryClient = useQueryClient();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const { mutateAsync } = useMutation({
     mutationFn: addRole,
@@ -60,7 +62,7 @@ const CreateUserType = () => {
     <>
       <Button
         variant="outline"
-        className="text-secondary-100-75"
+        className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
         onClick={() => setOpenDialog(true)}
       >
         <RiAddLargeFill />

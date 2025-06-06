@@ -6,6 +6,21 @@ import { config } from "dotenv";
 
 config();
 
+// "Factual Look-Up",
+// "Procedural",
+// "Tricky or Adversarial",
+// "Uncategorized",
+
+const CATEGORIES = {
+  "Factual Look-Up": "factual",
+  Procedural: "procedural",
+  "Tricky or Adversarial": "trivial",
+  Uncategorized: "uncategorized",
+};
+
+// i know i can do this CATEGORIES[key] = value
+// can i do CATEGORIES[value] = key???
+
 const getMessages = async (req, res) => {
   try {
     // Fetch messages from DB
@@ -71,8 +86,8 @@ const sendMessage = async (req, res) => {
       data: { id: responseId, content: responseContent, machine },
     } = await response.json();
 
-    // const classification = await classifyText(responseContent);
-    // console.log(classification);
+    const classification = await classifyText(responseContent);
+    console.log(classification);
 
     const userMessage = await MessageModel.create({
       content,
@@ -82,7 +97,7 @@ const sendMessage = async (req, res) => {
     const botMessage = await MessageModel.create({
       content: responseContent,
       is_machine_generated: true,
-      //category: classification.text_classification.category,
+      category: classification.text_classification.category,
     });
 
     await ConversationModel.findOneAndUpdate(
@@ -124,8 +139,6 @@ const reviewMessage = async (req, res) => {
 
 const tallyReview = async (req, res) => {
   const { filter } = req.query;
-  console.log("filter: " + filter);
-  console.log("run");
 
   const now = new Date();
   let startDate = null;
@@ -209,4 +222,106 @@ const tallyReview = async (req, res) => {
   }
 };
 
-export { sendMessage, reviewMessage, getMessages, tallyReview };
+const getMessagesClassification = async (req, res) => {
+  const categoriesCount = {
+    factual: 0,
+    procedural: 0,
+    trivial: 0,
+    uncategorized: 0,
+  };
+
+  try {
+    const aggregationResults = await MessageModel.aggregate([
+      { $match: { is_machine_generated: true } },
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+    ]);
+
+    aggregationResults.forEach((result) => {
+      const key = CATEGORIES[result._id];
+
+      if (key) {
+        categoriesCount[key] = result.count;
+      }
+      // } else {
+      //   categoriesCount.uncategorized += result.count;
+      // }
+    });
+
+    res.status(200).json({ categoriesCount });
+  } catch (error) {
+    res.status(500).json({ details: error.message, message: "Server error" });
+  }
+};
+
+const botUsage = async (req, res) => {
+  const { range } = req.query;
+  const now = new Date();
+  let startDate = null;
+
+  switch (range) {
+    case "This week": {
+      const today = new Date(now);
+      const day = today.getDay(); // Sunday = 0, Monday = 1, ...
+      const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust for Monday start
+      startDate = new Date(today.setDate(diff));
+      startDate.setHours(0, 0, 0, 0);
+      break;
+    }
+    case "This month":
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    case "This year":
+      startDate = new Date(now.getFullYear(), 0, 1);
+      break;
+    default:
+      startDate = null;
+
+      break;
+  }
+
+  try {
+    const matchStage = startDate
+      ? {
+          date_added: { $gte: startDate },
+        }
+      : {};
+
+    const aggregateResult = await MessageModel.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date_added" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const formatDate = (date) => {
+      return new Intl.DateTimeFormat("en", {
+        month: "short",
+        day: "2-digit",
+      }).format(new Date(date));
+    };
+
+    res.status(200).json({
+      data: aggregateResult.map(({ _id, count }) => ({
+        step: formatDate(_id),
+        count,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ details: error.message, message: "Server error" });
+  }
+};
+
+export {
+  sendMessage,
+  reviewMessage,
+  getMessages,
+  tallyReview,
+  getMessagesClassification,
+  botUsage,
+};

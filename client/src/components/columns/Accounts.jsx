@@ -169,12 +169,17 @@ const columns = ({
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="mx-4 py-1">
+              <Button
+                variant="outline"
+                className={`mx-4 py-1 ${isDarkMode ? "border-dark-secondary-100-75 bg-dark-base-bg" : ""} `}
+              >
                 <FaEllipsis />
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent className="grid w-[135px] gap-1 rounded-md bg-white p-3 shadow-md">
+            <DropdownMenuContent
+              className={`mt-1 grid w-[135px] gap-1 rounded-md p-3 shadow-md ${isDarkMode ? "border border-dark-text-base-300 bg-dark-base-bg" : "bg-white"} `}
+            >
               <FeaturePermission module="Manage Accounts" access="edit account">
                 <Button
                   className="bg-base-200/10 text-[0.75rem] text-base-200 shadow-none hover:bg-base-200 hover:text-white"

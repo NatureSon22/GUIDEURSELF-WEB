@@ -158,7 +158,9 @@ const DataTable = forwardRef(
         {/* Footer Section */}
         {showFooter && table.getRowModel().rows.length > 0 && (
           <div className="mb-0 mt-auto flex items-center justify-between pt-7">
-            <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+            <p
+              className={`text-[0.9rem] font-semibold ${isDarkMode ? "text-dark-text-base-300-75" : "text-secondary-100-75"} `}
+            >
               {`Showing ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()} ${
                 table.getPageCount() > 1 ? "pages" : "page"
               }`}

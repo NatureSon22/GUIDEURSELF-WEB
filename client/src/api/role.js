@@ -98,6 +98,8 @@ const getRoleById = async (id) => {
 };
 
 const getCategoryRoles = async (role_id) => {
+  console.log("role id: " + role_id);
+
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/role-types/category-role/${role_id}`,
     {

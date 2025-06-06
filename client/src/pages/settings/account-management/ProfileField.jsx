@@ -7,12 +7,14 @@ import { IoMdAdd } from "react-icons/io";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { update } from "@/api/accounts";
 import { useToast } from "@/hooks/use-toast";
+import useToggleTheme from "@/context/useToggleTheme";
 const ProfileField = ({ isLoading, user_photo_url, _id }) => {
   const [edit, setEdit] = useState(false);
   const inputRef = useRef(null);
   const [img, setImg] = useState(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const { mutateAsync: handleUpdateProfile, isPending: isUpdating } =
     useMutation({
@@ -83,7 +85,7 @@ const ProfileField = ({ isLoading, user_photo_url, _id }) => {
                 onChange={handleFileChange}
               />
               <div
-                className="grid size-[240px] cursor-pointer place-items-center rounded-md border overflow-hidden"
+                className="grid size-[240px] cursor-pointer place-items-center overflow-hidden rounded-md border"
                 onClick={handleInputClick}
                 aria-label="Upload new profile photo"
               >
@@ -94,7 +96,9 @@ const ProfileField = ({ isLoading, user_photo_url, _id }) => {
                     className="h-full w-full rounded-md object-cover"
                   />
                 ) : (
-                  <IoMdAdd className="text-[3rem] text-secondary-100/40" />
+                  <IoMdAdd
+                    className={`text-[3rem] ${isDarkMode ? "text-dark-secondary-100-75" : "text-secondary-100/40"} `}
+                  />
                 )}
               </div>
             </div>
@@ -110,10 +114,20 @@ const ProfileField = ({ isLoading, user_photo_url, _id }) => {
 
           {edit && (
             <div className="flex items-center space-x-4">
-              <Button onClick={handleUpdate} disabled={isUpdating}>
+              <Button
+                onClick={handleUpdate}
+                disabled={isUpdating}
+                className={
+                  isDarkMode ? "border border-dark-secondary-100-75" : ""
+                }
+              >
                 Update
               </Button>
-              <Button variant="ghost" onClick={handleCancel}>
+              <Button
+                variant="ghost"
+                onClick={handleCancel}
+                className={isDarkMode ? "bg-dark-secondary-100-75" : ""}
+              >
                 Cancel
               </Button>
             </div>

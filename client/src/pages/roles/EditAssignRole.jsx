@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { getAccount } from "@/api/accounts";
 import PermissionSkeleton from "./PermissionSkeleton";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const EditAssignRole = () => {
   const { accountId } = useParams();
@@ -26,6 +27,7 @@ const EditAssignRole = () => {
   const [grantedPermissions, setGrantedPermissions] = useState([]);
   const [revokedPermissions, setRevokedPermissions] = useState([]);
   const [customize, setCustomize] = useState(false);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const { data: allRoles, isError: allRolesError } = useQuery({
     queryKey: ["allRoles"],
@@ -260,9 +262,15 @@ const EditAssignRole = () => {
   return (
     <div className="flex h-full flex-col gap-7">
       <div className="space-y-2">
-        <p className="font-medium">Edit Permissions</p>
+        <p
+          className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+        >
+          Edit Permissions
+        </p>
         <div className="space-y-2">
-          <p className="mb-[2px] text-[0.9rem] text-base-300/50">
+          <p
+            className={`mb-[2px] text-[0.9rem] ${isDarkMode ? "text-dark-text-base-300-75" : "text-base-300/50"}`}
+          >
             Assign and customize permissions for each user type to manage
             specific areas or tasks within the system based on their
             responsibilities
@@ -278,7 +286,11 @@ const EditAssignRole = () => {
 
       <div className="flex flex-1 flex-col">
         <div className="flex justify-between">
-          <p className="font-medium">Permissions</p>
+          <p
+            className={`font-medium ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+          >
+            Permissions
+          </p>
 
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
@@ -287,22 +299,33 @@ const EditAssignRole = () => {
                 checked={customize}
                 onCheckedChange={setCustomize}
               />
-              <Label>Customize permissions</Label>
+              <Label className={isDarkMode ? "text-dark-text-base-300" : ""}>
+                Customize permissions
+              </Label>
             </div>
 
-            <Button onClick={handleReset}>Reset</Button>
+            <Button
+              className={
+                isDarkMode ? "border border-dark-secondary-100-75" : ""
+              }
+              onClick={handleReset}
+            >
+              Reset
+            </Button>
           </div>
         </div>
 
         {roleDetailsLoading ? (
-          <div className="mt-5 space-y-4">
+          <div className={"mt-5 space-y-4"}>
             <PermissionSkeleton />
             <PermissionSkeleton />
             <PermissionSkeleton />
           </div>
         ) : (
           <div className="grid gap-4">
-            <div className="my-5 w-full overflow-y-auto rounded-sm border [&_>*+*]:border-t">
+            <div
+              className={`my-5 w-full overflow-y-auto rounded-sm border [&_>*+*]:border-t ${isDarkMode ? "border-dark-text-base-300-75/50" : ""} `}
+            >
               {PERMISSIONS.map((module) => {
                 const rolePermissions = permissions.find(
                   (permission) =>

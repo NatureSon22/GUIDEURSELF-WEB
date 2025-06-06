@@ -251,6 +251,30 @@ const getAllStatus = async () => {
   return allStatus || [];
 };
 
+const getCategoryRoles = async (role_id) => {
+  console.log("role id: " + role_id);
+
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/role-types/category-role/${role_id}`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { categories } = await response.json();
+  const selectedTypeCategories = categories.map((category) => ({
+    value: category._id,
+    label: formatTitle(category.name),
+  }));
+  return selectedTypeCategories;
+};
+
 const getAllActLog = async () => {
   try {
     const response = await fetch(
@@ -345,6 +369,7 @@ export {
   getProgramTypeData,
   getLowRoleTypes,
   getMajorData,
+  getCategoryRoles,
   getProgramNameData,
   getAllRoleTypes,
   getHighRoleTypes,

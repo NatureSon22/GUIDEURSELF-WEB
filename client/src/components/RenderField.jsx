@@ -1,3 +1,4 @@
+import useToggleTheme from "@/context/useToggleTheme";
 import {
   FormField,
   FormItem,
@@ -6,16 +7,20 @@ import {
   FormMessage,
 } from "./ui/form";
 import { cloneElement } from "react";
-
 const RenderField = (
   form,
   fieldName,
   fieldTitle,
   children,
-  additionalProps = {}
+  additionalProps = {},
 ) => {
-  // Generate an id based on the field name or provide a custom one
   const fieldId = `${fieldName}-input`;
+  const { isDarkMode } = useToggleTheme((state) => state);
+
+  // Extract className specifically for the label from additionalProps
+  // This allows other props in additionalProps to still go to the child component
+  const labelClassName = additionalProps.labelClassName || ""; // Use a specific prop for the label's class
+  const { labelClassName: _, ...restAdditionalProps } = additionalProps; // Destructure to prevent passing labelClassName to the child
 
   return (
     <FormField
@@ -23,14 +28,17 @@ const RenderField = (
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-col gap-1">
-          <FormLabel htmlFor={fieldId} className={`text-[0.9rem] ${additionalProps.className} `}>
+          <FormLabel
+            htmlFor={fieldId}
+            className={`text-[0.9rem] ${isDarkMode ? "text-dark-text-base-300" : ""} ${labelClassName} `.trim()}
+          >
             {fieldTitle}
           </FormLabel>
           <FormControl>
             {cloneElement(children, {
               ...field,
-              id: fieldId, // Assign the generated ID to the form field
-              ...additionalProps, // Spread any additional props passed
+              id: fieldId,
+              ...restAdditionalProps,
             })}
           </FormControl>
           <FormMessage />

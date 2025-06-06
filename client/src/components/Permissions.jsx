@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import SwitchToggle from "@/components/SwitchToggle";
 import { useState, useEffect } from "react";
 import { Checkbox } from "./ui/checkbox";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const Permissions = ({
   module,
@@ -14,6 +15,7 @@ const Permissions = ({
   newRole = false,
 }) => {
   const [checkAll, setCheckAll] = useState(false);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   useEffect(() => {
     setCheckAll(module.access.every((access) => roleaccess.includes(access)));
@@ -34,9 +36,13 @@ const Permissions = ({
     : null;
 
   return (
-    <div className={`bg-secondary-200/5 px-5 py-6 ${style}`}>
+    <div
+      className={`bg-secondary-200/5 px-5 py-6 ${isDarkMode ? "border-dark-text-base-300-75/50" : style} transition-colors duration-150`}
+    >
       <div className="flex items-center justify-between">
-        <Label>{module.module}</Label>
+        <Label className={isDarkMode ? "text-dark-text-base-300" : ""}>
+          {module.module}
+        </Label>
 
         <div className="flex items-center gap-2">
           {customizePermission ? (
@@ -46,7 +52,7 @@ const Permissions = ({
                 checked={checkAll}
                 onCheckedChange={toggleCheckAll}
               />
-              <Label>Check All</Label>
+              <Label className={isDarkMode ? "text-dark-text-base-300" : ""}>Check All</Label>
             </>
           ) : (
             <div className="py-2"></div>
@@ -54,7 +60,11 @@ const Permissions = ({
         </div>
       </div>
 
-      <p className="text-[0.85rem]">{module.description}</p>
+      <p
+        className={`mt-[3px] text-[0.85rem] ${isDarkMode ? "text-dark-text-base-300-75" : ""} `}
+      >
+        {module.description}
+      </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-4">
         {module.access.map((access) => {

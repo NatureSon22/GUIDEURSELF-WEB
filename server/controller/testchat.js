@@ -1,3 +1,5 @@
+import MessageModel from "../models/message.js";
+import classifyText from "../service/textClassify.js";
 import { CODY_URLS, HEADERS } from "./rag-endpoints.js";
 import { config } from "dotenv";
 
@@ -47,6 +49,15 @@ const createMessage = async (req, res) => {
     }
 
     const { data } = await response.json();
+    // const classfication = await classifyText(message);
+    // console.log(classfication);
+
+    // await MessageModel.create({
+    //   content: data.content,
+    //   is_machine_generated: true,
+    //   category: classfication.text_classification.category,
+    // });
+
     return res.status(200).json({ data });
   } catch (error) {
     res.status(500).json({

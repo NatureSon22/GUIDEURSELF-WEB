@@ -1,6 +1,7 @@
 import { logout } from "@/api/auth";
 import { logoutSession } from "@/api/session";
 import { Button } from "@/components/ui/button";
+import useToggleTheme from "@/context/useToggleTheme";
 import { useToast } from "@/hooks/use-toast";
 import formatDate from "@/utils/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +14,7 @@ const SessionDisplay = ({ session }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { _id, userAgent, isActive, lastActive, device } = session;
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { mutate: handleLogout, isLoading } = useMutation({
     mutationFn: () => logoutSession(_id),
     onSuccess: () => {
@@ -42,7 +44,9 @@ const SessionDisplay = ({ session }) => {
         </div>
 
         <div className="space-y-[0.2rem]">
-          <p className="text-[0.82rem]">
+          <p
+            className={`text-[0.82rem] ${isDarkMode ? "text-dark-text-base-300-75" : ""} `}
+          >
             OS: {userAgent.os.name} {userAgent.os.version}
           </p>
           {isActive ? (

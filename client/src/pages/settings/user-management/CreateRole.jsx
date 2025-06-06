@@ -18,6 +18,7 @@ import { updateRolePermissions } from "@/api/role";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const CreateRole = () => {
   const { toast } = useToast();
@@ -49,6 +50,7 @@ const CreateRole = () => {
       setPermissions([]);
     },
   });
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const handleSave = () => {
     const formData = new FormData();
@@ -94,7 +96,7 @@ const CreateRole = () => {
     <>
       <Button
         variant="outline"
-        className="text-secondary-100-75"
+        className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
         onClick={() => setOpenDialog(true)}
       >
         <RiAddLargeFill /> Add Permission

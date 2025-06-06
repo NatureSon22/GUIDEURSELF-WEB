@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import useToggleTheme from "@/context/useToggleTheme";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -27,6 +28,8 @@ const CreateCategoryRole = () => {
     queryKey: ["roletypes"],
     queryFn: getAllRoleTypes,
   });
+  const { isDarkMode } = useToggleTheme((state) => state);
+
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["categories", roleId],
     queryFn: () => getCategoryRoles(roleId),
@@ -75,7 +78,7 @@ const CreateCategoryRole = () => {
     <>
       <Button
         variant="outline"
-        className="text-secondary-100-75"
+        className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
         onClick={() => setOpenDialog(true)}
       >
         <RiAddLargeFill />

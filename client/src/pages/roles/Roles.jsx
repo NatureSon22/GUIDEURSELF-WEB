@@ -12,8 +12,10 @@ import Loading from "@/components/Loading";
 import { getAllCampuses, getAllRoleTypes } from "@/api/component-info";
 import { GrPowerReset } from "react-icons/gr";
 import MultiCampus from "@/layer/MultiCampus";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const Roles = () => {
+  const { isDarkMode } = useToggleTheme((state) => state);
   const [filters, setFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [reset, setReset] = useState(false);
@@ -82,6 +84,7 @@ const Roles = () => {
         <Input
           type="text"
           placeholder="Search"
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
@@ -101,17 +104,19 @@ const Roles = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p>Filters:</p>
+        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
+          Filters:
+        </p>
         <div className="flex gap-2">
           <Input
             type="date"
-            className="w-[170px]"
+            className={`w-[170px] ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300-75" : ""} `}
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
           />
           <Input
             type="date"
-            className="w-[170px]"
+            className={`w-[170px] ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300-75" : ""} `}
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
           />
@@ -144,7 +149,7 @@ const Roles = () => {
         /> */}
 
         <Button
-          className="ml-auto text-secondary-100-75"
+          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
           variant="outline"
           onClick={handleReset}
         >

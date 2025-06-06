@@ -31,4 +31,45 @@ const getMessages = async () => {
   }
 };
 
-export { getChatHeads, getMessages };
+const getMessagesClassification = async () => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/message/message-classifications`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { categoriesCount } = await response.json();
+  const chartData = Object.entries(categoriesCount).map(([key, value]) => ({
+    category: key,
+    count: value,
+  }));
+
+  return chartData;
+};
+
+const botUsage = async () => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/message/bot-usage`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const { message } = await response.json();
+    throw new Error(message);
+  }
+
+  const { data } = await response.json();
+  return data;
+};
+
+export { getChatHeads, getMessages, getMessagesClassification, botUsage };
