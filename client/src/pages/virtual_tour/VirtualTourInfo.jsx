@@ -11,11 +11,13 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { loggedInUser } from "@/api/auth";
 import Loading from "@/components/Loading";
 import {fetchCampuses} from "@/api/component-info.js"
+import useToggleTheme from "@/context/useToggleTheme";
 
 const VirtualTourInfo = () => {
     const [loadingVisible, setLoadingVisible] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("");
     const navigate = useNavigate();
+    const { isDarkMode } = useToggleTheme((state) => state);
 
     const { data, isLoading } = useQuery({
       queryKey: ["user"],
@@ -90,8 +92,8 @@ const VirtualTourInfo = () => {
                         <img className="h-[70px]" src={university?.university_logo_url} alt="" />
                     </div>
                     <div className="flex flex-col justify-center">
-                        <h2 className="font-bold font-cizel-decor text-xl">University Of Rizal System</h2>
-                        <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                        <h2 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} font-bold font-cizel-decor text-xl`}>University Of Rizal System</h2>
+                        <h3 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-md font-cizel`}>NURTURING TOMORROW'S NOBLEST</h3>
                     </div>
                 </div>
                 <hr />
@@ -101,21 +103,21 @@ const VirtualTourInfo = () => {
                             <p className="text-[2rem] font-bold text-base-200">{totalFloors}</p>
                             <TbMap2 className="text-4xl text-base-200"/>
                         </div>
-                        <p>Featured Floors</p>
+                        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""}`}>Featured Floors</p>
                     </div>
                     <div>
                         <div className="flex flex-row items-center justify-center gap-3">
                             <p className="text-[2rem] font-bold text-base-200">{totalMarkerPhotos}</p>
                             <RiCameraLensLine className="text-4xl text-base-200"/>
                         </div>
-                        <p>Panoramic View</p>
+                        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""}`}>Panoramic View</p>
                     </div>
                     <div>
                         <div className="flex flex-row items-center justify-center gap-3">
                             <p className="text-[2rem] font-bold text-base-200">{totalCategories}</p>
                             <MdTouchApp className="text-4xl text-base-200 mb-2"/>
                         </div>
-                        <p>Hotspots</p>
+                        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""}`}>Hotspots</p>
                     </div>
                 </div>
                 <hr />
@@ -140,8 +142,8 @@ const VirtualTourInfo = () => {
                     <img className="h-[160px]" src={university?.university_logo_url} alt="" />
                 </div>
                 <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                    <h2 className="font-bold font-cizel-decor text-xl">University Of Rizal System</h2>
-                    <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                    <h2 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} font-bold font-cizel-decor text-xl`}>University Of Rizal System</h2>
+                    <h3 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-md font-cizel`}>NURTURING TOMORROW'S NOBLEST</h3>
                 </div>
             </div>
         </div>

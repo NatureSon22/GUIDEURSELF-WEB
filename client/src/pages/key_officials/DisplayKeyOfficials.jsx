@@ -98,18 +98,12 @@ const DisplayingKeyOfficials = () => {
       </div>
 
       <div className="mt-4 flex w-full flex-col items-center justify-center">
-        <h2
-          className={`${isDarkMode ? "text-dark-text-base-300" : ""} font-cizel text-[25px] font-bold`}
-        >
+        <h2 className="font-cizel text-[25px] font-bold">
           <span className="font-cizel-decor">U</span>niversity of{" "}
           <span className="font-cizel-decor">R</span>izal{" "}
           <span className="font-cizel-decor">S</span>ystem
         </h2>
-        <p
-          className={`font-cizel text-lg ${isDarkMode ? "text-dark-text-base-300-75" : ""}`}
-        >
-          Nurturing Tomorrow&apos;s Noblest
-        </p>
+        <p className="font-cizel text-lg">Nurturing Tomorrow&apos;s Noblest</p>
       </div>
 
       <div className="mt-12 px-4 py-6 sm:px-6 lg:px-8">
@@ -118,23 +112,13 @@ const DisplayingKeyOfficials = () => {
         {Object.entries(groupedOfficials).map(([campusName, officials]) => (
           <div key={campusName} className="mb-12">
             {campusName !== "" ? (
-              <h2
-                className={`mb-12 flex w-full items-center gap-12 text-center font-cizel text-2xl font-bold ${isDarkMode ? "text-dark-text-base-300" : "text-gray-800"}`}
-              >
-                <hr
-                  className={`flex-grow ${isDarkMode ? "border-dark-secondary-100-75" : "border-secondary-200"} `}
-                />
+              <h2 className="mb-12 flex w-full items-center gap-12 text-center font-cizel text-2xl font-bold text-gray-800">
+                <hr className="flex-grow border-secondary-200" />
                 {`${campusName.toUpperCase()} CAMPUS`}
-                <hr
-                  className={`flex-grow ${isDarkMode ? "border-dark-secondary-100-75" : "border-secondary-200"} `}
-                />
+                <hr className="flex-grow border-secondary-200" />
               </h2>
             ) : (
-              <h2
-                className={
-                  "mb-12 text-center font-cizel text-2xl font-bold text-gray-800"
-                }
-              >
+              <h2 className="mb-12 text-center font-cizel text-2xl font-bold text-gray-800">
                 {campusName}
               </h2>
             )}
@@ -143,7 +127,7 @@ const DisplayingKeyOfficials = () => {
               {officials.map((official) => (
                 <div
                   key={official._id}
-                  className={`box-shadow-200 flex flex-col items-center rounded-md border px-2 py-4 ${isDarkMode ? "border-dark-secondary-100-75/40 bg-dark-secondary-100-75/10" : "border-secondary-200/30 bg-white"} transition-colors duration-150`}
+                  className="box-shadow-200 flex flex-col items-center rounded-md border border-secondary-200/30 bg-white px-2 py-4"
                 >
                   <img
                     src={official.key_official_photo_url}
@@ -151,14 +135,10 @@ const DisplayingKeyOfficials = () => {
                     className="h-[200px] w-[210px] rounded-md object-cover"
                     loading="lazy"
                   />
-                  <h3
-                    className={`text-md mt-5 px-4 text-center font-cizel-decor text-[1.05rem] font-bold ${isDarkMode ? "text-dark-text-base-300" : "text-gray-800"} `}
-                  >
+                  <h3 className="text-md mt-5 px-4 text-center font-cizel-decor text-[1.05rem] font-bold text-gray-800">
                     {official.name}
                   </h3>
-                  <p
-                    className={`mt-2 text-center font-cizel ${isDarkMode ? "text-dark-text-base-300-75" : "text-gray-600"}`}
-                  >
+                  <p className="mt-2 text-center font-cizel text-gray-600">
                     {official.position_name}
                     {official.college_name ? ` - ${official.college_name}` : ""}
                   </p>

@@ -6,6 +6,7 @@
     import useUserStore from "@/context/useUserStore";
     import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
     import { loggedInUser } from "@/api/auth";
+    import useToggleTheme from "@/context/useToggleTheme";
         
     const fetchCampuses = async () => {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
@@ -43,6 +44,7 @@
         const [loadingMessage, setLoadingMessage] = useState("");
         const [isLoading, setIsLoading] = useState(false);
         const { toast } = useToast();
+              const { isDarkMode } = useToggleTheme((state) => state);
 
           const { data: userRole } = useQuery({
             queryKey: ["userRole", userData.role_type],
@@ -241,23 +243,23 @@
                     </div>
                 )}
                 {!loadingVisible && (
-                    <div className="bg-white p-6 rounded-md w-1/3">
+                   <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-md w-1/3`}>
                         <form onSubmit={(e) => e.preventDefault()}>
                             {/* Name Input */}
                             <div className="mt-4">
-                                <Label className="text-lg">Name</Label>
+                                <Label className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Name</Label>
                                 <Input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+                                    className="w-full p-2 mt-2 bg-white border border-gray-300 rounded-md"
                                     placeholder="Enter name of the official"
                                 />
                             </div>
 
                             {/* Position Dropdown */}
                             <div className="mt-4">
-                                <Label className="text-lg">Administrative Position</Label>
+                                <Label className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Administrative Position</Label>
                                 <select
                                     value={position}
                                     onChange={(e) => setPosition(e.target.value)}
@@ -273,7 +275,7 @@
                             </div>
 
                             <div className="mt-4">
-                            <Label className="text-lg">Campus</Label>
+                            <Label className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Campus</Label>
                             <select
                                 value={campus}
                                 onChange={(e) => setCampus(e.target.value)} // ✅ corrected here
@@ -295,12 +297,12 @@
                             </div>
 
                             <div className="mt-4">
-                            <Label className="text-lg">College</Label>
+                            <Label className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>College</Label>
                             <Input
                                 type="text"
                                 value={college}
                                 onChange={(e) => setCollege(e.target.value)}
-                                className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+                                className="w-full p-2 mt-2 bg-white border border-gray-300 rounded-md"
                                 placeholder="Enter name of the college"
                                 disabled={!campus} // ✅ works as expected now
                             />
@@ -309,12 +311,12 @@
 
                             {/* Image Upload */}
                             <div className="mt-4">
-                                <Label className="text-lg">Upload Image</Label>
+                                <Label className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Upload Image</Label>
                                 <Input
                                     type="file"
                                     accept="image/*"
                                     onChange={handleImageUpload}
-                                    className="mt-2 py-1 cursor-pointer "
+                                    className="mt-2 py-1 bg-white cursor-pointer "
                                     required
                                 />
                             </div>
@@ -346,7 +348,7 @@
                                 <Button
                                     type="button"
                                     onClick={handleSave}
-                                    className="bg-base-200 text-white w-[100px] p-2 rounded-md"
+                                    className="bg-base-200 hover:bg-base-200 text-white w-[100px] p-2 rounded-md"
                                     disabled={isLoading}
                                 >
                                     {isLoading ? "Adding..." : "Add"}

@@ -1,6 +1,7 @@
 import Add from "@/assets/add.png";
 import Minus from "@/assets/minus.png";
 import Pen from "@/assets/Pen.png";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const FloorList = ({
   floors,
@@ -11,7 +12,8 @@ const FloorList = ({
   setSelectedFloor,
   handleAddFloorClick,
 }) => {
-
+  
+  const { isDarkMode } = useToggleTheme((state) => state);
   const handleSelectFloor = (floor) => {
     setSelectedFloor(floor);
   };

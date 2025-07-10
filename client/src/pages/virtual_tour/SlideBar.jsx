@@ -5,6 +5,7 @@ import { TbMap2 } from "react-icons/tb";
 import { RiCameraLensLine } from "react-icons/ri";
 import { MdTouchApp } from "react-icons/md";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const fetchCampuses = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
@@ -26,6 +27,7 @@ const fetchUserRole = async (roleType) => {
 
 const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
   const [searchTerm, setSearchTerm] = useState("");
+    const { isDarkMode } = useToggleTheme((state) => state);
 
   const { data: campuses = [], isLoading, isError } = useQuery({
     queryKey: ["campuses"],
@@ -84,10 +86,9 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
   const handleCampusClick = (campus) => {
     onCampusSelect(campus);
   };
-
   return (
-    <div className="w-[40%] flex flex-col gap-3 p-6 z-20">
-      <div className="flex flex-col justify-between h-[100%]">
+    <div className={`${isDarkMode ? 'bg-dark-base-bg' : 'bg-white'} w-[40%] flex flex-col gap-3 p-6 z-20`}>
+      <div className={`flex flex-col justify-between h-[100%]`}>
         <div>
           <div className="flex flex-col gap-1 justify-between">
             <div className="flex w-[100%] gap-3 pb-6 justify-center">
@@ -96,47 +97,47 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
                 <img className="h-[60px]" src={university?.university_logo_url} alt="" />
               </div>
               <div className="flex flex-col w-[70%] justify-center">
-                <h2 className="font-bold font-cizel-decor text-lg">University Of Rizal System</h2>
-                <h3 className="text-sm font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                <h2 className={`${isDarkMode ? "text-dark-text-base-300" : ""} font-bold font-cizel-decor text-lg`}>University Of Rizal System</h2>
+                <h3 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-sm font-cizel`}>NURTURING TOMORROW'S NOBLEST</h3>
               </div>
             </div>
             <hr className="pb-5" />
             <div className="pb-5 flex items-center justify-between gap-6 px-1">
               <div>
                 <div className="flex flex-row items-center justify-center gap-3">
-                  <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
+                  <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-[1.5rem] font-bold text-base-200`}>{totalFloors}</p>
                   <TbMap2 className="text-4xl text-base-200 mb-2" />
                 </div>
-                <p className="text-center text-sm">Featured Floors</p>
+                <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-center text-sm`}>Featured Floors</p>
               </div>
               <div>
                 <div className="flex flex-row items-center justify-center gap-3">
-                  <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
+                  <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-[1.5rem] font-bold text-base-200`}>{totalMarkerPhotos}</p>
                   <RiCameraLensLine className="text-4xl text-base-200 mb-2" />
                 </div>
-                <p className="text-center text-sm">Panoramic View</p>
+                <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-center text-sm`}>Panoramic View</p>
               </div>
               <div>
                 <div className="flex flex-row items-center justify-center gap-3">
-                  <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
+                  <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-[1.5rem] font-bold text-base-200`}>{totalCategories}</p>
                   <MdTouchApp className="text-4xl text-base-200 mb-2" />
                 </div>
-                <p className="text-center text-sm">Hotspots</p>
+                <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-center text-sm`}>Hotspots</p>
               </div>
             </div>
             <hr />
           </div>
           <div className="py-4 flex flex-col gap-3">
-            <p className="text-sm">List of Campuses</p>
+            <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-sm`}>List of Campuses</p>
             <div>
               {filteredCampuses.map((campus, index) => (
-                <div
+                <button
                   key={index}
-                  className="p-2 cursor-pointer hover:bg-gray-100"
+                  className={` ${isDarkMode ? "hover:text-black text-dark-text-base-300" : ""} p-2 cursor-pointer hover:bg-gray-100 w-full rounded-md flex justify-between items-center`}
                   onClick={() => handleCampusClick(campus)}
                 >
                   <p>{campus.campus_name}</p>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -144,8 +145,12 @@ const SlideBar = ({ onCampusSelect, exitBuildMode, userData }) => {
         <div>
           <div
             onClick={exitBuildMode}
-            className="flex justify-center items-center bg-accent-150 text-accent-100 hover:bg-accent-100 hover:text-white h-[45px] gap-2 rounded-md px-[50px] w-[100%] cursor-pointer"
-          >
+            className={`flex justify-center items-center h-[45px] gap-2 px-[50px] w-full cursor-pointer
+            ${isDarkMode 
+              ? "text-dark-text-base-300 border border-secondary-200" 
+              : "bg-accent-150 text-accent-100 hover:bg-accent-100 hover:text-white"} 
+                  rounded-md`}
+            >
             <FaMapMarkerAlt />
             <button>Exit Build Mode</button>
           </div>

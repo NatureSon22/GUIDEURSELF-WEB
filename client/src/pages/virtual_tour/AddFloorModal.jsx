@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import useUserStore from "@/context/useUserStore";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const uploadFloorImage = async (campusId, formData) => {
   console.log("Sending request to server...");
@@ -60,6 +61,7 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors, updatedCampus }) =
   const [date, setDate] = useState(Date.now());
   const [isLoading, isSetLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null); // State for image preview
+  const { isDarkMode } = useToggleTheme((state) => state);
 
     const { data } = useQuery({
       queryKey: ["user"],
@@ -159,10 +161,10 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors, updatedCampus }) =
         </div>
       )}
 
-      <DialogContent className="bg-white p-6 rounded-md w-[80%] md:w-[40%]">
+      <DialogContent className={`${isDarkMode ? 'bg-gray-800 text-dark-text-base-300' : 'bg-white'} p-6 rounded-md w-[80%] md:w-[40%]`}>
         <DialogHeader>
-          <DialogTitle className="text-lg">Add New Floor</DialogTitle>
-          <DialogDescription className="text-md">
+          <DialogTitle className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-lg`}>Add New Floor</DialogTitle>
+          <DialogDescription className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-md`}>
             Enter the name and upload a floor map.
           </DialogDescription>
         </DialogHeader>
@@ -198,7 +200,7 @@ const AddFloorModal = ({ closeModal, campusId, refreshFloors, updatedCampus }) =
             </div>
           ) : (
             <div className="h-[300px] flex items-center justify-center mt-4 border-dashed border p-6 text-center text-gray-500">
-              <p>Upload Image</p>
+              <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""}`}>Upload Image</p>
             </div>
           )}
         </div>

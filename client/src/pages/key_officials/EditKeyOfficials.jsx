@@ -6,6 +6,7 @@ import { RiAddLargeFill } from "react-icons/ri";
 import { Skeleton } from "@/components/ui/skeleton";
 import Pen from "../../assets/Pen.png";
 import Bin from "../../assets/bin.png";
+import { FaPen } from "react-icons/fa";
 import Header from "@/components/Header";
 import useUserStore from "@/context/useUserStore";
 import { IoAlertCircle } from "react-icons/io5";
@@ -304,7 +305,9 @@ const EditKeyOfficials = () => {
                         className="h-[200px] w-[210px] rounded-md object-cover"
                         loading="lazy"
                       />
-                      <h3 className="mt-5 px-4 text-center font-cizel-decor text-[1.05rem] font-bold text-gray-800">
+                      <h3
+                        className={`mt-5 px-4 text-center font-cizel-decor text-[1.05rem] font-bold ${isDarkMode ? "text-white" : "text-secondary-100"}`}
+                      >
                         {official.name}
                       </h3>
                       <p className="mt-2 text-center font-cizel text-gray-600">
@@ -325,7 +328,9 @@ const EditKeyOfficials = () => {
                           onClick={() => openEditModal(official)}
                           className="rounded p-1 hover:bg-gray-100"
                         >
-                          <img className="h-[18px]" src={Pen} alt="Edit" />
+                          <FaPen
+                            className={`h-[18px] ${isDarkMode ? "text-white" : "text-gray-800"}`}
+                          />
                         </button>
                       </FeaturePermission>
 

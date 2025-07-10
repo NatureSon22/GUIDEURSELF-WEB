@@ -17,6 +17,7 @@ import { FaGraduationCap } from "react-icons/fa";
 import { FaFlag } from "react-icons/fa";
 import { ImManWoman } from "react-icons/im";  
 import { MdWidgets } from "react-icons/md";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const categoryConfig = {
   "Academic Spaces": { color: "bg-yellow-500", textColor: "text-yellow-500", borderColor: "border-yellow-500", icon: BsDoorOpenFill },
@@ -71,6 +72,7 @@ const MediaLibrary = () => {
   const [isPanorama, setIsPanorama] = useState(false);
   const modalRef = useRef(null);
   const [markerCategory, setMarkerCategory] = useState("");
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -173,8 +175,8 @@ const MediaLibrary = () => {
         />
         <div className="flex items-center justify-between mt-4">
           <div className="w-[66%] h-[40px] flex flex-row justify-between items-center py-2 px-2 rounded-md border-gray-300 border">
-            <textarea
-              className="overflow-hidden w-[100%] bg-secondary-500 h-6 resize-none border-none shadow-none outline-none"
+            <Input
+              className="overflow-hidden w-[100%] h-6 resize-none border-none shadow-none outline-none"
               placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -206,11 +208,11 @@ const MediaLibrary = () => {
             
             {!clickIcon ? (
               <button onClick={showList}>
-                <FaListUl />
+                <FaListUl  className={` ${isDarkMode ? "text-dark-text-base-300" : ""}`}/>
               </button>
             ) : (
               <button onClick={unshowList}>
-                <MdOutlinePermMedia />
+                <MdOutlinePermMedia className={` ${isDarkMode ? "text-dark-text-base-300" : ""}`}/>
               </button>
             )}
           </div>
@@ -223,9 +225,9 @@ const MediaLibrary = () => {
               {currentMarkers.map((marker) => (
                 <div
                       key={marker._id}
-                      className="border flex flex-col items-center gap-4 pb-2 w-[100%] h-[325px] border-gray-300 rounded-md shadow-md bg-white overflow-hidden"
+                      className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border flex flex-col items-center gap-4 pb-2 w-[100%] h-[325px] border-gray-300 rounded-md shadow-md overflow-hidden`}
                     >
-                      <div className="relative w-full h-[100%]">
+                      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} relative w-full h-[100%]`}>
                         <LazyMediaPanoramicViewer imageUrl={marker.marker_photo_url} />
                         <div className="flex justify-center items-center bg-black w-full h-full rounded-md opacity-0 hover:opacity-70 transition-opacity duration-400 absolute top-0 left-0">
                           <Button 
@@ -238,7 +240,7 @@ const MediaLibrary = () => {
                         </div>
                       </div>
                       <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
-                        <p className="marker-name text-sm">{marker.marker_name}</p>
+                        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} marker-name text-sm`}>{marker.marker_name}</p>
                         <p className="text-sm text-gray-500">
                           {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
                             "about ",
@@ -287,8 +289,8 @@ const MediaLibrary = () => {
                 className="border-b-2 flex flex-col items-center w-[100%] h-[40px] border-gray-300"
               >
                 <div className="flex justify-between px-3 w-[100%] items-center h-[60px]">
-                  <p className="marker-name text-md">{marker.marker_name}</p>
-                  <p className="text-md text-gray-500">
+                  <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} marker-name text-md`}>{marker.marker_name}</p>
+                  <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-md text-gray-500`}>
                     {formatDistanceToNow(new Date(marker.date_added), { addSuffix: true }).replace(
                       "about ",
                       ""

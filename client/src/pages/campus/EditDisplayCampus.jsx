@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useState, useEffect } from "react";
 import Pen from "../../assets/Pen.png";
+import { FaPen } from "react-icons/fa";
 import Bin from "../../assets/bin.png";
 import { IoAlertCircle } from "react-icons/io5";
 import CampusLogTable from "./CampusLogTable";
@@ -317,7 +318,7 @@ const EditDisplayCampus = () => {
           {paginatedCampuses.map((campus, index) => (
             <div
               key={index}
-              className={`flex h-[370px] w-full max-w-[380px] flex-col items-center justify-center rounded-md border pb-3 ${isDarkMode ? "border-dark-secondary-100-75/40 bg-dark-secondary-100-75/10" : "border-gray-300"} transition-colors duration-150`}
+              className="flex h-[370px] w-full max-w-[380px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3"
             >
               {/* Header Section */}
               <div className="flex h-[100px] w-full items-center justify-between gap-2 rounded-md">
@@ -337,15 +338,11 @@ const EditDisplayCampus = () => {
 
                 {/* Campus Name and Tagline */}
                 <div className="flex w-[70%] flex-col justify-center">
-                  <h2
-                    className={`font-cizel-decor text-lg font-bold ${isDarkMode ? "text-dark-text-base-300" : ""} `}
-                  >
+                  <h2 className="font-cizel-decor text-lg font-bold">
                     {campus.campus_name} Campus
                   </h2>
-                  <h3
-                    className={`font-cizel text-[12px] ${isDarkMode ? "text-dark-text-base-300-75" : ""} `}
-                  >
-                    NURTURING TOMORROW&apos;S NOBLEST
+                  <h3 className="font-cizel text-[12px]">
+                    NURTURING TOMORROW'S NOBLEST
                   </h3>
                 </div>
               </div>

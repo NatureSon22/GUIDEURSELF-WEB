@@ -41,6 +41,7 @@ import { loggedInUser } from "@/api/auth";
 import Loading from "@/components/Loading";
 import "@/fluttermap.css";
 import { FaStar } from "react-icons/fa6";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const tailwindClasses = `
   bg-yellow-500 bg-red-500 bg-blue-500 bg-green-500 bg-pink-500 bg-blue-400
@@ -213,7 +214,8 @@ const [previewImage, setPreviewImage] = useState("");
 const [markerName, setMarkerName] = useState("");
 const [markerDescription, setMarkerDescription] = useState("");
 const [markerCategory, setMarkerCategory] = useState("");
-  const markerRefs = useRef({});
+const markerRefs = useRef({});
+const { isDarkMode } = useToggleTheme((state) => state);
 
 const showPanorama = (marker) => {
   setPreviewImage(marker.marker_photo_url);
@@ -670,7 +672,7 @@ const handleDrop = (e, targetFloor) => {
         </div>
         )}
         <div
-        className={`flex-shrink-0 w-[30%] flex flex-col z-20 justify-between gap-3 min-h-screen border-r transition-transform duration-500 
+        className={`${isDarkMode ? 'bg-dark-base-bg' : 'bg-white'} flex-shrink-0 w-[30%] flex flex-col z-20 justify-between gap-3 min-h-screen border-r transition-transform duration-500 
         ${isSliderOpen ? "translate-x-[0%]" : "-translate-x-[100%]"}`}
         >   
         <div className="h-[100%]">
@@ -690,13 +692,13 @@ const handleDrop = (e, targetFloor) => {
             </div>
             </div>
             <div className="flex justify-between items-center pl-6">
-              <p className="text-sm">List of Floors</p>
+              <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-sm`}>List of Floors</p>
               <div className="flex gap-3 pr-6">
                 {!isEditing ? (
                   <>
                     <button
                       onClick={toggleEditMode}
-                      className="h-[40px] w-[80px] px-1 flex justify-end text-secondary-200-70 items-center hover:text-black"
+                      className={` ${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-70 hover:text-black"} h-[40px] w-[80px] px-1 flex justify-end  items-center `}
                     >
                       Edit
                     </button>
@@ -704,7 +706,7 @@ const handleDrop = (e, targetFloor) => {
                 ) : (
                   <button
                     onClick={toggleEditMode}
-                    className="h-[40px] w-[80px] px-1 flex justify-end items-center hover:underline"
+                    className={` ${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-70 hover:text-black"} h-[40px] w-[80px] px-1 flex justify-end items-center hover:underline`}
                   >
                     Save
                   </button>
@@ -715,7 +717,7 @@ const handleDrop = (e, targetFloor) => {
             <div className="flex flex-col items-center">
             {isEditing && (
               !isRemove && (
-                <div className="flex w-[90%] p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-white">
+                <div className={`${isDarkMode ? 'bg-secondary-100-75 border-white' : 'bg-white'} flex w-[90%] p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] border`}>
                   <div className="flex w-[90%] gap-6">
                   <button>
                   <GoAlert className="text-base-350 h-[20px] w-[20px]" />
@@ -748,24 +750,26 @@ const handleDrop = (e, targetFloor) => {
                       toggleFloor(floor._id);
                       handleSelectFloor(floor);
                     }}
-                    className={`px-5 pr-3 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
-                      selectedFloor && selectedFloor._id === floor._id
-                        ? "border-black text-black"
-                        : dragOverFloor && dragOverFloor._id === floor._id
-                        ? "border-blue-500"
-                        : "bg-none"
-                    }`}
+                    className={`
+                    px-5 pr-3 border h-[60px] cursor-pointer items-center flex justify-between w-full rounded-lg mb-3
+                    ${isDarkMode ? "!border-white" : "bg-white text-black border-base-300"}
+                    ${selectedFloor && selectedFloor._id === floor._id 
+                      ? "!border-black !text-black" 
+                      : dragOverFloor && dragOverFloor._id === floor._id 
+                        ? "border-blue-500" 
+                        : ""}
+                  `}
                   >
                     <div className="flex items-center gap-2">
-                      <RxDragHandleDots2 className="text-black h-[30px] w-[30px]" />
-                      <h3 className="font-semibold p-2">{floor.floor_name}</h3>
+                      <RxDragHandleDots2 className={` ${isDarkMode ? "text-dark-text-base-300" : "text-black"} h-[30px] w-[30px]`} />
+                      <h3 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} font-semibold p-2`}>{floor.floor_name}</h3>
                     </div>
                     <div>
                     <button
                       onClick={() => setEditingFloor(floor)}
                       className="h-[30px] w-[30px]"
                     >
-                      <FaPen className="h-[16px] w-[16px] cursor-pointer" />
+                      <FaPen className={` ${isDarkMode ? "text-dark-text-base-300" : ""} h-[16px] w-[16px] cursor-pointer`} />
                     </button>
                     <button
                       onClick={(e) => {
@@ -780,16 +784,18 @@ const handleDrop = (e, targetFloor) => {
                   </div>
                 ) : (
                   <>
-                    <div
+                      <div
                       onClick={() => {
                         toggleFloor(floor._id);
                         handleSelectFloor(floor);
                       }}
-                      className={`px-5 border h-[60px] cursor-pointer items-center flex justify-between w-[100%] rounded-lg mb-3 ${
-                        selectedFloor && selectedFloor._id === floor._id
-                          ? "border-base-200 text-base-200"
-                          : "bg-none"
-                      }`}
+                      className={`px-5 border h-[60px] cursor-pointer items-center flex justify-between w-full rounded-lg mb-3
+                        ${selectedFloor && selectedFloor._id === floor._id 
+                          ? "border-base-200 !text-base-200" 
+                          : isDarkMode 
+                            ? "text-dark-text-base-300"
+                            : ""
+                        }`}
                     >
                       <h3 className="font-semibold">{floor.floor_name}</h3>
                       <button
@@ -822,13 +828,13 @@ const handleDrop = (e, targetFloor) => {
                           key={marker._id}
                           className="relative flex-col h-[100%] flex pl-3 items-center group"
                         >
-                          <div className="cursor-pointer flex justify-between hover:bg-secondary-200-50 w-[100%] h-[50px] px-3"
+                          <div className={` ${isDarkMode ? "" : "hover:bg-secondary-200-50"}  flex justify-between  w-[100%] h-[50px] px-3`}
                           onClick={() => handleMarkerClicked(marker)}>
-                            <p className="text-md flex items-center">{marker.marker_name}</p>
-                            <div className="flex gap-2 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300">
+                            <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} cursor-pointer w-[80%] text-md flex items-center`}>{marker.marker_name}</p>
+                            <div className={` flex gap-2 pl-3 opacity-0 flex items-center group-hover:opacity-100 transition-opacity duration-300`}>
                               <FaPen
                                 onClick={() => handleMarkerClick(marker)}
-                                className="h-[16px] w-[16px] cursor-pointer"
+                                className={` ${isDarkMode ? "text-dark-text-base-300" : ""} h-[16px] w-[16px] cursor-pointer`}
                               />
                               <RiDeleteBin5Fill
                                 onClick={() => confirmRemoveMarker(marker)}
@@ -843,7 +849,7 @@ const handleDrop = (e, targetFloor) => {
                         onClick={handleAddMarkerClick}
                         className="pl-[60px] w-[100%] cursor-default"
                       >
-                        <div className="px-3 hover:border-base-200 font-semibold border border-white h-[50px] text-base-200 cursor-pointer items-center flex w-[100%] gap-4 rounded-lg mb-3">
+                        <div className={`${isDarkMode ? "text-dark-text-base-300 border-white" : "hover:border-base-200 border-white text-base-200 "} px-3 font-semibold border  h-[50px] cursor-pointer items-center flex w-[100%] gap-4 rounded-lg mb-3`}>
                           <LuPlus className="h-[30px] w-[30px]" />
                           <p>Add Location</p>
                         </div>
@@ -873,14 +879,14 @@ const handleDrop = (e, targetFloor) => {
         </div>
         <div className="py-5 flex gap-2 px-6">
           <Link
-            className="flex justify-center items-center h-[45px] rounded-md px-[50px] w-[50%] text-base-200 hover:bg-secondary-350"
+            className={`${isDarkMode ? 'border-white text-dark-text-base-300' : 'text-base-200 hover:bg-secondary-350'} border flex justify-center items-center h-[45px] rounded-md px-[50px] w-[50%] `}
             to="/virtual-tour/build-mode"
           >
             <button>Return View</button>
           </Link>
           <div
             onClick={handleExitBuildMode}
-            className="flex justify-center items-center bg-accent-150 text-accent-100 hover:bg-accent-100 hover:text-white h-[45px] gap-2 rounded-md px-[50px] w-[60%] cursor-pointer"
+            className={`${isDarkMode ? 'bg-accent-100 text-white' : 'bg-accent-150 text-accent-100 hover:bg-accent-100 hover:text-white'} flex justify-center items-center h-[45px] gap-2 rounded-md px-[50px] w-[60%] cursor-pointer`}
           >
             <FaMapMarkerAlt/>
             <button>Exit Build Mode</button>
@@ -896,7 +902,7 @@ const handleDrop = (e, targetFloor) => {
           
 
           {selectedFloor ? (
-            <div className="">
+            <div className={`${isDarkMode ? 'bg-dark-base-bg' : 'bg-white'}`}>
               
               <MapContainer
                 center={[14.484750, 121.189000]}
@@ -906,15 +912,16 @@ const handleDrop = (e, targetFloor) => {
                 style={{
                   height: "100vh",
                   width: "100%",
-                  backgroundColor: "white",
+                  backgroundColor: isDarkMode ? "#141b1c" : "white", // ← dynamic background
                   zIndex: 0,
-                  cursor: "crosshair"
+                  cursor: "crosshair",
                 }}
                 maxBounds={[
-                  [14.479, 121.183], // Southwest (bottom-left) boundary
-                  [14.490, 121.195], // Northeast (top-right) boundary
+                  [14.479, 121.183],
+                  [14.490, 121.195],
                 ]}
               >
+
 
               {!isRemove && (
                 <div className={`absolute flex w-[660px] top-10 left-[350px] z-[1000000] p-4 pl-6 shadow-md rounded-lg mb-4 h-[90px] bg-white transition-opacity transition-transform duration-500 ease-in-out ${isSliderOpen ? "translate-x-[100%] opacity-0" : "translate-x-[0%] bg-opacity-100"}`}>
@@ -1046,7 +1053,7 @@ const handleDrop = (e, targetFloor) => {
               
             </div>
           ) : (
-            <div className="flex min-h-screen flex-col gap-6 justify-center items-center">
+            <div className={`${isDarkMode ? 'bg-dark-base-bg' : 'bg-white'} flex min-h-screen flex-col gap-6 justify-center items-center`}>
               <div className="w-[30%] gap-3 flex items-center justify-center">
                 <img
                   className="h-[170px]"
@@ -1060,17 +1067,17 @@ const handleDrop = (e, targetFloor) => {
                 />
               </div>
               <div className="w-[70%] flex flex-col justify-center items-center justify-center">
-                <h2 className="font-bold font-cizel-decor text-xl">University Of Rizal SystemUNIVERSITY OF RIZAL SYSTEM</h2>
-                <h3 className="text-md font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                <h2 className={`${isDarkMode ? "text-dark-text-base-300" : ""} font-bold font-cizel-decor text-xl`}>University Of Rizal System</h2>
+                <h3 className={`${isDarkMode ? "text-dark-text-base-300" : ""} text-md font-cizel`}>NURTURING TOMORROW'S NOBLEST</h3>
               </div>
               { (totalFloors == 0) ? (
-                <div className="flex gap-3 p-4 items-center bg-white shadow-md rounded-md">
+                <div className={` ${isDarkMode ? "text-dark-text-base-300 border border-secondary-200" : ""} flex gap-3 p-4 items-center shadow-md rounded-md`}>
                   <IoAlertCircle className="text-accent-100 h-[25px] w-[25px]"/>
-                  <p className="text-accent-100">No floor has been added. Nothing to display.</p>
+                  <p className={` ${isDarkMode ? "text-dark-text-base-300" : " text-accent-100"}`}>No floor has been added. Nothing to display.</p>
                 </div>
               ) : (
-                <div className="flex gap-3 p-4 items-center bg-white shadow-md rounded-md">
-                  <p className="text-base-200">Click a floor to display.</p>
+                <div className={` ${isDarkMode ? "text-dark-text-base-300 border border-secondary-200" : "bg-white "} flex gap-3 p-4 items-center shadow-md rounded-md`}>
+                  <p className={` ${isDarkMode ? "text-dark-text-base-300" : "text-base-200"}`}>Click a floor to display.</p>
                 </div>
               )}
               <div>

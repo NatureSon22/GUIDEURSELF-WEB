@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import formatDateTime from "@/utils/formatDateTime";
 import { Skeleton } from "@/components/ui/skeleton";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const fetchKeyOfficialLogs = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/keyofficiallogs`, {
@@ -14,6 +15,9 @@ const fetchKeyOfficialLogs = async () => {
 };
 
 const KeyOfficialLogTable = () => {
+
+      const { isDarkMode } = useToggleTheme((state) => state);
+
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ['keyOfficialLogs'], 
     queryFn: fetchKeyOfficialLogs,
@@ -35,21 +39,21 @@ const KeyOfficialLogTable = () => {
   return (
     <div className="mt-4">
       <table className="w-full text-left border-collapse border-y border-gray-300">
-        <thead>
+        <thead className={` ${isDarkMode ? "bg-dark-secondary-200" : "bg-secondary-400"} `}>
           <tr className="bg-gray-100">
-            <th className="p-2 border text-[0.875rem] font-medium text-base-300">Official Name</th>
-            <th className="p-2 border text-[0.875rem] font-medium text-base-300">Date And Time Modified</th>
-            <th className="p-2 border text-[0.875rem] font-medium text-base-300">Updated By</th>
-            <th className="p-2 border text-[0.875rem] font-medium text-base-300">Activity</th>
+            <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-[0.875rem] font-medium text-base-300`}>Official Name</th>
+            <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-[0.875rem] font-medium text-base-300`}>Date And Time Modified</th>
+            <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-[0.875rem] font-medium text-base-300`}>Updated By</th>
+            <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-[0.875rem] font-medium text-base-300`}>Activity</th>
           </tr>
         </thead>
         <tbody>
           {latestLogs.map((log) => (
             <tr key={log._id}>
-              <td className="p-4 border-y text-[0.9rem]">{log.name}</td>
-              <td className="p-4 border-y text-[0.9rem]">{formatDateTime(log.date_added)}</td>
-              <td className="p-4 border-y text-[0.9rem]">{log.updated_by}</td>
-              <td className="p-4 border-y text-[0.9rem]">{log.activity}</td>
+              <td className={` ${isDarkMode ? " border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-4 border-y text-[0.9rem]`}>{log.name}</td>
+              <td className={` ${isDarkMode ? " border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-4 border-y text-[0.9rem]`}>{formatDateTime(log.date_added)}</td>
+              <td className={` ${isDarkMode ? " border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-4 border-y text-[0.9rem]`}>{log.updated_by}</td>
+              <td className={` ${isDarkMode ? " border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-4 border-y text-[0.9rem]`}>{log.activity}</td>
             </tr>
           ))}
         </tbody>

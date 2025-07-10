@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import useUserStore from "@/context/useUserStore";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const updateFloor = async ({ campusId, floorId, formData, }) => {
   try {
@@ -59,6 +60,7 @@ const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, update
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+    const { isDarkMode } = useToggleTheme((state) => state);
   
   const { data } = useQuery({
     queryKey: ["user"],
@@ -170,10 +172,10 @@ const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, update
 
   return (
     <Dialog open onOpenChange={closeModal} className="z-50">
-      <DialogContent className="bg-white p-6 rounded-md max-w-md">
+      <DialogContent className={`${isDarkMode ? 'bg-gray-800 text-dark-text-base-300' : 'bg-white'} p-6 rounded-md w-[80%] md:w-[40%]`}>
         <DialogHeader>
-          <DialogTitle>Edit Floor</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-lg`}>Edit Floor</DialogTitle>
+          <DialogDescription className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-md`}>
             Update the floor details below
           </DialogDescription>
         </DialogHeader>
@@ -202,6 +204,7 @@ const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, update
             <Input
               id="floorImage"
               type="file"
+              className="w-full py-1 px-0"
               accept="image/jpeg, image/png, image/jpg"
               onChange={handleFileChange}
             />
@@ -222,6 +225,7 @@ const EditFloorModal = ({ closeModal, campusId, floorData, refreshFloors, update
               variant="outline"
               onClick={closeModal}
               disabled={isLoading}
+              className={` ${isDarkMode ? "text-dark-text-base-300 border border-white bg-gray-800" : ""}`}
             >
               Cancel
             </Button>

@@ -10,6 +10,7 @@ import useUserStore from "@/context/useUserStore";
 import { loggedInUser } from "@/api/auth";
 import PreviewPanorama from "./PreviewPanorama";
 import { IoAlertCircle } from "react-icons/io5";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const updateMarker = async (campusId, floorId, markerId, updatedData, imageFile) => {
   const formData = new FormData();
@@ -96,6 +97,7 @@ const EditMarkerModal =
   const modalRef = useRef(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [markerSubInfo, setMarkerSubInfo] = useState(marker.sub_info || "");
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   useEffect(() => {
     setSelectedCategory(selectedCategory);
@@ -302,7 +304,7 @@ const EditMarkerModal =
   };
   
   return (
-    <div className="bg-secondary-500 h-100vh w-[37%] border-l overflow-y-auto z-1">
+    <div className={`${isDarkMode ? 'bg-gray-800 text-dark-text-base-300' : 'bg-secondary-500'}  h-100vh w-[37%] border-l overflow-y-auto z-1`}>
       <form onSubmit={handleSubmit} className="flex flex-col justify-between h-[100%]">
         <div className="overflow-y-auto p-6 justify-between max-h-[calc(100vh-120px)]">
 
@@ -314,7 +316,7 @@ const EditMarkerModal =
                   type="text"
                   value={markerName}
                   onChange={(e) => setMarkerName(e.target.value)}
-                  className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
+                  className={`w-full p-2 mt-2 border border-gray-300 rounded-md ${isDarkMode ? "text-dark-text-base-300" : "bg-white"}`}
                   placeholder="Enter location name"
                   required
                 />
@@ -326,7 +328,7 @@ const EditMarkerModal =
                             <Label className="text-[16px]">Description</Label>
                             <Textarea
                               placeholder="Type your marker description here."
-                              className="resize-none bg-white mt-2 h-[200px]"
+                              className={`resize-none mt-2 h-[200px] ${isDarkMode ? "" : "bg-white"}`}
                               value={markerDescription}
                               onChange={(e) => setMarkerDescription(e.target.value)}
                             />
@@ -339,7 +341,7 @@ const EditMarkerModal =
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
-                    className="bg-white w-[50%] cursor-pointer mb-4 py-1 px-0"
+                    className={` w-[50%] cursor-pointer mb-4 py-1 px-0 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
                   />
                 </div>
                 {previewImage ? (
@@ -375,7 +377,7 @@ const EditMarkerModal =
                               type="text"
                               value={localSelectedCategory}
                               disabled
-                              className="w-full p-2 mt-2 border bg-white border-gray-300 rounded-md"
+                              className={`w-full p-2 mt-2 border border-gray-300 rounded-md ${isDarkMode ? "" : "bg-white"}`}
                               placeholder="Choose category"
                             />
 
@@ -390,7 +392,7 @@ const EditMarkerModal =
                                 />
                               ))}
                             </div>
-                            <Label className="text-[14px] pl-2 !mt-4 text-secondary-100-75">{categoryDescription}</Label>
+                            <Label className={` ${isDarkMode ? "text-dark-text-base-300" : "text-secondary-100-75"} text-[14px] pl-2 !mt-4 `}>{categoryDescription}</Label>
                           </div>
                         </div>
                         )}
@@ -408,7 +410,7 @@ const EditMarkerModal =
                   <Button
                     type="button"
                     onClick={onClose}
-                    className="text-base-200 bg-white shadow-none hover:bg-secondary-350 w-[100px] p-2 border-none"
+                    className={` ${isDarkMode ? "text-dark-text-base-300 border border-white bg-gray-800" : "text-base-200 bg-white  border-none hover:bg-secondary-350"}  shadow-none  w-[100px] p-2`}
                   >
                     Cancel
                   </Button>
