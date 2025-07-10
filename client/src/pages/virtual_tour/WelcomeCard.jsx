@@ -13,7 +13,7 @@ import {
     const { isDarkMode } = useToggleTheme((state) => state);
 
     return (
-      <Dialog style={{ borderRadius: "15px !important" }} className={`${isDarkMode ? 'bg-gray-800 text-dark-text-base-300' : 'bg-white'} w-[900px] custom-dialog outline-none`} open={true}> {/* Use onOpenChange for closing */}
+      <Dialog style={{ borderRadius: "15px !important" }} className={`${isDarkMode ? 'bg-gray-800 text-dark-text-base-300' : 'bg-white'} w-[900px] custom-dialog outline-none`} open={true} onOpenChange={onClose}> {/* Use onOpenChange for closing */}
         <DialogContent className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} w-[900px]`}>
           <DialogHeader>
             <DialogTitle className={` ${isDarkMode ? "text-dark-text-base-300" : ""} my-[30px] text-center`}>Welcome to Build Mode!</DialogTitle>
