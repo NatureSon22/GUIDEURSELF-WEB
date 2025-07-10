@@ -20,11 +20,11 @@ import KeyOfficialLogTable from "./KeyOfficialLogTable";
 import { loggedInUser } from "@/api/auth";
 import { GrNext, GrPrevious } from "react-icons/gr";
 import { CiSearch } from "react-icons/ci";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ITEMS_PER_PAGE = 10;
 
 const EditKeyOfficials = () => {
-  
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const { currentUser } = useUserStore((state) => state);
@@ -41,6 +41,7 @@ const EditKeyOfficials = () => {
 
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const { data } = useQuery({
     queryKey: ["user"],
@@ -106,26 +107,28 @@ const EditKeyOfficials = () => {
 
   const logActivityMutation = useMutation({
     mutationFn: async (logData) => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/activitylogs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(logData),
+          credentials: "include",
         },
-        body: JSON.stringify(logData),
-        credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to log activity");
-        }
-        return response.json();
-        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to log activity");
+      }
+      return response.json();
+    },
   });
 
   const handleConfirmArchive = async () => {
     if (!officialToArchive) return;
 
     try {
-
       await logActivityMutation.mutateAsync({
         user_number: currentUser.user_number, // Replace with actual user number
         username: currentUser.username, // Replace with actual username
@@ -136,20 +139,23 @@ const EditKeyOfficials = () => {
         action: `Archived key official: ${officialToArchive.name}`,
         date_created: officialToArchive.date_added,
         date_last_modified: Date.now(),
-    });
-      archiveOfficial(officialToArchive._id);
-      const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/keyofficiallogs`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: officialToArchive.name || "Unknown Name",
-          activity: `Archived an official ${officialToArchive.name}`,
-          updated_by: data?.username || "Unknown User",
-        }),
       });
+      archiveOfficial(officialToArchive._id);
+      const logResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/keyofficiallogs`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: officialToArchive.name || "Unknown Name",
+            activity: `Archived an official ${officialToArchive.name}`,
+            updated_by: data?.username || "Unknown User",
+          }),
+        },
+      );
       setOfficialToArchive(null);
       setIsArchiveModalOpen(false); // Close the archive modal
       toast({
@@ -208,18 +214,16 @@ const EditKeyOfficials = () => {
       )
     : [];
 
-    
-        if (isLoading) {
-          return <Skeleton className="rounded-md bg-secondary-200/40 py-24" />;
-        }
-  
-    const totalPages = Math.ceil(filteredOfficials.length / ITEMS_PER_PAGE);
-    
-    const paginatedOfficials = filteredOfficials.slice(
-      (currentPage - 1) * ITEMS_PER_PAGE,
-      currentPage * ITEMS_PER_PAGE
-    );
-    
+  if (isLoading) {
+    return <Skeleton className="rounded-md bg-secondary-200/40 py-24" />;
+  }
+
+  const totalPages = Math.ceil(filteredOfficials.length / ITEMS_PER_PAGE);
+
+  const paginatedOfficials = filteredOfficials.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   return (
     <div className="w-full">
@@ -244,13 +248,12 @@ const EditKeyOfficials = () => {
       </div>
 
       <div className="mt-6 flex items-center gap-2">
-        
-          <Input
+        <Input
           type="text"
-            placeholder="Search for an official..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          placeholder="Search for an official..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
 
         {/* Add Official Button */}
         <FeaturePermission
@@ -261,8 +264,8 @@ const EditKeyOfficials = () => {
             onClick={() => setIsModalOpen(true)}
             variant="outline"
             className="text-secondary-100-75"
-            >
-            <RiAddLargeFill /> 
+          >
+            <RiAddLargeFill />
             Add Official
           </Button>
         </FeaturePermission>
@@ -272,7 +275,7 @@ const EditKeyOfficials = () => {
           onClick={handleBack}
           variant="outline"
           className="border-base-200 text-base-200 hover:text-base-200"
-          >
+        >
           <FaCheck />
           Save
         </Button>
@@ -287,12 +290,12 @@ const EditKeyOfficials = () => {
         ) : filteredOfficials.length > 0 ? (
           <div>
             {/* Officials Grid */}
-            <div className="mt-12 py-6 px-4 sm:px-6 lg:px-8">
+            <div className="mt-12 px-4 py-6 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {paginatedOfficials.map((official, index) => (
                   <div
                     key={index}
-                    className="box-shadow-200 flex justify-between flex-col rounded-md border border-secondary-200/30 bg-white"
+                    className="box-shadow-200 flex flex-col justify-between rounded-md border border-secondary-200/30 bg-white"
                   >
                     <div className="flex flex-col items-center px-2 py-4">
                       <img
@@ -305,10 +308,11 @@ const EditKeyOfficials = () => {
                         {official.name}
                       </h3>
                       <p className="mt-2 text-center font-cizel text-gray-600">
-                      {official.position_name}
-                      {official.college_name ? ` - ${official.college_name}` : ''}
-                    </p>
-
+                        {official.position_name}
+                        {official.college_name
+                          ? ` - ${official.college_name}`
+                          : ""}
+                      </p>
                     </div>
 
                     {/* Action Buttons */}
@@ -317,9 +321,9 @@ const EditKeyOfficials = () => {
                         module="Manage Key Officials"
                         access="edit key official"
                       >
-                        <button 
+                        <button
                           onClick={() => openEditModal(official)}
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className="rounded p-1 hover:bg-gray-100"
                         >
                           <img className="h-[18px]" src={Pen} alt="Edit" />
                         </button>
@@ -329,9 +333,9 @@ const EditKeyOfficials = () => {
                         module="Manage Key Officials"
                         access="archive key official"
                       >
-                        <button 
+                        <button
                           onClick={() => handleArchiveClick(official)}
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className="rounded p-1 hover:bg-gray-100"
                         >
                           <img className="h-[20px]" src={Bin} alt="Delete" />
                         </button>
@@ -346,7 +350,9 @@ const EditKeyOfficials = () => {
                 <Button
                   variant="outline"
                   className="font-semibold text-secondary-100-75"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   <GrPrevious />
@@ -361,7 +367,9 @@ const EditKeyOfficials = () => {
                 <Button
                   variant="outline"
                   className="font-semibold text-secondary-100-75"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                   disabled={currentPage === totalPages}
                 >
                   Next
@@ -374,16 +382,15 @@ const EditKeyOfficials = () => {
           <p className="text-gray-600">No key officials found.</p>
         )}
       </div>
-      <div
-        className="mt-[40px]"
-      >
-      <Header
-        className="mb-4"
-        title={"Recent Changes"}
-        subtitle={"This section lists the most recent updates and changes made by administration for different key officials."}
+      <div className="mt-[40px]">
+        <Header
+          className="mb-4"
+          title={"Recent Changes"}
+          subtitle={
+            "This section lists the most recent updates and changes made by administration for different key officials."
+          }
         />
-      <KeyOfficialLogTable />
-
+        <KeyOfficialLogTable />
       </div>
 
       {/* Delete Confirmation Modal */}

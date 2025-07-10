@@ -53,8 +53,14 @@ const AccountForm = ({
   const { isDarkMode } = useToggleTheme((state) => state);
 
   const onSubmit = (data) => {
+    console.log(categoryRoles.length > 0);
+
     const formData = new FormData();
     formData.append("role_id", data.userType);
+    formData.append(
+      "category_id",
+      categoryRoles.length > 0 ? data.userCategory : undefined,
+    );
     formData.append("campus_id", data.campus);
     formData.append("user_number", data.user_number);
     formData.append("username", data.username);
@@ -118,14 +124,11 @@ const AccountForm = ({
 
               {RenderField(
                 form,
-                "",
+                "userCategory",
                 "Category Roles",
                 <ComboBox
                   options={categoryRoles}
-                  placeholder="Select user type"
-                  {...form.register("categoryRole", {
-                    required: categoryRoles?.length > 0,
-                  })}
+                  placeholder="Select category"
                 />,
               )}
 

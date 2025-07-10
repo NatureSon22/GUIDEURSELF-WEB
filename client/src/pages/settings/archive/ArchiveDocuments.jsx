@@ -20,6 +20,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import MultiCampus from "@/layer/MultiCampus";
 import { MdDelete } from "react-icons/md";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const documentStatus = [
   {
@@ -46,6 +47,7 @@ const ArchiveDocuments = () => {
   const client = useQueryClient();
   const [rowSelection, setRowSelection] = useState({});
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   // Queries
   const { data: allDocuments, isLoading: loadingAllDocuments } = useQuery({
@@ -325,6 +327,7 @@ const ArchiveDocuments = () => {
         <Input
           type="text"
           placeholder="Search"
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
@@ -340,7 +343,9 @@ const ArchiveDocuments = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p>Filters:</p>
+        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
+          Filters:
+        </p>
         <div className="flex gap-2">
           <Input
             type="date"
@@ -374,7 +379,7 @@ const ArchiveDocuments = () => {
           reset={reset}
         />
         <Button
-          className="ml-auto text-secondary-100-75"
+          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
           variant="outline"
           onClick={handleReset}
         >

@@ -27,19 +27,23 @@ const getAllAccounts = async (req, res, next) => {
     // Define match stage based on campus restriction
     const matchStage = {
       $match: {
-        _id: { $ne: new Types.ObjectId(userId) }, // Exclude current user
-        ...(isMultiCampus ? {} : { campus_id: new Types.ObjectId(campusId) }), // Filter by campus if not multi-campus
+        _id: { $ne: Types.ObjectId.createFromHexString(userId) }, // Exclude current user
+        ...(isMultiCampus
+          ? {}
+          : { campus_id: Types.ObjectId.createFromHexString(campusId) }), // Filter by campus if not multi-campus
       },
     };
 
     const aggregationPipeline = [
       matchStage,
-      // Lookup role information
+      // Exclude deleted users
       {
         $match: {
-          status: { $ne: "deleted" }, // Exclude deleted users
+          status: { $ne: "deleted" },
         },
       },
+
+      // Lookup role information
       {
         $lookup: {
           from: "roles",
@@ -48,7 +52,7 @@ const getAllAccounts = async (req, res, next) => {
             {
               $match: {
                 $expr: { $eq: ["$_id", "$$roleId"] },
-                isDeleted: { $ne: true }, // Filter out deleted roles
+                isDeleted: { $ne: true },
               },
             },
             { $project: { role_type: 1, permissions: 1 } },
@@ -72,6 +76,20 @@ const getAllAccounts = async (req, res, next) => {
       },
       { $unwind: { path: "$campus", preserveNullAndEmptyArrays: true } },
 
+      // ✅ Lookup category information
+      {
+        $lookup: {
+          from: "categoryroles",
+          let: { categoryId: "$category_id" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$categoryId"] } } },
+            { $project: { name: 1, description: 1 } }, // include fields you want
+          ],
+          as: "category",
+        },
+      },
+      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+
       // Ensure users with deleted roles are filtered out
       {
         $match: { "role.role_type": { $exists: true } },
@@ -91,6 +109,9 @@ const getAllAccounts = async (req, res, next) => {
           permissions: "$role.permissions",
           role_id: 1,
           campus_name: "$campus.campus_name",
+          category_id: 1,
+          category_name: "$category.name", // category name
+          category_description: "$category.description", // if you also want description
           date_created: 1,
           date_assigned: 1,
           date_updated: 1,
@@ -392,14 +413,15 @@ const updateAccount = async (req, res) => {
       date_updated: new Date(),
     };
 
-    // Update date_assigned if role_id or campus_id is provided
-    if (req.body.role_id || req.body.campus_id) {
+    // Update date_assigned if role_id, campus_id, or category_id is provided
+    if (req.body.role_id || req.body.campus_id || req.body.category_id) {
       updatedData.date_assigned = new Date();
     }
 
     // Allowed fields for update
     const allowedFields = [
       "role_id",
+      "category_id",
       "campus_id",
       "user_number",
       "firstname",
@@ -412,16 +434,38 @@ const updateAccount = async (req, res) => {
       "date_assigned",
     ];
 
+    // Filter the updatedData to include only allowed fields
+    // Also, ensure that only fields with defined values are included for $set
     const filteredData = Object.keys(updatedData)
       .filter((key) => allowedFields.includes(key))
       .reduce((obj, key) => {
-        obj[key] = updatedData[key];
+        // Only include the key in $set if its value is not undefined
+        if (updatedData[key] !== "undefined") {
+          obj[key] = updatedData[key];
+        }
         return obj;
       }, {});
 
+    // Initialize the update document with $set operator
+    const updateDoc = {
+      $set: filteredData,
+    };
+
+    // How to make category_id be removed on record if undefined?
+    // This block specifically handles the removal of 'category_id'
+    // if it's explicitly undefined in the incoming request body.
+    // The '$unset' operator in MongoDB removes a field from a document.
+    if (updatedData.category_id === "undefined") {
+      updateDoc["$unset"] = { category_id: 1 }; // Set value to 1 to remove the field
+    }
+
+    //console.log("category id: " + updatedData.category_id);
+
+    // console.log(updateDoc);
+
     const account = await UserModel.findByIdAndUpdate(
       req.body.accountId,
-      { $set: filteredData },
+      updateDoc,
       { new: true }
     );
 
@@ -429,12 +473,15 @@ const updateAccount = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Respond with success message and the updated account
     res.status(200).json({
       message: "User updated successfully",
       account,
     });
   } catch (error) {
+    // Log the error for debugging purposes
     console.error(error);
+    // Respond with a server error
     res.status(500).json({ message: "Server error" });
   }
 };

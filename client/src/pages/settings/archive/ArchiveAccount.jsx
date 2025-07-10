@@ -18,6 +18,7 @@ import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
 import Loading from "@/components/Loading";
 import { MdDelete } from "react-icons/md";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ArchiveAccount = () => {
   const { toast } = useToast();
@@ -30,6 +31,7 @@ const ArchiveAccount = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const client = useQueryClient();
 
@@ -148,6 +150,7 @@ const ArchiveAccount = () => {
           type="text"
           placeholder="Search"
           value={globalFilter || ""}
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
 
@@ -162,7 +165,9 @@ const ArchiveAccount = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p>Filters:</p>
+        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
+          Filters:
+        </p>
         <div className="flex gap-2">
           <Input
             type="date"
@@ -197,7 +202,7 @@ const ArchiveAccount = () => {
         />
 
         <Button
-          className="ml-auto text-secondary-100-75"
+          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
           variant="outline"
           onClick={handleReset}
         >
