@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast"; 
 import useUserStore from "@/context/useUserStore";
 import { loggedInUser } from "@/api/auth";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const fetchCampuses = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {
@@ -40,6 +41,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate, userData }) => 
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(official?.key_official_photo_url || "");
   const [isLoading, setIsLoading] = useState(false);
+      const { isDarkMode } = useToggleTheme((state) => state);
 
           const { data: userRole } = useQuery({
             queryKey: ["userRole", userData.role_type],
@@ -208,23 +210,23 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate, userData }) => 
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc]">
-      <div className="bg-white p-6 rounded-md w-1/3">
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-md w-1/3`}>
         <form onSubmit={(e) => e.preventDefault()}>
           {/* Name Input */}
           <div className="mt-4">
-            <Label className="block text-[17px] pb-2">Name</Label>
+            <Label className={`block text-[17px] pb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Name</Label>
             <Input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border text-secondary-100 bg-white border-gray-300 rounded-md"
               placeholder="Enter Name"
             />
           </div>
 
           {/* Administrative Position Dropdown */}
           <div className="mt-4">
-            <Label className="block text-[17px] pb-2">Administrative Position</Label>
+            <Label className={`block text-[17px] pb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Administrative Position</Label>
             <select
               value={position}
               onChange={(e) => setPosition(e.target.value)}
@@ -242,7 +244,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate, userData }) => 
           </div>
 
 <div className="mt-4">
-                                <Label className="text-lg">Campus</Label>
+                                <Label className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Campus</Label>
                                 <select
                                     value={campus}
                                     onChange={(e) => setCampus(e.target.value)}
@@ -258,12 +260,12 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate, userData }) => 
                             </div>
 
                             <div className="mt-4">
-                                <Label className="text-lg">College</Label>
+                                <Label className={`text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>College</Label>
                                 <Input
                                     type="text"
                                     value={college}
                                     onChange={(e) => setCollege(e.target.value)}
-                                    className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+                                    className="w-full p-2 mt-2 border bg-white text-secondary-100 border-gray-300 rounded-md"
                                     placeholder="Enter name of the college"
                                     disabled={!campus} // ✅ works as expected now
                                 />
@@ -271,8 +273,8 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate, userData }) => 
 
           {/* Image Upload */}
           <div className="mt-4">
-            <Label className="block text-[17px] pb-2">Upload Image</Label>
-            <Input type="file" className="mt-2 pt-[5px] cursor-pointer" accept="image/*" onChange={handleImageUpload} />
+            <Label className={`block text-[17px] pb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Upload Image</Label>
+            <Input type="file" className="mt-2 pt-[5px] cursor-pointer bg-white" accept="image/*" onChange={handleImageUpload} />
           </div>
 
           {/* Image Preview */}
@@ -302,7 +304,7 @@ const EditKeyOfficialsModal = ({ official, closeModal, onUpdate, userData }) => 
             <Button
               type="button"
               onClick={handleSave}
-              className="bg-base-200 text-white w-[100px] p-2 rounded-md"
+              className="bg-base-200 text-white w-[100px] hover:bg-base-200m p-2 rounded-md"
               disabled={isLoading}
             >
               {isLoading ? "Saving..." : "Save"}

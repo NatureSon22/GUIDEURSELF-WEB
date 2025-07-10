@@ -128,7 +128,8 @@ const DataTable = forwardRef(
       <div className="flex h-full flex-1 flex-col">
         <Table className="mt-3 flex-1 overflow-x-auto border-b border-t border-secondary-200-60">
           <TableHeader
-            className={`border-collapse ${isDarkMode ? "bg-dark-secondary-200" : "bg-secondary-400"} transition-colors duration-150`}
+            className={`border-collapse 
+              ${isDarkMode ? "bg-dark-secondary-200" : "bg-secondary-400"} transition-colors duration-150`}
           >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

@@ -10,6 +10,7 @@ import FeaturePermission from "@/layer/FeaturePermission";
 import { Button } from "@/components/ui/button";
 import { FaPen } from "react-icons/fa6";
 import { Skeleton } from "@/components/ui/skeleton";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const DisplayingKeyOfficials = () => {
   
@@ -23,6 +24,7 @@ const DisplayingKeyOfficials = () => {
     queryKey: ["universitysettings"],
     queryFn: getUniversityData,
   });
+    const { isDarkMode } = useToggleTheme((state) => state);
 
   
   const handleNavigate = (path) => {
@@ -100,10 +102,10 @@ const DisplayingKeyOfficials = () => {
       </div>
 
       <div className="mt-4 flex w-full flex-col items-center justify-center">
-      <h2 className="text-[25px] font-cizel font-bold">
+      <h2 className={`text-[25px] font-cizel font-bold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
       <span className="font-cizel-decor">U</span>niversity of <span className="font-cizel-decor">R</span>izal <span className="font-cizel-decor">S</span>ystem
     </h2>
-        <p className="font-cizel text-lg">
+        <p className={`font-cizel text-lg ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
           Nurturing Tomorrow&apos;s Noblest
         </p>
       </div>
@@ -112,7 +114,7 @@ const DisplayingKeyOfficials = () => {
       {Object.entries(groupedOfficials).map(([campusName, officials]) => (
         <div key={campusName} className="mb-12">
           {campusName !== "" ? (
-            <h2 className="text-2xl flex items-center gap-12 w-full font-bold font-cizel mb-12 text-center text-gray-800">
+            <h2 className={`text-2xl flex items-center gap-12 w-full font-bold font-cizel mb-12 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
               <hr className="flex-grow border-secondary-200" />
               {`${campusName.toUpperCase()} CAMPUS`}
               <hr className="flex-grow border-secondary-200" />
@@ -127,7 +129,7 @@ const DisplayingKeyOfficials = () => {
             {officials.map((official) => (
               <div
                 key={official._id}
-                className="box-shadow-200 flex px-2 flex-col items-center rounded-md border border-secondary-200/30 bg-white py-4"
+                className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} box-shadow-200 flex px-2 flex-col items-center rounded-md border border-secondary-200/30 py-4`}
               >
                 <img
                   src={official.key_official_photo_url}
@@ -135,10 +137,10 @@ const DisplayingKeyOfficials = () => {
                   className="h-[200px] w-[210px] rounded-md object-cover"
                   loading="lazy"
                 />
-                <h3 className="text-md font-cizel-decor mt-5 text-[1.05rem] px-4 text-center font-bold text-gray-800">
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-md font-cizel-decor mt-5 text-[1.05rem] px-4 text-center font-bold`}>
                   {official.name}
                 </h3>
-                <p className="mt-2 font-cizel text-center text-gray-600">
+                <p className={`mt-2 font-cizel text-center ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                   {official.position_name}
                   {official.college_name ? ` - ${official.college_name}` : ""}
                 </p>

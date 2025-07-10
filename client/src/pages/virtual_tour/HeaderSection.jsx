@@ -1,9 +1,11 @@
 import { TbMap2 } from "react-icons/tb";
 import { RiCameraLensLine } from "react-icons/ri";
 import { MdTouchApp } from "react-icons/md";
+import useToggleTheme from "@/context/useToggleTheme";
 
   const HeaderSection = ({ university, updatedCampus }) => {
  
+  const { isDarkMode } = useToggleTheme((state) => state);
   const totalMarkers = updatedCampus.floors?.reduce(
     (sum, floor) => sum + (floor.markers?.length || 0),
     0
@@ -39,32 +41,32 @@ import { MdTouchApp } from "react-icons/md";
           <img className="h-[60px]" src={university?.university_logo_url} alt="" />
         </div>
         <div className="flex flex-col w-[70%] justify-center  ">
-          <h2 className="font-bold  font-cizel-decor text-lg">University Of Rizal System</h2>
-          <h3 className="text-sm font-cizel">{updatedCampus.campus_name} Campus</h3>
+          <h2 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} font-bold  font-cizel-decor text-lg`}>University Of Rizal System</h2>
+          <h3 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-sm font-cizel`}>{updatedCampus.campus_name} Campus</h3>
         </div>
       </div>
       <hr className="pb-5" />
       <div className=" pb-5 flex items-center justify-between gap-6 px-1">
           <div>
             <div className="flex flex-row items-center justify-center gap-3">
-                <p className="text-[1.5rem] font-bold text-base-200">{totalFloors}</p>
+                <p className={`text-[1.5rem] font-bold ${isDarkMode ? "text-dark-text-base-300" : "text-base-200"}`}>{totalFloors}</p>
                   <TbMap2 className="text-4xl text-base-200 mb-2"/>
             </div>
-                <p className="text-center text-sm">Featured Floors</p>
+                <p className={`text-center text-sm ${isDarkMode ? "text-dark-text-base-300" : ""}`}>Featured Floors</p>
           </div>
           <div>
             <div className="flex flex-row items-center justify-center gap-3">
-                <p className="text-[1.5rem] font-bold text-base-200">{totalMarkerPhotos}</p>
+                <p className={`text-[1.5rem] font-bold ${isDarkMode ? "text-dark-text-base-300" : "text-base-200"}`}>{totalMarkerPhotos}</p>
                 <RiCameraLensLine className="text-4xl text-base-200 mb-2"/>
             </div>
-                <p className="text-center text-sm">Panoramic View</p>
+                <p className={`text-center text-sm ${isDarkMode ? "text-dark-text-base-300" : ""}`}>Panoramic View</p>
           </div>
           <div>
             <div className="flex flex-row items-center justify-center gap-3">
-                <p className="text-[1.5rem] font-bold text-base-200">{totalCategories}</p>
+                <p className={`text-[1.5rem] font-bold ${isDarkMode ? "text-dark-text-base-300" : "text-base-200"}`}>{totalCategories}</p>
                 <MdTouchApp className="text-4xl text-base-200 mb-2"/>
             </div>
-                <p className="text-center text-sm">Hotspots</p>
+                <p className={`text-center text-sm ${isDarkMode ? "text-dark-text-base-300" : ""}`}>Hotspots</p>
           </div>
       </div>
     </div>

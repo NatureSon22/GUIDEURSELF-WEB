@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useState, useEffect } from "react";
 import Pen from "../../assets/Pen.png";
+import { FaPen } from "react-icons/fa";
 import Bin from "../../assets/bin.png";
 import { IoAlertCircle } from "react-icons/io5";
 import CampusLogTable from "./CampusLogTable";
@@ -15,6 +16,7 @@ import useUserStore from "@/context/useUserStore";
 import { FaCheck } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -29,6 +31,7 @@ const EditDisplayCampus = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+      const { isDarkMode } = useToggleTheme((state) => state);
 
   const logActivityMutation = useMutation({
     mutationFn: async (logData) => {
@@ -292,9 +295,9 @@ const EditDisplayCampus = () => {
             variant="outline"
             className="text-secondary-100-75"
             onClick={() => handleNavigate("/campus/add")}
-              >
-              <RiAddLargeFill /> 
-              Add Campus
+            >
+            <RiAddLargeFill /> 
+            Add Campus
             </Button>
         </FeaturePermission>
         <Button
@@ -313,7 +316,7 @@ const EditDisplayCampus = () => {
         {paginatedCampuses.map((campus, index) => (
           <div
             key={index}
-            className="flex h-[370px] w-full max-w-[380px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3"
+            className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} flex h-[370px] w-full max-w-[380px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3`}
           >
             {/* Header Section */}
             <div className="flex h-[100px] w-full items-center justify-between rounded-md gap-2">
@@ -333,10 +336,10 @@ const EditDisplayCampus = () => {
 
               {/* Campus Name and Tagline */}
               <div className="flex w-[70%] flex-col justify-center">
-                <h2 className="text-lg font-bold font-cizel-decor">
+                <h2 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-bold font-cizel-decor`}>
                   {campus.campus_name} Campus
                 </h2>
-                <h3 className="text-[12px] font-cizel">
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-[12px] font-cizel`}>
                   NURTURING TOMORROW'S NOBLEST
                 </h3>
               </div>
@@ -354,17 +357,17 @@ const EditDisplayCampus = () => {
             {/* Action Buttons */}
             <div className="flex h-[50px] w-full items-center justify-end gap-2 px-4 pt-2">
               <Link
-                className="flex items-center justify-center"
+                className={`${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'} p-2 flex items-center justify-center`}
                 to={`/campus/edit-campus/${campus._id}`}
               >
-                <img className="h-[18px] w-auto" src={Pen} alt="Edit" />
+                <FaPen className={`h-[18px] ${isDarkMode ? 'text-white' : 'text-gray-800'}`} />
               </Link>
-
               <FeaturePermission module="Manage Campus" access="archive campus">
-                <button onClick={() => handleDeleteClick(campus)}>
+                <button className={`${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'} p-1 flex items-center justify-center`} onClick={() => handleDeleteClick(campus)}>
                   <img className="h-[25px] w-auto" src={Bin} alt="Delete" />
                 </button>
               </FeaturePermission>
+
             </div>
           </div>
         ))}

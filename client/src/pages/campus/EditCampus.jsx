@@ -12,12 +12,15 @@ import useUserStore from "@/context/useUserStore";
 import { getUniversityData } from "@/api/component-info";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditProgramModal";
+import "./fluttermap.css";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
 const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
@@ -66,6 +69,7 @@ const EditCampus = () => {
       campus_cover_photo: null,
       campus_programs: [], 
     });
+          const { isDarkMode } = useToggleTheme((state) => state);
 
     const { data } = useQuery({
       queryKey: ["user"],
@@ -378,20 +382,22 @@ const EditCampus = () => {
               </div>
             </div>
         )}
-      <div className="w-full p-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Edit Campus</h2>
-          <p className="text-gray-600 mt-2">Ensure that all information is accurate and relevant.</p>
-        </div>
-      </div>
+            <div className="flex w-[75%] flex-col justify-between">
+              <Header
+                title={"Edit Campus"}
+                subtitle={
+                  "Ensure that all information is accurate and relevant."
+                }
+              />
+            </div>
 
       <div className="w-[100%]">
         <form className="w-[100%]" onSubmit={handleSaveChanges}>
           <div className="flex flex-row p-6 gap-6">
             <div className="flex flex-col w-[50%] gap-6">
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-medium">Campus Name</h3>
-                <p>Enter the official name of the campus</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Campus Name</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Enter the official name of the campus</p>
                 <Input
                   name="campus_name"
                   value={campusData.campus_name}
@@ -408,8 +414,8 @@ const EditCampus = () => {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-medium">Phone Number</h3>
-                <p>Input the contact number of the campus</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Phone Number</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Input the contact number of the campus</p>
                 <Input
                   name="campus_phone_number"
                   value={campusData.campus_phone_number}
@@ -433,10 +439,10 @@ const EditCampus = () => {
             </div>
             <div className="flex flex-col w-[50%] gap-6">
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-medium">Campus Code</h3>
-                <p>Provide a short, unique code to identify the campus</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Campus Code</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Provide a short, unique code to identify the campus</p>
                 <div className="flex flex-row gap-6">
-                  <p className="w-[10%] text-center flex items-center justify-center border border-gray-300 rounded-md">
+                  <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} w-[10%] text-center flex items-center justify-center border border-gray-300 rounded-md`}>
                     URS
                   </p>
                   <Input
@@ -462,8 +468,8 @@ const EditCampus = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-medium">Email Address</h3>
-                <p>Enter the official email for campus communication</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Email Address</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Enter the official email for campus communication</p>
                 <Input
                   name="campus_email"
                   value={campusData.campus_email}
@@ -484,8 +490,8 @@ const EditCampus = () => {
 
           <div className="h-[700px] p-6 flex flex-col gap-5">
             <div>
-              <h3 className="text-lg font-medium">Address</h3>
-              <p>Enter the complete address including street, city, province, and postal code</p>
+              <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Address</h3>
+              <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Enter the complete address including street, city, province, and postal code</p>
                 <Input
                   name="campus_address"
                   value={campusData.campus_address}
@@ -503,7 +509,7 @@ const EditCampus = () => {
             </div>
             <div className="border border-gray-300 rounded-md">
               <div className="p-4">
-              <h2 className="font-bold text-lg font-medium">
+              <h2 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} font-bold text-lg font-medium`}>
                 UPDATE PIN CAMPUS LOCATION
               </h2>
               </div>
@@ -527,14 +533,14 @@ const EditCampus = () => {
                         icon={defaultIcon}
                         >
                         <Popup className="custom-popup" closeButton={false}>
-                        <div className="border border-grey w-[450px] px-3 py-1 rounded-md bg-white flex justify-center gap-3">
-                          <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
+                        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-grey flex w-[450px] justify-center gap-3 rounded-md border px-3 py-1`}>
+                        <div className="flex w-[20%] items-center justify-center gap-3 py-2 pr-6">
                             <img className="h-[60px]" src={university?.university_vector_url} alt="" />
                             <img className="h-[60px]" src={university?.university_logo_url} alt="" />
                           </div>
                           <div className="flex flex-col justify-center">
-                            <h2 className="font-bold text-base-400 font-cizel-decor text-lg">{campus.campus_name} Campus</h2>
-                            <h3 className="text-sm text-secondary-200-80 font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                            <h2 className={`${isDarkMode ? "text-dark-text-base-300" : "text-base-400"}  font-bold font-cizel-decor text-lg`}>{campus.campus_name} Campus</h2>
+                            <h3 className={`${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-80"} text-sm font-cizel`}>NURTURING TOMORROW'S NOBLEST</h3>
                           </div>
                         </div>
                         </Popup>
@@ -547,26 +553,26 @@ const EditCampus = () => {
           </div>
 
           <div className="p-6 mt-[40px]  flex flex-col">
-            <h3 className="text-lg font-medium">About</h3>
-            <p>Provide a brief description of the campus, including any key features or services</p>
+            <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>About</h3>
+            <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Provide a brief description of the campus, including any key features or services</p>
             <textarea
             name="campus_about"
             value={campusData.campus_about}
             onChange={(e) => setCampusData({...campusData, campus_about: e.target.value})}
-           className="mt-2 p-2 h-[300px] resize-none text-justify outline-none text-md border border-gray-300 rounded-md"
+           className={`${isDarkMode ? 'bg-dark-base-bg text-white' : 'bg-white'} mt-2 p-2 h-[300px] resize-none text-justify outline-none text-md border border-gray-300 rounded-md`}
             placeholder="Enter here the history and campus overview of the campus"
             />
           </div>
 
           <div className="p-6 flex flex-col gap-4">
             <div>
-                <h3 className="text-lg font-medium">Campus Cover Photo</h3>
-                <p>Upload an image of the campus (JPEG or PNG)</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Campus Cover Photo</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Upload an image of the campus (JPEG or PNG)</p>
                 <Input
                 name="campus_cover_photo"
                 type="file"
                 accept="image/*"
-                className="mt-2 py-1 cursor-pointer"
+                 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} mt-2 py-1 cursor-pointer`}
                 onChange={handleImageUpload}  // Use existing handler
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -592,20 +598,20 @@ const EditCampus = () => {
 
             <div className="p-6 flex flex-col gap-5">
                 <div>
-                <h3 className="text-lg font-medium">Academic Programs</h3>
-                <p>Add all academic programs offered by the campus</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Academic Programs</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Add all academic programs offered by the campus</p>
                 </div>
                 <div className="flex flex-col gap-3 border border-gray-300 rounded-md p-3">
                 {campusData.campus_programs.map((programType) => (
                 <div key={programType._id} className="flex flex-col gap-4">
-                    <h3 className="text-lg font-medium">
+                    <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>
                     {programType.program_type_id.charAt(0).toUpperCase() + programType.program_type_id.slice(1)} Programs
                     </h3>
                     <div className="flex flex-col gap-4 border rounded-md p-4">
                     {programType.programs.map((program, index) => (
                       <div key={index} className="flex flex-col gap-2">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-lg font-medium">{program.program_name}</h4>
+                          <h4 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>{program.program_name}</h4>
                         <div className="flex gap-4">
                           <button
                             type="button"
@@ -627,10 +633,10 @@ const EditCampus = () => {
                         {/* Conditionally render "Major in:" only if there are majors */}
                         {program.majors.length > 0 && (
                           <>
-                            <p className="text-sm ml-4">Major in:</p>
+                            <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-sm ml-4`}>Major in:</p>
                             <ul className="list-disc ml-8">
                               {program.majors.map((major, majorIndex) => (
-                                <li key={majorIndex} className="text-base list-none">{major}</li>
+                                <li key={majorIndex} className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-base list-none`}>{major}</li>
                               ))}
                             </ul>
                           </>

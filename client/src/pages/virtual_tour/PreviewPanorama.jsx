@@ -3,6 +3,7 @@ import "pannellum";
 import { Label } from "@/components/ui/label";
 import { FaLocationArrow } from "react-icons/fa";
 import "@/fluttermap.css";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const PreviewPanorama = ({ imageUrl, markerName, markerDescription, markerCategory, categoryConfig }) => {
   const viewerRef = useRef(null);
@@ -12,6 +13,7 @@ const PreviewPanorama = ({ imageUrl, markerName, markerDescription, markerCatego
   const [isVisible, setIsVisible] = useState(false);
   const [containerWidth, setContainerWidth] = useState(100); // Default min-width
   const [shouldScroll, setShouldScroll] = useState(false);
+    const { isDarkMode } = useToggleTheme((state) => state);
 
   useEffect(() => {
     const container = nameContainerRef.current;
@@ -106,7 +108,7 @@ const PreviewPanorama = ({ imageUrl, markerName, markerDescription, markerCatego
   const IconComponent = categoryDetails.icon || FaLocationArrow; // Default icon if category is missing
 
   return (
-    <div className=" flex p-6 gap-6 h-[880px] w-[1500px] rounded-md bg-white">
+    <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} flex p-6 gap-6 h-[880px] w-[1500px] rounded-md`}>
       <div className="w-[70%] h-[100%]">
         <div ref={viewerRef} className="rounded-md bg-gray-200"></div> 
       </div>
@@ -142,7 +144,7 @@ const PreviewPanorama = ({ imageUrl, markerName, markerDescription, markerCatego
 
         {/* Scrollable Description */}
         <div className="max-h-[490px] text-justify min-h-[200px] overflow-y-auto pr-4 break-words">
-          <Label className="text-[19px] text-justify">{markerDescription}</Label>
+          <Label className={` ${isDarkMode ? "text-dark-text-base-300" : ""} text-[19px] text-justify`}>{markerDescription}</Label>
         </div>
       </div>
     </div>

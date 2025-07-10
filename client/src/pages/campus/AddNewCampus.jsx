@@ -19,6 +19,7 @@ import { loggedInUser } from "@/api/auth";
 import { FaPen } from "react-icons/fa6";
 import EditProgramModal from "./EditNewProgramModal";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const iconSvg = renderToStaticMarkup(<FaMapMarkerAlt size={50} color="#12A5BC"/>);
 const iconUrl = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
@@ -56,6 +57,7 @@ const AddNewCampus = () => {
   const [selectedProgramIndex, setSelectedProgramIndex] = useState(null);
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [campusImage, setCampusImage] = useState(null);
+  const { isDarkMode } = useToggleTheme((state) => state);
   const [campusData, setCampusData] = useState({
     campus_name: "",
     campus_code: "",
@@ -394,8 +396,8 @@ const AddNewCampus = () => {
           <div className="flex flex-row py-6 gap-6">
             <div className="flex flex-col w-[50%] gap-6">
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-medium">Campus Name</h3>
-                <p>Enter the official name of the campus</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Campus Name</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Enter the official name of the campus</p>
                 <Input
                   name="campus_name"
                   value={campusData.campus_name}
@@ -413,7 +415,7 @@ const AddNewCampus = () => {
               </div>
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Phone Number</h3>
-                <p>Input the contact number of the campus</p>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Input the contact number of the campus</p>
                 <Input
                 name="campus_phone_number"
                 value={campusData.campus_phone_number}
@@ -438,9 +440,9 @@ const AddNewCampus = () => {
             <div className="flex flex-col w-[50%] gap-6">
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-medium">Campus Code</h3>
-                <p>Provide a short, unique code to identify the campus</p>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Provide a short, unique code to identify the campus</p>
                 <div className="flex flex-row gap-6">
-                  <p className="w-[10%] text-center flex items-center justify-center border border-gray-300 rounded-md">
+                  <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} w-[10%] text-center flex items-center justify-center border border-gray-300 rounded-md`}>
                     URS
                   </p>
                   <Input
@@ -466,8 +468,8 @@ const AddNewCampus = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-medium">Email Address</h3>
-                <p>Enter the official email for campus communication</p>
+                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Email Address</h3>
+                <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Enter the official email for campus communication</p>
                 <Input
                   name="campus_email"
                   value={campusData.campus_email}
@@ -489,8 +491,8 @@ const AddNewCampus = () => {
 
           <div className="h-[700px] py-6 flex flex-col gap-5">
             <div>
-              <h3 className="text-lg font-medium">Address</h3>
-              <p>Enter the complete address including street, city, province, and postal code</p>
+              <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Address</h3>
+              <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Enter the complete address including street, city, province, and postal code</p>
               <Input
                   name="campus_address"
                   value={campusData.campus_address}
@@ -508,7 +510,7 @@ const AddNewCampus = () => {
             </div>
             <div className="border border-gray-300 rounded-md">
               <div className="p-4">
-              <h2 className="font-bold text-lg font-medium">
+              <h2 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} font-bold text-lg font-medium`}>
                 PIN CAMPUS LOCATION
               </h2>
                 </div>
@@ -538,14 +540,14 @@ const AddNewCampus = () => {
                                   icon={defaultIcon}
                                 >
                                   <Popup className="custom-popup" closeButton={false}>
-                                  <div className="border border-grey w-[450px] px-3 py-1 rounded-md bg-white flex justify-center gap-3">
+                                  <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-grey flex w-[450px] justify-center gap-3 rounded-md border px-3 py-1`}>
                                     <div className="w-[20%] gap-3 pr-6 py-2 flex items-center justify-center">
                                       <img className="h-[60px]" src={university?.university_vector_url} alt="" />
                                       <img className="h-[60px]" src={university?.university_logo_url} alt="" />
                                     </div>
                                     <div className="flex flex-col justify-center">
-                                      <h2 className="font-bold text-base-400 font-cizel-decor text-lg">{campus.campus_name} Campus</h2>
-                                      <h3 className="text-sm text-secondary-200-80 font-cizel">NURTURING TOMORROW'S NOBLEST</h3>
+                                      <h2 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} font-bold text-base-400 font-cizel-decor text-lg`}>{campus.campus_name} Campus</h2>
+                                      <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-sm text-secondary-200-80 font-cizel`}>NURTURING TOMORROW'S NOBLEST</h3>
                                     </div>
                                   </div>
                                   </Popup>
@@ -559,27 +561,27 @@ const AddNewCampus = () => {
           </div>
 
           <div className="py-6 mt-[40px] flex flex-col">
-            <h3 className="text-lg font-medium">About</h3>
-            <p>Provide a brief description of the campus, including any key features or services</p>
+            <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>About</h3>
+            <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Provide a brief description of the campus, including any key features or services</p>
             <textarea
             name="campus_about"
             value={campusData.campus_about}
             onChange={(e) => setCampusData({...campusData, campus_about: e.target.value})}
-            className="mt-2 p-2 h-[300px] resize-none text-justify outline-none text-md border border-gray-300 rounded-md"
+            className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} mt-2 p-2 h-[300px] resize-none text-justify outline-none text-md border border-gray-300 rounded-md`}
             placeholder="Enter here the history and campus overview of the campus"
             />
           </div>
 
           <div className="py-6 flex flex-col gap-4">
             <div>
-              <h3 className="text-lg font-medium">Campus Cover Photo</h3>
-              <p>Upload an image of the campus (JPEG or PNG)</p>
+              <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Campus Cover Photo</h3>
+              <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Upload an image of the campus (JPEG or PNG)</p>
               <Input
                 name="campus_cover_photo"
                 type="file"
                 accept="image/*"
-                className="mt-2 py-1 cursor-pointer"
-                onChange={handleImageUpload}  
+                className={`${isDarkMode ? 'text-white' : 'bg-white text-gray-800'} mt-2 py-1 cursor-pointer`}
+                onChange={handleImageUpload}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault(); // Prevents form submission
@@ -605,21 +607,21 @@ const AddNewCampus = () => {
 
           <div className="py-6 flex flex-col gap-4">
             <div>
-              <h3 className="text-lg font-medium">Academic Programs</h3>
-              <p>Add all academic programs offered by the campus</p>
+              <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Academic Programs</h3>
+              <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Add all academic programs offered by the campus</p>
             </div>
             <div className="flex flex-col gap-3 border border-gray-300 rounded-md p-2">
               <div className="flex flex-col gap-2">
                 {Object.keys(programs).map((programType) => (
                   <div key={programType} className="flex flex-col gap-2">
-                    <p>{programType} Programs</p>
+                    <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{programType} Programs</p>
                     {programs[programType].map((program, index) => (
                       <div
                         key={index}
                         className="flex flex-col gap-2 p-2 border rounded-md w-[100%]"
                       >
                         <div className="flex flex-row justify-between w-[100%] pr-[10px]">
-                          <h3 className="text-lg">{program.programName}</h3>
+                          <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg`}>{program.programName}</h3>
                           <div className="flex gap-4">
                             <button
                               type="button"
@@ -639,10 +641,10 @@ const AddNewCampus = () => {
                         </div>
                         {program.majors.length > 0 && (
                           <>
-                            <p className="text-sm ml-4">Major in:</p>
+                            <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-sm ml-4`}>Major in:</p>
                             <ul className="list-disc ml-8">
                               {program.majors.map((major, majorIndex) => (
-                                <li key={majorIndex} className="text-base list-none">{major}</li>
+                                <li key={majorIndex} className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-base list-none`}>{major}</li>
                               ))}
                             </ul>
                           </>
@@ -685,7 +687,7 @@ const AddNewCampus = () => {
             onAddProgram={handleAddProgram} 
             existingPrograms={programs}  />
           <div className="">  
-            <p className="text-justify">
+            <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-justify`}>
             Note: All contents, instructions, and details provided in the Add Campus Form are hereby deemed legitimate and accurate, ensuring that administrators can rely on this information for correctly managing campus data in the GuideURSelf system. The form’s fields and their instructions have been structured to capture essential and relevant campus information, aligning with system requirements for virtual tours and campus management.
             </p>
           </div>

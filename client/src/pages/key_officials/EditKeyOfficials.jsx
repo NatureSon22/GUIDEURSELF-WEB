@@ -6,6 +6,7 @@ import { RiAddLargeFill } from "react-icons/ri";
 import { Skeleton } from "@/components/ui/skeleton";
 import Pen from "../../assets/Pen.png";
 import Bin from "../../assets/bin.png";
+import { FaPen } from "react-icons/fa";
 import Header from "@/components/Header";
 import useUserStore from "@/context/useUserStore";
 import { IoAlertCircle } from "react-icons/io5";
@@ -20,11 +21,13 @@ import KeyOfficialLogTable from "./KeyOfficialLogTable";
 import { loggedInUser } from "@/api/auth";
 import { GrNext, GrPrevious } from "react-icons/gr";
 import { CiSearch } from "react-icons/ci";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ITEMS_PER_PAGE = 10;
 
 const EditKeyOfficials = () => {
   
+      const { isDarkMode } = useToggleTheme((state) => state);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const { currentUser } = useUserStore((state) => state);
@@ -292,7 +295,7 @@ const EditKeyOfficials = () => {
                 {paginatedOfficials.map((official, index) => (
                   <div
                     key={index}
-                    className="box-shadow-200 flex justify-between flex-col rounded-md border border-secondary-200/30 bg-white"
+                    className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} box-shadow-200 flex justify-between flex-col rounded-md border border-secondary-200/30`}
                   >
                     <div className="flex flex-col items-center px-2 py-4">
                       <img
@@ -301,10 +304,10 @@ const EditKeyOfficials = () => {
                         className="h-[200px] w-[210px] rounded-md object-cover"
                         loading="lazy"
                       />
-                      <h3 className="mt-5 px-4 text-center font-cizel-decor text-[1.05rem] font-bold text-gray-800">
+                      <h3 className={`mt-5 px-4 text-center font-cizel-decor text-[1.05rem] font-bold ${isDarkMode ? 'text-white' : 'text-secondary-100'}`}>
                         {official.name}
                       </h3>
-                      <p className="mt-2 text-center font-cizel text-gray-600">
+                      <p className={`${isDarkMode ? 'text-white' : 'text-gray-800'} mt-2 text-center font-cizel`}>
                       {official.position_name}
                       {official.college_name ? ` - ${official.college_name}` : ''}
                     </p>
@@ -319,9 +322,9 @@ const EditKeyOfficials = () => {
                       >
                         <button 
                           onClick={() => openEditModal(official)}
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className={`p-1 rounded ${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'}`}
                         >
-                          <img className="h-[18px]" src={Pen} alt="Edit" />
+                          <FaPen className={`h-[18px] ${isDarkMode ? 'text-white' : 'text-gray-800'}`} />
                         </button>
                       </FeaturePermission>
 
@@ -331,7 +334,7 @@ const EditKeyOfficials = () => {
                       >
                         <button 
                           onClick={() => handleArchiveClick(official)}
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className={`p-1 rounded ${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'}`}
                         >
                           <img className="h-[20px]" src={Bin} alt="Delete" />
                         </button>

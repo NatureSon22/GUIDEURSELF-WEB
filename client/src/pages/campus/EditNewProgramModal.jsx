@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { FaPlus } from "react-icons/fa";
 import CloseIcon from "../../assets/CloseIcon.png";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => {
   const [programNames, setProgramNames] = useState([]); // All program names
@@ -14,6 +15,7 @@ const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => 
   const [selectedMajor, setSelectedMajor] = useState(""); // Selected major
   const [majors, setMajors] = useState([]); // List of added majors
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   useEffect(() => {
     if (program) {
@@ -124,11 +126,11 @@ const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => 
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-[#000000cc] z-50">
-      <div className="bg-white p-6 rounded-md w-1/3">
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'}  p-6 rounded-md w-1/3`}>
         <div className="flex flex-col gap-4">
           {/* Program Type (Non-editable) */}
           <div className="flex flex-col gap-2">
-            <Label className="text-lg font-medium">Program Type</Label>
+            <Label className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Program Type</Label>
             <Input
               value={programtype}
               disabled
@@ -138,13 +140,13 @@ const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => 
 
           {/* Program Name (Editable dropdown) */}
           <div className="flex flex-col gap-2">
-            <Label className="text-lg font-medium">Program Name</Label>
+            <Label className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-medium`}>Program Name</Label>
             <select
               value={selectedProgram}
               onChange={(e) => setSelectedProgram(e.target.value)}
-              className="w-full h-10 border border-gray-300 rounded-md p-2"
+              className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} w-full h-10 border border-gray-300 rounded-md p-2`}
             >
-              <option value={selectedProgram}>{selectedProgram}</option>=
+              <option value={selectedProgram}>{selectedProgram}</option>
               {programNames
                 .filter((program) => program.programname !== selectedProgram) // Exclude the selected program
                 .map((program) => (
@@ -161,7 +163,7 @@ const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => 
               <select
                 value={selectedMajor}
                 onChange={(e) => setSelectedMajor(e.target.value)}
-                className="w-full h-10 border border-gray-300 rounded-md p-2"
+                className={`${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} w-full h-10 border border-gray-300 rounded-md p-2`}
                 disabled={!selectedProgram || majorNames.length === 0}
               >
             <option value="" hidden>
@@ -184,12 +186,12 @@ const EditProgramModal = ({ isOpen, onClose, program, onSave, programtype }) => 
               </Button>
             </div>
 
-            <Label className="mb-2 mt-6">Major in:</Label>
+            <Label className={`${isDarkMode ? 'text-white' : 'text-gray-800'} mb-2 mt-6`}>Major in:</Label>
 
             <div className="flex flex-col gap-2">
               {majors.map((major, index) => (
                 <div key={index} className="flex justify-between items-center py-1 px-1 border rounded-md">
-                  <span>{major}</span>
+                  <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{major}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveMajor(index)}

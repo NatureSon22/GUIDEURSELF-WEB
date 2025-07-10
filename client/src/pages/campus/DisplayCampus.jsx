@@ -15,6 +15,7 @@ import { FaPen } from "react-icons/fa6";
 import { RiAddLargeFill } from "react-icons/ri";
 import "./fluttermap.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const iconSvg = renderToStaticMarkup(
   <FaMapMarkerAlt size={50} color="#12A5BC" />,
@@ -59,6 +60,7 @@ const DisplayCampus = () => {
   const [key, setKey] = useState(0); // Force re-render
   const navigate = useNavigate();
   const [mapZoom, setMapZoom] = useState(12); // Default zoom level
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -155,7 +157,7 @@ const DisplayCampus = () => {
           <div className="flex flex-col gap-5">
             <div className="rounded-md border border-gray-300">
               <div className="p-4">
-                <h2 className="font-cizel-decor font-bold">
+                <h2 className={` ${isDarkMode ? "text-dark-text-base-300" : ""} font-cizel-decor font-bold`}>
                   University Of Rizal System - Campus Map
                 </h2>
               </div>
@@ -177,7 +179,7 @@ const DisplayCampus = () => {
                     icon={defaultIcon}
                   >
                     <Popup className="custom-popup" closeButton={false}>
-                      <div className="border-grey flex w-[450px] justify-center gap-3 rounded-md border bg-white px-3 py-1">
+                      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-grey flex w-[450px] justify-center gap-3 rounded-md border px-3 py-1`}>
                         <div className="flex w-[20%] items-center justify-center gap-3 py-2 pr-6">
                           <img
                             className="h-[60px]"
@@ -191,10 +193,10 @@ const DisplayCampus = () => {
                           />
                         </div>
                         <div className="flex flex-col justify-center">
-                          <h2 className="font-cizel-decor text-lg font-bold text-base-400">
+                          <h2 className={`${isDarkMode ? "text-dark-text-base-300" : "text-base-400"} font-cizel-decor text-lg font-bold text-base-400`}>
                             {campus.campus_name} Campus
                           </h2>
-                          <h3 className="font-cizel text-sm text-secondary-200-80">
+                          <h3 className={`${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-80"} font-cizel text-sm `}>
                             NURTURING TOMORROW&apos;S NOBLEST
                           </h3>
                         </div>
@@ -223,21 +225,21 @@ const DisplayCampus = () => {
               />
             </div>
             <div className="flex w-[70%] flex-col justify-center">
-              <h2 className="font-cizel-decor text-lg font-bold">
+              <h2 className={`${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-80"} font-cizel-decor text-lg font-bold`}>
                 University Of Rizal System
               </h2>
-              <h3 className="font-cizel text-sm">
+              <h3 className={`${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-80"} font-cizel text-sm`}>
                 NURTURING TOMORROW&apos;S NOBLEST
               </h3>
             </div>
           </div>
 
-          <p className="text-sm">List of Campuses</p>
+          <p className={`${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-80"} text-sm`}>List of Campuses</p>
           <div className="border-x border-t">
             {/* Render campus names */}
             {campuses.map((campus, index) => (
               <div key={index} className="border-b border-gray-300 py-4">
-                <p className="text-center font-cizel">
+                <p className={`${isDarkMode ? "text-dark-text-base-300" : "text-secondary-200-80"} text-center font-cizel`}>
                   {campus.campus_name} Campus
                 </p>
               </div>
