@@ -62,12 +62,14 @@ const addFeedback = async (req, res) => {
 };
 
 const getTotalFeedback = async (req, res) => {
-  const { filter = "All", type } = req.query;
+  // "chatbot", "virtual-tour", "mobile-app"
+  const { filter = "mobile-app", type = "mobile-app" } = req.query;
   const { isMultiCampus, campusId } = req.user;
+
+  console.log(`type: ${type}`);
 
   try {
     let pipeline = [
-      // First lookup - get user information
       {
         $lookup: {
           from: "users",
@@ -80,13 +82,13 @@ const getTotalFeedback = async (req, res) => {
       // Second lookup - get role information
       {
         $lookup: {
-          from: "roles", // Adjust this to your actual roles collection name
+          from: "roles",
           localField: "user.role_id",
           foreignField: "_id",
           as: "role",
         },
       },
-      { $unwind: "$role" }, // Assuming each user has exactly one role
+      { $unwind: "$role" },
       // { $match: { type } },
     ];
 
@@ -97,31 +99,20 @@ const getTotalFeedback = async (req, res) => {
       });
     }
 
-    // Apply role-based filtering
-    if (filter !== "All") {
-      if (filter === "Other") {
-        pipeline.push({
-          $match: {
-            "role.role_type": {
-              // Assuming role has a "name" field, adjust if different
-              $not: { $regex: "^(student|faculty|staff)$", $options: "i" },
-            },
+    pipeline.push({
+      $match: {
+        $or: [
+          { type: type },
+          {
+            $and: [
+              { $or: [{ type: { $exists: false } }, { type: null }] },
+              { $expr: { $eq: [type, "mobile-app"] } },
+            ],
           },
-        });
-      } else {
-        pipeline.push({
-          $match: {
-            "role.role_type": {
-              // Adjust this field name if your role type is stored in a different field
-              $regex: filter.trim(),
-              $options: "i",
-            },
-          },
-        });
-      }
-    }
+        ],
+      },
+    });
 
-    // Ensure ratings are valid numbers
     pipeline.push({
       $match: {
         rating: { $in: [1, 2, 3, 4, 5] },

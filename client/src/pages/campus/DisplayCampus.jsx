@@ -158,7 +158,9 @@ const DisplayCampus = () => {
           <div className="flex flex-col gap-5">
             <div className="rounded-md border border-gray-300">
               <div className="p-4">
-                <h2 className="font-cizel-decor font-bold">
+                <h2
+                  className={`font-cizel-decor font-bold ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+                >
                   University Of Rizal System - Campus Map
                 </h2>
               </div>
@@ -232,7 +234,10 @@ const DisplayCampus = () => {
               />
             </div>
             <div className="flex w-[70%] flex-col justify-center">
-              <h2 className="font-cizel-decor text-lg font-bold">
+              {" "}
+              <h2
+                className={`font-cizel-decor text-lg font-bold ${isDarkMode ? "text-dark-text-base-300" : ""} `}
+              >
                 University Of Rizal System
               </h2>
               <h3
