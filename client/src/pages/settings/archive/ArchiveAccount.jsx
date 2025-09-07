@@ -21,7 +21,6 @@ import { MdDelete } from "react-icons/md";
 import useToggleTheme from "@/context/useToggleTheme";
 
 const ArchiveAccount = () => {
-  const { isDarkMode } = useToggleTheme((state) => state);
   const { toast } = useToast();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");

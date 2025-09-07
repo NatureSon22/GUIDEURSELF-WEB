@@ -15,7 +15,6 @@ import useToggleTheme from "@/context/useToggleTheme";
 import useToggleTheme from "@/context/useToggleTheme";
 
 const ArchiveCampus = () => {
-  const { isDarkMode } = useToggleTheme((state) => state);
   const { currentUser } = useUserStore((state) => state);
   const [globalFilter, setGlobalFilter] = useState("");
   const [openModal, setOpenModal] = useState(false);

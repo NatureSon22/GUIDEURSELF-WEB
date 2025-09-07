@@ -19,7 +19,6 @@ const Archive = () => {
   });
 
   const handleSelectedArchive = (index) => [setSelectedArchive(index)];
-  const { isDarkMode } = useToggleTheme((state) => state);
 
   const tabs = [
     "Accounts",
