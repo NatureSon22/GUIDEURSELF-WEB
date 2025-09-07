@@ -25,7 +25,6 @@ const fetchUserRole = async (roleType) => {
 };
 
 const ArchiveVirtualTour = ({userData}) => {
-  const { isDarkMode } = useToggleTheme((state) => state);
   const { currentUser } = useUserStore((state) => state);
   const [globalFilter, setGlobalFilter] = useState("");
   const [openModal, setOpenModal] = useState(false);
