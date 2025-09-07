@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchKeyOfficials } from "@/api/keyOfficialsApi";
 import SearchBox from "@/components/SearchBox";
+import OfficialCard from "@/components/OfficialCard";
 import { useQuery } from "@tanstack/react-query";
 import { getUniversityData } from "@/api/component-info";
 import Header from "@/components/Header";
@@ -9,7 +10,7 @@ import FeaturePermission from "@/layer/FeaturePermission";
 import { Button } from "@/components/ui/button";
 import { FaPen } from "react-icons/fa6";
 import { Skeleton } from "@/components/ui/skeleton";
-import useToggleTheme from "@/context/useToggleTheme"; // comment
+import useToggleTheme from "@/context/useToggleTheme";
 
 const DisplayingKeyOfficials = () => {
   
@@ -124,7 +125,7 @@ const DisplayingKeyOfficials = () => {
             </h2>
           )}
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"> 
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {officials.map((official) => (
               <div
                 key={official._id}
