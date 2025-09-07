@@ -9,6 +9,7 @@ import Loading from "@/components/Loading";
 const formSchema = z
   .object({
     userType: z.string().nonempty({ message: "User type is required" }),
+    userCategory: z.string().optional(),
     campus: z.string().nonempty({ message: "Campus is required" }),
     user_number: z.string().nonempty({ message: "User number is required" }),
     username: z.string().nonempty({ message: "Username is required" }),
@@ -43,7 +44,9 @@ const EditAccount = () => {
   } = useQuery({
     queryKey: ["account", accountId],
     queryFn: () => getAccount(accountId),
-    refetchOnMount: true,
+    enabled: !!accountId,
+    refetchOnMount: true, // always refetch on mount
+    refetchOnWindowFocus: true, // refetch
   });
   const { mutate: handleEditAccount } = useMutation({
     mutationFn: (data) => updateAccount(data),
@@ -69,6 +72,7 @@ const EditAccount = () => {
   const defaultvalues = {
     _id: accountData?._id || "",
     userType: accountData?.role_id || "",
+    userCategory: accountData.category_id || "",
     campus: accountData?.campus_id || "",
     user_number: accountData?.user_number || "",
     username: accountData?.username || "",

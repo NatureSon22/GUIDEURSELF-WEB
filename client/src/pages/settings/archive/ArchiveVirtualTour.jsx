@@ -38,12 +38,13 @@ const ArchiveVirtualTour = ({userData}) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
   const searchValue = globalFilter?.toLowerCase() || "";
+  const { isDarkMode } = useToggleTheme((state) => state);
 
-  const { data: userRole } = useQuery({
-    queryKey: ["userRole", userData.role_type],
-    queryFn: () => fetchUserRole(userData.role_type),
-    enabled: !!userData.role_type, // Only fetch if `role_type` is defined
-  });
+  // const { data: userRole } = useQuery({
+  //   queryKey: ["userRole", userData.role_type],
+  //   queryFn: () => fetchUserRole(userData.role_type),
+  //   enabled: !!userData.role_type, // Only fetch if `role_type` is defined
+  // });
 
   const isMultiCampus = userData.isMultiCampus ?? false;
 
@@ -102,7 +103,7 @@ const ArchiveVirtualTour = ({userData}) => {
 
   const filteredItems = useMemo(() => {
     if (!archivedItems) return [];
-  
+
     const transformedItems = archivedItems.map((item) => ({
       ...item,
       item_name:
@@ -110,15 +111,13 @@ const ArchiveVirtualTour = ({userData}) => {
           ? item.floor_data?.floor_name || "N/A"
           : item.location_data?.marker_name || "N/A",
     }));
-  
 
     return transformedItems.filter((item) => {
       // If user is not multiCampus, filter by campus._id
-     if (!isMultiCampus && item.campus_name !== userData.campus_name) {
-      return false;
-    }
+      if (!isMultiCampus && item.campus_name !== userData.campus_name) {
+        return false;
+      }
 
-  
       // Global text search
       const matchesGlobalSearch =
         !globalFilter ||
@@ -129,25 +128,32 @@ const ArchiveVirtualTour = ({userData}) => {
             value.toLowerCase().includes(searchValue)
           );
         });
-  
+
       // Filters (e.g., campus filter)
       const matchesFilters = filters.every((filter) => {
         if (!filter.value) return true;
         return item[filter.id]?.toLowerCase() === filter.value.toLowerCase();
       });
-  
+
       // Date range filtering
       const itemDate = new Date(item.date_last_modified);
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
-  
+
       const matchesDateRange =
         (!from || itemDate >= from) && (!to || itemDate <= to);
-  
+
       return matchesGlobalSearch && matchesFilters && matchesDateRange;
     });
-  }, [archivedItems, filters, fromDate, toDate, globalFilter, isMultiCampus, userData.campus_id]);
-  
+  }, [
+    archivedItems,
+    filters,
+    fromDate,
+    toDate,
+    globalFilter,
+    isMultiCampus,
+    userData.campus_id,
+  ]);
 
   const handleUnarchiveItem = async (itemId, itemName) => {
     try {
@@ -282,6 +288,7 @@ const ArchiveVirtualTour = ({userData}) => {
       <div className="flex items-center gap-5">
         <Input
           type="text"
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           placeholder="Search"
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
@@ -319,7 +326,7 @@ const ArchiveVirtualTour = ({userData}) => {
         />
 
         <Button
-          className="ml-auto text-secondary-100-75"
+          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
           variant="outline"
           onClick={handleReset}
         >

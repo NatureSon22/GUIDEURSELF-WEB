@@ -31,6 +31,14 @@ const column = () => [
     header: "Campus",
   },
   {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => {
+      const type = row.original?.type ?? "Mobile App";
+      return <p>{type}</p>;
+    },
+  },
+  {
     accessorKey: "rating",
     header: "Rating",
   },

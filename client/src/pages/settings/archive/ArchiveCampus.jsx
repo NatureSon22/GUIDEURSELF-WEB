@@ -2,18 +2,16 @@ import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import ComboBox from "@/components/ComboBox";
 import { Input } from "@/components/ui/input";
 import { GrPowerReset } from "react-icons/gr";
 import campusColumns from "@/components/columns/ArchiveCampus";
 import useUserStore from "@/context/useUserStore";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getAllCampuses } from "@/api/component-info";
 import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
+import useToggleTheme from "@/context/useToggleTheme";
 import useToggleTheme from "@/context/useToggleTheme";
 
 const ArchiveCampus = () => {
@@ -29,11 +27,7 @@ const ArchiveCampus = () => {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
-
-  const { data: allCampuses } = useQuery({
-    queryKey: ["allCampuses"],
-    queryFn: getAllCampuses,
-  });
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const openConfirmationModal = () => {
     setOpenModal(true);
@@ -62,7 +56,6 @@ const ArchiveCampus = () => {
   // Fetch archived campuses
   const {
     data: archivedCampuses,
-    isLoading,
     isError,
     error,
   } = useQuery({
@@ -78,35 +71,6 @@ const ArchiveCampus = () => {
       if (!response.ok) throw new Error("Failed to fetch archived campuses");
       return response.json();
     },
-  });
-
-  // Fetch archived campuses for dropdown
-  const getArchivedCampuses = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/archived-campuses`,
-      {
-        method: "GET",
-        credentials: "include",
-      },
-    );
-
-    if (!response.ok) {
-      const { message } = await response.json();
-      throw new Error(message || "Failed to fetch archived campuses");
-    }
-
-    const campuses = await response.json();
-    return (
-      campuses.map((campus) => ({
-        value: campus._id,
-        label: campus.campus_name,
-      })) || []
-    );
-  };
-
-  const { data: allArchivedCampuses } = useQuery({
-    queryKey: ["getArchivedCampuses"],
-    queryFn: getArchivedCampuses,
   });
 
   // Filter archived campuses based on date range and other filters
@@ -247,6 +211,7 @@ const ArchiveCampus = () => {
         <Input
           type="text"
           placeholder="Search"
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
@@ -277,7 +242,7 @@ const ArchiveCampus = () => {
         />
 
         <Button
-          className="ml-auto text-secondary-100-75"
+          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
           variant="outline"
           onClick={handleReset}
         >

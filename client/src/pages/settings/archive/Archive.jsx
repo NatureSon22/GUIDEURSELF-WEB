@@ -10,12 +10,13 @@ import useToggleTheme from "@/context/useToggleTheme";
 
 const Archive = () => {
   const [selectedArchive, setSelectedArchive] = useState(0);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
-    const { data, isLoading } = useQuery({
-      queryKey: ["user"],
-      queryFn: loggedInUser,
-      refetchOnWindowFocus: false,
-    });
+  const { data } = useQuery({
+    queryKey: ["user"],
+    queryFn: loggedInUser,
+    refetchOnWindowFocus: false,
+  });
 
   const handleSelectedArchive = (index) => [setSelectedArchive(index)];
   const { isDarkMode } = useToggleTheme((state) => state);
@@ -48,7 +49,7 @@ const Archive = () => {
       {selectedArchive === 1 && <ArchiveDocuments />}
       {selectedArchive === 2 && <ArchiveVirtualTour userData={data} />}
       {selectedArchive === 3 && <ArchiveKeyOfficials />}
-      {selectedArchive === 4 &&  <ArchiveCampus />}
+      {selectedArchive === 4 && <ArchiveCampus />}
     </div>
   );
 };

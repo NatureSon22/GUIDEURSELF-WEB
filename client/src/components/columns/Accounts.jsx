@@ -92,6 +92,19 @@ const columns = ({
       filterFn: "equalsString",
     },
     {
+      accessorKey: "category_name",
+      id: "category_name",
+      header: "Category Role",
+      cell: ({ row }) =>
+        row.original.category_name ? (
+          formatTitle(row.original?.category_name)
+        ) : (
+          <p className={isDarkMode ? "text-slate-500" : "text-slate-400"}>
+            N/A
+          </p>
+        ),
+    },
+    {
       accessorKey: "campus_name",
       id: "campus_name",
       header: "Campus",

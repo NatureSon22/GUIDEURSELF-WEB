@@ -32,6 +32,7 @@ const ArchiveAccount = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const client = useQueryClient();
 
@@ -150,6 +151,7 @@ const ArchiveAccount = () => {
           type="text"
           placeholder="Search"
           value={globalFilter || ""}
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
 
@@ -199,7 +201,7 @@ const ArchiveAccount = () => {
         />
 
         <Button
-          className="ml-auto text-secondary-100-75"
+          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
           variant="outline"
           onClick={handleReset}
         >

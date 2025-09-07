@@ -1,13 +1,11 @@
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import BigComboBox from "@/components/BigComboBox";
 import { Input } from "@/components/ui/input";
 import { GrPowerReset } from "react-icons/gr";
 import DataTable from "@/components/DataTable";
 import keyOfficialsColumns from "@/components/columns/ArchiveKeyOfficials";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
 import useUserStore from "@/context/useUserStore";
 import { useMutation } from "@tanstack/react-query";
 import DialogContainer from "@/components/DialogContainer";
@@ -28,6 +26,7 @@ const ArchiveKeyOfficials = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const openConfirmationModal = () => {
     setOpenModal(true);
@@ -80,30 +79,25 @@ const ArchiveKeyOfficials = () => {
   });
 
   // Fetch positions for filtering
-  const getPositions = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/administartiveposition`,
-      {
-        method: "GET",
-        credentials: "include",
-      },
-    );
+  // const getPositions = async () => {
+  //   const response = await fetch(
+  //     `${import.meta.env.VITE_API_URL}/administartiveposition`,
+  //     {
+  //       method: "GET",
+  //       credentials: "include",
+  //     },
+  //   );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch positions");
-    }
+  //   if (!response.ok) {
+  //     throw new Error("Failed to fetch positions");
+  //   }
 
-    const data = await response.json();
-    return data.map((position) => ({
-      value: position._id,
-      label: position.position_name || position.administartive_position_name,
-    }));
-  };
-
-  const { data: allPositions } = useQuery({
-    queryKey: ["positions"],
-    queryFn: getPositions,
-  });
+  //   const data = await response.json();
+  //   return data.map((position) => ({
+  //     value: position._id,
+  //     label: position.position_name || position.administartive_position_name,
+  //   }));
+  // };
 
   // Filter archived officials based on search, date range, and position
   const filteredOfficials = useMemo(() => {
@@ -248,6 +242,7 @@ const ArchiveKeyOfficials = () => {
         <Input
           type="text"
           placeholder="Search"
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
@@ -277,7 +272,7 @@ const ArchiveKeyOfficials = () => {
         />
 
         <Button
-          className="ml-auto text-secondary-100-75"
+          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
           variant="outline"
           onClick={handleReset}
         >

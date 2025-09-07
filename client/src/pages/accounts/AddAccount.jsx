@@ -9,6 +9,7 @@ import useUserStore from "@/context/useUserStore";
 const formSchema = z
   .object({
     userType: z.string().optional(),
+    userCategory: z.string().optional(),
     campus: z.string().nonempty({ message: "Campus is required" }),
     user_number: z.string().nonempty({ message: "User number is required" }),
     username: z.string().nonempty({ message: "Username is required" }),
@@ -38,7 +39,8 @@ const AddAccount = () => {
   const defaultValues = {
     user_number: "",
     userType: "",
-    categoryRole: "",
+    userCategory: "",
+    // categoryRole: "",
     campus: currentUser?.isMultiCampus ? "" : currentUser?.campus_id,
     firstName: "",
     username: "",

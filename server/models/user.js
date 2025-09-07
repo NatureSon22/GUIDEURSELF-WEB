@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   middlename: { type: String, default: "" },
   lastname: { type: String, required: true },
   role_id: { type: Schema.Types.ObjectId, required: true, ref: "Role" },
+  category_id: { type: Schema.Types.ObjectId, ref: "CategoryRole" },
   custom_permissions: {
     granted: [
       {

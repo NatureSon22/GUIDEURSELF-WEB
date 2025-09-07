@@ -31,23 +31,26 @@ const EditDisplayCampus = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-      const { isDarkMode } = useToggleTheme((state) => state);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const logActivityMutation = useMutation({
     mutationFn: async (logData) => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/activitylogs`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/activitylogs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(logData),
+          credentials: "include",
         },
-        body: JSON.stringify(logData),
-        credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to log activity");
-        }
-        return response.json();
-        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to log activity");
+      }
+      return response.json();
+    },
   });
 
   const { data } = useQuery({
@@ -55,7 +58,7 @@ const EditDisplayCampus = () => {
     queryFn: loggedInUser,
     refetchOnWindowFocus: false,
   });
-  
+
   const handleNavigate = (path) => {
     navigate(path);
   };
@@ -131,36 +134,35 @@ const EditDisplayCampus = () => {
 
   const handleConfirmDelete = async () => {
     if (!campusToDelete) return;
-  
+
     try {
       // Step 1: Check if the campus has related data
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/campuses/${campusToDelete._id}/dependencies`,
-        { method: "GET", credentials: "include" }
+        { method: "GET", credentials: "include" },
       );
-  
+
       const { hasDependencies } = await response.json();
-  
+
       if (hasDependencies) {
         toast({
           title: "Error",
-          description: "The campus cannot be deleted because there is some data depending on it.",
+          description:
+            "The campus cannot be deleted because there is some data depending on it.",
           variant: "destructive",
         });
         return; // STOP HERE, DO NOT DELETE CAMPUS
       }
-  
+
       // Step 2: Archive the campus
       await archiveCampus(campusToDelete._id);
-  
+
       // Step 3: Delete the campus
       const deleteResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/campuses/${campusToDelete._id}`,
         { method: "DELETE", credentials: "include" },
       );
 
-
-  
       if (deleteResponse.ok) {
         await logActivityMutation.mutateAsync({
           user_number: currentUser.user_number, // Replace with actual user number
@@ -172,20 +174,23 @@ const EditDisplayCampus = () => {
           action: `Archived ${campusToDelete.campus_name} Campus`,
           date_created: campusToDelete.date_added,
           date_last_modified: Date.now(),
-      });
+        });
 
-      const logResponse = await fetch(`${import.meta.env.VITE_API_URL}/campuslogs`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          campus_name: campusToDelete.campus_name || "Unknown Name",
-          activity: `Archived ${campusToDelete.campus_name} Campus`,
-          updated_by: data?.username || "Unknown User",
-        }),
-      });
+        const logResponse = await fetch(
+          `${import.meta.env.VITE_API_URL}/campuslogs`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              campus_name: campusToDelete.campus_name || "Unknown Name",
+              activity: `Archived ${campusToDelete.campus_name} Campus`,
+              updated_by: data?.username || "Unknown User",
+            }),
+          },
+        );
 
         toast({
           title: "Success",
@@ -200,7 +205,7 @@ const EditDisplayCampus = () => {
           variant: "destructive",
         });
       }
-  
+
       setIsDeleteModalOpen(false);
       setCampusToDelete(null);
     } catch (error) {
@@ -253,13 +258,12 @@ const EditDisplayCampus = () => {
     )
     .sort((a, b) => a.campus_name.localeCompare(b.campus_name)); // Sort alphabetically
 
-    
   // Calculate total pages
   const totalPages = Math.ceil(filteredCampuses.length / ITEMS_PER_PAGE);
   // Get paginated campuses
   const paginatedCampuses = filteredCampuses.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   return (
@@ -280,159 +284,162 @@ const EditDisplayCampus = () => {
         />
       </div>
       <div className="flex w-full gap-4 pt-6">
-        
-          <Input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={handleSearchChange}
-
-            
-          />
+        <Input
+          type="text"
+          placeholder="Search"
+          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
 
         <FeaturePermission module="Manage Campus" access="add campus">
-            <Button 
+          <Button
             variant="outline"
             className="text-secondary-100-75"
             onClick={() => handleNavigate("/campus/add")}
-            >
-            <RiAddLargeFill /> 
+          >
+            <RiAddLargeFill />
             Add Campus
-            </Button>
+          </Button>
         </FeaturePermission>
         <Button
           onClick={handleBack}
           variant="outline"
           className="border-base-200 text-base-200 hover:text-base-200"
-          >
+        >
           <FaCheck />
           Save
         </Button>
       </div>
 
       <div>
-      {/* Campuses Grid */}
-      <div className="grid grid-cols-1 gap-6 py-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5">
-        {paginatedCampuses.map((campus, index) => (
-          <div
-            key={index}
-            className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} flex h-[370px] w-full max-w-[380px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3`}
+        {/* Campuses Grid */}
+        <div className="3xl:grid-cols-5 grid grid-cols-1 gap-6 py-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {paginatedCampuses.map((campus, index) => (
+            <div
+              key={index}
+              className="flex h-[370px] w-full max-w-[380px] flex-col items-center justify-center rounded-md border border-gray-300 pb-3"
+            >
+              {/* Header Section */}
+              <div className="flex h-[100px] w-full items-center justify-between gap-2 rounded-md">
+                {/* Logo and Vector */}
+                <div className="flex w-[30%] items-center justify-center gap-2">
+                  <img
+                    className="h-[50px] w-auto"
+                    src={university?.university_logo_url}
+                    alt="University Logo"
+                  />
+                  <img
+                    className="h-[50px] w-auto"
+                    src={university?.university_vector_url}
+                    alt="University Vector"
+                  />
+                </div>
+
+                {/* Campus Name and Tagline */}
+                <div className="flex w-[70%] flex-col justify-center">
+                  <h2 className="font-cizel-decor text-lg font-bold">
+                    {campus.campus_name} Campus
+                  </h2>
+                  <h3 className="font-cizel text-[12px]">
+                    NURTURING TOMORROW'S NOBLEST
+                  </h3>
+                </div>
+              </div>
+
+              {/* Campus Cover Photo */}
+              <div className="h-[200px] w-full px-4">
+                <img
+                  className="h-full w-full rounded-md object-cover"
+                  src={campus.campus_cover_photo_url}
+                  alt="Campus Cover"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex h-[50px] w-full items-center justify-end gap-2 px-4 pt-2">
+                <Link
+                  className="flex items-center justify-center"
+                  to={`/campus/edit-campus/${campus._id}`}
+                >
+                  <img className="h-[18px] w-auto" src={Pen} alt="Edit" />
+                </Link>
+
+                <FeaturePermission
+                  module="Manage Campus"
+                  access="archive campus"
+                >
+                  <button onClick={() => handleDeleteClick(campus)}>
+                    <img className="h-[25px] w-auto" src={Bin} alt="Delete" />
+                  </button>
+                </FeaturePermission>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="mt-4 flex justify-end gap-4">
+          <Button
+            variant="outline"
+            className="font-semibold text-secondary-100-75"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
           >
-            {/* Header Section */}
-            <div className="flex h-[100px] w-full items-center justify-between rounded-md gap-2">
-              {/* Logo and Vector */}
-              <div className="flex w-[30%] items-center justify-center gap-2">
-                <img
-                  className="h-[50px] w-auto"
-                  src={university?.university_logo_url}
-                  alt="University Logo"
-                />
-                <img
-                  className="h-[50px] w-auto"
-                  src={university?.university_vector_url}
-                  alt="University Vector"
-                />
-              </div>
-
-              {/* Campus Name and Tagline */}
-              <div className="flex w-[70%] flex-col justify-center">
-                <h2 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-lg font-bold font-cizel-decor`}>
-                  {campus.campus_name} Campus
-                </h2>
-                <h3 className={`${isDarkMode ? 'text-white' : 'text-gray-800'} text-[12px] font-cizel`}>
-                  NURTURING TOMORROW'S NOBLEST
-                </h3>
-              </div>
-            </div>
-
-            {/* Campus Cover Photo */}
-            <div className="h-[200px] w-full px-4">
-              <img
-                className="h-full w-full rounded-md object-cover"
-                src={campus.campus_cover_photo_url}
-                alt="Campus Cover"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex h-[50px] w-full items-center justify-end gap-2 px-4 pt-2">
-              <Link
-                className={`${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'} p-2 flex items-center justify-center`}
-                to={`/campus/edit-campus/${campus._id}`}
-              >
-                <FaPen className={`h-[18px] ${isDarkMode ? 'text-white' : 'text-gray-800'}`} />
-              </Link>
-              <FeaturePermission module="Manage Campus" access="archive campus">
-                <button className={`${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'} p-1 flex items-center justify-center`} onClick={() => handleDeleteClick(campus)}>
-                  <img className="h-[25px] w-auto" src={Bin} alt="Delete" />
-                </button>
-              </FeaturePermission>
-
-            </div>
-          </div>
-        ))}
+            Previous
+          </Button>
+          <Input
+            type="number"
+            min="1"
+            value={currentPage}
+            className="w-16 rounded border p-1 text-center"
+          />
+          <Button
+            variant="outline"
+            className="font-semibold text-secondary-100-75"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
       </div>
-
-      {/* Pagination Controls */}
-      <div className="flex justify-end gap-4 mt-4">
-        <Button
-          variant="outline"
-          className="font-semibold text-secondary-100-75"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </Button>
-        <Input
-        type="number"
-        min="1"
-        value={currentPage}
-        className="w-16 rounded border p-1 text-center"
-        />       
-        <Button
-          variant="outline"
-          className="font-semibold text-secondary-100-75"
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
-      <div
-      className="mt-[40px]"
-      >
+      <div className="mt-[40px]">
         <Header
-        className="mb-4"
-        title={"Recent Changes"}
-        subtitle={"This section lists the most recent updates and changes made by administration across different campuses."}
+          className="mb-4"
+          title={"Recent Changes"}
+          subtitle={
+            "This section lists the most recent updates and changes made by administration across different campuses."
+          }
         />
         <CampusLogTable />
       </div>
       {isDeleteModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-[20%]">
-                  <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-white p-6 text-center shadow-md">
-                    <IoAlertCircle className="w-[100%] text-[3rem] text-base-200" />
-                    <p className="my-4 text-gray-600">
-                      Do you want to archive this campus?
-                    </p>
-                    <div className="mt-4 flex w-[100%] justify-center gap-4">
-                      <button
-                        onClick={() => setIsDeleteModalOpen(false)}
-                        className="w-[100%] rounded-md border border-secondary-210 bg-secondary-300 px-4 py-2 text-secondary-210"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleConfirmDelete}
-                        className="w-[100%] rounded-md border border-base-200 bg-base-210 px-4 py-2 text-base-200"
-                      >
-                        Proceed
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-[20%]">
+          <div className="flex w-[500px] flex-col items-center justify-center rounded-md bg-white p-6 text-center shadow-md">
+            <IoAlertCircle className="w-[100%] text-[3rem] text-base-200" />
+            <p className="my-4 text-gray-600">
+              Do you want to archive this campus?
+            </p>
+            <div className="mt-4 flex w-[100%] justify-center gap-4">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="w-[100%] rounded-md border border-secondary-210 bg-secondary-300 px-4 py-2 text-secondary-210"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="w-[100%] rounded-md border border-base-200 bg-base-210 px-4 py-2 text-base-200"
+              >
+                Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
