@@ -8,9 +8,11 @@ import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js"; 
 import "@/quillCustom.css";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQuery and useQueryClient
+import { useQuery, useQueryClient } from "@tanstack/react-query"; 
+import useToggleTheme from "@/context/useToggleTheme";  
 
 const PoliciesField = ({ isLoading }) => {
+  const { isDarkMode } = useToggleTheme((state) => state);
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -146,7 +148,7 @@ const PoliciesField = ({ isLoading }) => {
               <div className="ql-editor list-disc list-outside p-4">
                 <p
                   dangerouslySetInnerHTML={{ __html: policyData.privacy_policies }}
-                  className="p-4 h-full w-full text-gray-700 text-justify whitespace-[20px] leading-relaxed"
+                  className={`p-4 h-full w-full text-justify whitespace-[20px] leading-relaxed ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
                 ></p>
               </div>
             </div>

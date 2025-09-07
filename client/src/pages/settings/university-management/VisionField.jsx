@@ -8,10 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js"; 
+import useToggleTheme from "@/context/useToggleTheme";
 import "@/quillCustom.css";
 
 const VisionField = () => {
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -132,7 +134,7 @@ const VisionField = () => {
               <hr />
               <div
                 dangerouslySetInnerHTML={{ __html: university.university_vision }}
-                className="p-4 text-gray-700 text-justify leading-relaxed"
+                className={`p-4 text-justify leading-relaxed ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               ></div>
             </div>
           )}

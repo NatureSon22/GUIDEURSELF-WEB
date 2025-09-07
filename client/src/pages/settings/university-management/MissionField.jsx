@@ -8,10 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "@/quillConfig.js"; 
+import useToggleTheme from "@/context/useToggleTheme";
 import "@/quillCustom.css";
 
 const MissionField = () => {
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -127,7 +129,8 @@ const MissionField = () => {
           ) : (
             <div className="ql-editor w-[100%] h-full flex flex-col">
               <hr className="mb-[20px]" />
-              <div dangerouslySetInnerHTML={{ __html: university.university_mission }} />
+              <div dangerouslySetInnerHTML={{ __html: university.university_mission }}
+              className={`p-4 text-justify leading-relaxed ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`} />
             </div>
           )}
         </div>

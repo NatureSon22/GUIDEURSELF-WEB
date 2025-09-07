@@ -8,12 +8,15 @@ import EditPositionModal from "./EditPositionModal";
 import { BiSolidEdit } from "react-icons/bi";
 import { GrNext, GrPrevious } from "react-icons/gr";
 import { MdDelete } from "react-icons/md";
+import Title from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AddPositionModal from "./AddPositionModal";
+import useToggleTheme from "@/context/useToggleTheme"; 
 
 const AdministrativeField = () => {
   const queryClient = useQueryClient();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { toast } = useToast();
   const { data: positions, isLoading, isError } = useQuery({
     queryKey: ["universitypositions"],
@@ -93,27 +96,32 @@ const AdministrativeField = () => {
   };
 
   return (
-    <div className="box-shadow-100 space-y-4 border border-secondary-200/40 rounded-lg bg-white p-4">
+    <div className={` box-shadow-100 border border-secondary-200/40 space-y-4 rounded-lg p-4`}>
       <div className="flex justify-between flex-col gap-4">
         <div>
-          <p className="text-[0.95rem] font-semibold">Administrative Position</p>
-          <p className="text-[0.85rem] text-secondary-100/60">
+          <p className={`text-[0.95rem] font-semibold ${
+              isDarkMode ? "text-dark text-dark-text-base-300" : ""
+            }`}>Administrative Position</p>
+          <p className={`text-[0.85rem] ${
+              isDarkMode
+                ? "text-dark-text-base-300-75"
+                : "text-secondary-100/60"
+            }`}>
             Define key administrative positions
           </p>
         </div>
         <div className="w-[100%] flex flex-row gap-2">
-          {/* Search Input */}
           <Input
             type="text"
             placeholder="Search by position name"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setCurrentPage(1); // Reset to first page when searching
+              setCurrentPage(1); 
             }}
-             // Update search term
           />
-          <Button variant="outline" className="text-secondary-100-75" onClick={openModal}>
+          <Button variant="outline" 
+        className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `} onClick={openModal}>
             Add Position
           </Button>
         </div>
@@ -127,19 +135,19 @@ const AdministrativeField = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="p-2 border text-center text-[0.9rem]">Position Name</th>
-                  <th className="p-2 border text-center text-[0.9rem]">Date Added</th>
-                  <th className="p-2 border text-center text-[0.9rem]">Action</th>
+                  <th className={`${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Position Name</th>
+                  <th className={`${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Date Added</th>
+                  <th className={`${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredPositions.length > 0 ? (
                   paginatedPositions.map((position) => (
                     <tr key={position._id}>
-                      <td className="p-2 border text-[0.9rem] w-[702px]">
+                      <td className={`${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} p-2 border text-[0.9rem] w-[702px]`}>
                         {position.position_name}
                       </td>
-                      <td className="p-2 border text-center text-[0.9rem]">
+                      <td className={`${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} p-2 border text-center text-[0.9rem]`}>
                         {formatDate(position.date_added)}
                       </td>
                       <td className="flex items-center justify-center border gap-5 p-2">
@@ -175,7 +183,9 @@ const AdministrativeField = () => {
 
             
           <div className="mb-0 mt-auto flex items-center justify-between pt-7">
-            <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+            <p className={`text-[0.9rem] font-semibold text-secondary-100-75 ${
+              isDarkMode ? "text-white" : "text-dark text-dark-text-base-300"
+            }`}>
             {`Showing ${currentPage} of ${totalPages} ${
               totalPages > 1 ? "pages" : "page"
             }`}

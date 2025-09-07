@@ -10,9 +10,11 @@ import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import formatDateTime from "@/utils/formatDateTime";
+import useToggleTheme from "@/context/useToggleTheme"; 
 
 const ProgramNameField = () => {
   const queryClient = useQueryClient();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { toast } = useToast();
   const { data: programs, isLoading, isError } = useQuery({
     queryKey: ["programnames"],
@@ -94,11 +96,17 @@ const ProgramNameField = () => {
   };
 
   return (
-    <div className="box-shadow-100 border border-secondary-200/40 space-y-4 rounded-lg bg-white p-4">
+    <div className={` box-shadow-100 border border-secondary-200/40 space-y-4 rounded-lg p-4`}>
       <div className="flex justify-between flex-col gap-4">
         <div>
-          <p className="text-[0.95rem] font-semibold">Program Name</p>
-          <p className="text-[0.85rem] text-secondary-100/60">
+          <p className={`text-[0.95rem] font-semibold ${
+              isDarkMode ? "text-dark text-dark-text-base-300" : ""
+            }`}>Program Name</p>
+          <p className={`text-[0.85rem] ${
+              isDarkMode
+                ? "text-dark-text-base-300-75"
+                : "text-secondary-100/60"
+            }`}>
             Create program name for university
           </p>
         </div>
@@ -114,7 +122,8 @@ const ProgramNameField = () => {
           />
           <Button
             variant="outline"
-            className="text-secondary-100-75"
+            
+        className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
             onClick={openModal}
           >
             Add Program Name
@@ -130,21 +139,21 @@ const ProgramNameField = () => {
             <table className="w-full text-left border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="p-2 border text-center text-[0.9rem]">Program Type</th>
-                  <th className="p-2 border text-center text-[0.9rem]">Program Name</th>
-                  <th className="p-2 border text-center text-[0.9rem]">Date Added</th>
-                  <th className="p-2 border text-center text-[0.9rem]">Action</th>
+                  <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Program Type</th>
+                  <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Program Name</th>
+                  <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Date Added</th>
+                  <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredPrograms.length > 0 ? (
                   paginatedPrograms.map((program) => (
                     <tr key={program._id}>
-                      <td className="p-2 border text-[0.9rem]">{program.programtype}</td>
-                      <td className="p-2 border text-center text-[0.9rem]">
+                      <td className={`${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} p-2 border text-[0.9rem]`}>{program.programtype}</td>
+                      <td className={`${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} p-2 border text-center text-[0.9rem]`}>
                         {program.programname}
                       </td>
-                      <td className="p-2 border text-center text-[0.9rem]">
+                      <td className={`${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} p-2 border text-center text-[0.9rem]`}>
                         {formatDateTime(program.date_added)}
                       </td>
                       <td className="flex items-center justify-center gap-5 p-2">
@@ -178,7 +187,9 @@ const ProgramNameField = () => {
           )}
           {filteredPrograms.length > 0 && (
                     <div className="mb-0 mt-auto flex items-center justify-between pt-7">
-                      <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+                      <p className={`text-[0.9rem] font-semibold text-secondary-100-75 ${
+                        isDarkMode ? "text-white" : "text-dark text-dark-text-base-300"
+                      }`}>
                       {`Showing ${currentPage} of ${totalPages} ${
                         totalPages > 1 ? "pages" : "page"
                       }`}

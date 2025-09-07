@@ -18,8 +18,10 @@ import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
 import Loading from "@/components/Loading";
 import { MdDelete } from "react-icons/md";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ArchiveAccount = () => {
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { toast } = useToast();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -162,7 +164,7 @@ const ArchiveAccount = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p>Filters:</p>
+        <p className={` ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} `}>Filters:</p>
         <div className="flex gap-2">
           <Input
             type="date"

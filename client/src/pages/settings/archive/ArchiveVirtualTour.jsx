@@ -13,7 +13,7 @@ import { getAllCampuses } from "@/api/component-info";
 import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
-
+import useToggleTheme from "@/context/useToggleTheme";
 
 const fetchUserRole = async (roleType) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/role-types?name=${roleType}`, {
@@ -25,6 +25,7 @@ const fetchUserRole = async (roleType) => {
 };
 
 const ArchiveVirtualTour = ({userData}) => {
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { currentUser } = useUserStore((state) => state);
   const [globalFilter, setGlobalFilter] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -296,7 +297,7 @@ const ArchiveVirtualTour = ({userData}) => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p>Filters:</p>
+        <p className={` ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} `}>Filters:</p>
         <Input
           type="date"
           className="w-[170px]"

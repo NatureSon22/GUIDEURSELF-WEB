@@ -9,9 +9,11 @@ import "@/quillCustom.css";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; 
 import { getUniversityData } from "@/api/component-info";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const CoreValuesField = () => {
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -132,7 +134,7 @@ const CoreValuesField = () => {
               <hr />
               <div
                 dangerouslySetInnerHTML={{ __html: university.university_core_values }}
-                className="ql-editor list-disc list-outside p-4 text-gray-700 text-justify leading-relaxed"
+                className={`ql-editor list-disc list-outside p-4 text-justify leading-relaxed ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
               ></div>
             </div>
           )}

@@ -4,9 +4,9 @@
     import { Button } from "@/components/ui/button";
     import { useToast } from "@/hooks/use-toast";
     import useUserStore from "@/context/useUserStore";
-    import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+    import { useMutation, useQuery } from "@tanstack/react-query";
     import { loggedInUser } from "@/api/auth";
-    import useToggleTheme from "@/context/useToggleTheme";
+    import useToggleTheme from "@/context/useToggleTheme";  // comment
         
     const fetchCampuses = async () => {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/campuses`, {

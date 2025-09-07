@@ -20,14 +20,12 @@ import { FaCheck } from "react-icons/fa6";
 import KeyOfficialLogTable from "./KeyOfficialLogTable";
 import { loggedInUser } from "@/api/auth";
 import { GrNext, GrPrevious } from "react-icons/gr";
-import { CiSearch } from "react-icons/ci";
-import useToggleTheme from "@/context/useToggleTheme";
+import useToggleTheme from "@/context/useToggleTheme"; 
 
 const ITEMS_PER_PAGE = 10;
 
 const EditKeyOfficials = () => {
-  
-      const { isDarkMode } = useToggleTheme((state) => state);
+  const { isDarkMode } = useToggleTheme((state) => state);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const { currentUser } = useUserStore((state) => state);

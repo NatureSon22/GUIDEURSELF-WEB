@@ -6,6 +6,7 @@ import ArchiveCampus from "./ArchiveCampus";
 import ArchiveAccount from "./ArchiveAccount";
 import { useQuery } from "@tanstack/react-query";
 import { loggedInUser } from "@/api/auth";
+import useToggleTheme from "@/context/useToggleTheme";  
 
 const Archive = () => {
   const [selectedArchive, setSelectedArchive] = useState(0);
@@ -17,6 +18,7 @@ const Archive = () => {
     });
 
   const handleSelectedArchive = (index) => [setSelectedArchive(index)];
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   const tabs = [
     "Accounts",
@@ -27,13 +29,13 @@ const Archive = () => {
   ];
 
   return (
-    <div className="flex h-full flex-col gap-5">
+    <div className="flex h-full flex-col gap-5 pr-6">
       <div className="flex">
         {tabs.map((tab, tabIndex) => {
           return (
             <div
               key={tab}
-              className={`cursor-pointer rounded-t-lg px-5 py-3 text-[0.95rem] transition-colors duration-150 ${selectedArchive === tabIndex ? "border-b-4 border-base-200 bg-base-200/10 text-base-200" : "hover:bg-secondary-200/30"}`}
+              className={` ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} cursor-pointer rounded-t-lg px-5 py-3 text-[0.95rem] transition-colors duration-150 ${selectedArchive === tabIndex ? "border-b-4 border-base-200 bg-base-200/10 text-base-200" : "hover:bg-secondary-200/30"}`}
               onClick={() => handleSelectedArchive(tabIndex)}
             >
               {tab}
