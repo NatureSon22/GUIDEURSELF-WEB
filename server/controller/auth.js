@@ -63,28 +63,25 @@ const login = async (req, res) => {
       });
     }
 
-    // for mobile users, grant access immediately
-    if (device === "mobile") {
-      // Generate JWT token
-      const authToken = jwt.sign(
-        {
-          userId: user._id,
-          roleId: user.role_id._id, // Use the populated role's ID
-          campusId: user.campus_id,
-          isMultiCampus: user.role_id.isMultiCampus,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: rememberMe ? "30d" : "1d" }
-      );
+    // Generate JWT token
+    const authToken = jwt.sign(
+      {
+        userId: user._id,
+        roleId: user.role_id._id, // Use the populated role's ID
+        campusId: user.campus_id,
+        isMultiCampus: user.role_id.isMultiCampus,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: rememberMe ? "30d" : "1d" }
+    );
 
-      // Set authToken in cookies
-      res.cookie("authToken", authToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
-      });
-    }
+    // Set authToken in cookies
+    res.cookie("authToken", authToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({ message: "Login successful" });
   } catch (error) {

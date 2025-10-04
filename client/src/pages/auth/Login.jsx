@@ -76,11 +76,12 @@ const Login = () => {
         password: form.getValues("password"),
       }),
     onSuccess: () => {
+      navigate("/");
       // Trigger verification only after successful login
-      handleSendVerification({
-        email: form.getValues("email"),
-        password: form.getValues("password"),
-      });
+      // handleSendVerification({
+      //   email: form.getValues("email"),
+      //   password: form.getValues("password"),
+      // });
     },
     onError: (error) => {
       setError(error.message);
