@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import formatDateTime from "@/utils/formatDateTime";
 import AddProgramTypeModal from "./AddProgramTypeModal";
+import useToggleTheme from "@/context/useToggleTheme"; 
 
 const ProgramTypeField = () => {
   const queryClient = useQueryClient();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { toast } = useToast();
   const { data: types, isLoading, isError } = useQuery({
     queryKey: ["programtypes"],
@@ -96,11 +98,17 @@ const ProgramTypeField = () => {
   };
 
   return (
-    <div className="box-shadow-100 space-y-4 border border-secondary-200/40 rounded-lg bg-white p-4">
+    <div className={`${isDarkMode ? ' ' : 'bg-white'} box-shadow-100 space-y-4 border border-secondary-200/40 rounded-lg p-4`}>
       <div className="flex justify-between flex-col gap-4">
         <div>
-          <p className="text-[0.95rem] font-semibold">Program Type</p>
-          <p className="text-[0.85rem] text-secondary-100/60">
+          <p className={`text-[0.95rem] font-semibold ${
+              isDarkMode ? "text-dark text-dark-text-base-300" : ""
+            }`}>Program Type</p>
+          <p className={`text-[0.85rem] ${
+              isDarkMode
+                ? "text-dark-text-base-300-75"
+                : "text-secondary-100/60"
+            }`}>
             Define program type for university
           </p>
         </div>
@@ -116,7 +124,8 @@ const ProgramTypeField = () => {
           />
           <Button
             variant="outline"
-            className="text-secondary-100-75"
+            
+        className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
             onClick={openModal}
           >
             Add Program Type
@@ -130,24 +139,24 @@ const ProgramTypeField = () => {
             <p>Error fetching program type.</p>
           ) : (
             <table className="w-full text-left border-collapse border border-gray-300">
-              <thead>
+              <thead className={` ${isDarkMode ? "bg-dark-secondary-200" : "bg-secondary-400"} `}>
                 <tr className="bg-gray-100">
-                  <th className="p-2 border text-center text-[0.9rem]">Program Type</th>
-                  <th className="p-2 border text-center text-[0.9rem]">Date Added</th>
-                  <th className="p-2 border text-center text-[0.9rem]">Action</th>
+                  <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Program Type</th>
+                  <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Date Added</th>
+                  <th className={` ${isDarkMode ? "bg-dark-secondary-200 border-dark-text-base-300-75/60 text-dark-text-base-300" : "bg-secondary-400"} p-2 border text-center text-[0.9rem]`}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredTypes.length > 0 ? (
                   paginatedTypes.map((type) => (
                     <tr key={type._id}>
-                      <td className="p-2 border text-[0.9rem w-[702px]">
+                      <td className={` ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} p-2 border text-[0.9rem] w-[702px]`}>
                         {type.program_type_name}
                       </td>
-                      <td className="p-2 border text-center text-[0.9rem]">
+                      <td className={`${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} p-2 border text-center text-[0.9rem]`}>
                         {formatDateTime(type.date_added)}
                       </td>
-                      <td className="flex items-center justify-center gap-5 p-2">
+                      <td className={` ${isDarkMode ? "border-dark-text-base-300-75/60 text-dark-text-base-300" : ""} flex items-center justify-center gap-5 p-2`}>
                         <Button
                           variant="secondary"
                         className="group bg-base-200/10 text-base-200 hover:bg-base-200 hover:text-white"
@@ -178,7 +187,9 @@ const ProgramTypeField = () => {
           )}
           {filteredTypes.length > 0 && (
                     <div className="mb-0 mt-auto flex items-center justify-between pt-7">
-                      <p className="text-[0.9rem] font-semibold text-secondary-100-75">
+                      <p className={`text-[0.9rem] font-semibold text-secondary-100-75 ${
+                        isDarkMode ? "text-white" : "text-dark text-dark-text-base-300"
+                      }`}>
                       {`Showing ${currentPage} of ${totalPages} ${
                         totalPages > 1 ? "pages" : "page"
                       }`}

@@ -12,6 +12,7 @@ import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import useToggleTheme from "@/context/useToggleTheme";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const ArchiveCampus = () => {
   const { currentUser } = useUserStore((state) => state);
@@ -225,9 +226,7 @@ const ArchiveCampus = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
-          Filters:
-        </p>
+        <p className={` ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} `}>Filters:</p>
         <Input
           type="date"
           className="w-[170px]"

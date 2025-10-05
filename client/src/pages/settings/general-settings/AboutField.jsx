@@ -10,6 +10,7 @@ import "@/quillCustom.css";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQueryClient
 import { getGeneralData } from "@/api/component-info";
+import useToggleTheme from "@/context/useToggleTheme";  
 
 const AboutField = ({ isLoading }) => {
   const modules = {
@@ -26,6 +27,7 @@ const AboutField = ({ isLoading }) => {
   };
   const { toast } = useToast();
   const [edit, setEdit] = useState(false);
+  const { isDarkMode } = useToggleTheme((state) => state);
 
   // Use useQueryClient to invalidate and refetch data
   const queryClient = useQueryClient();
@@ -145,7 +147,7 @@ const AboutField = ({ isLoading }) => {
               <div className="ql-editor list-outside list-disc p-4">
                 <p
                   dangerouslySetInnerHTML={{ __html: general.general_about }}
-                  className="whitespace-[20px] h-full w-full p-4 text-justify leading-relaxed text-gray-700"
+                  className={`whitespace-[20px] h-full w-full p-4 text-justify leading-relaxed ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
                 ></p>
               </div>
             </div>

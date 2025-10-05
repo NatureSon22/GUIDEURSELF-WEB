@@ -10,6 +10,7 @@ import DialogContainer from "@/components/DialogContainer";
 import Loading from "@/components/Loading";
 import documentColumns from "@/components/columns/ArchiveDocuments";
 import { getAllCampuses } from "@/api/component-info";
+import useToggleTheme from "@/context/useToggleTheme";
 import {
   createDocument,
   deleteDocuments,
@@ -34,6 +35,7 @@ const documentStatus = [
 ];
 
 const ArchiveDocuments = () => {
+  const { isDarkMode } = useToggleTheme((state) => state);
   const { toast } = useToast();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -47,7 +49,6 @@ const ArchiveDocuments = () => {
   const client = useQueryClient();
   const [rowSelection, setRowSelection] = useState({});
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const { isDarkMode } = useToggleTheme((state) => state);
 
   // Queries
   const { data: allDocuments, isLoading: loadingAllDocuments } = useQuery({
@@ -327,7 +328,6 @@ const ArchiveDocuments = () => {
         <Input
           type="text"
           placeholder="Search"
-          className={`${isDarkMode ? "border-transparent bg-dark-secondary-100-75/20 text-dark-text-base-300-75 !placeholder-dark-secondary-100-75" : ""}`}
           value={globalFilter || ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
@@ -343,9 +343,7 @@ const ArchiveDocuments = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
-          Filters:
-        </p>
+        <p className={` ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} `}>Filters:</p>
         <div className="flex gap-2">
           <Input
             type="date"
@@ -379,7 +377,7 @@ const ArchiveDocuments = () => {
           reset={reset}
         />
         <Button
-          className={`ml-auto ${isDarkMode ? "border-dark-text-base-300-75/60 bg-dark-secondary-200 text-dark-text-base-300" : "text-secondary-100-75"} `}
+          className="ml-auto text-secondary-100-75"
           variant="outline"
           onClick={handleReset}
         >

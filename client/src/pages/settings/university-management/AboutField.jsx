@@ -10,9 +10,11 @@ import "@/quillConfig.js";
 import "@/quillCustom.css";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; // Import useQuery and useQueryClient
 import { getUniversityData } from "@/api/component-info";
+import useToggleTheme from "@/context/useToggleTheme";
 
 const AboutField = () => {
   const { toast } = useToast();
+  const { isDarkMode } = useToggleTheme((state) => state);
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
@@ -131,7 +133,7 @@ const AboutField = () => {
               <div className="ql-editor list-disc list-outside p-4">
                 <div
                   dangerouslySetInnerHTML={{ __html: university.university_about }}
-                  className="p-4 h-full w-full text-gray-700 text-justify leading-relaxed"
+                  className={`p-4 h-full w-full text-justify leading-relaxed ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}
                 ></div>
               </div>
             </div>

@@ -165,9 +165,7 @@ const ArchiveAccount = () => {
       </div>
 
       <div className="flex items-center gap-5">
-        <p className={` ${isDarkMode ? "text-dark-text-base-300" : ""} `}>
-          Filters:
-        </p>
+        <p className={` ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} `}>Filters:</p>
         <div className="flex gap-2">
           <Input
             type="date"
