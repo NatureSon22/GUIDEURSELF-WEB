@@ -12,7 +12,6 @@ import DialogContainer from "@/components/DialogContainer";
 import { FaCircleExclamation } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 import useToggleTheme from "@/context/useToggleTheme";
-import useToggleTheme from "@/context/useToggleTheme";
 
 const ArchiveCampus = () => {
   const { currentUser } = useUserStore((state) => state);
