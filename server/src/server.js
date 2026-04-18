@@ -43,15 +43,25 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["https://guide-urself.netlify.app", "http://localhost:5173", "https://guideurself.com", "guideurself.com", "*"],
+    origin: [
+      "https://guideurself-web.netlify.app",
+      "http://localhost:5173",
+      "https://guideurself.com",
+      "*",
+    ],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     // methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  })
+  }),
 );
 const io = new Server(server, {
   cors: {
-    origin: ["https://guide-urself.netlify.app", "http://localhost:5173", "https://guideurself.com",  "*"],
+    origin: [
+      "https://guideurself-web.netlify.app",
+      "http://localhost:5173",
+      "https://guideurself.com",
+      "*",
+    ],
   },
   methods: ["GET", "POST"],
   credentials: true,
@@ -175,7 +185,7 @@ io.on("connection", (socket) => {
       } catch (error) {
         console.error("Error sending message:", error);
       }
-    }
+    },
   );
 
   socket.on("leave", ({ roomId }) => {
@@ -186,7 +196,7 @@ io.on("connection", (socket) => {
   socket.on("markAsRead", async ({ sender_id, receiver_id }) => {
     await MessageChatModel.updateMany(
       { sender_id, receiver_id, status: "sent" },
-      { $set: { status: "read" } }
+      { $set: { status: "read" } },
     );
 
     const roomId = [sender_id, receiver_id].sort().join("_");
